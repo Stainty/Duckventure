@@ -225,6 +225,28 @@
   .upgrades-btn:active {
     transform: scale(.96);
   }
+  @keyframes goldPulseGlow {
+    0%, 100% {
+      border-color: rgba(255, 215, 0, 0.45);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), 0 4px 18px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(135deg, rgba(255, 210, 77, 0.22), rgba(255, 210, 77, 0.08));
+    }
+    50% {
+      border-color: #ffe066;
+      box-shadow: 0 0 22px rgba(255, 215, 0, 0.95), 0 0 38px rgba(255, 190, 0, 0.7), 0 4px 18px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.45), rgba(255, 180, 0, 0.22));
+      color: #fff6cc;
+    }
+  }
+  .upgrades-btn.has-available {
+    animation: goldPulseGlow 1.4s ease-in-out infinite;
+    border-color: #ffd24d;
+  }
+  .upgrades-btn.has-available:hover {
+    box-shadow: 0 0 28px rgba(255, 215, 0, 1), 0 0 42px rgba(255, 200, 0, 0.75);
+    border-color: #fff080;
+    transform: translateY(-1px);
+  }
   .shop-btn {
     display: none;
     align-items: center;
@@ -1604,6 +1626,36 @@
     return LEVEL_EXP_TABLE[lvl] || 15000000;
   }
 
+  function checkAvailableUpgrades() {
+    for (let i = 0; i < UPGRADES_DATA.length; i++) {
+      const upg = UPGRADES_DATA[i];
+      if ((upg.id === 'autoquack' || upg.id === 'speed') && (upgradeLevels.features || 0) < 1) {
+        continue;
+      }
+      const curLvl = upgradeLevels[upg.id] || 0;
+      const nextLvl = curLvl + 1;
+      if (nextLvl <= upg.levels.length) {
+        const lvlData = upg.levels[nextLvl - 1];
+        if (playerLevel >= lvlData.reqLvl && duckles >= lvlData.cost) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function updateUpgradesButtonHighlight() {
+    const btn = document.getElementById('upgradesBtn');
+    if (!btn) return;
+    if (checkAvailableUpgrades()) {
+      btn.classList.add('has-available');
+    } else {
+      btn.classList.remove('has-available');
+    }
+  }
+  window.checkAvailableUpgrades = checkAvailableUpgrades;
+  window.updateUpgradesButtonHighlight = updateUpgradesButtonHighlight;
+
   const ducklesVal = document.getElementById('ducklesVal');
   const modalDucklesVal = document.getElementById('modalDucklesVal');
   const shopDucklesVal = document.getElementById('shopDucklesVal');
@@ -1623,6 +1675,7 @@
     if (shopDucklesVal) {
       shopDucklesVal.textContent = duckles.toLocaleString('ru-RU');
     }
+    updateUpgradesButtonHighlight();
   }
 
   function updateShopButtonVisibility() {
@@ -1669,6 +1722,7 @@
         lvlNextUnlock.textContent = `На LVL ${playerLevel + 1}: ${nextInfo}`;
       }
     }
+    updateUpgradesButtonHighlight();
   }
 
   function addDuckles(amount) {
@@ -2319,6 +2373,7 @@
   window.buyUpgrade = buyUpgrade;
 
   function renderUpgrades() {
+    updateUpgradesButtonHighlight();
     const container = document.getElementById('upgradesList');
     if (!container) return;
     container.innerHTML = '';
