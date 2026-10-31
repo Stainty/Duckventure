@@ -1165,6 +1165,8 @@
     .top-nav { top: 10px; gap: 6px; }
     .upgrades-btn { font-size: 12px; padding: 6px 12px; }
     .shop-btn { font-size: 12px; padding: 6px 12px; }
+    .wardrobe-btn { font-size: 12px; padding: 6px 12px; }
+    .storage-btn { font-size: 12px; padding: 6px 12px; }
     .duckles-bar { font-size: 12.5px; padding: 6px 12px; }
     .duckles-val { font-size: 15px; }
     .lvl-box { bottom: 12px; right: 12px; }
@@ -1184,15 +1186,15 @@
 <body>
 
   <div class="top-nav" id="topNav">
+    <button id="wardrobeBtn" class="wardrobe-btn" aria-label="Открыть Гардероб">
+      <span class="wardrobe-icon">👔</span> Гардероб
+    </button>
     <button id="upgradesBtn" class="upgrades-btn" aria-label="Открыть окно прокачки">
       <span class="upgrades-icon">⚡</span> Апгрейды
     </button>
     <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
     <button id="shopBtn" class="shop-btn" aria-label="Открыть Магазин">
       <span class="shop-icon">🛒</span> Магазин
-    </button>
-    <button id="wardrobeBtn" class="wardrobe-btn" aria-label="Открыть Гардероб">
-      <span class="wardrobe-icon">👔</span> Гардероб
     </button>
     <button id="storageBtn" class="storage-btn" aria-label="Открыть Склад">
       <span class="storage-icon">📦</span> Склад
@@ -1452,7 +1454,7 @@
       name: 'Золотая цепь "Арго"',
       category: 'clothing',
       cost: 1000,
-      icon: 'https://png.pngtree.com/png-clipart/20250429/original/pngtree-trendy-gold-dollar-sign-on-chain-necklace-png-image_20891916.png',
+      icon: 'https://lh3.googleusercontent.com/d/1anG5FJxk7ArWDtVKW_Ee_PMQck9yBf7s',
       fallbackEmoji: '📿',
       img: 'https://lh3.googleusercontent.com/d/1f0ceNkLhUkpbBaMZEGuU7RWikG2Z82jy',
       desc: 'Элитное украшение. Меняет скин утки!'
@@ -2731,9 +2733,10 @@
     if (!el) return;
 
     if (!placedProps[propId] || !placedProps[propId].left) {
-      const r = duck.getBoundingClientRect();
-      const left = Math.min(window.innerWidth - 100, Math.max(10, r.right + 25)) + 'px';
-      const top = Math.min(window.innerHeight - 100, Math.max(70, r.top + 30)) + 'px';
+      const propWidth = el.offsetWidth || 80;
+      const propHeight = el.offsetHeight || 80;
+      const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2))) + 'px';
+      const top = Math.max(70, Math.min(window.innerHeight - propHeight - 20, Math.round(window.innerHeight - propHeight - 55))) + 'px';
       placedProps[propId] = { placed: true, left, top };
     } else {
       placedProps[propId].placed = true;
