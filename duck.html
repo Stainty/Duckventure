@@ -225,6 +225,32 @@
   .upgrades-btn:active {
     transform: scale(.96);
   }
+  .shop-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(64, 224, 208, 0.22), rgba(64, 224, 208, 0.08));
+    border: 1px solid rgba(64, 224, 208, 0.45);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    color: #4ef;
+    font: 700 14.5px/1.3 system-ui, "Segoe UI", sans-serif;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s, background .2s, border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .shop-btn:hover {
+    background: linear-gradient(135deg, rgba(64, 224, 208, 0.34), rgba(64, 224, 208, 0.16));
+    border-color: #8affff;
+    box-shadow: 0 0 16px rgba(64, 224, 208, 0.35);
+    transform: translateY(-1px);
+  }
+  .shop-btn:active {
+    transform: scale(.96);
+  }
   .duckles-bar {
     display: inline-flex;
     align-items: center;
@@ -357,6 +383,46 @@
   }
   .upgrades-title-icon {
     color: #ffd24d;
+  }
+  .shop-title-icon {
+    color: #4ef;
+  }
+  .shop-dialog {
+    max-width: 580px;
+  }
+  .shop-body {
+    padding: 38px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+  }
+  .shop-placeholder {
+    text-align: center;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .shop-placeholder-icon {
+    font-size: 54px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+    animation: duckBob 2.4s ease-in-out infinite;
+  }
+  @keyframes duckBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .shop-placeholder-title {
+    font: 800 20px system-ui, sans-serif;
+    color: #fff;
+  }
+  .shop-placeholder-desc {
+    font: 500 13.5px/1.55 system-ui, sans-serif;
+    color: #8da0be;
   }
   .upgrades-modal-balance {
     font: 700 14px system-ui, sans-serif;
@@ -540,6 +606,7 @@
   @media (max-width: 560px) {
     .top-nav { top: 10px; gap: 6px; }
     .upgrades-btn { font-size: 12px; padding: 6px 12px; }
+    .shop-btn { font-size: 12px; padding: 6px 12px; }
     .duckles-bar { font-size: 12.5px; padding: 6px 12px; }
     .duckles-val { font-size: 15px; }
     .lvl-box { bottom: 12px; right: 12px; }
@@ -563,6 +630,9 @@
       <span class="upgrades-icon">⚡</span> Апгрейды
     </button>
     <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
+    <button id="shopBtn" class="shop-btn" aria-label="Открыть Магазин">
+      <span class="shop-icon">🛒</span> Магазин
+    </button>
   </div>
 
   <div class="lvl-box" id="lvlBox">
@@ -590,6 +660,29 @@
         <button class="upgrades-close-btn" id="closeUpgradesBtn" aria-label="Закрыть">✕</button>
       </div>
       <div class="upgrades-body" id="upgradesList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Магазина -->
+  <div class="upgrades-modal" id="shopModal">
+    <div class="upgrades-dialog shop-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="shop-title-icon">🛒</span>
+          <span>Магазин утки</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="shopDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeShopBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="shop-body" id="shopBody">
+        <div class="shop-placeholder">
+          <div class="shop-placeholder-icon">🏪</div>
+          <div class="shop-placeholder-title">Полки магазина пока пустуют</div>
+          <div class="shop-placeholder-desc">Здесь скоро появятся уникальные скины, шляпы и эффекты для вашей резиновой утки!</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -673,7 +766,7 @@
   const LEVEL_UNLOCKS_INFO = {
     2: 'Автокрякалка LVL 1',
     3: 'Сила LVL 2 (5 🦆/кл)',
-    4: 'Возможности LVL 2 (Крит x4)',
+    4: 'Возможности LVL 2 (Магазин)',
     5: 'Автокрякалка LVL 2 (+4/1.5с)',
     6: 'Новые рубежи опыта',
     7: 'Сила LVL 3 (16 🦆/кл)',
@@ -699,7 +792,7 @@
       desc: 'Новые геймплейные элементы',
       levels: [
         { lvl: 1, text: 'Открывает автокрякалку (без пассивного дохода)', short: 'Автокряк', cost: 80, reqLvl: 1 },
-        { lvl: 2, text: 'Критический кряк (10% шанс x4 Даклей за клик)', short: 'Крит x4', cost: 1200, reqLvl: 4 },
+        { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 1200, reqLvl: 4 },
         { lvl: 3, text: 'Турбо-кряк (автокрякалка в 2 раза чаще — каждые 0.75с)', short: 'Турбо x2', cost: 18000, reqLvl: 8 },
         { lvl: 4, text: 'Дак-Магнит (каждые 25 кликов бонус +150 Даклей)', short: 'Магнит', cost: 180000, reqLvl: 13 },
         { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 2500000, reqLvl: 18 },
@@ -746,6 +839,7 @@
 
   const ducklesVal = document.getElementById('ducklesVal');
   const modalDucklesVal = document.getElementById('modalDucklesVal');
+  const shopDucklesVal = document.getElementById('shopDucklesVal');
 
   function updateDuckles(bump = false) {
     if (ducklesVal) {
@@ -758,6 +852,19 @@
     }
     if (modalDucklesVal) {
       modalDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+    }
+    if (shopDucklesVal) {
+      shopDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+    }
+  }
+
+  function updateShopButtonVisibility() {
+    const shopBtn = document.getElementById('shopBtn');
+    if (!shopBtn) return;
+    if (upgradeLevels.features >= 2) {
+      shopBtn.style.display = 'inline-flex';
+    } else {
+      shopBtn.style.display = 'none';
     }
   }
 
@@ -910,6 +1017,27 @@
       done: false,
       check: () => hoverWaitDone,
     },
+    {
+      id: 'automation',
+      name: 'Автоматизация!',
+      desc: 'Купите автокрякалку',
+      done: false,
+      check: () => upgradeLevels.features >= 1,
+    },
+    {
+      id: 'shopping',
+      name: 'Шоппинг',
+      desc: 'Открыть магазин',
+      done: false,
+      check: () => upgradeLevels.features >= 2,
+    },
+    {
+      id: 'max-power',
+      name: 'MAX POWER!!!',
+      desc: 'Достигните 20 уровня',
+      done: false,
+      check: () => playerLevel >= 20,
+    },
   ];
 
   function buildAchievementCards() {
@@ -978,6 +1106,7 @@
     updateLevelDisplay();
     updateAutoQuackTimer();
     renderUpgrades();
+    updateShopButtonVisibility();
   }
 
   function tryUnlock() {
@@ -1106,6 +1235,8 @@
     updateAutoQuackTimer();
     renderUpgrades();
     updateLevelDisplay();
+    updateShopButtonVisibility();
+    tryUnlock();
   }
   window.buyUpgrade = buyUpgrade;
 
@@ -1250,6 +1381,26 @@
     });
   }
 
+  // Открытие/закрытие окна магазина
+  const shopBtn = document.getElementById('shopBtn');
+  const shopModal = document.getElementById('shopModal');
+  const closeShopBtn = document.getElementById('closeShopBtn');
+
+  if (shopBtn && shopModal && closeShopBtn) {
+    shopBtn.addEventListener('click', () => {
+      updateDuckles();
+      shopModal.classList.add('open');
+    });
+    closeShopBtn.addEventListener('click', () => {
+      shopModal.classList.remove('open');
+    });
+    shopModal.addEventListener('click', (e) => {
+      if (e.target === shopModal) {
+        shopModal.classList.remove('open');
+      }
+    });
+  }
+
 
   /* ---------- canvas ---------- */
   function resize() {
@@ -1330,13 +1481,6 @@
     const strLvl = upgradeLevels.strength;
     if (strUpg && strLvl > 0) {
       gain = strUpg.levels[strLvl - 1].power;
-    }
-
-    // Возможности ур 2: Критический кряк (10% шанс x4)
-    let isCrit = false;
-    if (upgradeLevels.features >= 2 && Math.random() < 0.10) {
-      isCrit = true;
-      gain *= 4;
     }
 
     // Возможности ур 4: Дак-Магнит (каждые 25 кликов +150 Даклей)
@@ -1553,6 +1697,7 @@
   updateLevelDisplay();
   updateAutoQuackTimer();
   renderUpgrades();
+  updateShopButtonVisibility();
   tryUnlock();
 
   /* ---------- цикл ---------- */
