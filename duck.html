@@ -635,6 +635,8 @@
   let codeBuffer = '';
   let lastClickTime = 0;
   let comboMultiplier = 1;
+  let autoQuackTimer = null;
+  let hoverTimer = null;
 
   function getExpForLevel(lvl) {
     if (lvl >= 99) return Infinity;
@@ -942,15 +944,7 @@
     } catch (e) { /* без звука тоже ок */ }
   }
 
-  buildAchievementCards();
-  tryUnlock();
-  updateDuckles();
-  updateLevelDisplay();
-  updateAutoQuackTimer();
-  renderUpgrades();
-
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
-  let autoQuackTimer = null;
   function updateAutoQuackTimer() {
     if (autoQuackTimer) clearInterval(autoQuackTimer);
     const lvl = upgradeLevels.autoquack;
@@ -1248,7 +1242,6 @@
   });
 
   // ачивка "Томное ожидание": навестись на утку и не нажимать 10 секунд
-  let hoverTimer = null;
   function startHoverTimer() {
     clearHoverTimer();
     if (hoverWaitDone) return;
@@ -1402,6 +1395,14 @@
 
   // сброс всех ачивок
   document.getElementById('resetBtn').addEventListener('click', resetAchievements);
+
+  /* ---------- инициализация ---------- */
+  buildAchievementCards();
+  updateDuckles();
+  updateLevelDisplay();
+  updateAutoQuackTimer();
+  renderUpgrades();
+  tryUnlock();
 
   /* ---------- цикл ---------- */
   let last = performance.now();
