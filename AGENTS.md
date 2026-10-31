@@ -14,7 +14,7 @@
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
 | `GRAVITY` | 1000 px/с² |
-| `#resetBtn` / `.reset-btn` | Кнопка «Сбросить все ачивки» (правый верхний угол) → `resetAchievements()` |
+| `#resetBtn` / `.reset-btn` | Кнопка «Начать заново» (правый верхний угол) → `resetAchievements()` |
 | `.hint` («Жмякни крякалку») | Мнимая надпись внизу; клик по ней → `hintCount++` + `tryUnlock()` (не по утке) |
 
 ## Как добавить ачивку
@@ -61,7 +61,7 @@
 | 5 | `i-am-duck` | «Я и есть утка» | `duckSeqDone` | последовательное нажатие R H Z (К Р Я в RU) |
 | 6 | `hack-locked` | «Взлом жопы!» | `lockedCardClicked` | клик по любой заблокированной карточке ачивки |
 
-## Сброс всех ачивок
+## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
 1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `duckSeqIndex = 0`) и удаляет их ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
