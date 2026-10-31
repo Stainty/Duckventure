@@ -60,6 +60,119 @@
     letter-spacing: .04em;
     user-select: none;
   }
+
+  /* ---------- Ачивки ---------- */
+  .achv-list {
+    position: fixed;
+    left: clamp(14px, 4vw, 42px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .achv-card {
+    position: relative;
+    width: min(212px, 88vw);
+    height: 96px;
+    border-radius: 16px;
+    background: #313742;
+    border: 1px solid #3e4757;
+    display: grid;
+    place-items: center;
+    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+  .achv-card.unlocked {
+    background: #ffd24d;
+    border-color: #ffe99e;
+    box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 26px rgba(255, 214, 77, .4), 0 8px 18px rgba(0, 0, 0, .3);
+    animation: achv-glow 2.4s ease-in-out 1s infinite;
+  }
+  @keyframes achv-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 3px rgba(255, 214, 77, .2), 0 0 22px rgba(255, 214, 77, .3), 0 8px 18px rgba(0, 0, 0, .3);
+    }
+    50% {
+      box-shadow: 0 0 0 3px rgba(255, 214, 77, .35), 0 0 34px rgba(255, 214, 77, .55), 0 8px 18px rgba(0, 0, 0, .3);
+    }
+  }
+  .achv-card.flash {
+    animation: card-flash .5s cubic-bezier(.2, .9, .3, 1.35) .25s;
+  }
+  @keyframes card-flash {
+    0%   { transform: scale(.88); }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .achv-padlock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 38px;
+    line-height: 1;
+    filter: grayscale(.9) opacity(.85);
+    pointer-events: none;
+    user-select: none;
+  }
+  .achv-info {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+    padding: 0 14px;
+    color: #2b2409;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .achv-info.shown {
+    opacity: 1;
+    animation: info-in .45s ease-out;
+  }
+  @keyframes info-in {
+    0%   { opacity: 0; transform: translateY(7px) scale(.95); }
+    100% { opacity: 1; transform: none; }
+  }
+  .achv-name {
+    font: 700 15.5px/1.3 system-ui, "Segoe UI", sans-serif;
+  }
+  .achv-desc {
+    font: 13px/1.45 system-ui, "Segoe UI", sans-serif;
+    color: #6a5b14;
+  }
+  .reset-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 20;
+    font: 12px/1.25 system-ui, "Segoe UI", sans-serif;
+    color: #8b93a7;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 9px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: color .18s, background .18s, border-color .18s, transform .12s;
+  }
+  .reset-btn:hover {
+    color: #ffd24d;
+    background: rgba(255, 210, 77, .08);
+    border-color: rgba(255, 210, 77, .35);
+  }
+  .reset-btn:active {
+    transform: scale(.96);
+  }
+  @media (max-width: 560px) {
+    .achv-list { top: 18px; left: 16px; transform: none; }
+    .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; }
+    .achv-padlock { font-size: 32px; }
+    .achv-name { font-size: 14.5px; }
+    .achv-desc { font-size: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -77,129 +190,20 @@
   <div class="hint">Жмякни крякалку</div>
   <button id="resetBtn" class="reset-btn" aria-label="Сбросить все ачивки">Сбросить все ачивки</button>
 
-<style>
-/* ---------- Ачивки ---------- */
-.achv-list {
-  position: fixed;
-  left: clamp(14px, 4vw, 42px);
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.achv-card {
-  position: relative;
-  width: min(212px, 88vw);
-  height: 96px;
-  border-radius: 16px;
-  background: #313742;
-  border: 1px solid #3e4757;
-  display: grid;
-  place-items: center;
-  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
-}
-.achv-card.unlocked {
-  background: #ffd24d;
-  border-color: #ffe99e;
-  box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 26px rgba(255, 214, 77, .4), 0 8px 18px rgba(0, 0, 0, .3);
-  animation: achv-glow 2.4s ease-in-out 1s infinite;
-}
-@keyframes achv-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 3px rgba(255, 214, 77, .2), 0 0 22px rgba(255, 214, 77, .3), 0 8px 18px rgba(0, 0, 0, .3);
-  }
-  50% {
-    box-shadow: 0 0 0 3px rgba(255, 214, 77, .35), 0 0 34px rgba(255, 214, 77, .55), 0 8px 18px rgba(0, 0, 0, .3);
-  }
-}
-.achv-card.flash {
-  animation: card-flash .5s cubic-bezier(.2, .9, .3, 1.35) .25s;
-}
-@keyframes card-flash {
-  0%   { transform: scale(.88); }
-  60%  { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-.achv-padlock {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 38px;
-  line-height: 1;
-  filter: grayscale(.9) opacity(.85);
-  pointer-events: none;
-  user-select: none;
-}
-.achv-info {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 4px;
-  padding: 0 14px;
-  color: #2b2409;
-  opacity: 0;
-  pointer-events: none;
-}
-.achv-info.shown {
-  opacity: 1;
-  animation: info-in .45s ease-out;
-}
-@keyframes info-in {
-  0%   { opacity: 0; transform: translateY(7px) scale(.95); }
-  100% { opacity: 1; transform: none; }
-}
-.achv-name {
-  font: 700 15.5px/1.3 system-ui, "Segoe UI", sans-serif;
-}
-.achv-desc {
-  font: 13px/1.45 system-ui, "Segoe UI", sans-serif;
-  color: #6a5b14;
-}
-.reset-btn {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 20;
-  font: 12px/1.25 system-ui, "Segoe UI", sans-serif;
-  color: #8b93a7;
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(255, 255, 255, .14);
-  border-radius: 9px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: color .18s, background .18s, border-color .18s, transform .12s;
-}
-.reset-btn:hover {
-  color: #ffd24d;
-  background: rgba(255, 210, 77, .08);
-  border-color: rgba(255, 210, 77, .35);
-}
-.reset-btn:active {
-  transform: scale(.96);
-}
-@media (max-width: 560px) {
-  .achv-list { top: 18px; left: 16px; transform: none; }
-  .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; }
-  .achv-padlock { font-size: 32px; }
-  .achv-name { font-size: 14.5px; }
-  .achv-desc { font-size: 12px; }
-}
-</style>
-
 <script>
   const GRAVITY = 1000;      // px/s²
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
   const duck = document.getElementById('duck');
   const particles = [];
-  let quackCount = 0;
-  let hintCount = 0;
+  let audioCtx = null;
+
+  const STORAGE_PREFIX = 'duck-achv-';
+  const QUACK_KEY = 'duck-quack-count';
+  const HINT_KEY = 'duck-hint-count';
+
+  let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
+  let hintCount = parseInt(localStorage.getItem(HINT_KEY) || '0', 10) || 0;
 
   /* ---------- ачивки ---------- */
   const ACHIEVEMENTS = [
@@ -225,7 +229,6 @@
       check: () => hintCount >= 1,
     },
   ];
-  const STORAGE_PREFIX = 'duck-achv-';
 
   function buildAchievementCards() {
     const list = document.getElementById('achvList');
@@ -254,6 +257,10 @@
     list.innerHTML = '';
     quackCount = 0;
     hintCount = 0;
+    try {
+      localStorage.removeItem(QUACK_KEY);
+      localStorage.removeItem(HINT_KEY);
+    } catch (e) {}
     ACHIEVEMENTS.forEach((a) => {
       a.done = false;
       try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
@@ -336,6 +343,7 @@
   }
 
   buildAchievementCards();
+  tryUnlock();
 
   /* ---------- canvas ---------- */
   function resize() {
@@ -348,7 +356,6 @@
   resize();
 
   /* ---------- звук "кря" ---------- */
-  let audioCtx = null;
   function quack() {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -410,6 +417,7 @@
     duck.classList.add('pop');
     quack();
     quackCount++;
+    try { localStorage.setItem(QUACK_KEY, String(quackCount)); } catch (e) {}
     // старт из клюва/горловины утки
     spawn(r.left + r.width / 2, r.top + r.height * 0.58);
     // проверка ачивок
@@ -420,6 +428,7 @@
   const hint = document.querySelector('.hint');
   hint.addEventListener('click', () => {
     hintCount++;
+    try { localStorage.setItem(HINT_KEY, String(hintCount)); } catch (e) {}
     tryUnlock();
   });
 
