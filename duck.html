@@ -278,6 +278,113 @@
     transform: scale(1.22);
   }
 
+  /* ---------- Счетчик яиц (под счетчиком даклей) ---------- */
+  .eggs-bar {
+    position: fixed;
+    top: 58px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: rgba(21, 26, 38, 0.82);
+    border: 1px solid rgba(255, 215, 0, 0.32);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 14px;
+    border-radius: 999px;
+    z-index: 24;
+    user-select: none;
+    font: 700 13px/1.3 system-ui, "Segoe UI", sans-serif;
+    color: #e2e8f0;
+  }
+  .egg-count-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .egg-count-item.golden {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+
+  /* ---------- Перетаскиваемые яйца на экране ---------- */
+  .draggable-egg {
+    position: fixed;
+    user-select: none;
+    cursor: grab;
+    z-index: 45;
+    touch-action: none;
+    transition: transform .12s ease;
+    display: none;
+    line-height: 1;
+  }
+  .draggable-egg:active {
+    cursor: grabbing;
+    transform: scale(1.18);
+  }
+  .normal-egg {
+    font-size: 38px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+  }
+  .golden-egg {
+    font-size: 50px;
+    filter: drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 30px #ffa500) saturate(2.2);
+    animation: goldenEggPulse 2s ease-in-out infinite alternate;
+  }
+  @keyframes goldenEggPulse {
+    0%   { filter: drop-shadow(0 0 12px #ffd700) saturate(2); }
+    100% { filter: drop-shadow(0 0 24px #fff176) drop-shadow(0 0 36px #ffb300) saturate(2.6); }
+  }
+
+  /* ---------- Панель тестирования (чит-панель) ---------- */
+  .cheat-panel {
+    position: fixed;
+    bottom: 18px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(17, 21, 30, 0.9);
+    border: 1px dashed rgba(64, 224, 208, 0.45);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 8px 12px;
+    z-index: 40;
+    user-select: none;
+  }
+  .cheat-title {
+    font: 800 11px system-ui, sans-serif;
+    color: #4ef;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .cheat-btns-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .cheat-btn {
+    background: rgba(64, 224, 208, 0.12);
+    border: 1px solid rgba(64, 224, 208, 0.35);
+    color: #e0faff;
+    font: 700 11px system-ui, sans-serif;
+    padding: 4px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .12s, transform .1s;
+  }
+  .cheat-btn:hover {
+    background: rgba(64, 224, 208, 0.28);
+    transform: translateY(-1px);
+  }
+  .cheat-btn:active {
+    transform: scale(.95);
+  }
+
   /* ---------- Система уровня (Справа внизу) ---------- */
   .lvl-box {
     position: fixed;
@@ -423,6 +530,123 @@
   .shop-placeholder-desc {
     font: 500 13.5px/1.55 system-ui, sans-serif;
     color: #8da0be;
+  }
+  .shop-tabs-bar {
+    display: flex;
+    border-bottom: 1px solid #283040;
+    background: rgba(0, 0, 0, 0.15);
+  }
+  .shop-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #8b93a7;
+    font: 700 13.5px system-ui, sans-serif;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .shop-tab-btn:hover {
+    color: #e0e6ed;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .shop-tab-btn.active {
+    color: #ffd24d;
+    border-bottom-color: #ffd24d;
+    background: rgba(255, 210, 77, 0.05);
+  }
+  .sell-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sell-card {
+    background: #202736;
+    border: 1px solid #2c364b;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .sell-card.golden-card {
+    border-color: rgba(255, 215, 0, 0.35);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.06), #202736);
+  }
+  .sell-item-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .sell-egg-icon {
+    font-size: 36px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  }
+  .sell-egg-icon.golden {
+    font-size: 40px;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
+  }
+  .sell-item-title {
+    font: 800 15px system-ui, sans-serif;
+    color: #fff;
+  }
+  .sell-item-title.gold-title {
+    color: #ffd700;
+  }
+  .sell-item-price {
+    font: 600 12.5px system-ui, sans-serif;
+    color: #8da0be;
+    margin-top: 2px;
+  }
+  .sell-item-count {
+    font: 700 12px monospace;
+    color: #cbd5e1;
+    margin-top: 2px;
+  }
+  .sell-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .sell-btn {
+    background: #181d27;
+    border: 1px solid #36425a;
+    color: #cbd5e1;
+    font: 700 12px system-ui, sans-serif;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .sell-btn:hover {
+    background: #232a38;
+    border-color: #ffd24d;
+    color: #fff;
+  }
+  .sell-btn:active {
+    transform: scale(.96);
+  }
+  .sell-btn.gold {
+    border-color: rgba(255, 215, 0, 0.4);
+    color: #ffd700;
+  }
+  .sell-btn.gold:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #ffd700;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+  .sell-btn.sell-all {
+    background: rgba(255, 210, 77, 0.1);
+    border-color: rgba(255, 210, 77, 0.35);
+    color: #ffd24d;
+  }
+  .duckles-accent {
+    color: #ffd24d;
   }
   .upgrades-modal-balance {
     font: 700 14px system-ui, sans-serif;
@@ -635,6 +859,11 @@
     </button>
   </div>
 
+  <div class="eggs-bar" id="eggsBar">
+    <span class="egg-count-item">🥚 <span id="normalEggsVal">0</span></span>
+    <span class="egg-count-item golden">✨🥚 <span id="goldenEggsVal">0</span></span>
+  </div>
+
   <div class="lvl-box" id="lvlBox">
     <div class="lvl-title-row">
       <span>LVL</span> <span class="lvl-num" id="lvlNum">1</span>
@@ -644,6 +873,17 @@
     </div>
     <div class="lvl-exp-text" id="lvlExpText">0 / 30 🦆</div>
     <div class="lvl-next-unlock" id="lvlNextUnlock">На LVL 2: Автокрякалка LVL 1</div>
+  </div>
+
+  <!-- Чит-панель для тестирования -->
+  <div class="cheat-panel" id="cheatPanel">
+    <div class="cheat-title">🧪 Тест: +Дакли</div>
+    <div class="cheat-btns-row">
+      <button class="cheat-btn" onclick="addDuckles(1000)">+1k</button>
+      <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
+      <button class="cheat-btn" onclick="addDuckles(1000000)">+1M</button>
+      <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
+    </div>
   </div>
 
   <!-- Модальное окно прокачки -->
@@ -676,15 +916,56 @@
         </div>
         <button class="upgrades-close-btn" id="closeShopBtn" aria-label="Закрыть">✕</button>
       </div>
-      <div class="shop-body" id="shopBody">
+      <div class="shop-tabs-bar">
+        <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
+        <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
+      </div>
+      <div class="shop-body" id="shopBodyBuy">
         <div class="shop-placeholder">
           <div class="shop-placeholder-icon">🏪</div>
           <div class="shop-placeholder-title">Полки магазина пока пустуют</div>
           <div class="shop-placeholder-desc">Здесь скоро появятся уникальные скины, шляпы и эффекты для вашей резиновой утки!</div>
         </div>
       </div>
+      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
+        <div class="sell-list">
+          <div class="sell-card">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🥚</div>
+              <div>
+                <div class="sell-item-title">Обычное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">200 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopNormalEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellNormal1Btn" onclick="sellEgg('normal', 1)">Продать 1 (+200 🦆)</button>
+              <button class="sell-btn sell-all" id="sellNormalAllBtn" onclick="sellEgg('normal', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🥚</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотое яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">5 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGolden1Btn" onclick="sellEgg('golden', 1)">Продать 1 (+5k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenAllBtn" onclick="sellEgg('golden', 'all')">Продать всё</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Перетаскиваемые яйца на экране -->
+  <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай!)">🥚</div>
+  <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай!)">🥚</div>
 
   <button id="duck" aria-label="Крякнуть">
     <span class="duck-fallback">🦆</span>
@@ -719,6 +1000,8 @@
   const HOVER_WAIT_KEY = 'duck-hover-wait';
   const LEVEL_KEY = 'duck-level';
   const EXP_KEY = 'duck-level-exp';
+  const EGGS_NORMAL_KEY = 'duck-eggs-normal';
+  const EGGS_GOLDEN_KEY = 'duck-eggs-golden';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -733,8 +1016,12 @@
   let playerLevel = parseInt(localStorage.getItem(LEVEL_KEY) || '1', 10) || 1;
   let playerExp = parseInt(localStorage.getItem(EXP_KEY) || '0', 10) || 0;
 
+  let normalEggs = parseInt(localStorage.getItem(EGGS_NORMAL_KEY) || '0', 10) || 0;
+  let goldenEggs = parseInt(localStorage.getItem(EGGS_GOLDEN_KEY) || '0', 10) || 0;
+
   let upgradeLevels = {
     autoquack: parseInt(localStorage.getItem('duck-upg-autoquack') || '0', 10) || 0,
+    speed: parseInt(localStorage.getItem('duck-upg-speed') || '0', 10) || 0,
     strength: parseInt(localStorage.getItem('duck-upg-strength') || '0', 10) || 0,
     features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
   };
@@ -764,24 +1051,24 @@
   ];
 
   const LEVEL_UNLOCKS_INFO = {
-    2: 'Автокрякалка LVL 1',
+    2: 'Автокрякалка LVL 1 / Скорость LVL 1',
     3: 'Сила LVL 2 (5 🦆/кл)',
     4: 'Возможности LVL 2 (Магазин)',
-    5: 'Автокрякалка LVL 2 (+4/1.5с)',
+    5: 'Автокрякалка LVL 2 / Скорость LVL 2',
     6: 'Новые рубежи опыта',
     7: 'Сила LVL 3 (16 🦆/кл)',
-    8: 'Возможности LVL 3 (Турбо x2)',
-    9: 'Автокрякалка LVL 3 (+18/1.5с)',
+    8: 'Возможности LVL 3 (Гусыня — яйца)',
+    9: 'Автокрякалка LVL 3 / Скорость LVL 3',
     10: 'Мастер-ранг утки',
     11: 'Новые рубежи опыта',
     12: 'Сила LVL 4 (55 🦆/кл)',
     13: 'Возможности LVL 4 (Магнит)',
-    14: 'Автокрякалка LVL 4 (+80/1.5с)',
+    14: 'Автокрякалка LVL 4 / Скорость LVL 4',
     15: 'Элитный рубеж',
     16: 'Новые рубежи опыта',
     17: 'Сила LVL 5 (200 🦆/кл)',
     18: 'Возможности LVL 5 (Золотая утка)',
-    19: 'Автокрякалка LVL 5 (350/1.5с)',
+    19: 'Автокрякалка LVL 5 / Скорость LVL 5',
     20: 'МАКСИМАЛЬНЫЙ УРОВЕНЬ'
   };
 
@@ -791,9 +1078,9 @@
       name: 'Возможности',
       desc: 'Новые геймплейные элементы',
       levels: [
-        { lvl: 1, text: 'Открывает автокрякалку (без пассивного дохода)', short: 'Автокряк', cost: 80, reqLvl: 1 },
+        { lvl: 1, text: 'Открывает автокрякалку и прокачку скорости', short: 'Автокряк', cost: 80, reqLvl: 1 },
         { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 1200, reqLvl: 4 },
-        { lvl: 3, text: 'Турбо-кряк (автокрякалка в 2 раза чаще — каждые 0.75с)', short: 'Турбо x2', cost: 18000, reqLvl: 8 },
+        { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 18000, reqLvl: 8 },
         { lvl: 4, text: 'Дак-Магнит (каждые 25 кликов бонус +150 Даклей)', short: 'Магнит', cost: 180000, reqLvl: 13 },
         { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 2500000, reqLvl: 18 },
       ]
@@ -804,11 +1091,24 @@
       desc: 'Пассивный доход',
       requiresFeaturesLvl1: true,
       levels: [
-        { lvl: 1, text: '+1 Дакль раз в 1.5 сек', short: '+1/1.5с', cost: 200, reqLvl: 2, rate: 1 },
-        { lvl: 2, text: '+4 Дакля раз в 1.5 сек', short: '+4/1.5с', cost: 2500, reqLvl: 5, rate: 4 },
-        { lvl: 3, text: '+18 Даклей раз в 1.5 сек', short: '+18/1.5с', cost: 35000, reqLvl: 9, rate: 18 },
-        { lvl: 4, text: '+80 Даклей раз в 1.5 сек', short: '+80/1.5с', cost: 400000, reqLvl: 14, rate: 80 },
-        { lvl: 5, text: '+350 Даклей раз в 1.5 сек', short: '+350/1.5с', cost: 4500000, reqLvl: 19, rate: 350 },
+        { lvl: 1, text: '+1 Дакль за тик', short: '+1 🦆/т', cost: 200, reqLvl: 2, rate: 1 },
+        { lvl: 2, text: '+4 Дакля за тик', short: '+4 🦆/т', cost: 2500, reqLvl: 5, rate: 4 },
+        { lvl: 3, text: '+18 Даклей за тик', short: '+18 🦆/т', cost: 35000, reqLvl: 9, rate: 18 },
+        { lvl: 4, text: '+80 Даклей за тик', short: '+80 🦆/т', cost: 400000, reqLvl: 14, rate: 80 },
+        { lvl: 5, text: '+350 Даклей за тик', short: '+350 🦆/т', cost: 4500000, reqLvl: 19, rate: 350 },
+      ]
+    },
+    {
+      id: 'speed',
+      name: 'Скорость',
+      desc: 'Быстрее!',
+      requiresFeaturesLvl1: true,
+      levels: [
+        { lvl: 1, text: 'Частота автокрякалки: 1.5 сек (было 2.0с)', short: '1.5 сек', cost: 350, reqLvl: 2, interval: 1500 },
+        { lvl: 2, text: 'Частота автокрякалки: 1.1 сек', short: '1.1 сек', cost: 3500, reqLvl: 5, interval: 1100 },
+        { lvl: 3, text: 'Частота автокрякалки: 0.8 сек', short: '0.8 сек', cost: 45000, reqLvl: 9, interval: 800 },
+        { lvl: 4, text: 'Частота автокрякалки: 0.55 сек', short: '0.55 сек', cost: 500000, reqLvl: 14, interval: 550 },
+        { lvl: 5, text: 'Частота автокрякалки: 0.35 сек', short: '0.35 сек', cost: 5500000, reqLvl: 19, interval: 350 },
       ]
     },
     {
@@ -1070,7 +1370,9 @@
     hintCount = 0;
     playerLevel = 1;
     playerExp = 0;
-    upgradeLevels = { autoquack: 0, strength: 0, features: 0 };
+    normalEggs = 0;
+    goldenEggs = 0;
+    upgradeLevels = { autoquack: 0, speed: 0, strength: 0, features: 0 };
     keyPressed = false;
     duckSeqDone = false;
     duckSeqIndex = 0;
@@ -1093,7 +1395,10 @@
       localStorage.removeItem(HOVER_WAIT_KEY);
       localStorage.removeItem(LEVEL_KEY);
       localStorage.removeItem(EXP_KEY);
+      localStorage.removeItem(EGGS_NORMAL_KEY);
+      localStorage.removeItem(EGGS_GOLDEN_KEY);
       localStorage.removeItem('duck-upg-autoquack');
+      localStorage.removeItem('duck-upg-speed');
       localStorage.removeItem('duck-upg-strength');
       localStorage.removeItem('duck-upg-features');
     } catch (e) {}
@@ -1102,10 +1407,21 @@
       try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
     });
     try { localStorage.removeItem(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
+    const normalEggEl = document.getElementById('normalEgg');
+    const goldenEggEl = document.getElementById('goldenEgg');
+    if (normalEggEl) {
+      normalEggEl.style.display = 'none';
+      delete normalEggEl.dataset.placed;
+    }
+    if (goldenEggEl) {
+      goldenEggEl.style.display = 'none';
+      delete goldenEggEl.dataset.placed;
+    }
     buildAchievementCards();
     updateDuckles();
     updateLevelDisplay();
     updateAutoQuackTimer();
+    updateEggsDisplay();
     renderUpgrades();
     updateShopButtonVisibility();
   }
@@ -1185,6 +1501,32 @@
   }
 
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
+  const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
+
+  function getAutoQuackInterval() {
+    const spdLvl = Math.min(5, Math.max(0, upgradeLevels.speed || 0));
+    return SPEED_INTERVALS[spdLvl];
+  }
+
+  function spawnAutoQuack(x, y) {
+    const n = 3 + (Math.random() * 3 | 0); // 3..5 частиц
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI;
+      const speed = 70 + Math.random() * 220;
+      particles.push({
+        x: x + (Math.random() - .5) * 22,
+        y: y + (Math.random() - .5) * 14,
+        vx: Math.cos(ang) * speed,
+        vy: -Math.sin(ang) * speed,
+        size: 13 + Math.random() * 18,
+        alpha: 0.10 + Math.random() * 0.20, // более прозрачные
+        hue: Math.random() * 360 | 0,
+        sat: 65 + Math.random() * 35 | 0,
+        light: 55 + Math.random() * 22 | 0,
+      });
+    }
+  }
+
   function updateAutoQuackTimer() {
     if (autoQuackTimer) clearInterval(autoQuackTimer);
     // Прокачка Автокрякалка не доступна пока не прокачен 1 LVL Возможности
@@ -1201,18 +1543,189 @@
       rate *= 2;
     }
 
-    // Возможности ур 3: Турбо-кряк (в 2 раза чаще — каждые 750мс вместо 1500мс)
-    const intervalMs = (upgradeLevels.features >= 3) ? 750 : 1500;
-    const gainPerTick = (upgradeLevels.features >= 3) ? (rate / 2) : rate;
+    const intervalMs = getAutoQuackInterval();
 
     autoQuackTimer = setInterval(() => {
-      addDuckles(gainPerTick);
+      addDuckles(rate);
+
+      // 3-5 более прозрачных частиц без звука и анимации утки
+      const r = duck.getBoundingClientRect();
+      spawnAutoQuack(r.left + r.width / 2, r.top + r.height * 0.58);
+
+      // Выпадение яиц при автокряканье
+      checkEggRoll(false);
     }, intervalMs);
   }
 
+  /* ---------- Система яиц (Гусыня) ---------- */
+  function checkEggRoll(fromClick = false) {
+    // Гусыня открывается на «Возможности» LVL 3
+    if (upgradeLevels.features < 3) return;
+
+    const roll = Math.random();
+    // С шансом 0.5% золотое яйцо
+    if (roll < 0.005) {
+      goldenEggs++;
+      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      updateEggsDisplay(true, 'golden');
+      return;
+    }
+    // С шансом 10% обычное яйцо (0.005 + 0.10 = 0.105)
+    if (roll < 0.105) {
+      normalEggs++;
+      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      updateEggsDisplay(true, 'normal');
+    }
+  }
+
+  function updateEggsDisplay(bump = false, which = null) {
+    const eggsBar = document.getElementById('eggsBar');
+    const normalVal = document.getElementById('normalEggsVal');
+    const goldenVal = document.getElementById('goldenEggsVal');
+    const normalEggEl = document.getElementById('normalEgg');
+    const goldenEggEl = document.getElementById('goldenEgg');
+
+    // Бар яиц под даклями (скрыт до Возможности LVL 3)
+    if (eggsBar) {
+      if (upgradeLevels.features >= 3) {
+        eggsBar.style.display = 'inline-flex';
+      } else {
+        eggsBar.style.display = 'none';
+      }
+    }
+
+    if (normalVal) normalVal.textContent = normalEggs.toLocaleString('ru-RU');
+    if (goldenVal) goldenVal.textContent = goldenEggs.toLocaleString('ru-RU');
+
+    // На экране может быть только один эмодзи обычного яйца и один золотого яйца,
+    // если яиц 0 они не отображаются
+    if (normalEggEl) {
+      if (normalEggs > 0) {
+        normalEggEl.style.display = 'block';
+        if (!normalEggEl.dataset.placed) {
+          const r = duck.getBoundingClientRect();
+          normalEggEl.style.left = `${Math.max(10, r.left - 45)}px`;
+          normalEggEl.style.top = `${Math.min(window.innerHeight - 80, r.bottom - 40)}px`;
+          normalEggEl.dataset.placed = '1';
+        }
+      } else {
+        normalEggEl.style.display = 'none';
+      }
+    }
+
+    if (goldenEggEl) {
+      if (goldenEggs > 0) {
+        goldenEggEl.style.display = 'block';
+        if (!goldenEggEl.dataset.placed) {
+          const r = duck.getBoundingClientRect();
+          goldenEggEl.style.left = `${Math.max(10, r.left - 100)}px`;
+          goldenEggEl.style.top = `${Math.min(window.innerHeight - 90, r.bottom - 30)}px`;
+          goldenEggEl.dataset.placed = '1';
+        }
+      } else {
+        goldenEggEl.style.display = 'none';
+      }
+    }
+
+    updateShopSellTab();
+  }
+
+  function initDraggableEgg(el) {
+    if (!el) return;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      el.setPointerCapture(e.pointerId);
+      const rect = el.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      e.stopPropagation();
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const x = e.clientX - startX;
+      const y = e.clientY - startY;
+      el.style.left = `${Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x))}px`;
+      el.style.top = `${Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y))}px`;
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+    };
+
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  }
+
+  /* ---------- Вкладка продажи в магазине ---------- */
+  function updateShopSellTab() {
+    const shopNormalCount = document.getElementById('shopNormalEggsCount');
+    const shopGoldenCount = document.getElementById('shopGoldenEggsCount');
+    const sellNormal1Btn = document.getElementById('sellNormal1Btn');
+    const sellNormalAllBtn = document.getElementById('sellNormalAllBtn');
+    const sellGolden1Btn = document.getElementById('sellGolden1Btn');
+    const sellGoldenAllBtn = document.getElementById('sellGoldenAllBtn');
+
+    if (shopNormalCount) shopNormalCount.textContent = normalEggs.toLocaleString('ru-RU');
+    if (shopGoldenCount) shopGoldenCount.textContent = goldenEggs.toLocaleString('ru-RU');
+
+    if (sellNormal1Btn) sellNormal1Btn.disabled = normalEggs < 1;
+    if (sellNormalAllBtn) {
+      sellNormalAllBtn.disabled = normalEggs < 1;
+      sellNormalAllBtn.textContent = `Продать всё (+${(normalEggs * 200).toLocaleString('ru-RU')} 🦆)`;
+    }
+
+    if (sellGolden1Btn) sellGolden1Btn.disabled = goldenEggs < 1;
+    if (sellGoldenAllBtn) {
+      sellGoldenAllBtn.disabled = goldenEggs < 1;
+      sellGoldenAllBtn.textContent = `Продать всё (+${(goldenEggs * 5000).toLocaleString('ru-RU')} 🦆)`;
+    }
+  }
+
+  function sellEgg(type, amount) {
+    let earned = 0;
+    if (type === 'normal') {
+      const qty = (amount === 'all') ? normalEggs : Math.min(amount, normalEggs);
+      if (qty <= 0) return;
+      normalEggs -= qty;
+      earned = qty * 200;
+      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+    } else if (type === 'golden') {
+      const qty = (amount === 'all') ? goldenEggs : Math.min(amount, goldenEggs);
+      if (qty <= 0) return;
+      goldenEggs -= qty;
+      earned = qty * 5000;
+      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+    }
+
+    if (earned > 0) {
+      xpSound();
+      addDuckles(earned);
+      updateEggsDisplay();
+    }
+  }
+  window.sellEgg = sellEgg;
+
+  function cheatAddEggs() {
+    normalEggs += 10;
+    goldenEggs += 2;
+    try {
+      localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs));
+      localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs));
+    } catch (e) {}
+    updateEggsDisplay();
+  }
+  window.cheatAddEggs = cheatAddEggs;
+
   function buyUpgrade(upgradeId, targetLvl) {
-    // Прокачка Автокрякалка не доступна пока не прокачен 1 LVL Возможности
-    if (upgradeId === 'autoquack' && upgradeLevels.features < 1) return;
+    // Прокачка Автокрякалка и Скорость не доступны пока не прокачен 1 LVL Возможности
+    if ((upgradeId === 'autoquack' || upgradeId === 'speed') && upgradeLevels.features < 1) return;
 
     const upg = UPGRADES_DATA.find(u => u.id === upgradeId);
     if (!upg) return;
@@ -1237,6 +1750,7 @@
     renderUpgrades();
     updateLevelDisplay();
     updateShopButtonVisibility();
+    updateEggsDisplay();
     tryUnlock();
   }
   window.buyUpgrade = buyUpgrade;
@@ -1251,7 +1765,7 @@
       const card = document.createElement('div');
       card.className = 'upgrade-card';
 
-      const isBranchLocked = (upg.id === 'autoquack' && upgradeLevels.features < 1);
+      const isBranchLocked = (upg.id === 'autoquack' || upg.id === 'speed') && upgradeLevels.features < 1;
 
       // Текущий эффект
       let currText = 'Не приобретено (нет бонуса)';
@@ -1264,7 +1778,7 @@
       if (isBranchLocked) {
         warningHtml = `
           <div class="upgrade-locked-warning">
-            🔒 Заблокировано: сначала прокачайте «Возможности» LVL 1 (Открывает автокрякалку)
+            🔒 Заблокировано: сначала прокачайте «Возможности» LVL 1 (Открывает автокрякалку и скорость)
           </div>
         `;
       }
@@ -1382,14 +1896,35 @@
     });
   }
 
-  // Открытие/закрытие окна магазина
+  // Открытие/закрытие окна магазина и переключение вкладок
   const shopBtn = document.getElementById('shopBtn');
   const shopModal = document.getElementById('shopModal');
   const closeShopBtn = document.getElementById('closeShopBtn');
+  const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
+  const shopTabSellBtn = document.getElementById('shopTabSellBtn');
+  const shopBodyBuy = document.getElementById('shopBodyBuy');
+  const shopBodySell = document.getElementById('shopBodySell');
+
+  if (shopTabBuyBtn && shopTabSellBtn && shopBodyBuy && shopBodySell) {
+    shopTabBuyBtn.addEventListener('click', () => {
+      shopTabBuyBtn.classList.add('active');
+      shopTabSellBtn.classList.remove('active');
+      shopBodyBuy.style.display = 'flex';
+      shopBodySell.style.display = 'none';
+    });
+    shopTabSellBtn.addEventListener('click', () => {
+      shopTabSellBtn.classList.add('active');
+      shopTabBuyBtn.classList.remove('active');
+      shopBodySell.style.display = 'flex';
+      shopBodyBuy.style.display = 'none';
+      updateShopSellTab();
+    });
+  }
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
       updateDuckles();
+      updateShopSellTab();
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {
@@ -1515,6 +2050,8 @@
 
     // старт из клюва/горловины утки
     spawn(r.left + r.width / 2, r.top + r.height * 0.58);
+    // проверка выпадения яиц
+    checkEggRoll(true);
     // проверка ачивок
     tryUnlock();
   });
@@ -1693,10 +2230,13 @@
   document.getElementById('resetBtn').addEventListener('click', resetAchievements);
 
   /* ---------- инициализация ---------- */
+  initDraggableEgg(document.getElementById('normalEgg'));
+  initDraggableEgg(document.getElementById('goldenEgg'));
   buildAchievementCards();
   updateDuckles();
   updateLevelDisplay();
   updateAutoQuackTimer();
+  updateEggsDisplay();
   renderUpgrades();
   updateShopButtonVisibility();
   tryUnlock();
