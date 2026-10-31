@@ -1022,6 +1022,7 @@
   let upgradeLevels = {
     autoquack: parseInt(localStorage.getItem('duck-upg-autoquack') || '0', 10) || 0,
     speed: parseInt(localStorage.getItem('duck-upg-speed') || '0', 10) || 0,
+    crit: parseInt(localStorage.getItem('duck-upg-crit') || '0', 10) || 0,
     strength: parseInt(localStorage.getItem('duck-upg-strength') || '0', 10) || 0,
     features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
   };
@@ -1051,25 +1052,25 @@
   ];
 
   const LEVEL_UNLOCKS_INFO = {
-    2: 'Автокрякалка LVL 1 / Скорость LVL 1',
+    2: 'Автокрякалка / Скорость / Крит LVL 1',
     3: 'Сила LVL 2 (5 🦆/кл)',
     4: 'Возможности LVL 2 (Магазин)',
     5: 'Автокрякалка LVL 2 / Скорость LVL 2',
-    6: 'Новые рубежи опыта',
+    6: 'Крит LVL 2 (10%, x4)',
     7: 'Сила LVL 3 (16 🦆/кл)',
     8: 'Возможности LVL 3 (Гусыня — яйца)',
     9: 'Автокрякалка LVL 3 / Скорость LVL 3',
-    10: 'Мастер-ранг утки',
+    10: 'Крит LVL 3 (18%, x5)',
     11: 'Новые рубежи опыта',
     12: 'Сила LVL 4 (55 🦆/кл)',
     13: 'Возможности LVL 4 (Магнит)',
     14: 'Автокрякалка LVL 4 / Скорость LVL 4',
-    15: 'Элитный рубеж',
+    15: 'Крит LVL 4 (26%, x7)',
     16: 'Новые рубежи опыта',
     17: 'Сила LVL 5 (200 🦆/кл)',
     18: 'Возможности LVL 5 (Золотая утка)',
     19: 'Автокрякалка LVL 5 / Скорость LVL 5',
-    20: 'МАКСИМАЛЬНЫЙ УРОВЕНЬ'
+    20: 'МАКСИМАЛЬНЫЙ УРОВЕНЬ & Крит LVL 5'
   };
 
   const UPGRADES_DATA = [
@@ -1109,6 +1110,18 @@
         { lvl: 3, text: 'Частота автокрякалки: 0.8 сек', short: '0.8 сек', cost: 45000, reqLvl: 9, interval: 800 },
         { lvl: 4, text: 'Частота автокрякалки: 0.55 сек', short: '0.55 сек', cost: 500000, reqLvl: 14, interval: 550 },
         { lvl: 5, text: 'Частота автокрякалки: 0.35 сек', short: '0.35 сек', cost: 5500000, reqLvl: 19, interval: 350 },
+      ]
+    },
+    {
+      id: 'crit',
+      name: 'Крит шанс',
+      desc: 'Увеличивает шанс крита и бонус',
+      levels: [
+        { lvl: 1, text: 'Шанс крита 5%, множитель x3 к клику', short: '5% (x3)', cost: 400, reqLvl: 2, chance: 5, mult: 3 },
+        { lvl: 2, text: 'Шанс крита 10%, множитель x4 к клику', short: '10% (x4)', cost: 4500, reqLvl: 6, chance: 10, mult: 4 },
+        { lvl: 3, text: 'Шанс крита 18%, множитель x5 к клику', short: '18% (x5)', cost: 55000, reqLvl: 10, chance: 18, mult: 5 },
+        { lvl: 4, text: 'Шанс крита 26%, множитель x7 к клику', short: '26% (x7)', cost: 650000, reqLvl: 15, chance: 26, mult: 7 },
+        { lvl: 5, text: 'Шанс крита 35%, множитель x10 к клику', short: '35% (x10)', cost: 7000000, reqLvl: 20, chance: 35, mult: 10 },
       ]
     },
     {
@@ -1372,7 +1385,7 @@
     playerExp = 0;
     normalEggs = 0;
     goldenEggs = 0;
-    upgradeLevels = { autoquack: 0, speed: 0, strength: 0, features: 0 };
+    upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     keyPressed = false;
     duckSeqDone = false;
     duckSeqIndex = 0;
@@ -1399,6 +1412,7 @@
       localStorage.removeItem(EGGS_GOLDEN_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
+      localStorage.removeItem('duck-upg-crit');
       localStorage.removeItem('duck-upg-strength');
       localStorage.removeItem('duck-upg-features');
     } catch (e) {}
@@ -1500,6 +1514,72 @@
     } catch (e) { /* без звука тоже ок */ }
   }
 
+  /* звук вылетающей пробки ("пук" / "чпок" при появлении обычного яйца) */
+  function corkPopSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+
+      // Быстрый падающий синусоидальный тон ("чпок" резонатора)
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(620, t);
+      osc.frequency.exponentialRampToValueAtTime(75, t + 0.05);
+
+      oscGain.gain.setValueAtTime(0.4, t);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.075);
+
+      // Легкий шумовой хлопок воздуха/давления
+      const nLen = Math.max(1, 0.02 * audioCtx.sampleRate | 0);
+      const buf = audioCtx.createBuffer(1, nLen, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < nLen; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / nLen);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(900, t);
+      filter.Q.setValueAtTime(3.0, t);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.22, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(t);
+    } catch (e) {}
+  }
+
+  /* звук критического удара */
+  function critSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(620, t);
+      osc.frequency.exponentialRampToValueAtTime(1250, t + 0.08);
+      g.gain.setValueAtTime(0.25, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.13);
+    } catch (e) {}
+  }
+
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
 
@@ -1567,6 +1647,7 @@
     if (roll < 0.005) {
       goldenEggs++;
       try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      xpSound();
       updateEggsDisplay(true, 'golden');
       return;
     }
@@ -1574,6 +1655,7 @@
     if (roll < 0.105) {
       normalEggs++;
       try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      corkPopSound();
       updateEggsDisplay(true, 'normal');
     }
   }
@@ -1719,6 +1801,7 @@
       localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs));
       localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs));
     } catch (e) {}
+    corkPopSound();
     updateEggsDisplay();
   }
   window.cheatAddEggs = cheatAddEggs;
@@ -2019,6 +2102,18 @@
       gain = strUpg.levels[strLvl - 1].power;
     }
 
+    // Проверка крит шанса
+    let isCrit = false;
+    const critUpg = UPGRADES_DATA.find(u => u.id === 'crit');
+    const critLvl = upgradeLevels.crit || 0;
+    if (critUpg && critLvl > 0) {
+      const critData = critUpg.levels[critLvl - 1];
+      if (Math.random() * 100 < critData.chance) {
+        isCrit = true;
+        gain *= critData.mult;
+      }
+    }
+
     // Возможности ур 4: Дак-Магнит (каждые 25 кликов +150 Даклей)
     if (upgradeLevels.features >= 4 && quackCount % 25 === 0) {
       gain += 150;
@@ -2037,6 +2132,20 @@
     // Возможности ур 5: Золотая утка (x2 ко всему)
     if (upgradeLevels.features >= 5) {
       gain *= 2;
+    }
+
+    if (isCrit) {
+      critSound();
+      particles.push({
+        x: r.left + r.width / 2,
+        y: r.top - 12,
+        vx: (Math.random() - 0.5) * 60,
+        vy: -230,
+        size: 26,
+        alpha: 1.25,
+        text: `💥 КРИТ! +${gain.toLocaleString('ru-RU')} 🦆`,
+        color: '#ff3366'
+      });
     }
 
     addDuckles(gain);

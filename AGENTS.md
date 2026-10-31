@@ -5,18 +5,18 @@
 ## Ключевые элементы
 | Элемент | Назначение |
 |---|---|
-| `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, `quackCount++`, `duckles++`, `checkEggRoll(true)`, `tryUnlock()` |
+| `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, крит-расчёт, `quackCount++`, `duckles++`, `checkEggRoll(true)`, `tryUnlock()` |
 | `#ducklesBar` / `.duckles-val` | Верхняя плашка баланса валюты («Даклей заработано: X») |
 | `#eggsBar` / `#normalEggsVal` / `#goldenEggsVal` | Плашка счётчиков обычных 🥚 и золотых ✨🥚 яиц под плашкой даклей (скрыта до «Возможности» LVL 3 «Гусыня») |
 | `#normalEgg` / `#goldenEgg` | Перетаскиваемые (drag & drop через pointer events) эмодзи яиц на экране. Отображаются только если их количество > 0. Золотое яйцо больше и пульсирует светом |
-| `#upgradesBtn` / `#upgradesModal` | Кнопка «⚡ Апгрейды» и модальное окно прокачки (4 ветки по 5 уровней: Возможности, Автокрякалка, Скорость, Сила) |
+| `#upgradesBtn` / `#upgradesModal` | Кнопка «⚡ Апгрейды» и модальное окно прокачки (5 веток по 5 уровней: Возможности, Автокрякалка, Скорость, Крит шанс, Сила) |
 | `#shopBtn` / `#shopModal` | Кнопка «🛒 Магазин» (скрыта до «Возможности» LVL 2). В модальном окне две вкладки: «🛒 Покупка» и «💰 Продажа яиц» (200 🦆 за обычное, 5 000 🦆 за золотое) |
 | `#cheatPanel` | Тестовая панель слева внизу: кнопки быстрого начисления Даклей (+1k, +50k, +1M) и яиц (+🥚) для тестирования |
 | `#lvlBox` / `#lvlNum` / `#lvlBarFill` | Система уровней в правом нижнем углу (LVL 1..20, полоса опыта, `lvlExpText` и анонс следующего разблокирования `lvlNextUnlock`) |
-| `#particles` | Canvas поверх всего. Частицы: обычный текст «Кря» (случайный HSL), тусклые частицы автокрякалки (0.10..0.30 alpha), `fly` (эмодзи 🔒) и `LVL UP!` (жёлтый) |
+| `#particles` | Canvas поверх всего. Частицы: обычный текст «Кря» (случайный HSL), тусклые частицы автокрякалки (0.10..0.30 alpha), криты («💥 КРИТ! +X 🦆»), `fly` (эмодзи 🔒) и `LVL UP!` (жёлтый) |
 | `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
 | `quackCount` / `duckles` / `hintCount` / `playerLevel` / `playerExp` / `normalEggs` / `goldenEggs` | Глобальные счётчики: клики, валюта, подсказка, уровень, опыт, обычные и золотые яйца |
-| `upgradeLevels` | Уровни купленных улучшений (`autoquack`, `speed`, `strength`, `features`) |
+| `upgradeLevels` | Уровни купленных улучшений (`autoquack`, `speed`, `crit`, `strength`, `features`) |
 | `keyPressed` / `duckSeqDone` / `lockedCardClicked` / `devToolsOpened` / `badWordsTyped` / `hoverWaitDone` | Флаги для клавиатурных, скрытых и таймерных ачивок |
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
@@ -28,7 +28,7 @@
 1. **Возможности**:
    - LVL 1: Открывает автокрякалку и прокачку скорости.
    - LVL 2: Открывает кнопку и модальное окно «Магазин».
-   - LVL 3: «Гусыня» — теперь утка несет яйца (10% шанс на обычное 🥚, 0.5% шанс на золотое ✨🥚 при кликах и автокряканье). Открывает счётчик `#eggsBar`.
+   - LVL 3: «Гусыня» — теперь утка несет яйца (10% шанс на обычное 🥚 со звуком вылетающей пробки `corkPopSound`, 0.5% шанс на золотое ✨🥚 со звуком опыта `xpSound` при кликах и автокряканье). Открывает счётчик `#eggsBar`.
    - LVL 4: Дак-Магнит (каждые 25 кликов бонус +150 Даклей).
    - LVL 5: Золотая Утка (постоянный x2 ко всей добыче).
 2. **Автокрякалка** (требует «Возможности» LVL 1):
@@ -42,7 +42,15 @@
      - LVL 3: 0.8 сек (800 мс).
      - LVL 4: 0.55 сек (550 мс).
      - LVL 5: 0.35 сек (350 мс).
-4. **Сила**:
+4. **Крит шанс**:
+   - Увеличивает шанс нанесения критического удара при клике и его множитель добычи:
+     - LVL 1: 5% шанс, x3 множитель (400 🦆, req LVL 2).
+     - LVL 2: 10% шанс, x4 множитель (4 500 🦆, req LVL 6).
+     - LVL 3: 18% шанс, x5 множитель (55 000 🦆, req LVL 10).
+     - LVL 4: 26% шанс, x7 множитель (650 000 🦆, req LVL 15).
+     - LVL 5: 35% шанс, x10 множитель (7 000 000 🦆, req LVL 20).
+   - При срабатывании крита: проигрывается `critSound()`, вылетает крупная частица `💥 КРИТ! +X 🦆` цвета `#ff3366`.
+5. **Сила**:
    - Сила клика: 2, 5, 16, 55, 200 🦆 за нажатие.
 
 ## Как добавить ачивку
@@ -69,16 +77,19 @@
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
 - счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`, `duck-devtools`, `duck-bad-words`, `duck-hover-wait`;
 - яйца: `duck-eggs-normal`, `duck-eggs-golden`;
-- система уровней и апгрейдов: `duck-level`, `duck-level-exp`, `duck-upg-autoquack`, `duck-upg-speed`, `duck-upg-strength`, `duck-upg-features`.
+- система уровней и апгрейдов: `duck-level`, `duck-level-exp`, `duck-upg-autoquack`, `duck-upg-speed`, `duck-upg-crit`, `duck-upg-strength`, `duck-upg-features`.
 При загрузке страницы статус ачивок, уровни, яйца и улучшения считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
 - `quack()` — «кря»: sawtooth + square + шумовой burst.
-- `xpSound()` — опыт: восходящий арпеджио из 5 нот (523→1046 Гц, square).
+- `xpSound()` — опыт/левелап: восходящий арпеджио из 5 нот (523→1046 Гц, square). Проигрывается при ачивках, левелапе, продаже яиц и **появлении золотого яйца**.
+- `corkPopSound()` — хлопок/«пук» пробки от шампанского (свип 620→75 Гц + полосовой шум). Проигрывается при **появлении обычного яйца**.
+- `critSound()` — звонкий восходящий крит-звук (620→1250 Гц, triangle). Проигрывается при **критическом клике**.
 
 ## Физика частиц
 - `spawn(x, y)` — 8–15 частиц за раз (+10%); угол 0–180° (вверх), скорость 90–470 px/s, альфа 0.18–0.90.
 - `spawnAutoQuack(x, y)` — 3–5 частиц при автокряке; более прозрачные (альфа 0.10–0.30), скорость 70–290 px/s, без звука и попа утки.
+- Критические частицы: `💥 КРИТ! +X 🦆`, размер 24–26, яркий цвет `#ff3366`.
 - Гравитация `GRAVITY = 1000 px/с²`; `dt` ограничен 50 мс.
 - Частица удаляется при вылете за экран.
 
@@ -100,7 +111,7 @@
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `upgradeLevels = { autoquack: 0, speed: 0, strength: 0, features: 0 }`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет все ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет все ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
 3. удаляет `duck-achv-{id}`, `duck-level`, `duck-level-exp`, `duck-eggs-*` и `duck-upg-*` из localStorage;
 4. перестраивает карточки через `buildAchievementCards()`;
