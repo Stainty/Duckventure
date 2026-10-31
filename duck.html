@@ -260,7 +260,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 6px;
+    gap: 4px;
     z-index: 25;
     user-select: none;
   }
@@ -274,14 +274,14 @@
     text-shadow: 0 2px 10px rgba(255, 210, 77, 0.25);
   }
   .lvl-num {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #fff;
     transition: transform .15s ease;
     display: inline-block;
   }
   .lvl-bar-bg {
-    width: 140px;
+    width: 160px;
     height: 8px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -296,6 +296,17 @@
     border-radius: 99px;
     box-shadow: 0 0 10px rgba(255, 210, 77, 0.6);
     transition: width .25s ease-out;
+  }
+  .lvl-exp-text {
+    font: 700 11.5px/1 system-ui, sans-serif;
+    color: #8da0be;
+    margin-top: 2px;
+  }
+  .lvl-next-unlock {
+    font: 600 11px/1.25 system-ui, sans-serif;
+    color: #ffd24d;
+    max-width: 180px;
+    text-align: right;
   }
 
   /* ---------- Модальное окно прокачки ---------- */
@@ -319,8 +330,8 @@
     to { opacity: 1; transform: scale(1); }
   }
   .upgrades-dialog {
-    width: min(720px, 94vw);
-    max-height: min(85vh, 680px);
+    width: min(780px, 94vw);
+    max-height: min(88vh, 720px);
     background: #181d28;
     border: 1px solid #2e3648;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(255, 210, 77, 0.12);
@@ -412,13 +423,42 @@
     color: #ffd24d;
   }
   .upgrade-curr-effect {
-    font: 13px system-ui, sans-serif;
-    color: #9cb0d0;
+    font: 12.5px system-ui, sans-serif;
+    color: #8da0be;
+    margin-bottom: 4px;
+  }
+  .upgrade-curr-effect .effect-label {
+    color: #6d7d97;
+  }
+  .upgrade-locked-warning {
+    background: rgba(231, 76, 60, 0.14);
+    border: 1px solid rgba(231, 76, 60, 0.35);
+    color: #ff8577;
+    font: 600 12px/1.3 system-ui, sans-serif;
+    padding: 5px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .upgrade-next-preview {
+    font: 600 12.5px/1.3 system-ui, sans-serif;
+    color: #ffd24d;
+    margin-bottom: 4px;
+    background: rgba(255, 210, 77, 0.08);
+    border-left: 3px solid #ffd24d;
+    padding: 4px 8px;
+    border-radius: 0 6px 6px 0;
+  }
+  .upgrade-next-preview strong {
+    color: #fff;
+  }
+  .upgrade-max-tag {
+    font: 700 12px system-ui, sans-serif;
+    color: #2ecc71;
     margin-bottom: 4px;
   }
   .upgrade-req-text {
-    font: 12px monospace;
-    color: #6d7d97;
+    font: 11.5px monospace;
+    color: #7b8ba5;
   }
   .upgrade-levels-row {
     display: flex;
@@ -431,34 +471,46 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 66px;
-    height: 56px;
+    width: 76px;
+    height: 60px;
     border-radius: 12px;
     border: 1px solid #36425a;
     background: #161c28;
     color: #8da0be;
     font: 700 11px system-ui, sans-serif;
     cursor: pointer;
-    transition: all .15s;
+    transition: transform .12s, border-color .15s, background .15s, box-shadow .15s;
     user-select: none;
     text-align: center;
-    padding: 2px;
+    padding: 3px 2px;
   }
   .upgrade-lvl-btn .lvl-tag {
     font-size: 11px;
     font-weight: 800;
   }
+  .upgrade-lvl-btn .reward-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin: 1px 0;
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .upgrade-lvl-btn .price-tag {
     font-size: 10px;
     font-weight: 700;
     color: #ffd24d;
-    margin-top: 2px;
   }
   .upgrade-lvl-btn.bought {
     background: rgba(46, 204, 113, 0.15);
     border-color: rgba(46, 204, 113, 0.4);
     color: #2ecc71;
     cursor: default;
+  }
+  .upgrade-lvl-btn.bought .reward-tag {
+    color: #a3e9b9;
   }
   .upgrade-lvl-btn.bought .price-tag {
     color: #2ecc71;
@@ -520,6 +572,8 @@
     <div class="lvl-bar-bg" title="Прогресс до следующего уровня">
       <div class="lvl-bar-fill" id="lvlBarFill"></div>
     </div>
+    <div class="lvl-exp-text" id="lvlExpText">0 / 30 🦆</div>
+    <div class="lvl-next-unlock" id="lvlNextUnlock">На LVL 2: Автокрякалка LVL 1</div>
   </div>
 
   <!-- Модальное окно прокачки -->
@@ -592,17 +646,76 @@
     features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
   };
 
+  const MAX_LEVEL = 20;
+  const LEVEL_EXP_TABLE = [
+    0,
+    30,       // 1 -> 2
+    100,      // 2 -> 3
+    300,      // 3 -> 4
+    850,      // 4 -> 5
+    2200,     // 5 -> 6
+    5500,     // 6 -> 7
+    13000,    // 7 -> 8
+    30000,    // 8 -> 9
+    65000,    // 9 -> 10
+    140000,   // 10 -> 11
+    280000,   // 11 -> 12
+    550000,   // 12 -> 13
+    1000000,  // 13 -> 14
+    1800000,  // 14 -> 15
+    3200000,  // 15 -> 16
+    5500000,  // 16 -> 17
+    9000000,  // 17 -> 18
+    15000000, // 18 -> 19
+    25000000  // 19 -> 20
+  ];
+
+  const LEVEL_UNLOCKS_INFO = {
+    2: 'Автокрякалка LVL 1',
+    3: 'Сила LVL 2 (5 🦆/кл)',
+    4: 'Возможности LVL 2 (Крит x4)',
+    5: 'Автокрякалка LVL 2 (+4/1.5с)',
+    6: 'Новые рубежи опыта',
+    7: 'Сила LVL 3 (16 🦆/кл)',
+    8: 'Возможности LVL 3 (Турбо x2)',
+    9: 'Автокрякалка LVL 3 (+18/1.5с)',
+    10: 'Мастер-ранг утки',
+    11: 'Новые рубежи опыта',
+    12: 'Сила LVL 4 (55 🦆/кл)',
+    13: 'Возможности LVL 4 (Магнит)',
+    14: 'Автокрякалка LVL 4 (+80/1.5с)',
+    15: 'Элитный рубеж',
+    16: 'Новые рубежи опыта',
+    17: 'Сила LVL 5 (200 🦆/кл)',
+    18: 'Возможности LVL 5 (Золотая утка)',
+    19: 'Автокрякалка LVL 5 (350/1.5с)',
+    20: 'МАКСИМАЛЬНЫЙ УРОВЕНЬ'
+  };
+
   const UPGRADES_DATA = [
+    {
+      id: 'features',
+      name: 'Возможности',
+      desc: 'Новые геймплейные элементы',
+      levels: [
+        { lvl: 1, text: 'Открывает автокрякалку (без пассивного дохода)', short: 'Автокряк', cost: 80, reqLvl: 1 },
+        { lvl: 2, text: 'Критический кряк (10% шанс x4 Даклей за клик)', short: 'Крит x4', cost: 1200, reqLvl: 4 },
+        { lvl: 3, text: 'Турбо-кряк (автокрякалка в 2 раза чаще — каждые 0.75с)', short: 'Турбо x2', cost: 18000, reqLvl: 8 },
+        { lvl: 4, text: 'Дак-Магнит (каждые 25 кликов бонус +150 Даклей)', short: 'Магнит', cost: 180000, reqLvl: 13 },
+        { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 2500000, reqLvl: 18 },
+      ]
+    },
     {
       id: 'autoquack',
       name: 'Автокрякалка',
       desc: 'Пассивный доход',
+      requiresFeaturesLvl1: true,
       levels: [
-        { lvl: 1, text: '+1 Дакль / 1 сек', cost: 20, reqLvl: 1, rate: 1 },
-        { lvl: 2, text: '+3 Дакля / 1 сек', cost: 80, reqLvl: 3, rate: 3 },
-        { lvl: 3, text: '+8 Даклей / 1 сек', cost: 250, reqLvl: 6, rate: 8 },
-        { lvl: 4, text: '+20 Даклей / 1 сек', cost: 800, reqLvl: 10, rate: 20 },
-        { lvl: 5, text: '+50 Даклей / 1 сек', cost: 2500, reqLvl: 15, rate: 50 },
+        { lvl: 1, text: '+1 Дакль раз в 1.5 сек', short: '+1/1.5с', cost: 200, reqLvl: 2, rate: 1 },
+        { lvl: 2, text: '+4 Дакля раз в 1.5 сек', short: '+4/1.5с', cost: 2500, reqLvl: 5, rate: 4 },
+        { lvl: 3, text: '+18 Даклей раз в 1.5 сек', short: '+18/1.5с', cost: 35000, reqLvl: 9, rate: 18 },
+        { lvl: 4, text: '+80 Даклей раз в 1.5 сек', short: '+80/1.5с', cost: 400000, reqLvl: 14, rate: 80 },
+        { lvl: 5, text: '+350 Даклей раз в 1.5 сек', short: '+350/1.5с', cost: 4500000, reqLvl: 19, rate: 350 },
       ]
     },
     {
@@ -610,23 +723,11 @@
       name: 'Сила',
       desc: 'Ай нид мор',
       levels: [
-        { lvl: 1, text: '2 Дакли за нажатие', cost: 200, reqLvl: 1, power: 2 },
-        { lvl: 2, text: '5 Даклей за нажатие', cost: 600, reqLvl: 4, power: 5 },
-        { lvl: 3, text: '12 Даклей за нажатие', cost: 1800, reqLvl: 8, power: 12 },
-        { lvl: 4, text: '30 Даклей за нажатие', cost: 5000, reqLvl: 13, power: 30 },
-        { lvl: 5, text: '75 Даклей за нажатие', cost: 15000, reqLvl: 20, power: 75 },
-      ]
-    },
-    {
-      id: 'features',
-      name: 'Возможности',
-      desc: 'Новые геймплейные элементы',
-      levels: [
-        { lvl: 1, text: 'Критический кряк (10% шанс x5)', cost: 100, reqLvl: 2 },
-        { lvl: 2, text: 'Турбо-кряк (Автокряк в 2 раза чаще)', cost: 500, reqLvl: 5 },
-        { lvl: 3, text: 'Дак-Магнит (Каждые 20 кликов +50 Даклей)', cost: 2000, reqLvl: 9 },
-        { lvl: 4, text: 'Кряк-Лихорадка (Серия кликов дает до x3)', cost: 7500, reqLvl: 14 },
-        { lvl: 5, text: 'Золотая Утка (x2 ко всему доходу)', cost: 25000, reqLvl: 22 },
+        { lvl: 1, text: '2 Дакли за нажатие', short: '2 🦆/кл', cost: 100, reqLvl: 1, power: 2 },
+        { lvl: 2, text: '5 Даклей за нажатие', short: '5 🦆/кл', cost: 900, reqLvl: 3, power: 5 },
+        { lvl: 3, text: '16 Даклей за нажатие', short: '16 🦆/кл', cost: 12000, reqLvl: 7, power: 16 },
+        { lvl: 4, text: '55 Даклей за нажатие', short: '55 🦆/кл', cost: 150000, reqLvl: 12, power: 55 },
+        { lvl: 5, text: '200 Даклей за нажатие', short: '200 🦆/кл', cost: 1800000, reqLvl: 17, power: 200 },
       ]
     }
   ];
@@ -639,9 +740,8 @@
   let hoverTimer = null;
 
   function getExpForLevel(lvl) {
-    if (lvl >= 99) return Infinity;
-    // Уровень 1 -> 2 ровно 10 Даклей, далее плавная прогрессия до 99 уровня
-    return Math.round(10 * Math.pow(lvl, 1.45));
+    if (lvl >= MAX_LEVEL) return Infinity;
+    return LEVEL_EXP_TABLE[lvl] || 25000000;
   }
 
   const ducklesVal = document.getElementById('ducklesVal');
@@ -664,20 +764,30 @@
   function updateLevelDisplay(bump = false) {
     const lvlNumEl = document.getElementById('lvlNum');
     const lvlBarFill = document.getElementById('lvlBarFill');
+    const lvlExpText = document.getElementById('lvlExpText');
+    const lvlNextUnlock = document.getElementById('lvlNextUnlock');
+
     if (lvlNumEl) {
-      lvlNumEl.textContent = playerLevel;
+      lvlNumEl.textContent = playerLevel >= MAX_LEVEL ? (MAX_LEVEL + ' (MAX)') : playerLevel;
       if (bump) {
         lvlNumEl.style.transform = 'scale(1.35)';
         setTimeout(() => lvlNumEl.style.transform = 'none', 180);
       }
     }
-    if (lvlBarFill) {
-      if (playerLevel >= 99) {
-        lvlBarFill.style.width = '100%';
-      } else {
-        const req = getExpForLevel(playerLevel);
-        const pct = Math.min(100, Math.max(0, (playerExp / req) * 100));
-        lvlBarFill.style.width = pct + '%';
+    if (playerLevel >= MAX_LEVEL) {
+      if (lvlBarFill) lvlBarFill.style.width = '100%';
+      if (lvlExpText) lvlExpText.textContent = 'МАКСИМУМ ДОСТИГНУТ';
+      if (lvlNextUnlock) lvlNextUnlock.textContent = '🏆 Все улучшения открыты!';
+    } else {
+      const req = getExpForLevel(playerLevel);
+      const pct = Math.min(100, Math.max(0, (playerExp / req) * 100));
+      if (lvlBarFill) lvlBarFill.style.width = pct + '%';
+      if (lvlExpText) {
+        lvlExpText.textContent = `${Math.floor(playerExp).toLocaleString('ru-RU')} / ${req.toLocaleString('ru-RU')} 🦆`;
+      }
+      if (lvlNextUnlock) {
+        const nextInfo = LEVEL_UNLOCKS_INFO[playerLevel + 1] || 'Новые рубежи';
+        lvlNextUnlock.textContent = `На LVL ${playerLevel + 1}: ${nextInfo}`;
       }
     }
   }
@@ -688,13 +798,13 @@
     try { localStorage.setItem(DUCKLES_KEY, String(duckles)); } catch (e) {}
     updateDuckles(true);
 
-    // Опыт и уровни
-    if (playerLevel < 99) {
+    // Опыт и уровни (максимум 20)
+    if (playerLevel < MAX_LEVEL) {
       playerExp += amount;
       let expForNext = getExpForLevel(playerLevel);
       let leveledUp = false;
 
-      while (playerLevel < 99 && playerExp >= expForNext) {
+      while (playerLevel < MAX_LEVEL && playerExp >= expForNext) {
         playerExp -= expForNext;
         playerLevel++;
         leveledUp = true;
@@ -947,17 +1057,23 @@
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   function updateAutoQuackTimer() {
     if (autoQuackTimer) clearInterval(autoQuackTimer);
+    // Прокачка Автокрякалка не доступна пока не прокачен 1 LVL Возможности
+    if (upgradeLevels.features < 1) return;
     const lvl = upgradeLevels.autoquack;
-    if (lvl <= 0) return;
+    if (lvl <= 0) return; // По умолчанию без дохода
 
-    let rate = UPGRADES_DATA[0].levels[lvl - 1].rate;
+    const autoUpg = UPGRADES_DATA.find(u => u.id === 'autoquack');
+    if (!autoUpg) return;
+    let rate = autoUpg.levels[lvl - 1].rate;
+
+    // Возможности ур 5: Золотая утка (x2 ко всему доходу)
     if (upgradeLevels.features >= 5) {
       rate *= 2;
     }
 
-    // Возможности ур 2: автокрякалка в 2 раза быстрее (каждые 500мс)
-    const intervalMs = (upgradeLevels.features >= 2) ? 500 : 1000;
-    const gainPerTick = (upgradeLevels.features >= 2) ? (rate / 2) : rate;
+    // Возможности ур 3: Турбо-кряк (в 2 раза чаще — каждые 750мс вместо 1500мс)
+    const intervalMs = (upgradeLevels.features >= 3) ? 750 : 1500;
+    const gainPerTick = (upgradeLevels.features >= 3) ? (rate / 2) : rate;
 
     autoQuackTimer = setInterval(() => {
       addDuckles(gainPerTick);
@@ -965,6 +1081,9 @@
   }
 
   function buyUpgrade(upgradeId, targetLvl) {
+    // Прокачка Автокрякалка не доступна пока не прокачен 1 LVL Возможности
+    if (upgradeId === 'autoquack' && upgradeLevels.features < 1) return;
+
     const upg = UPGRADES_DATA.find(u => u.id === upgradeId);
     if (!upg) return;
     const currentLvl = upgradeLevels[upgradeId] || 0;
@@ -986,6 +1105,7 @@
     updateDuckles(true);
     updateAutoQuackTimer();
     renderUpgrades();
+    updateLevelDisplay();
   }
   window.buyUpgrade = buyUpgrade;
 
@@ -999,17 +1119,41 @@
       const card = document.createElement('div');
       card.className = 'upgrade-card';
 
+      const isBranchLocked = (upg.id === 'autoquack' && upgradeLevels.features < 1);
+
       // Текущий эффект
-      let currText = 'Не приобретено';
+      let currText = 'Не приобретено (нет бонуса)';
       if (curLvl > 0) {
-        currText = 'Текущий бонус: ' + upg.levels[curLvl - 1].text;
+        currText = upg.levels[curLvl - 1].text;
       }
 
-      // Текст требования для следующего уровня
-      let reqText = 'Максимальный уровень (5/5)';
+      // Блок предупреждения блокировки ветки
+      let warningHtml = '';
+      if (isBranchLocked) {
+        warningHtml = `
+          <div class="upgrade-locked-warning">
+            🔒 Заблокировано: сначала прокачайте «Возможности» LVL 1 (Открывает автокрякалку)
+          </div>
+        `;
+      }
+
+      // Что даст следующий уровень
+      let nextBonusHtml = '';
+      let reqHtml = '';
       if (curLvl < 5) {
         const nextLvlData = upg.levels[curLvl];
-        reqText = 'Следующий ур.: LVL ' + (curLvl + 1) + ' (требуется ур. игрока ' + nextLvlData.reqLvl + ')';
+        nextBonusHtml = `
+          <div class="upgrade-next-preview">
+            ⚡ Следующий LVL ${curLvl + 1}: <strong>${nextLvlData.text}</strong>
+          </div>
+        `;
+        let condText = `Требуется: ${nextLvlData.cost.toLocaleString('ru-RU')} 🦆 • LVL ${nextLvlData.reqLvl} игрока`;
+        if (isBranchLocked) {
+          condText = `Требуется: «Возможности» LVL 1 • ${nextLvlData.cost.toLocaleString('ru-RU')} 🦆 • LVL ${nextLvlData.reqLvl} игрока`;
+        }
+        reqHtml = `<div class="upgrade-req-text">${condText}</div>`;
+      } else {
+        nextBonusHtml = `<div class="upgrade-max-tag">⭐ Прокачано на максимум (5/5)</div>`;
       }
 
       const infoHtml = `
@@ -1018,8 +1162,12 @@
             <span class="upgrade-name">${upg.name}</span>
             <span class="upgrade-subtitle">• ${upg.desc}</span>
           </div>
-          <div class="upgrade-curr-effect">${currText}</div>
-          <div class="upgrade-req-text">${reqText}</div>
+          ${warningHtml}
+          <div class="upgrade-curr-effect">
+            <span class="effect-label">Текущий бонус:</span> ${currText}
+          </div>
+          ${nextBonusHtml}
+          ${reqHtml}
         </div>
       `;
 
@@ -1028,34 +1176,48 @@
         const lvlData = upg.levels[l - 1];
         if (l <= curLvl) {
           btnsHtml += `
-            <button class="upgrade-lvl-btn bought" disabled title="LVL ${l} приобретен">
+            <button class="upgrade-lvl-btn bought" disabled title="LVL ${l}: ${lvlData.text} (Приобретено)">
               <span class="lvl-tag">LVL ${l}</span>
-              <span class="price-tag">✓</span>
+              <span class="reward-tag">${lvlData.short}</span>
+              <span class="price-tag">✓ Куплено</span>
             </button>
           `;
         } else if (l === curLvl + 1) {
-          const hasLevel = playerLevel >= lvlData.reqLvl;
-          const canAfford = duckles >= lvlData.cost;
-          if (!hasLevel) {
+          if (isBranchLocked) {
             btnsHtml += `
-              <button class="upgrade-lvl-btn locked" disabled title="Требуется уровень игрока ${lvlData.reqLvl}">
+              <button class="upgrade-lvl-btn locked" disabled title="Требуется открыть «Возможности» LVL 1">
                 <span class="lvl-tag">LVL ${l}</span>
-                <span class="price-tag">🔒 ур.${lvlData.reqLvl}</span>
+                <span class="reward-tag">${lvlData.short}</span>
+                <span class="price-tag">🔒 Блок</span>
               </button>
             `;
           } else {
-            const btnClass = canAfford ? 'upgrade-lvl-btn can-buy' : 'upgrade-lvl-btn cannot-afford';
-            btnsHtml += `
-              <button class="${btnClass}" onclick="buyUpgrade('${upg.id}', ${l})" title="Купить за ${lvlData.cost} Даклей">
-                <span class="lvl-tag">LVL ${l}</span>
-                <span class="price-tag">${lvlData.cost} 🦆</span>
-              </button>
-            `;
+            const hasLevel = playerLevel >= lvlData.reqLvl;
+            const canAfford = duckles >= lvlData.cost;
+            if (!hasLevel) {
+              btnsHtml += `
+                <button class="upgrade-lvl-btn locked" disabled title="${lvlData.text} — требуется уровень игрока ${lvlData.reqLvl}">
+                  <span class="lvl-tag">LVL ${l}</span>
+                  <span class="reward-tag">${lvlData.short}</span>
+                  <span class="price-tag">🔒 ур.${lvlData.reqLvl}</span>
+                </button>
+              `;
+            } else {
+              const btnClass = canAfford ? 'upgrade-lvl-btn can-buy' : 'upgrade-lvl-btn cannot-afford';
+              btnsHtml += `
+                <button class="${btnClass}" onclick="buyUpgrade('${upg.id}', ${l})" title="Купить: ${lvlData.text} за ${lvlData.cost} Даклей">
+                  <span class="lvl-tag">LVL ${l}</span>
+                  <span class="reward-tag">${lvlData.short}</span>
+                  <span class="price-tag">${lvlData.cost.toLocaleString('ru-RU')} 🦆</span>
+                </button>
+              `;
+            }
           }
         } else {
           btnsHtml += `
-            <button class="upgrade-lvl-btn locked" disabled title="Сначала купите предыдущий уровень">
+            <button class="upgrade-lvl-btn locked" disabled title="LVL ${l}: ${lvlData.text} — сначала купите LVL ${l - 1}">
               <span class="lvl-tag">LVL ${l}</span>
+              <span class="reward-tag">${lvlData.short}</span>
               <span class="price-tag">🔒</span>
             </button>
           `;
@@ -1164,21 +1326,22 @@
 
     // Расчет силы клика и возможностей
     let gain = 1;
+    const strUpg = UPGRADES_DATA.find(u => u.id === 'strength');
     const strLvl = upgradeLevels.strength;
-    if (strLvl > 0) {
-      gain = UPGRADES_DATA[1].levels[strLvl - 1].power;
+    if (strUpg && strLvl > 0) {
+      gain = strUpg.levels[strLvl - 1].power;
     }
 
-    // Возможности ур 1: Критический кряк (10% шанс x5)
+    // Возможности ур 2: Критический кряк (10% шанс x4)
     let isCrit = false;
-    if (upgradeLevels.features >= 1 && Math.random() < 0.10) {
+    if (upgradeLevels.features >= 2 && Math.random() < 0.10) {
       isCrit = true;
-      gain *= 5;
+      gain *= 4;
     }
 
-    // Возможности ур 3: Дак-Магнит (каждые 20 кликов +50 Даклей)
-    if (upgradeLevels.features >= 3 && quackCount % 20 === 0) {
-      gain += 50;
+    // Возможности ур 4: Дак-Магнит (каждые 25 кликов +150 Даклей)
+    if (upgradeLevels.features >= 4 && quackCount % 25 === 0) {
+      gain += 150;
       particles.push({
         x: r.left + r.width / 2,
         y: r.top + 20,
@@ -1186,22 +1349,10 @@
         vy: -150,
         size: 20,
         alpha: 1,
-        text: '+50 🦆',
+        text: '+150 🦆',
         color: '#ffdd55'
       });
     }
-
-    // Возможности ур 4: Кряк-Лихорадка (комбо серия)
-    const nowTime = performance.now();
-    if (upgradeLevels.features >= 4) {
-      if (nowTime - lastClickTime < 380) {
-        comboMultiplier = Math.min(3, Math.round((comboMultiplier + 0.2) * 10) / 10);
-      } else {
-        comboMultiplier = 1;
-      }
-      gain = Math.round(gain * comboMultiplier);
-    }
-    lastClickTime = nowTime;
 
     // Возможности ур 5: Золотая утка (x2 ко всему)
     if (upgradeLevels.features >= 5) {
