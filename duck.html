@@ -1235,7 +1235,7 @@
     <div class="lvl-bar-bg" title="Прогресс до следующего уровня">
       <div class="lvl-bar-fill" id="lvlBarFill"></div>
     </div>
-    <div class="lvl-exp-text" id="lvlExpText">0 / 30 🦆</div>
+    <div class="lvl-exp-text" id="lvlExpText">0 / 9 🦆</div>
     <div class="lvl-next-unlock" id="lvlNextUnlock">На LVL 2: Автокрякалка LVL 1</div>
   </div>
 
@@ -1506,25 +1506,25 @@
   const MAX_LEVEL = 20;
   const LEVEL_EXP_TABLE = [
     0,
-    18,       // 1 -> 2
-    60,       // 2 -> 3
-    180,      // 3 -> 4
-    510,      // 4 -> 5
-    1320,     // 5 -> 6
-    3300,     // 6 -> 7
-    7800,     // 7 -> 8
-    18000,    // 8 -> 9
-    39000,    // 9 -> 10
-    84000,    // 10 -> 11
-    168000,   // 11 -> 12
-    330000,   // 12 -> 13
-    600000,   // 13 -> 14
-    1080000,  // 14 -> 15
-    1920000,  // 15 -> 16
-    3300000,  // 16 -> 17
-    5400000,  // 17 -> 18
-    9000000,  // 18 -> 19
-    15000000  // 19 -> 20
+    9,        // 1 -> 2
+    30,       // 2 -> 3
+    90,       // 3 -> 4
+    255,      // 4 -> 5
+    660,      // 5 -> 6
+    1650,     // 6 -> 7
+    3900,     // 7 -> 8
+    9000,     // 8 -> 9
+    19500,    // 9 -> 10
+    42000,    // 10 -> 11
+    84000,    // 11 -> 12
+    165000,   // 12 -> 13
+    300000,   // 13 -> 14
+    540000,   // 14 -> 15
+    960000,   // 15 -> 16
+    1650000,  // 16 -> 17
+    2700000,  // 17 -> 18
+    4500000,  // 18 -> 19
+    7500000   // 19 -> 20
   ];
 
   const LEVEL_UNLOCKS_INFO = {
@@ -1555,11 +1555,11 @@
       name: 'Возможности',
       desc: 'Новые геймплейные элементы',
       levels: [
-        { lvl: 1, text: 'Открывает автокрякалку и прокачку скорости', short: 'Автокряк', cost: 80, reqLvl: 1 },
-        { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 1200, reqLvl: 4 },
-        { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 18000, reqLvl: 8 },
-        { lvl: 4, text: 'Дак-Магнит (каждые 25 кликов бонус +150 Даклей)', short: 'Магнит', cost: 180000, reqLvl: 13 },
-        { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 2500000, reqLvl: 18 },
+        { lvl: 1, text: 'Открывает автокрякалку и прокачку скорости', short: 'Автокряк', cost: 40, reqLvl: 1 },
+        { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 600, reqLvl: 4 },
+        { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 9000, reqLvl: 8 },
+        { lvl: 4, text: 'Дак-Магнит (каждые 25 кликов бонус +150 Даклей)', short: 'Магнит', cost: 90000, reqLvl: 13 },
+        { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 1250000, reqLvl: 18 },
       ]
     },
     {
@@ -1568,11 +1568,11 @@
       desc: 'Пассивный доход',
       requiresFeaturesLvl1: true,
       levels: [
-        { lvl: 1, text: '+1 Дакль за тик', short: '+1 🦆/т', cost: 200, reqLvl: 2, rate: 1 },
-        { lvl: 2, text: '+4 Дакля за тик', short: '+4 🦆/т', cost: 2500, reqLvl: 5, rate: 4 },
-        { lvl: 3, text: '+18 Даклей за тик', short: '+18 🦆/т', cost: 35000, reqLvl: 9, rate: 18 },
-        { lvl: 4, text: '+80 Даклей за тик', short: '+80 🦆/т', cost: 400000, reqLvl: 14, rate: 80 },
-        { lvl: 5, text: '+350 Даклей за тик', short: '+350 🦆/т', cost: 4500000, reqLvl: 19, rate: 350 },
+        { lvl: 1, text: '+1 Дакль за тик', short: '+1 🦆/т', cost: 100, reqLvl: 2, rate: 1 },
+        { lvl: 2, text: '+4 Дакля за тик', short: '+4 🦆/т', cost: 1250, reqLvl: 5, rate: 4 },
+        { lvl: 3, text: '+18 Даклей за тик', short: '+18 🦆/т', cost: 17500, reqLvl: 9, rate: 18 },
+        { lvl: 4, text: '+80 Даклей за тик', short: '+80 🦆/т', cost: 200000, reqLvl: 14, rate: 80 },
+        { lvl: 5, text: '+350 Даклей за тик', short: '+350 🦆/т', cost: 2250000, reqLvl: 19, rate: 350 },
       ]
     },
     {
@@ -1581,11 +1581,11 @@
       desc: 'Быстрее!',
       requiresFeaturesLvl1: true,
       levels: [
-        { lvl: 1, text: 'Частота автокрякалки: 1.5 сек (было 2.0с)', short: '1.5 сек', cost: 350, reqLvl: 2, interval: 1500 },
-        { lvl: 2, text: 'Частота автокрякалки: 1.1 сек', short: '1.1 сек', cost: 3500, reqLvl: 5, interval: 1100 },
-        { lvl: 3, text: 'Частота автокрякалки: 0.8 сек', short: '0.8 сек', cost: 45000, reqLvl: 9, interval: 800 },
-        { lvl: 4, text: 'Частота автокрякалки: 0.55 сек', short: '0.55 сек', cost: 500000, reqLvl: 14, interval: 550 },
-        { lvl: 5, text: 'Частота автокрякалки: 0.35 сек', short: '0.35 сек', cost: 5500000, reqLvl: 19, interval: 350 },
+        { lvl: 1, text: 'Частота автокрякалки: 1.5 сек (было 2.0с)', short: '1.5 сек', cost: 175, reqLvl: 2, interval: 1500 },
+        { lvl: 2, text: 'Частота автокрякалки: 1.1 сек', short: '1.1 сек', cost: 1750, reqLvl: 5, interval: 1100 },
+        { lvl: 3, text: 'Частота автокрякалки: 0.8 сек', short: '0.8 сек', cost: 22500, reqLvl: 9, interval: 800 },
+        { lvl: 4, text: 'Частота автокрякалки: 0.55 сек', short: '0.55 сек', cost: 250000, reqLvl: 14, interval: 550 },
+        { lvl: 5, text: 'Частота автокрякалки: 0.35 сек', short: '0.35 сек', cost: 2750000, reqLvl: 19, interval: 350 },
       ]
     },
     {
@@ -1593,11 +1593,11 @@
       name: 'Крит шанс',
       desc: 'Увеличивает шанс крита и бонус',
       levels: [
-        { lvl: 1, text: 'Шанс крита 5%, множитель x3 к клику', short: '5% (x3)', cost: 400, reqLvl: 2, chance: 5, mult: 3 },
-        { lvl: 2, text: 'Шанс крита 10%, множитель x4 к клику', short: '10% (x4)', cost: 4500, reqLvl: 6, chance: 10, mult: 4 },
-        { lvl: 3, text: 'Шанс крита 18%, множитель x5 к клику', short: '18% (x5)', cost: 55000, reqLvl: 10, chance: 18, mult: 5 },
-        { lvl: 4, text: 'Шанс крита 26%, множитель x7 к клику', short: '26% (x7)', cost: 650000, reqLvl: 15, chance: 26, mult: 7 },
-        { lvl: 5, text: 'Шанс крита 35%, множитель x10 к клику', short: '35% (x10)', cost: 7000000, reqLvl: 20, chance: 35, mult: 10 },
+        { lvl: 1, text: 'Шанс крита 5%, множитель x3 к клику', short: '5% (x3)', cost: 200, reqLvl: 2, chance: 5, mult: 3 },
+        { lvl: 2, text: 'Шанс крита 10%, множитель x4 к клику', short: '10% (x4)', cost: 2250, reqLvl: 6, chance: 10, mult: 4 },
+        { lvl: 3, text: 'Шанс крита 18%, множитель x5 к клику', short: '18% (x5)', cost: 27500, reqLvl: 10, chance: 18, mult: 5 },
+        { lvl: 4, text: 'Шанс крита 26%, множитель x7 к клику', short: '26% (x7)', cost: 325000, reqLvl: 15, chance: 26, mult: 7 },
+        { lvl: 5, text: 'Шанс крита 35%, множитель x10 к клику', short: '35% (x10)', cost: 3500000, reqLvl: 20, chance: 35, mult: 10 },
       ]
     },
     {
@@ -1605,11 +1605,11 @@
       name: 'Сила',
       desc: 'Ай нид мор',
       levels: [
-        { lvl: 1, text: '2 Дакли за нажатие', short: '2 🦆/кл', cost: 100, reqLvl: 1, power: 2 },
-        { lvl: 2, text: '5 Даклей за нажатие', short: '5 🦆/кл', cost: 900, reqLvl: 3, power: 5 },
-        { lvl: 3, text: '16 Даклей за нажатие', short: '16 🦆/кл', cost: 12000, reqLvl: 7, power: 16 },
-        { lvl: 4, text: '55 Даклей за нажатие', short: '55 🦆/кл', cost: 150000, reqLvl: 12, power: 55 },
-        { lvl: 5, text: '200 Даклей за нажатие', short: '200 🦆/кл', cost: 1800000, reqLvl: 17, power: 200 },
+        { lvl: 1, text: '2 Дакли за нажатие', short: '2 🦆/кл', cost: 50, reqLvl: 1, power: 2 },
+        { lvl: 2, text: '5 Даклей за нажатие', short: '5 🦆/кл', cost: 450, reqLvl: 3, power: 5 },
+        { lvl: 3, text: '16 Даклей за нажатие', short: '16 🦆/кл', cost: 6000, reqLvl: 7, power: 16 },
+        { lvl: 4, text: '55 Даклей за нажатие', short: '55 🦆/кл', cost: 75000, reqLvl: 12, power: 55 },
+        { lvl: 5, text: '200 Даклей за нажатие', short: '200 🦆/кл', cost: 900000, reqLvl: 17, power: 200 },
       ]
     }
   ];
@@ -1623,7 +1623,7 @@
 
   function getExpForLevel(lvl) {
     if (lvl >= MAX_LEVEL) return Infinity;
-    return LEVEL_EXP_TABLE[lvl] || 15000000;
+    return LEVEL_EXP_TABLE[lvl] || 7500000;
   }
 
   function isAnyModalOpen() {
