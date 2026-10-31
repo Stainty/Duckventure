@@ -523,6 +523,22 @@
     max-width: 180px;
     text-align: right;
   }
+  .lvl-warning {
+    font: 800 11.5px/1.3 system-ui, sans-serif;
+    color: #ff4d4d;
+    background: rgba(239, 68, 68, 0.16);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    padding: 3px 8px;
+    border-radius: 8px;
+    text-align: right;
+    margin: 2px 0;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    animation: roachWarnPulse 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes roachWarnPulse {
+    0% { transform: scale(0.97); opacity: 0.85; text-shadow: 0 0 4px rgba(255, 77, 77, 0.5); }
+    100% { transform: scale(1.02); opacity: 1; text-shadow: 0 0 10px rgba(255, 77, 77, 0.9); }
+  }
 
   /* ---------- Модальное окно прокачки ---------- */
   .upgrades-modal {
@@ -996,6 +1012,52 @@
   #prop-plita img {
     width: 96px;
   }
+  #prop-fridge img {
+    width: 88px;
+  }
+  #prop-dichlofos img {
+    width: 68px;
+  }
+  #roachesContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 38;
+    overflow: hidden;
+  }
+  .roach-bug {
+    position: absolute;
+    font-size: 28px;
+    line-height: 1;
+    user-select: none;
+    will-change: transform;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+    transition: opacity 0.5s ease;
+  }
+  .roach-bug.dying {
+    transition: transform 1.5s ease, opacity 2.5s ease;
+    opacity: 0 !important;
+  }
+  #greenSmokeContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 47;
+    overflow: hidden;
+  }
+  .green-smoke-item {
+    position: absolute;
+    font-size: 46px;
+    line-height: 1;
+    user-select: none;
+    filter: hue-rotate(95deg) saturate(3) drop-shadow(0 0 12px rgba(34, 197, 94, 0.85));
+    animation: greenSmokeFade 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes greenSmokeFade {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    20% { opacity: 0.85; }
+    100% { transform: translateY(-80px) scale(1.6); opacity: 0; }
+  }
   .draggable-prop.is-combined {
     filter: drop-shadow(0 0 16px rgba(255, 120, 20, 0.75)) drop-shadow(0 6px 14px rgba(0,0,0,0.6));
   }
@@ -1283,6 +1345,7 @@
     <div class="lvl-title-row">
       <span>LVL</span> <span class="lvl-num" id="lvlNum">1</span>
     </div>
+    <div class="lvl-warning" id="lvlRoachWarning" style="display: none;">🪳 Тараканы! Опыт не накапливается! 🪳</div>
     <div class="lvl-bar-bg" title="Прогресс до следующего уровня">
       <div class="lvl-bar-fill" id="lvlBarFill"></div>
     </div>
@@ -1473,6 +1536,21 @@
     <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('plita')">✕</button>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
+  <div id="prop-fridge" class="draggable-prop" title="Вонючий старый холодильник (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🧊</span>
+    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('fridge')">✕</button>
+  </div>
+  <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🧴</span>
+    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('dichlofos')">✕</button>
+  </div>
+
+  <div id="roachesContainer"></div>
+  <div id="greenSmokeContainer"></div>
 
   <button id="duck" aria-label="Крякнуть">
     <span class="duck-fallback">🦆</span>
@@ -1514,6 +1592,10 @@
   const HAS_FRIED_KEY = 'duck-has-fried-eggs';
   const COOKED_EGG_KEY = 'duck-cooked-egg';
   const STOVE_COMBINED_KEY = 'duck-stove-combined';
+  const PLACED_FRIDGE_KEY = 'duck-placed-fridge';
+  const ROACHES_ACTIVE_KEY = 'duck-roaches-active';
+  const USED_DICHLOFOS_KEY = 'duck-used-dichlofos';
+  const CLEARED_ROACHES_KEY = 'duck-cleared-roaches';
   const OWNED_SKINS_KEY = 'duck-owned-skins';
   const CURRENT_SKIN_KEY = 'duck-current-skin';
   const OWNED_PROPS_KEY = 'duck-owned-props';
@@ -1539,6 +1621,10 @@
   let hasUnlockedFriedEggs = localStorage.getItem(HAS_FRIED_KEY) === '1' || friedEggs > 0 || goldenFriedEggs > 0;
   let hasCookedEgg = localStorage.getItem(COOKED_EGG_KEY) === '1' || hasUnlockedFriedEggs;
   let isStoveCombined = localStorage.getItem(STOVE_COMBINED_KEY) === '1';
+  let hasPlacedFridge = localStorage.getItem(PLACED_FRIDGE_KEY) === '1';
+  let isRoachesActive = localStorage.getItem(ROACHES_ACTIVE_KEY) === '1';
+  let hasUsedDichlofos = localStorage.getItem(USED_DICHLOFOS_KEY) === '1';
+  let hasClearedRoaches = localStorage.getItem(CLEARED_ROACHES_KEY) === '1';
 
   let ownedSkins = ['default'];
   try {
@@ -1700,6 +1786,24 @@
       icon: 'https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe',
       fallbackEmoji: '🎛️',
       desc: 'Компактная настольная плита с регулятором температуры. Отлично смотрится на кухне!'
+    },
+    fridge: {
+      id: 'fridge',
+      name: 'Вонючий старый холодильник',
+      category: 'household',
+      cost: 1000,
+      icon: 'https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN',
+      fallbackEmoji: '🧊',
+      desc: 'Старый, подозрительно пахнущий агрегат. Что внутри — лучше не знать.'
+    },
+    dichlofos: {
+      id: 'dichlofos',
+      name: 'Дихлофос',
+      category: 'household',
+      cost: 5000,
+      icon: 'https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B',
+      fallbackEmoji: '🧴',
+      desc: 'Редкая заморская штука, избавит от нежелательных друзей'
     }
   };
 
@@ -1963,6 +2067,12 @@
         lvlNextUnlock.textContent = `На LVL ${playerLevel + 1}: ${nextInfo}`;
       }
     }
+
+    const lvlRoachWarning = document.getElementById('lvlRoachWarning');
+    if (lvlRoachWarning) {
+      lvlRoachWarning.style.display = isRoachesActive ? 'block' : 'none';
+    }
+
     updateUpgradesButtonHighlight();
   }
 
@@ -1972,8 +2082,8 @@
     try { localStorage.setItem(DUCKLES_KEY, String(duckles)); } catch (e) {}
     updateDuckles(true);
 
-    // Опыт и уровни (максимум 20)
-    if (playerLevel < MAX_LEVEL) {
+    // Опыт и уровни (максимум 20). При наличии тараканов опыт не накапливается!
+    if (playerLevel < MAX_LEVEL && !isRoachesActive) {
       playerExp += amount;
       let expForNext = getExpForLevel(playerLevel);
       let leveledUp = false;
@@ -2116,6 +2226,20 @@
       check: () => hasCookedEgg,
     },
     {
+      id: 'bad-idea',
+      name: 'Это было зря!',
+      desc: 'Завести новых друзей',
+      done: false,
+      check: () => hasPlacedFridge,
+    },
+    {
+      id: 'freedom-smell',
+      name: 'Запах свободы',
+      desc: 'Избавьтесь от тараканов',
+      done: false,
+      check: () => hasUsedDichlofos,
+    },
+    {
       id: 'max-power',
       name: 'MAX POWER!!!',
       desc: 'Достигните 20 уровня',
@@ -2161,6 +2285,11 @@
     hasUnlockedFriedEggs = false;
     hasCookedEgg = false;
     isStoveCombined = false;
+    hasPlacedFridge = false;
+    isRoachesActive = false;
+    hasUsedDichlofos = false;
+    hasClearedRoaches = false;
+    stopRoaches();
     upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     ownedSkins = ['default'];
     currentSkin = 'default';
@@ -2195,6 +2324,10 @@
       localStorage.removeItem(HAS_FRIED_KEY);
       localStorage.removeItem(COOKED_EGG_KEY);
       localStorage.removeItem(STOVE_COMBINED_KEY);
+      localStorage.removeItem(PLACED_FRIDGE_KEY);
+      localStorage.removeItem(ROACHES_ACTIVE_KEY);
+      localStorage.removeItem(USED_DICHLOFOS_KEY);
+      localStorage.removeItem(CLEARED_ROACHES_KEY);
       localStorage.removeItem(OWNED_SKINS_KEY);
       localStorage.removeItem(CURRENT_SKIN_KEY);
       localStorage.removeItem(OWNED_PROPS_KEY);
@@ -2232,6 +2365,18 @@
       propPlita.classList.remove('is-combined');
       delete propPlita.dataset.placed;
     }
+    const propFridge = document.getElementById('prop-fridge');
+    if (propFridge) {
+      propFridge.style.display = 'none';
+      delete propFridge.dataset.placed;
+    }
+    const propDichlofos = document.getElementById('prop-dichlofos');
+    if (propDichlofos) {
+      propDichlofos.style.display = 'none';
+      delete propDichlofos.dataset.placed;
+    }
+    const lvlRoachWarn = document.getElementById('lvlRoachWarning');
+    if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     applySkin('default');
     buildAchievementCards();
     updateDuckles();
@@ -2442,6 +2587,40 @@
       if (isGolden) {
         setTimeout(() => xpSound(), 200);
       }
+    } catch (e) {}
+  }
+
+  /* звук распыления дихлофоса (пшик спрея) */
+  function spraySound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const dur = 1.6;
+      const sampleRate = audioCtx.sampleRate;
+      const buffer = audioCtx.createBuffer(1, Math.floor(sampleRate * dur), sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.7;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(3200, audioCtx.currentTime);
+
+      const gain = audioCtx.createGain();
+      const t = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0.01, t);
+      gain.gain.linearRampToValueAtTime(0.24, t + 0.08);
+      gain.gain.setValueAtTime(0.24, t + dur - 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start(t);
+      noise.stop(t + dur);
     } catch (e) {}
   }
 
@@ -3193,6 +3372,11 @@
     if (householdContainer) {
       householdContainer.innerHTML = '';
       Object.keys(PROPS_DATA).forEach(id => {
+        // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
+        if (id === 'dichlofos' && !hasPlacedFridge) return;
+        // Если тараканы уже выведены дихлофосом, холодильник и дихлофос больше не нужны
+        if ((id === 'fridge' || id === 'dichlofos') && hasClearedRoaches) return;
+
         const prop = PROPS_DATA[id];
         const isOwned = ownedProps.includes(id);
         const canAfford = duckles >= prop.cost;
@@ -3348,6 +3532,26 @@
 
     if (propId === 'skovoroda' || propId === 'plita') {
       checkStovePanCombine();
+    } else if (propId === 'fridge') {
+      if (!hasClearedRoaches) {
+        hasPlacedFridge = true;
+        isRoachesActive = true;
+        try {
+          localStorage.setItem(PLACED_FRIDGE_KEY, '1');
+          localStorage.setItem(ROACHES_ACTIVE_KEY, '1');
+        } catch (e) {}
+        startRoaches();
+        updateLevelDisplay();
+        renderShopBuyTab();
+        tryUnlock();
+      }
+    } else if (propId === 'dichlofos') {
+      hasUsedDichlofos = true;
+      try {
+        localStorage.setItem(USED_DICHLOFOS_KEY, '1');
+      } catch (e) {}
+      applyDichlofos();
+      tryUnlock();
     }
   }
   window.placePropOnScreen = placePropOnScreen;
@@ -3568,6 +3772,171 @@
       }
     }
   }
+
+  /* ---------- Механика тараканов и дихлофоса ---------- */
+  let roachesList = [];
+  let roachesAnimId = null;
+
+  function startRoaches() {
+    const container = document.getElementById('roachesContainer');
+    if (!container) return;
+    if (roachesList.length > 0) return;
+
+    const count = 12;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'roach-bug';
+      el.textContent = '🪳';
+      container.appendChild(el);
+
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.4 + Math.random() * 2.2;
+      const roach = {
+        el,
+        x: 40 + Math.random() * (window.innerWidth - 80),
+        y: 60 + Math.random() * (window.innerHeight - 120),
+        angle,
+        speed,
+        turnTimer: 20 + Math.random() * 40,
+        dying: false
+      };
+      roachesList.push(roach);
+    }
+
+    if (!roachesAnimId) {
+      roachesAnimId = requestAnimationFrame(roachesLoop);
+    }
+  }
+
+  function roachesLoop() {
+    if (roachesList.length === 0) {
+      roachesAnimId = null;
+      return;
+    }
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    roachesList.forEach(r => {
+      if (!r.dying) {
+        r.x += Math.cos(r.angle) * r.speed;
+        r.y += Math.sin(r.angle) * r.speed;
+
+        r.turnTimer--;
+        if (r.turnTimer <= 0) {
+          r.angle += (Math.random() - 0.5) * 1.5;
+          r.turnTimer = 25 + Math.random() * 50;
+        }
+
+        if (r.x < 15) { r.angle = Math.PI - r.angle; r.x = 15; }
+        if (r.x > w - 40) { r.angle = Math.PI - r.angle; r.x = w - 40; }
+        if (r.y < 15) { r.angle = -r.angle; r.y = 15; }
+        if (r.y > h - 40) { r.angle = -r.angle; r.y = h - 40; }
+
+        r.el.style.transform = `translate(${r.x}px, ${r.y}px) rotate(${r.angle + Math.PI / 2}rad)`;
+      }
+    });
+
+    roachesAnimId = requestAnimationFrame(roachesLoop);
+  }
+
+  function stopRoaches() {
+    if (roachesAnimId) {
+      cancelAnimationFrame(roachesAnimId);
+      roachesAnimId = null;
+    }
+    const container = document.getElementById('roachesContainer');
+    if (container) container.innerHTML = '';
+    roachesList = [];
+  }
+
+  function applyDichlofos() {
+    spraySound();
+
+    const smokeContainer = document.getElementById('greenSmokeContainer');
+    const smokeEmojis = ['💨', '🟢', '🫧', '💨'];
+    let smokeInterval = null;
+
+    if (smokeContainer) {
+      smokeInterval = setInterval(() => {
+        for (let i = 0; i < 4; i++) {
+          const item = document.createElement('div');
+          item.className = 'green-smoke-item';
+          item.textContent = smokeEmojis[Math.floor(Math.random() * smokeEmojis.length)];
+          item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+          item.style.top = Math.random() * (window.innerHeight - 80) + 'px';
+          item.style.fontSize = (36 + Math.random() * 32) + 'px';
+          smokeContainer.appendChild(item);
+          setTimeout(() => item.remove(), 2200);
+        }
+      }, 180);
+    }
+
+    particles.push({
+      x: innerWidth / 2,
+      y: innerHeight / 2 - 30,
+      vx: 0,
+      vy: -120,
+      size: 24,
+      alpha: 1.5,
+      text: '🧴 ДИХЛОФОС В ДЕЙСТВИИ! 💨',
+      color: '#4ade80'
+    });
+
+    // Анимация гибели тараканов
+    roachesList.forEach(r => {
+      r.dying = true;
+      r.speed = 0;
+      r.el.classList.add('dying');
+      r.el.style.transform += ' rotate(180deg) scale(0.85)';
+    });
+
+    setTimeout(() => {
+      if (smokeInterval) clearInterval(smokeInterval);
+      if (smokeContainer) smokeContainer.innerHTML = '';
+
+      isRoachesActive = false;
+      hasClearedRoaches = true;
+      try {
+        localStorage.setItem(ROACHES_ACTIVE_KEY, '0');
+        localStorage.setItem(CLEARED_ROACHES_KEY, '1');
+      } catch (e) {}
+
+      stopRoaches();
+
+      // Холодильник и дихлофос пропадают со склада и со стола
+      ownedProps = ownedProps.filter(id => id !== 'fridge' && id !== 'dichlofos');
+      delete placedProps['fridge'];
+      delete placedProps['dichlofos'];
+      try {
+        localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
+        localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps));
+      } catch (e) {}
+
+      const fEl = document.getElementById('prop-fridge');
+      if (fEl) fEl.style.display = 'none';
+      const dEl = document.getElementById('prop-dichlofos');
+      if (dEl) dEl.style.display = 'none';
+
+      updateLevelDisplay();
+      renderStorage();
+      renderShopBuyTab();
+      updateShopButtonVisibility();
+
+      particles.push({
+        x: innerWidth / 2,
+        y: innerHeight / 2 - 40,
+        vx: 0,
+        vy: -140,
+        size: 22,
+        alpha: 1.4,
+        text: '✨ Все тараканы уничтожены! Опыт снова накапливается! 🎉',
+        color: '#4ade80'
+      });
+      xpSound();
+    }, 5000);
+  }
+  window.applyDichlofos = applyDichlofos;
 
   // Модальное окно Гардероба
   const wardrobeBtn = document.getElementById('wardrobeBtn');
@@ -3949,8 +4318,11 @@
   initDraggableEgg(document.getElementById('goldenEgg'));
   initDraggableProp(document.getElementById('prop-skovoroda'), 'skovoroda');
   initDraggableProp(document.getElementById('prop-plita'), 'plita');
+  initDraggableProp(document.getElementById('prop-fridge'), 'fridge');
+  initDraggableProp(document.getElementById('prop-dichlofos'), 'dichlofos');
   applySkin(currentSkin);
   restorePropsOnScreen();
+  if (isRoachesActive) startRoaches();
   buildAchievementCards();
   updateDuckles();
   updateLevelDisplay();
