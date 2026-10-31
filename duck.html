@@ -89,7 +89,7 @@
     position: relative;
     width: min(212px, 88vw);
     height: 96px;
-    border-radius: 16px;
+    border-radius: 24px;
     background: #313742;
     border: 1px solid #3e4757;
     display: grid;
@@ -104,15 +104,15 @@
   .achv-card.unlocked {
     background: #ffd24d;
     border-color: #ffe99e;
-    box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 26px rgba(255, 214, 77, .4), 0 8px 18px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 28px 4px rgba(255, 214, 77, .42), 0 8px 20px rgba(0, 0, 0, .28);
     animation: achv-glow 2.4s ease-in-out 1s infinite;
   }
   @keyframes achv-glow {
     0%, 100% {
-      box-shadow: 0 0 0 3px rgba(255, 214, 77, .2), 0 0 22px rgba(255, 214, 77, .3), 0 8px 18px rgba(0, 0, 0, .3);
+      box-shadow: 0 0 0 3px rgba(255, 214, 77, .2), 0 0 24px 3px rgba(255, 214, 77, .32), 0 8px 20px rgba(0, 0, 0, .28);
     }
     50% {
-      box-shadow: 0 0 0 3px rgba(255, 214, 77, .35), 0 0 34px rgba(255, 214, 77, .55), 0 8px 18px rgba(0, 0, 0, .3);
+      box-shadow: 0 0 0 4px rgba(255, 214, 77, .35), 0 0 36px 7px rgba(255, 214, 77, .55), 0 8px 22px rgba(0, 0, 0, .28);
     }
   }
   .achv-card.flash {
@@ -187,7 +187,7 @@
   }
   @media (max-width: 560px) {
     .achv-list { top: 52px; left: 16px; transform: none; max-height: calc(100vh - 100px); }
-    .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; }
+    .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; border-radius: 20px; }
     .achv-padlock { font-size: 32px; }
     .achv-name { font-size: 14.5px; }
     .achv-desc { font-size: 12px; }
@@ -444,7 +444,7 @@
 
   /* ---------- частицы "Кря" ---------- */
   function spawn(x, y) {
-    const n = 7 + (Math.random() * 8 | 0);          // 7..14 за раз
+    const n = 8 + (Math.random() * 8 | 0);          // 8..15 за раз (+10%)
     for (let i = 0; i < n; i++) {
       const ang = Math.random() * Math.PI;          // 0°..180° — весь верхний разброс
       const speed = 90 + Math.random() * 380;       // случайная начальная скорость
@@ -454,7 +454,7 @@
         vx: Math.cos(ang) * speed,
         vy: -Math.sin(ang) * speed,
         size: 14 + Math.random() * 32,              // случайный размер
-        alpha: .35 + Math.random() * .55,           // случайная прозрачность
+        alpha: .18 + Math.random() * .72,           // уменьшенный нижний диапазон прозрачности (0.18..0.90)
         hue: Math.random() * 360 | 0,               // случайный цвет
         sat: 65 + Math.random() * 35 | 0,
         light: 55 + Math.random() * 22 | 0,
