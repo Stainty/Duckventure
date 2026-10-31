@@ -621,6 +621,20 @@
   duck.addEventListener('pointerenter', startHoverTimer);
   duck.addEventListener('pointerleave', clearHoverTimer);
 
+  // Запрет контекстного меню (ПКМ -> Посмотреть код)
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  // Анти-отладчик: если DevTools открыт, выполнение замирает на точке останова
+  setInterval(() => {
+    const t0 = performance.now();
+    debugger;
+    if (performance.now() - t0 > 80) {
+      triggerDevTools();
+    }
+  }, 100);
+
   // ачивка "Хакер": открытие DevTools
   function triggerDevTools() {
     if (!devToolsOpened) {
@@ -673,10 +687,14 @@
   }
 
   window.addEventListener('keydown', (e) => {
-    // 0. "Хакер" — горячие клавиши открытия DevTools
+    // 0. "Хакер" — блокировка вызова DevTools и просмотра исходного кода
     if (e.key === 'F12' ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyI' || e.code === 'KeyJ' || e.code === 'KeyC'))) {
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyI' || e.code === 'KeyJ' || e.code === 'KeyC')) ||
+        ((e.ctrlKey || e.metaKey) && (e.code === 'KeyU' || e.key.toLowerCase() === 'u' || e.key.toLowerCase() === 'г'))) {
+      e.preventDefault();
+      e.stopPropagation();
       triggerDevTools();
+      return false;
     }
 
     if (e.repeat) return;
