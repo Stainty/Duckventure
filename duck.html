@@ -962,11 +962,11 @@
       check: () => quackCount >= 1,
     },
     {
-      id: 'hundred-quacks',
-      name: 'Делать нечего?',
-      desc: 'Нажмите 100! раз на утку',
+      id: 'thousand-quacks',
+      name: 'Тебе делать нечего?',
+      desc: 'Нажмите 1000! раз на утку',
       done: false,
-      check: () => quackCount >= 100,
+      check: () => quackCount >= 1000,
     },
     {
       id: 'mimambo',
@@ -1101,6 +1101,7 @@
       a.done = false;
       try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
     });
+    try { localStorage.removeItem(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
     buildAchievementCards();
     updateDuckles();
     updateLevelDisplay();
