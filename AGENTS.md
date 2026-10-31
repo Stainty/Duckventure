@@ -10,7 +10,10 @@
 | `#eggsBar` / `#normalEggsVal` / `#goldenEggsVal` | Плашка счётчиков обычных 🥚 и золотых ✨🥚 яиц под плашкой даклей (скрыта до «Возможности» LVL 3 «Гусыня») |
 | `#normalEgg` / `#goldenEgg` | Перетаскиваемые (drag & drop через pointer events) эмодзи яиц на экране. Отображаются только если их количество > 0. Золотое яйцо больше и пульсирует светом |
 | `#upgradesBtn` / `#upgradesModal` | Кнопка «⚡ Апгрейды» и модальное окно прокачки (5 веток по 5 уровней: Возможности, Автокрякалка, Скорость, Крит шанс, Сила) |
-| `#shopBtn` / `#shopModal` | Кнопка «🛒 Магазин» (скрыта до «Возможности» LVL 2). В модальном окне две вкладки: «🛒 Покупка» и «💰 Продажа яиц» (200 🦆 за обычное, 5 000 🦆 за золотое) |
+| `#shopBtn` / `#shopModal` | Кнопка «🛒 Магазин» (скрыта до «Возможности» LVL 2). В модальном окне две вкладки: «🛒 Покупка» («Duckberries») и «💰 Продажа яиц» (200 🦆 за обычное, 5 000 🦆 за золотое) |
+| `#wardrobeBtn` / `#wardrobeModal` | Кнопка «👔 Гардероб» (появляется после первой покупки одежды в Duckberries). Позволяет выбирать экипированный скин утки (Классическая утка, Золотая цепь «Арго») |
+| `#storageBtn` / `#storageModal` | Кнопка «📦 Склад» (появляется после первой покупки предмета быта). Позволяет доставать предметы на рабочий стол или убирать обратно на склад |
+| `#prop-skovoroda` / `.draggable-prop` | Перетаскиваемые бытовые предметы на экране (Сковорода). Сохраняют позицию на экране (`duck-placed-props`) |
 | `#cheatPanel` | Тестовая панель слева внизу: кнопки быстрого начисления Даклей (+1k, +50k, +1M) и яиц (+🥚) для тестирования |
 | `#lvlBox` / `#lvlNum` / `#lvlBarFill` | Система уровней в правом нижнем углу (LVL 1..20, полоса опыта, `lvlExpText` и анонс следующего разблокирования `lvlNextUnlock`) |
 | `#particles` | Canvas поверх всего. Частицы: обычный текст «Кря» (случайный HSL), тусклые частицы автокрякалки (0.10..0.30 alpha), криты («💥 КРИТ! +X 🦆»), `fly` (эмодзи 🔒) и `LVL UP!` (жёлтый) |
@@ -72,13 +75,32 @@
    - после каждого клика `tryUnlock()` проверяет `check()` у не-открытых ачивок;
    - при разблокировке: `xpSound()` (звук опыта из Minecraft), жёлтая подсветка карточки (`.unlocked`) + анимация `flash`, появление названия/описания (`.shown`, 220 мс), замок 🔒 отлетает с карточки как частица `fly`.
 
+## Магазин «Duckberries», Гардероб и Склад
+1. **Вкладка «🛒 Покупка» в Магазине**:
+   - Фиолетовый градиентный заголовок с золотым неоновым свечением: **Duckberries** («Всё для вашей утки»).
+   - Категория **Одежда**:
+     - Товар: Золотая цепь «Арго» (1 000 🦆).
+     - Эффект: меняет скин утки (изображение с цепью), открывает доступ к кнопке **«👔 Гардероб»** в верхнем меню.
+   - Категория **Быт**:
+     - Товар: Сковорода (2 500 🦆).
+     - Эффект: открывает доступ к кнопке **«📦 Склад»** в верхнем меню.
+2. **Гардероб (`#wardrobeModal`)**:
+   - Позволяет в любой момент переключаться между купленными скинами и стандартной резиновой уткой («Классика»).
+3. **Склад (`#storageModal`)**:
+   - Список купленных бытовых предметов.
+   - Кнопка «Выложить»: спавнит предмет на экран (`.draggable-prop`), который можно свободно перетаскивать мышкой/тачем.
+   - Кнопка «Убрать»: возвращает предмет с экрана обратно на склад.
+   - Координаты выложенных предметов сохраняются в `localStorage`.
+
 ## Сохранение
 `localStorage`:
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
 - счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`, `duck-devtools`, `duck-bad-words`, `duck-hover-wait`;
 - яйца: `duck-eggs-normal`, `duck-eggs-golden`;
-- система уровней и апгрейдов: `duck-level`, `duck-level-exp`, `duck-upg-autoquack`, `duck-upg-speed`, `duck-upg-crit`, `duck-upg-strength`, `duck-upg-features`.
-При загрузке страницы статус ачивок, уровни, яйца и улучшения считываются из storage.
+- система уровней и апгрейдов: `duck-level`, `duck-level-exp`, `duck-upg-autoquack`, `duck-upg-speed`, `duck-upg-crit`, `duck-upg-strength`, `duck-upg-features`;
+- скины и гардероб: `duck-owned-skins` (JSON-массив), `duck-current-skin` (строка id);
+- склад и предметы: `duck-owned-props` (JSON-массив), `duck-placed-props` (JSON-словарь `{ id: { left, top } }`).
+При загрузке страницы статус ачивок, уровни, яйца, улучшения, гардероб и расставленные предметы считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
 - `quack()` — «кря»: sawtooth + square + шумовой burst.
@@ -112,12 +134,12 @@
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет все ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `ownedSkins = ['default']`, `currentSkin = 'default'`, `ownedProps = []`, `placedProps = {}`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет все ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
-3. удаляет `duck-achv-{id}`, `duck-level`, `duck-level-exp`, `duck-eggs-*` и `duck-upg-*` из localStorage;
+3. удаляет `duck-achv-{id}`, `duck-level`, `duck-level-exp`, `duck-eggs-*`, `duck-upg-*`, `duck-owned-skins`, `duck-current-skin`, `duck-owned-props` и `duck-placed-props` из localStorage;
 4. перестраивает карточки через `buildAchievementCards()`;
-5. скрывает перетаскиваемые яйца `#normalEgg` и `#goldenEgg`, обновляет отображение яиц (`updateEggsDisplay()`);
-6. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки, скрывает кнопку Магазина (`updateShopButtonVisibility()`) и обновляет карточки улучшений (`renderUpgrades()`).
+5. скрывает перетаскиваемые яйца `#normalEgg` и `#goldenEgg`, обновляет отображение яиц (`updateEggsDisplay()`), скрывает выложенные предметы и сбрасывает скин на дефолтный;
+6. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки, скрывает кнопку Магазина, Гардероба и Склада (`updateShopButtonVisibility()`) и обновляет карточки улучшений (`renderUpgrades()`).
 
 ## Подводные камни (Pitfalls)
 1. **HTML карточки собирается конкатенацией — потерянная кавычка молча ломает DOM.**
