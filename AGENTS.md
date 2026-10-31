@@ -7,9 +7,12 @@
 |---|---|
 | `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, `quackCount++`, `duckles++`, `tryUnlock()` |
 | `#ducklesBar` / `.duckles-val` | Верхняя плашка баланса валюты («Даклей заработано: X») |
-| `#particles` | Canvas поверх всего. Частицы: текст «Кря» (случайный HSL) или `fly` (эмодзи 🔒, вращаются) |
+| `#upgradesBtn` / `#upgradesModal` | Кнопка «⚡ Апгрейды» и модальное окно прокачки (3 ветки по 5 уровней) |
+| `#lvlBox` / `#lvlNum` / `#lvlBarFill` | Система уровней в правом нижнем углу (LVL 1..99 + полоса опыта) |
+| `#particles` | Canvas поверх всего. Частицы: текст «Кря» (случайный HSL), `fly` (эмодзи 🔒) и `LVL UP!` (жёлтый) |
 | `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
-| `quackCount` / `duckles` / `hintCount` | Глобальные счётчики: клики по утке / баланс Даклей / клики по нижней подсказке `.hint` |
+| `quackCount` / `duckles` / `hintCount` / `playerLevel` / `playerExp` | Глобальные счётчики: клики, валюта, подсказка, уровень и опыт |
+| `upgradeLevels` | Уровни купленных улучшений (`autoquack`, `strength`, `features`) |
 | `keyPressed` / `duckSeqDone` / `lockedCardClicked` / `devToolsOpened` / `badWordsTyped` / `hoverWaitDone` | Флаги для клавиатурных, скрытых и таймерных ачивок |
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
@@ -39,8 +42,9 @@
 ## Сохранение
 `localStorage`:
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
-- счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`, `duck-devtools`, `duck-bad-words`, `duck-hover-wait`.
-При загрузке страницы статус ачивок и счётчики считываются из storage.
+- счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`, `duck-devtools`, `duck-bad-words`, `duck-hover-wait`;
+- система уровней и апгрейдов: `duck-level`, `duck-level-exp`, `duck-upg-autoquack`, `duck-upg-strength`, `duck-upg-features`.
+При загрузке страницы статус ачивок, уровни и улучшения считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
 - `quack()` — «кря»: sawtooth + square + шумовой burst.
@@ -66,11 +70,11 @@
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `upgradeLevels = { autoquack: 0, strength: 0, features: 0 }`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет все ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
-3. удаляет `duck-achv-{id}` из localStorage;
+3. удаляет `duck-achv-{id}`, `duck-level`, `duck-level-exp` и `duck-upg-*` из localStorage;
 4. перестраивает карточки через `buildAchievementCards()`;
-5. обновляет отображение Даклей.
+5. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки и обновляет карточки улучшений (`renderUpgrades()`).
 
 ## Подводные камни (Pitfalls)
 1. **HTML карточки собирается конкатенацией — потерянная кавычка молча ломает DOM.**

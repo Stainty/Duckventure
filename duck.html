@@ -186,12 +186,46 @@
     transform: scale(.96);
   }
 
-  /* ---------- Панель валюты (Дакли) ---------- */
-  .duckles-bar {
+  /* ---------- Верхняя панель (Апгрейды + Дакли) ---------- */
+  .top-nav {
     position: fixed;
     top: 14px;
     left: 50%;
     transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 25;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .upgrades-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(255, 210, 77, 0.2), rgba(255, 210, 77, 0.08));
+    border: 1px solid rgba(255, 210, 77, 0.4);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    color: #ffd24d;
+    font: 700 14.5px/1.3 system-ui, "Segoe UI", sans-serif;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s, background .2s, border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .upgrades-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 210, 77, 0.32), rgba(255, 210, 77, 0.16));
+    border-color: #ffe082;
+    box-shadow: 0 0 16px rgba(255, 210, 77, 0.35);
+    transform: translateY(-1px);
+  }
+  .upgrades-btn:active {
+    transform: scale(.96);
+  }
+  .duckles-bar {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -206,8 +240,6 @@
     font: 600 15.5px/1.3 system-ui, "Segoe UI", sans-serif;
     letter-spacing: .02em;
     user-select: none;
-    z-index: 25;
-    white-space: nowrap;
   }
   .duckles-val {
     color: #ffd24d;
@@ -220,9 +252,250 @@
     transform: scale(1.22);
   }
 
+  /* ---------- Система уровня (Справа внизу) ---------- */
+  .lvl-box {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    z-index: 25;
+    user-select: none;
+  }
+  .lvl-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font: 800 15.5px/1 system-ui, "Segoe UI", sans-serif;
+    color: #ffd24d;
+    letter-spacing: .04em;
+    text-shadow: 0 2px 10px rgba(255, 210, 77, 0.25);
+  }
+  .lvl-num {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    transition: transform .15s ease;
+    display: inline-block;
+  }
+  .lvl-bar-bg {
+    width: 140px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 99px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  .lvl-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ffb833, #ffd24d);
+    border-radius: 99px;
+    box-shadow: 0 0 10px rgba(255, 210, 77, 0.6);
+    transition: width .25s ease-out;
+  }
+
+  /* ---------- Модальное окно прокачки ---------- */
+  .upgrades-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 14, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    animation: modalFadeIn .2s ease-out;
+  }
+  .upgrades-modal.open {
+    display: grid;
+  }
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .upgrades-dialog {
+    width: min(720px, 94vw);
+    max-height: min(85vh, 680px);
+    background: #181d28;
+    border: 1px solid #2e3648;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(255, 210, 77, 0.12);
+    border-radius: 22px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .upgrades-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid #283040;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .upgrades-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font: 800 18px system-ui, sans-serif;
+    color: #fff;
+  }
+  .upgrades-title-icon {
+    color: #ffd24d;
+  }
+  .upgrades-modal-balance {
+    font: 700 14px system-ui, sans-serif;
+    color: #ffd24d;
+    background: rgba(255, 210, 77, 0.1);
+    border: 1px solid rgba(255, 210, 77, 0.25);
+    padding: 4px 12px;
+    border-radius: 99px;
+  }
+  .upgrades-close-btn {
+    background: transparent;
+    border: none;
+    color: #8b93a7;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 6px;
+    border-radius: 8px;
+    transition: color .15s, background .15s;
+  }
+  .upgrades-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .upgrades-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .upgrade-card {
+    background: #202736;
+    border: 1px solid #2c364b;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: border-color .2s;
+  }
+  .upgrade-card:hover {
+    border-color: #3f4e6b;
+  }
+  .upgrade-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .upgrade-header-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .upgrade-name {
+    font: 800 16px system-ui, sans-serif;
+    color: #fff;
+  }
+  .upgrade-subtitle {
+    font: 600 12.5px system-ui, sans-serif;
+    color: #ffd24d;
+  }
+  .upgrade-curr-effect {
+    font: 13px system-ui, sans-serif;
+    color: #9cb0d0;
+    margin-bottom: 4px;
+  }
+  .upgrade-req-text {
+    font: 12px monospace;
+    color: #6d7d97;
+  }
+  .upgrade-levels-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .upgrade-lvl-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 66px;
+    height: 56px;
+    border-radius: 12px;
+    border: 1px solid #36425a;
+    background: #161c28;
+    color: #8da0be;
+    font: 700 11px system-ui, sans-serif;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    text-align: center;
+    padding: 2px;
+  }
+  .upgrade-lvl-btn .lvl-tag {
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .upgrade-lvl-btn .price-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: #ffd24d;
+    margin-top: 2px;
+  }
+  .upgrade-lvl-btn.bought {
+    background: rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.4);
+    color: #2ecc71;
+    cursor: default;
+  }
+  .upgrade-lvl-btn.bought .price-tag {
+    color: #2ecc71;
+  }
+  .upgrade-lvl-btn.can-buy {
+    background: linear-gradient(135deg, rgba(255, 210, 77, 0.22), rgba(255, 210, 77, 0.08));
+    border-color: #ffd24d;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 210, 77, 0.2);
+  }
+  .upgrade-lvl-btn.can-buy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(255, 210, 77, 0.4);
+  }
+  .upgrade-lvl-btn.cannot-afford {
+    background: #181d27;
+    border-color: #3b4559;
+    color: #7a889f;
+  }
+  .upgrade-lvl-btn.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #11151f;
+    border-color: #202735;
+  }
+
   @media (max-width: 560px) {
-    .duckles-bar { top: 10px; font-size: 13px; padding: 6px 12px; }
+    .top-nav { top: 10px; gap: 6px; }
+    .upgrades-btn { font-size: 12px; padding: 6px 12px; }
+    .duckles-bar { font-size: 12.5px; padding: 6px 12px; }
     .duckles-val { font-size: 15px; }
+    .lvl-box { bottom: 12px; right: 12px; }
+    .lvl-bar-bg { width: 100px; height: 6px; }
+    .lvl-num { font-size: 19px; }
+    .upgrade-card { flex-direction: column; align-items: stretch; gap: 10px; }
+    .upgrade-levels-row { justify-content: space-between; }
+    .upgrade-lvl-btn { flex: 1; width: auto; height: 50px; }
     .achv-list { top: 48px; left: 0; transform: none; max-height: calc(100vh - 90px); padding: 24px 16px; }
     .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; border-radius: 20px; }
     .achv-padlock { font-size: 32px; }
@@ -233,7 +506,38 @@
 </head>
 <body>
 
-  <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
+  <div class="top-nav" id="topNav">
+    <button id="upgradesBtn" class="upgrades-btn" aria-label="Открыть окно прокачки">
+      <span class="upgrades-icon">⚡</span> Апгрейды
+    </button>
+    <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
+  </div>
+
+  <div class="lvl-box" id="lvlBox">
+    <div class="lvl-title-row">
+      <span>LVL</span> <span class="lvl-num" id="lvlNum">1</span>
+    </div>
+    <div class="lvl-bar-bg" title="Прогресс до следующего уровня">
+      <div class="lvl-bar-fill" id="lvlBarFill"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно прокачки -->
+  <div class="upgrades-modal" id="upgradesModal">
+    <div class="upgrades-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="upgrades-title-icon">⚡</span>
+          <span>Прокачка утки</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="modalDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeUpgradesBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="upgrades-body" id="upgradesList"></div>
+    </div>
+  </div>
 
   <button id="duck" aria-label="Крякнуть">
     <span class="duck-fallback">🦆</span>
@@ -266,6 +570,8 @@
   const DEVTOOLS_KEY = 'duck-devtools';
   const BAD_WORDS_KEY = 'duck-bad-words';
   const HOVER_WAIT_KEY = 'duck-hover-wait';
+  const LEVEL_KEY = 'duck-level';
+  const EXP_KEY = 'duck-level-exp';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -277,18 +583,153 @@
   let badWordsTyped = localStorage.getItem(BAD_WORDS_KEY) === '1';
   let hoverWaitDone = localStorage.getItem(HOVER_WAIT_KEY) === '1';
 
+  let playerLevel = parseInt(localStorage.getItem(LEVEL_KEY) || '1', 10) || 1;
+  let playerExp = parseInt(localStorage.getItem(EXP_KEY) || '0', 10) || 0;
+
+  let upgradeLevels = {
+    autoquack: parseInt(localStorage.getItem('duck-upg-autoquack') || '0', 10) || 0,
+    strength: parseInt(localStorage.getItem('duck-upg-strength') || '0', 10) || 0,
+    features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
+  };
+
+  const UPGRADES_DATA = [
+    {
+      id: 'autoquack',
+      name: 'Автокрякалка',
+      desc: 'Пассивный доход',
+      levels: [
+        { lvl: 1, text: '+1 Дакль / 1 сек', cost: 20, reqLvl: 1, rate: 1 },
+        { lvl: 2, text: '+3 Дакля / 1 сек', cost: 80, reqLvl: 3, rate: 3 },
+        { lvl: 3, text: '+8 Даклей / 1 сек', cost: 250, reqLvl: 6, rate: 8 },
+        { lvl: 4, text: '+20 Даклей / 1 сек', cost: 800, reqLvl: 10, rate: 20 },
+        { lvl: 5, text: '+50 Даклей / 1 сек', cost: 2500, reqLvl: 15, rate: 50 },
+      ]
+    },
+    {
+      id: 'strength',
+      name: 'Сила',
+      desc: 'Ай нид мор',
+      levels: [
+        { lvl: 1, text: '2 Дакли за нажатие', cost: 200, reqLvl: 1, power: 2 },
+        { lvl: 2, text: '5 Даклей за нажатие', cost: 600, reqLvl: 4, power: 5 },
+        { lvl: 3, text: '12 Даклей за нажатие', cost: 1800, reqLvl: 8, power: 12 },
+        { lvl: 4, text: '30 Даклей за нажатие', cost: 5000, reqLvl: 13, power: 30 },
+        { lvl: 5, text: '75 Даклей за нажатие', cost: 15000, reqLvl: 20, power: 75 },
+      ]
+    },
+    {
+      id: 'features',
+      name: 'Возможности',
+      desc: 'Новые геймплейные элементы',
+      levels: [
+        { lvl: 1, text: 'Критический кряк (10% шанс x5)', cost: 100, reqLvl: 2 },
+        { lvl: 2, text: 'Турбо-кряк (Автокряк в 2 раза чаще)', cost: 500, reqLvl: 5 },
+        { lvl: 3, text: 'Дак-Магнит (Каждые 20 кликов +50 Даклей)', cost: 2000, reqLvl: 9 },
+        { lvl: 4, text: 'Кряк-Лихорадка (Серия кликов дает до x3)', cost: 7500, reqLvl: 14 },
+        { lvl: 5, text: 'Золотая Утка (x2 ко всему доходу)', cost: 25000, reqLvl: 22 },
+      ]
+    }
+  ];
+
   let charBuffer = '';
   let codeBuffer = '';
+  let lastClickTime = 0;
+  let comboMultiplier = 1;
+
+  function getExpForLevel(lvl) {
+    if (lvl >= 99) return Infinity;
+    // Уровень 1 -> 2 ровно 10 Даклей, далее плавная прогрессия до 99 уровня
+    return Math.round(10 * Math.pow(lvl, 1.45));
+  }
 
   const ducklesVal = document.getElementById('ducklesVal');
+  const modalDucklesVal = document.getElementById('modalDucklesVal');
+
   function updateDuckles(bump = false) {
     if (ducklesVal) {
-      ducklesVal.textContent = duckles;
+      ducklesVal.textContent = duckles.toLocaleString('ru-RU');
       if (bump) {
         ducklesVal.classList.remove('bump');
         void ducklesVal.offsetWidth;
         ducklesVal.classList.add('bump');
       }
+    }
+    if (modalDucklesVal) {
+      modalDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+    }
+  }
+
+  function updateLevelDisplay(bump = false) {
+    const lvlNumEl = document.getElementById('lvlNum');
+    const lvlBarFill = document.getElementById('lvlBarFill');
+    if (lvlNumEl) {
+      lvlNumEl.textContent = playerLevel;
+      if (bump) {
+        lvlNumEl.style.transform = 'scale(1.35)';
+        setTimeout(() => lvlNumEl.style.transform = 'none', 180);
+      }
+    }
+    if (lvlBarFill) {
+      if (playerLevel >= 99) {
+        lvlBarFill.style.width = '100%';
+      } else {
+        const req = getExpForLevel(playerLevel);
+        const pct = Math.min(100, Math.max(0, (playerExp / req) * 100));
+        lvlBarFill.style.width = pct + '%';
+      }
+    }
+  }
+
+  function addDuckles(amount) {
+    if (amount <= 0) return;
+    duckles += amount;
+    try { localStorage.setItem(DUCKLES_KEY, String(duckles)); } catch (e) {}
+    updateDuckles(true);
+
+    // Опыт и уровни
+    if (playerLevel < 99) {
+      playerExp += amount;
+      let expForNext = getExpForLevel(playerLevel);
+      let leveledUp = false;
+
+      while (playerLevel < 99 && playerExp >= expForNext) {
+        playerExp -= expForNext;
+        playerLevel++;
+        leveledUp = true;
+        expForNext = getExpForLevel(playerLevel);
+      }
+
+      if (leveledUp) {
+        const lvlBox = document.getElementById('lvlNum');
+        if (lvlBox) {
+          const r = lvlBox.getBoundingClientRect();
+          spawnLvlUp(r.left + r.width / 2, r.top);
+        }
+        xpSound();
+        try { localStorage.setItem(LEVEL_KEY, String(playerLevel)); } catch (e) {}
+      }
+      try { localStorage.setItem(EXP_KEY, String(playerExp)); } catch (e) {}
+      updateLevelDisplay(leveledUp);
+    }
+    renderUpgrades();
+    tryUnlock();
+  }
+
+  function spawnLvlUp(x, y) {
+    const count = 5 + (Math.random() * 4 | 0);
+    for (let i = 0; i < count; i++) {
+      const ang = 0.25 + Math.random() * Math.PI * 0.5;
+      const speed = 190 + Math.random() * 260;
+      particles.push({
+        x: x + (Math.random() - .5) * 44,
+        y: y + (Math.random() - .5) * 14,
+        vx: Math.cos(ang) * speed,
+        vy: -Math.sin(ang) * speed,
+        size: 18 + Math.random() * 12,
+        alpha: 1,
+        text: 'LVL UP!',
+        color: '#ffd24d'
+      });
     }
   }
 
@@ -387,6 +828,9 @@
     quackCount = 0;
     duckles = 0;
     hintCount = 0;
+    playerLevel = 1;
+    playerExp = 0;
+    upgradeLevels = { autoquack: 0, strength: 0, features: 0 };
     keyPressed = false;
     duckSeqDone = false;
     duckSeqIndex = 0;
@@ -407,6 +851,11 @@
       localStorage.removeItem(DEVTOOLS_KEY);
       localStorage.removeItem(BAD_WORDS_KEY);
       localStorage.removeItem(HOVER_WAIT_KEY);
+      localStorage.removeItem(LEVEL_KEY);
+      localStorage.removeItem(EXP_KEY);
+      localStorage.removeItem('duck-upg-autoquack');
+      localStorage.removeItem('duck-upg-strength');
+      localStorage.removeItem('duck-upg-features');
     } catch (e) {}
     ACHIEVEMENTS.forEach((a) => {
       a.done = false;
@@ -414,6 +863,9 @@
     });
     buildAchievementCards();
     updateDuckles();
+    updateLevelDisplay();
+    updateAutoQuackTimer();
+    renderUpgrades();
   }
 
   function tryUnlock() {
@@ -493,6 +945,155 @@
   buildAchievementCards();
   tryUnlock();
   updateDuckles();
+  updateLevelDisplay();
+  updateAutoQuackTimer();
+  renderUpgrades();
+
+  /* ---------- Логика апгрейдов и автокрякалки ---------- */
+  let autoQuackTimer = null;
+  function updateAutoQuackTimer() {
+    if (autoQuackTimer) clearInterval(autoQuackTimer);
+    const lvl = upgradeLevels.autoquack;
+    if (lvl <= 0) return;
+
+    let rate = UPGRADES_DATA[0].levels[lvl - 1].rate;
+    if (upgradeLevels.features >= 5) {
+      rate *= 2;
+    }
+
+    // Возможности ур 2: автокрякалка в 2 раза быстрее (каждые 500мс)
+    const intervalMs = (upgradeLevels.features >= 2) ? 500 : 1000;
+    const gainPerTick = (upgradeLevels.features >= 2) ? (rate / 2) : rate;
+
+    autoQuackTimer = setInterval(() => {
+      addDuckles(gainPerTick);
+    }, intervalMs);
+  }
+
+  function buyUpgrade(upgradeId, targetLvl) {
+    const upg = UPGRADES_DATA.find(u => u.id === upgradeId);
+    if (!upg) return;
+    const currentLvl = upgradeLevels[upgradeId] || 0;
+    if (targetLvl !== currentLvl + 1) return;
+    const lvlData = upg.levels[targetLvl - 1];
+    if (!lvlData) return;
+
+    if (playerLevel < lvlData.reqLvl || duckles < lvlData.cost) return;
+
+    duckles -= lvlData.cost;
+    upgradeLevels[upgradeId] = targetLvl;
+
+    try {
+      localStorage.setItem(DUCKLES_KEY, String(duckles));
+      localStorage.setItem('duck-upg-' + upgradeId, String(targetLvl));
+    } catch (e) {}
+
+    xpSound();
+    updateDuckles(true);
+    updateAutoQuackTimer();
+    renderUpgrades();
+  }
+  window.buyUpgrade = buyUpgrade;
+
+  function renderUpgrades() {
+    const container = document.getElementById('upgradesList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    UPGRADES_DATA.forEach(upg => {
+      const curLvl = upgradeLevels[upg.id] || 0;
+      const card = document.createElement('div');
+      card.className = 'upgrade-card';
+
+      // Текущий эффект
+      let currText = 'Не приобретено';
+      if (curLvl > 0) {
+        currText = 'Текущий бонус: ' + upg.levels[curLvl - 1].text;
+      }
+
+      // Текст требования для следующего уровня
+      let reqText = 'Максимальный уровень (5/5)';
+      if (curLvl < 5) {
+        const nextLvlData = upg.levels[curLvl];
+        reqText = 'Следующий ур.: LVL ' + (curLvl + 1) + ' (требуется ур. игрока ' + nextLvlData.reqLvl + ')';
+      }
+
+      const infoHtml = `
+        <div class="upgrade-info">
+          <div class="upgrade-header-line">
+            <span class="upgrade-name">${upg.name}</span>
+            <span class="upgrade-subtitle">• ${upg.desc}</span>
+          </div>
+          <div class="upgrade-curr-effect">${currText}</div>
+          <div class="upgrade-req-text">${reqText}</div>
+        </div>
+      `;
+
+      let btnsHtml = '<div class="upgrade-levels-row">';
+      for (let l = 1; l <= 5; l++) {
+        const lvlData = upg.levels[l - 1];
+        if (l <= curLvl) {
+          btnsHtml += `
+            <button class="upgrade-lvl-btn bought" disabled title="LVL ${l} приобретен">
+              <span class="lvl-tag">LVL ${l}</span>
+              <span class="price-tag">✓</span>
+            </button>
+          `;
+        } else if (l === curLvl + 1) {
+          const hasLevel = playerLevel >= lvlData.reqLvl;
+          const canAfford = duckles >= lvlData.cost;
+          if (!hasLevel) {
+            btnsHtml += `
+              <button class="upgrade-lvl-btn locked" disabled title="Требуется уровень игрока ${lvlData.reqLvl}">
+                <span class="lvl-tag">LVL ${l}</span>
+                <span class="price-tag">🔒 ур.${lvlData.reqLvl}</span>
+              </button>
+            `;
+          } else {
+            const btnClass = canAfford ? 'upgrade-lvl-btn can-buy' : 'upgrade-lvl-btn cannot-afford';
+            btnsHtml += `
+              <button class="${btnClass}" onclick="buyUpgrade('${upg.id}', ${l})" title="Купить за ${lvlData.cost} Даклей">
+                <span class="lvl-tag">LVL ${l}</span>
+                <span class="price-tag">${lvlData.cost} 🦆</span>
+              </button>
+            `;
+          }
+        } else {
+          btnsHtml += `
+            <button class="upgrade-lvl-btn locked" disabled title="Сначала купите предыдущий уровень">
+              <span class="lvl-tag">LVL ${l}</span>
+              <span class="price-tag">🔒</span>
+            </button>
+          `;
+        }
+      }
+      btnsHtml += '</div>';
+
+      card.innerHTML = infoHtml + btnsHtml;
+      container.appendChild(card);
+    });
+  }
+
+  // Открытие/закрытие окна апгрейдов
+  const upgradesBtn = document.getElementById('upgradesBtn');
+  const upgradesModal = document.getElementById('upgradesModal');
+  const closeUpgradesBtn = document.getElementById('closeUpgradesBtn');
+
+  if (upgradesBtn && upgradesModal && closeUpgradesBtn) {
+    upgradesBtn.addEventListener('click', () => {
+      renderUpgrades();
+      upgradesModal.classList.add('open');
+    });
+    closeUpgradesBtn.addEventListener('click', () => {
+      upgradesModal.classList.remove('open');
+    });
+    upgradesModal.addEventListener('click', (e) => {
+      if (e.target === upgradesModal) {
+        upgradesModal.classList.remove('open');
+      }
+    });
+  }
+
 
   /* ---------- canvas ---------- */
   function resize() {
@@ -566,12 +1167,57 @@
     duck.classList.add('pop');
     quack();
     quackCount++;
-    duckles += 1;
+
+    // Расчет силы клика и возможностей
+    let gain = 1;
+    const strLvl = upgradeLevels.strength;
+    if (strLvl > 0) {
+      gain = UPGRADES_DATA[1].levels[strLvl - 1].power;
+    }
+
+    // Возможности ур 1: Критический кряк (10% шанс x5)
+    let isCrit = false;
+    if (upgradeLevels.features >= 1 && Math.random() < 0.10) {
+      isCrit = true;
+      gain *= 5;
+    }
+
+    // Возможности ур 3: Дак-Магнит (каждые 20 кликов +50 Даклей)
+    if (upgradeLevels.features >= 3 && quackCount % 20 === 0) {
+      gain += 50;
+      particles.push({
+        x: r.left + r.width / 2,
+        y: r.top + 20,
+        vx: 0,
+        vy: -150,
+        size: 20,
+        alpha: 1,
+        text: '+50 🦆',
+        color: '#ffdd55'
+      });
+    }
+
+    // Возможности ур 4: Кряк-Лихорадка (комбо серия)
+    const nowTime = performance.now();
+    if (upgradeLevels.features >= 4) {
+      if (nowTime - lastClickTime < 380) {
+        comboMultiplier = Math.min(3, Math.round((comboMultiplier + 0.2) * 10) / 10);
+      } else {
+        comboMultiplier = 1;
+      }
+      gain = Math.round(gain * comboMultiplier);
+    }
+    lastClickTime = nowTime;
+
+    // Возможности ур 5: Золотая утка (x2 ко всему)
+    if (upgradeLevels.features >= 5) {
+      gain *= 2;
+    }
+
+    addDuckles(gain);
     try {
       localStorage.setItem(QUACK_KEY, String(quackCount));
-      localStorage.setItem(DUCKLES_KEY, String(duckles));
     } catch (e) {}
-    updateDuckles(true);
 
     // Нажатие сбрасывает таймер ожидания (нужно навестись и не нажимать 10 сек)
     clearHoverTimer();
@@ -787,6 +1433,21 @@
         ctx.textBaseline = 'middle';
         ctx.font = p.size + 'px "Segoe UI Emoji", "Segoe UI Symbol", system-ui';
         ctx.fillText('🔒', 0, 0);
+        ctx.restore();
+      } else if (p.text) {
+        p.alpha -= 0.65 * dt;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.font = '800 ' + p.size + 'px system-ui, "Segoe UI", sans-serif';
+        ctx.fillStyle = p.color || '#ffd24d';
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.shadowColor = 'rgba(255, 210, 77, 0.7)';
+        ctx.shadowBlur = 12;
+        ctx.textAlign = 'center';
+        ctx.fillText(p.text, p.x, p.y);
         ctx.restore();
       } else {
         ctx.font = 'bold ' + p.size + 'px "Segoe UI", system-ui, sans-serif';
