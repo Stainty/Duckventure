@@ -107,7 +107,8 @@
 | 9 | `long-wait` | «Томное ожидание» | `hoverWaitDone` | наведение на утку без кликов в течение 10 секунд |
 | 10 | `automation` | «Автоматизация!» | `upgradeLevels.features >= 1` | прокачка LVL 1 «Возможностей» |
 | 11 | `shopping` | «Шоппинг» | `upgradeLevels.features >= 2` | прокачка LVL 2 «Возможностей» |
-| 12 | `max-power` | «MAX POWER!!!» | `playerLevel >= 20` | достижение максимального 20-го уровня игрока |
+| 12 | `mama` | «Мама!?» | `upgradeLevels.features >= 3` | прокачка LVL 3 «Возможностей» |
+| 13 | `max-power` | «MAX POWER!!!» | `playerLevel >= 20` | достижение максимального 20-го уровня игрока |
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
