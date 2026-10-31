@@ -5,10 +5,11 @@
 ## Ключевые элементы
 | Элемент | Назначение |
 |---|---|
-| `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, `quackCount++`, `tryUnlock()` |
+| `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, `quackCount++`, `duckles++`, `tryUnlock()` |
+| `#ducklesBar` / `.duckles-val` | Верхняя плашка баланса валюты («Даклей заработано: X») |
 | `#particles` | Canvas поверх всего. Частицы: текст «Кря» (случайный HSL) или `fly` (эмодзи 🔒, вращаются) |
 | `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
-| `quackCount` / `hintCount` | Глобальные счётчики: клики по утке / по нижней подсказке `.hint` |
+| `quackCount` / `duckles` / `hintCount` | Глобальные счётчики: клики по утке / баланс Даклей / клики по нижней подсказке `.hint` |
 | `keyPressed` / `duckSeqDone` / `lockedCardClicked` | Флаги для клавиатурных ачивок и взлома карточки |
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
@@ -38,7 +39,7 @@
 ## Сохранение
 `localStorage`:
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
-- счётчики и флаги: `duck-quack-count`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`.
+- счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`.
 При загрузке страницы статус ачивок и счётчики считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
@@ -62,10 +63,11 @@
 
 ## Сброс всех ачивок
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `duckSeqIndex = 0`) и удаляет их ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `duckSeqIndex = 0`) и удаляет их ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
 3. удаляет `duck-achv-{id}` из localStorage;
-4. перестраивает карточки через `buildAchievementCards()`.
+4. перестраивает карточки через `buildAchievementCards()`;
+5. обновляет отображение Даклей.
 
 ## Подводные камни (Pitfalls)
 1. **HTML карточки собирается конкатенацией — потерянная кавычка молча ломает DOM.**
