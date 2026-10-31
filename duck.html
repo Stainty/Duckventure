@@ -1626,6 +1626,11 @@
     return LEVEL_EXP_TABLE[lvl] || 15000000;
   }
 
+  function isAnyModalOpen() {
+    return document.querySelector('.upgrades-modal.open') !== null;
+  }
+  window.isAnyModalOpen = isAnyModalOpen;
+
   function checkAvailableUpgrades() {
     for (let i = 0; i < UPGRADES_DATA.length; i++) {
       const upg = UPGRADES_DATA[i];
@@ -1756,7 +1761,10 @@
       try { localStorage.setItem(EXP_KEY, String(playerExp)); } catch (e) {}
       updateLevelDisplay(leveledUp);
     }
-    renderUpgrades();
+    const upgModal = document.getElementById('upgradesModal');
+    if (upgModal && upgModal.classList.contains('open')) {
+      renderUpgrades(true);
+    }
     tryUnlock();
   }
 
@@ -1967,7 +1975,7 @@
     updateLevelDisplay();
     updateAutoQuackTimer();
     updateEggsDisplay();
-    renderUpgrades();
+    renderUpgrades(true);
     renderShopBuyTab();
     renderWardrobe();
     renderStorage();
@@ -2160,6 +2168,9 @@
     const intervalMs = getAutoQuackInterval();
 
     autoQuackTimer = setInterval(() => {
+      // Игра на паузе пока открыты любые модальные окна
+      if (isAnyModalOpen()) return;
+
       addDuckles(rate);
 
       // 3-5 более прозрачных частиц без звука и анимации утки
@@ -2364,7 +2375,7 @@
     xpSound();
     updateDuckles(true);
     updateAutoQuackTimer();
-    renderUpgrades();
+    renderUpgrades(true);
     updateLevelDisplay();
     updateShopButtonVisibility();
     updateEggsDisplay();
@@ -2372,8 +2383,10 @@
   }
   window.buyUpgrade = buyUpgrade;
 
-  function renderUpgrades() {
+  function renderUpgrades(force = false) {
     updateUpgradesButtonHighlight();
+    const modal = document.getElementById('upgradesModal');
+    if (!force && modal && !modal.classList.contains('open')) return;
     const container = document.getElementById('upgradesList');
     if (!container) return;
     container.innerHTML = '';
@@ -2501,15 +2514,17 @@
 
   if (upgradesBtn && upgradesModal && closeUpgradesBtn) {
     upgradesBtn.addEventListener('click', () => {
-      renderUpgrades();
+      renderUpgrades(true);
       upgradesModal.classList.add('open');
     });
     closeUpgradesBtn.addEventListener('click', () => {
       upgradesModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
     });
     upgradesModal.addEventListener('click', (e) => {
       if (e.target === upgradesModal) {
         upgradesModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
       }
     });
   }
@@ -2548,10 +2563,12 @@
     });
     closeShopBtn.addEventListener('click', () => {
       shopModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
     });
     shopModal.addEventListener('click', (e) => {
       if (e.target === shopModal) {
         shopModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
       }
     });
   }
@@ -2881,9 +2898,13 @@
     });
     closeWardrobeBtn.addEventListener('click', () => {
       wardrobeModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
     });
     wardrobeModal.addEventListener('click', (e) => {
-      if (e.target === wardrobeModal) wardrobeModal.classList.remove('open');
+      if (e.target === wardrobeModal) {
+        wardrobeModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
+      }
     });
   }
 
@@ -2899,12 +2920,15 @@
     });
     closeStorageBtn.addEventListener('click', () => {
       storageModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
     });
     storageModal.addEventListener('click', (e) => {
-      if (e.target === storageModal) storageModal.classList.remove('open');
+      if (e.target === storageModal) {
+        storageModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
+      }
     });
   }
-
 
   /* ---------- canvas ---------- */
   function resize() {
@@ -2971,6 +2995,7 @@
   }
 
   duck.addEventListener('click', () => {
+    if (isAnyModalOpen()) return;
     const r = duck.getBoundingClientRect();
     // анимация "подпрыгивания" — перезапуск
     duck.classList.remove('pop');
@@ -3071,8 +3096,9 @@
   // ачивка "Томное ожидание": навестись на утку и не нажимать 10 секунд
   function startHoverTimer() {
     clearHoverTimer();
-    if (hoverWaitDone) return;
+    if (hoverWaitDone || isAnyModalOpen()) return;
     hoverTimer = setTimeout(() => {
+      if (isAnyModalOpen()) return;
       hoverWaitDone = true;
       try { localStorage.setItem(HOVER_WAIT_KEY, '1'); } catch (e) {}
       tryUnlock();
@@ -3153,6 +3179,18 @@
   }
 
   window.addEventListener('keydown', (e) => {
+    // Закрытие активного окна по клавише Escape
+    if (e.key === 'Escape') {
+      const openModal = document.querySelector('.upgrades-modal.open');
+      if (openModal) {
+        openModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
+        return;
+      }
+    }
+
+    if (isAnyModalOpen()) return;
+
     // 0. "Хакер" — блокировка вызова DevTools и просмотра исходного кода
     if (e.key === 'F12' ||
         ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyI' || e.code === 'KeyJ' || e.code === 'KeyC')) ||
@@ -3234,7 +3272,7 @@
   updateLevelDisplay();
   updateAutoQuackTimer();
   updateEggsDisplay();
-  renderUpgrades();
+  renderUpgrades(true);
   renderShopBuyTab();
   updateShopButtonVisibility();
   tryUnlock();
