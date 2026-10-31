@@ -382,6 +382,14 @@
     color: #ffd700;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   }
+  .egg-count-item.fried {
+    color: #fdba74;
+    text-shadow: 0 0 8px rgba(253, 186, 116, 0.4);
+  }
+  .egg-count-item.golden-fried {
+    color: #fde047;
+    text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
+  }
 
   /* ---------- Перетаскиваемые яйца на экране ---------- */
   .draggable-egg {
@@ -629,6 +637,12 @@
     color: #ffd24d;
     border-bottom-color: #ffd24d;
     background: rgba(255, 210, 77, 0.05);
+  }
+  .shop-tab-btn:disabled, .shop-tab-btn.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(0.6);
   }
   .sell-list {
     width: 100%;
@@ -979,6 +993,41 @@
     display: block;
     pointer-events: none;
   }
+  #prop-plita img {
+    width: 96px;
+  }
+  .draggable-prop.is-combined {
+    filter: drop-shadow(0 0 16px rgba(255, 120, 20, 0.75)) drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+  }
+  #prop-skovoroda.is-combined {
+    z-index: 46;
+  }
+  .stove-separate-btn {
+    position: absolute;
+    bottom: -8px;
+    left: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #334155;
+    border: 1px solid #94a3b8;
+    color: #f8fafc;
+    font: 800 11px system-ui, sans-serif;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    transition: transform .12s, background .15s;
+    z-index: 48;
+  }
+  .draggable-prop.is-combined:hover .stove-separate-btn {
+    display: flex;
+  }
+  .stove-separate-btn:hover {
+    background: #0284c7;
+    transform: scale(1.15);
+  }
   .prop-close-btn {
     position: absolute;
     top: -8px;
@@ -1224,8 +1273,10 @@
   </div>
 
   <div class="eggs-bar" id="eggsBar">
-    <span class="egg-count-item">🥚 <span id="normalEggsVal">0</span></span>
-    <span class="egg-count-item golden">✨🥚 <span id="goldenEggsVal">0</span></span>
+    <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
+    <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
+    <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
+    <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
   </div>
 
   <div class="lvl-box" id="lvlBox">
@@ -1339,6 +1390,36 @@
               <button class="sell-btn gold sell-all" id="sellGoldenAllBtn" onclick="sellEgg('golden', 'all')">Продать всё</button>
             </div>
           </div>
+
+          <div class="sell-card fried-card" id="sellFriedCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🍳</div>
+              <div>
+                <div class="sell-item-title">Жареное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">1 600 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopFriedEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellFried1Btn" onclick="sellEgg('fried', 1)">Продать 1 (+1.6k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellFriedAllBtn" onclick="sellEgg('fried', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🍳</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1383,6 +1464,14 @@
   <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
     <img src="https://pngicon.net/file/uploads/skovoroda-243x256.png" alt="Сковорода" draggable="false" referrerpolicy="no-referrer">
     <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('skovoroda')">✕</button>
+    <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
+  </div>
+  <div id="prop-plita" class="draggable-prop" title="Плита (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe" alt="Плита" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🎛️</span>
+    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('plita')">✕</button>
+    <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
 
   <button id="duck" aria-label="Крякнуть">
@@ -1420,6 +1509,11 @@
   const EXP_KEY = 'duck-level-exp';
   const EGGS_NORMAL_KEY = 'duck-eggs-normal';
   const EGGS_GOLDEN_KEY = 'duck-eggs-golden';
+  const FRIED_EGGS_KEY = 'duck-fried-eggs';
+  const GOLDEN_FRIED_EGGS_KEY = 'duck-golden-fried-eggs';
+  const HAS_FRIED_KEY = 'duck-has-fried-eggs';
+  const COOKED_EGG_KEY = 'duck-cooked-egg';
+  const STOVE_COMBINED_KEY = 'duck-stove-combined';
   const OWNED_SKINS_KEY = 'duck-owned-skins';
   const CURRENT_SKIN_KEY = 'duck-current-skin';
   const OWNED_PROPS_KEY = 'duck-owned-props';
@@ -1440,6 +1534,11 @@
 
   let normalEggs = parseInt(localStorage.getItem(EGGS_NORMAL_KEY) || '0', 10) || 0;
   let goldenEggs = parseInt(localStorage.getItem(EGGS_GOLDEN_KEY) || '0', 10) || 0;
+  let friedEggs = parseInt(localStorage.getItem(FRIED_EGGS_KEY) || '0', 10) || 0;
+  let goldenFriedEggs = parseInt(localStorage.getItem(GOLDEN_FRIED_EGGS_KEY) || '0', 10) || 0;
+  let hasUnlockedFriedEggs = localStorage.getItem(HAS_FRIED_KEY) === '1' || friedEggs > 0 || goldenFriedEggs > 0;
+  let hasCookedEgg = localStorage.getItem(COOKED_EGG_KEY) === '1' || hasUnlockedFriedEggs;
+  let isStoveCombined = localStorage.getItem(STOVE_COMBINED_KEY) === '1';
 
   let ownedSkins = ['default'];
   try {
@@ -1591,7 +1690,16 @@
       cost: 2500,
       icon: 'https://pngicon.net/file/uploads/skovoroda-243x256.png',
       fallbackEmoji: '🍳',
-      desc: 'Тяжёлая чугунная сковородка. Можно выложить на стол и перемещать!'
+      desc: 'Тяжёлая чугунная сковородка. Объедините с плитой на столе для жарки!'
+    },
+    plita: {
+      id: 'plita',
+      name: 'Плита',
+      category: 'household',
+      cost: 25000,
+      icon: 'https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe',
+      fallbackEmoji: '🎛️',
+      desc: 'Кухонная плита. Объедините со сковородой на столе для жарки яиц!'
     }
   };
 
@@ -1796,6 +1904,34 @@
     if (storageBtn) {
       storageBtn.style.display = (ownedProps.length > 0) ? 'inline-flex' : 'none';
     }
+    updateShopTabsVisibility();
+  }
+
+  function updateShopTabsVisibility() {
+    const shopTabSellBtn = document.getElementById('shopTabSellBtn');
+    const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
+    const shopBodyBuy = document.getElementById('shopBodyBuy');
+    const shopBodySell = document.getElementById('shopBodySell');
+    if (!shopTabSellBtn) return;
+
+    const canSell = upgradeLevels.features >= 3;
+    if (!canSell) {
+      shopTabSellBtn.disabled = true;
+      shopTabSellBtn.classList.add('disabled');
+      shopTabSellBtn.innerHTML = '🔒 Продажа яиц';
+      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Гусыня»)';
+      if (shopTabSellBtn.classList.contains('active')) {
+        if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
+        shopTabSellBtn.classList.remove('active');
+        if (shopBodyBuy) shopBodyBuy.style.display = 'flex';
+        if (shopBodySell) shopBodySell.style.display = 'none';
+      }
+    } else {
+      shopTabSellBtn.disabled = false;
+      shopTabSellBtn.classList.remove('disabled');
+      shopTabSellBtn.innerHTML = '💰 Продажа яиц';
+      shopTabSellBtn.title = '';
+    }
   }
 
   function updateLevelDisplay(bump = false) {
@@ -1973,6 +2109,13 @@
       check: () => upgradeLevels.features >= 3,
     },
     {
+      id: 'fry-egg',
+      name: 'Прожарка',
+      desc: 'Пожарьте яйцо',
+      done: false,
+      check: () => hasCookedEgg,
+    },
+    {
       id: 'max-power',
       name: 'MAX POWER!!!',
       desc: 'Достигните 20 уровня',
@@ -2013,6 +2156,11 @@
     playerExp = 0;
     normalEggs = 0;
     goldenEggs = 0;
+    friedEggs = 0;
+    goldenFriedEggs = 0;
+    hasUnlockedFriedEggs = false;
+    hasCookedEgg = false;
+    isStoveCombined = false;
     upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     ownedSkins = ['default'];
     currentSkin = 'default';
@@ -2042,6 +2190,11 @@
       localStorage.removeItem(EXP_KEY);
       localStorage.removeItem(EGGS_NORMAL_KEY);
       localStorage.removeItem(EGGS_GOLDEN_KEY);
+      localStorage.removeItem(FRIED_EGGS_KEY);
+      localStorage.removeItem(GOLDEN_FRIED_EGGS_KEY);
+      localStorage.removeItem(HAS_FRIED_KEY);
+      localStorage.removeItem(COOKED_EGG_KEY);
+      localStorage.removeItem(STOVE_COMBINED_KEY);
       localStorage.removeItem(OWNED_SKINS_KEY);
       localStorage.removeItem(CURRENT_SKIN_KEY);
       localStorage.removeItem(OWNED_PROPS_KEY);
@@ -2068,7 +2221,17 @@
       delete goldenEggEl.dataset.placed;
     }
     const propSkovoroda = document.getElementById('prop-skovoroda');
-    if (propSkovoroda) propSkovoroda.style.display = 'none';
+    if (propSkovoroda) {
+      propSkovoroda.style.display = 'none';
+      propSkovoroda.classList.remove('is-combined');
+      delete propSkovoroda.dataset.placed;
+    }
+    const propPlita = document.getElementById('prop-plita');
+    if (propPlita) {
+      propPlita.style.display = 'none';
+      propPlita.classList.remove('is-combined');
+      delete propPlita.dataset.placed;
+    }
     applySkin('default');
     buildAchievementCards();
     updateDuckles();
@@ -2080,6 +2243,7 @@
     renderWardrobe();
     renderStorage();
     updateShopButtonVisibility();
+    updateShopTabsVisibility();
   }
 
   function tryUnlock() {
@@ -2222,6 +2386,65 @@
     } catch (e) {}
   }
 
+  /* звук соединения плиты и сковороды (металлический звон/клик) */
+  function clinkSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, t);
+      osc.frequency.exponentialRampToValueAtTime(750, t + 0.14);
+      g.gain.setValueAtTime(0.24, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.16);
+    } catch (e) {}
+  }
+
+  /* звук шипения/жарки на сковороде */
+  function sizzleSound(isGolden = false) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const dur = isGolden ? 0.9 : 0.65;
+      const sampleRate = audioCtx.sampleRate;
+      const buffer = audioCtx.createBuffer(1, Math.floor(sampleRate * dur), sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        const white = Math.random() * 2 - 1;
+        const crackle = Math.random() < 0.05 ? (Math.random() * 2 - 1) * 2.2 : 1;
+        data[i] = white * crackle;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(isGolden ? 3800 : 2800, audioCtx.currentTime);
+      filter.Q.setValueAtTime(2.8, audioCtx.currentTime);
+
+      const gain = audioCtx.createGain();
+      const t = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0.01, t);
+      gain.gain.linearRampToValueAtTime(0.28, t + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start(t);
+      noise.stop(t + dur);
+
+      if (isGolden) {
+        setTimeout(() => xpSound(), 200);
+      }
+    } catch (e) {}
+  }
+
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
 
@@ -2354,8 +2577,133 @@
       }
     }
 
+    // Новая валюта: жареные яйца (до первой прожарки скрыты)
+    const friedVal = document.getElementById('friedEggsVal');
+    const goldenFriedVal = document.getElementById('goldenFriedEggsVal');
+    const friedItem = document.getElementById('friedEggsBarItem');
+    const goldenFriedItem = document.getElementById('goldenFriedEggsBarItem');
+
+    if (hasUnlockedFriedEggs) {
+      if (friedItem) friedItem.style.display = 'inline-flex';
+      if (friedVal) friedVal.textContent = friedEggs.toLocaleString('ru-RU');
+      if (goldenFriedItem) goldenFriedItem.style.display = 'inline-flex';
+      if (goldenFriedVal) goldenFriedVal.textContent = goldenFriedEggs.toLocaleString('ru-RU');
+    } else {
+      if (friedItem) friedItem.style.display = 'none';
+      if (goldenFriedItem) goldenFriedItem.style.display = 'none';
+    }
+
     updateShopSellTab();
   }
+
+  function isOverlapping(r1, r2) {
+    return !(r2.left > r1.right ||
+             r2.right < r1.left ||
+             r2.top > r1.bottom ||
+             r2.bottom < r1.top);
+  }
+
+  function cookEggsOnStove(type) {
+    const plitaEl = document.getElementById('prop-plita');
+    const rect = plitaEl ? plitaEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 80, height: 80 };
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2 - 20;
+
+    if (type === 'normal') {
+      if (normalEggs <= 0) return;
+      const count = normalEggs;
+      normalEggs = 0;
+      friedEggs += count;
+      hasUnlockedFriedEggs = true;
+      hasCookedEgg = true;
+
+      try {
+        localStorage.setItem(EGGS_NORMAL_KEY, '0');
+        localStorage.setItem(FRIED_EGGS_KEY, String(friedEggs));
+        localStorage.setItem(HAS_FRIED_KEY, '1');
+        localStorage.setItem(COOKED_EGG_KEY, '1');
+      } catch (e) {}
+
+      sizzleSound(false);
+
+      for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
+        const spd = 60 + Math.random() * 200;
+        particles.push({
+          x: centerX + (Math.random() * 40 - 20),
+          y: centerY + (Math.random() * 20 - 10),
+          vx: Math.cos(angle) * spd * (Math.random() < 0.5 ? 1 : -1),
+          vy: -Math.sin(angle) * spd,
+          size: 14 + Math.random() * 10,
+          alpha: 1.0,
+          text: Math.random() < 0.4 ? '🔥' : (Math.random() < 0.7 ? '💨' : '🍳'),
+          color: '#ff7700'
+        });
+      }
+
+      particles.push({
+        x: centerX,
+        y: centerY - 45,
+        vx: 0,
+        vy: -160,
+        size: 24,
+        alpha: 1.3,
+        text: `🍳 Пожарено: +${count} шт.!`,
+        color: '#facc15'
+      });
+
+      updateEggsDisplay(true, 'normal');
+      updateShopSellTab();
+      tryUnlock();
+    } else if (type === 'golden') {
+      if (goldenEggs <= 0) return;
+      const count = goldenEggs;
+      goldenEggs = 0;
+      goldenFriedEggs += count;
+      hasUnlockedFriedEggs = true;
+      hasCookedEgg = true;
+
+      try {
+        localStorage.setItem(EGGS_GOLDEN_KEY, '0');
+        localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
+        localStorage.setItem(HAS_FRIED_KEY, '1');
+        localStorage.setItem(COOKED_EGG_KEY, '1');
+      } catch (e) {}
+
+      sizzleSound(true);
+
+      for (let i = 0; i < 16; i++) {
+        const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
+        const spd = 80 + Math.random() * 240;
+        particles.push({
+          x: centerX + (Math.random() * 40 - 20),
+          y: centerY + (Math.random() * 20 - 10),
+          vx: Math.cos(angle) * spd * (Math.random() < 0.5 ? 1 : -1),
+          vy: -Math.sin(angle) * spd,
+          size: 16 + Math.random() * 12,
+          alpha: 1.1,
+          text: Math.random() < 0.3 ? '✨' : (Math.random() < 0.6 ? '🔥' : '✨🍳'),
+          color: '#fde047'
+        });
+      }
+
+      particles.push({
+        x: centerX,
+        y: centerY - 45,
+        vx: 0,
+        vy: -160,
+        size: 26,
+        alpha: 1.4,
+        text: `✨🍳 ЗОЛОТАЯ ПРОЖАРКА: +${count} шт.!`,
+        color: '#ffd700'
+      });
+
+      updateEggsDisplay(true, 'golden');
+      updateShopSellTab();
+      tryUnlock();
+    }
+  }
+  window.cookEggsOnStove = cookEggsOnStove;
 
   function initDraggableEgg(el) {
     if (!el) return;
@@ -2384,6 +2732,23 @@
       if (!isDragging) return;
       isDragging = false;
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+
+      // Проверка переноса яйца на объединённую плиту со сковородой
+      if (isStoveCombined) {
+        const plitaEl = document.getElementById('prop-plita');
+        const skovEl = document.getElementById('prop-skovoroda');
+        if (plitaEl && skovEl && plitaEl.style.display !== 'none' && skovEl.style.display !== 'none') {
+          const rEgg = el.getBoundingClientRect();
+          const rSkov = skovEl.getBoundingClientRect();
+          const rPlita = plitaEl.getBoundingClientRect();
+
+          if (isOverlapping(rEgg, rSkov) || isOverlapping(rEgg, rPlita)) {
+            const isGolden = (el.id === 'goldenEgg');
+            cookEggsOnStove(isGolden ? 'golden' : 'normal');
+            return;
+          }
+        }
+      }
     };
 
     el.addEventListener('pointerup', endDrag);
@@ -2413,6 +2778,38 @@
       sellGoldenAllBtn.disabled = goldenEggs < 1;
       sellGoldenAllBtn.textContent = `Продать всё (+${(goldenEggs * 5000).toLocaleString('ru-RU')} 🦆)`;
     }
+
+    const sellFriedCard = document.getElementById('sellFriedCard');
+    const sellGoldenFriedCard = document.getElementById('sellGoldenFriedCard');
+    const shopFriedCount = document.getElementById('shopFriedEggsCount');
+    const shopGoldenFriedCount = document.getElementById('shopGoldenFriedEggsCount');
+    const sellFried1Btn = document.getElementById('sellFried1Btn');
+    const sellFriedAllBtn = document.getElementById('sellFriedAllBtn');
+    const sellGoldenFried1Btn = document.getElementById('sellGoldenFried1Btn');
+    const sellGoldenFriedAllBtn = document.getElementById('sellGoldenFriedAllBtn');
+
+    if (hasUnlockedFriedEggs) {
+      if (sellFriedCard) sellFriedCard.style.display = 'flex';
+      if (sellGoldenFriedCard) sellGoldenFriedCard.style.display = 'flex';
+
+      if (shopFriedCount) shopFriedCount.textContent = friedEggs.toLocaleString('ru-RU');
+      if (shopGoldenFriedCount) shopGoldenFriedCount.textContent = goldenFriedEggs.toLocaleString('ru-RU');
+
+      if (sellFried1Btn) sellFried1Btn.disabled = friedEggs < 1;
+      if (sellFriedAllBtn) {
+        sellFriedAllBtn.disabled = friedEggs < 1;
+        sellFriedAllBtn.textContent = `Продать всё (+${(friedEggs * 1600).toLocaleString('ru-RU')} 🦆)`;
+      }
+
+      if (sellGoldenFried1Btn) sellGoldenFried1Btn.disabled = goldenFriedEggs < 1;
+      if (sellGoldenFriedAllBtn) {
+        sellGoldenFriedAllBtn.disabled = goldenFriedEggs < 1;
+        sellGoldenFriedAllBtn.textContent = `Продать всё (+${(goldenFriedEggs * 15000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    } else {
+      if (sellFriedCard) sellFriedCard.style.display = 'none';
+      if (sellGoldenFriedCard) sellGoldenFriedCard.style.display = 'none';
+    }
   }
 
   function sellEgg(type, amount) {
@@ -2429,12 +2826,25 @@
       goldenEggs -= qty;
       earned = qty * 5000;
       try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+    } else if (type === 'fried') {
+      const qty = (amount === 'all') ? friedEggs : Math.min(amount, friedEggs);
+      if (qty <= 0) return;
+      friedEggs -= qty;
+      earned = qty * 1600;
+      try { localStorage.setItem(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
+    } else if (type === 'goldenFried') {
+      const qty = (amount === 'all') ? goldenFriedEggs : Math.min(amount, goldenFriedEggs);
+      if (qty <= 0) return;
+      goldenFriedEggs -= qty;
+      earned = qty * 15000;
+      try { localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
     }
 
     if (earned > 0) {
       xpSound();
       addDuckles(earned);
       updateEggsDisplay();
+      updateShopSellTab();
     }
   }
   window.sellEgg = sellEgg;
@@ -2646,6 +3056,7 @@
       shopBodySell.style.display = 'none';
     });
     shopTabSellBtn.addEventListener('click', () => {
+      if (upgradeLevels.features < 3) return;
       shopTabSellBtn.classList.add('active');
       shopTabBuyBtn.classList.remove('active');
       shopBodySell.style.display = 'flex';
@@ -2657,6 +3068,7 @@
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
       updateDuckles();
+      updateShopTabsVisibility();
       renderShopBuyTab();
       updateShopSellTab();
       shopModal.classList.add('open');
@@ -2914,9 +3326,10 @@
     if (!el) return;
 
     if (!placedProps[propId] || !placedProps[propId].left) {
-      const propWidth = el.offsetWidth || 80;
-      const propHeight = el.offsetHeight || 80;
-      const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2))) + 'px';
+      const propWidth = el.offsetWidth || 85;
+      const propHeight = el.offsetHeight || 85;
+      const offset = (propId === 'plita') ? 45 : (propId === 'skovoroda' ? -45 : 0);
+      const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const top = Math.max(70, Math.min(window.innerHeight - propHeight - 20, Math.round(window.innerHeight - propHeight - 55))) + 'px';
       placedProps[propId] = { placed: true, left, top };
     } else {
@@ -2930,12 +3343,23 @@
     try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
     corkPopSound();
     renderStorage();
+
+    if (propId === 'skovoroda' || propId === 'plita') {
+      checkStovePanCombine();
+    }
   }
   window.placePropOnScreen = placePropOnScreen;
 
   function returnPropToStorage(propId) {
     const el = document.getElementById('prop-' + propId);
-    if (el) el.style.display = 'none';
+    if (el) {
+      el.style.display = 'none';
+      el.classList.remove('is-combined');
+    }
+
+    if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
+      separateStoveAndPan(false);
+    }
 
     delete placedProps[propId];
     try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
@@ -2944,6 +3368,135 @@
   }
   window.returnPropToStorage = returnPropToStorage;
 
+  function combineStoveAndPan(withEffects = true) {
+    const plitaEl = document.getElementById('prop-plita');
+    const skovEl = document.getElementById('prop-skovoroda');
+    if (!plitaEl || !skovEl) return;
+    if (plitaEl.style.display === 'none' || skovEl.style.display === 'none') return;
+
+    isStoveCombined = true;
+    try { localStorage.setItem(STOVE_COMBINED_KEY, '1'); } catch (e) {}
+
+    const pX = parseFloat(plitaEl.style.left) || plitaEl.offsetLeft;
+    const pY = parseFloat(plitaEl.style.top) || plitaEl.offsetTop;
+
+    const panLeft = Math.round(pX + 8) + 'px';
+    const panTop = Math.round(pY - 24) + 'px';
+
+    skovEl.style.left = panLeft;
+    skovEl.style.top = panTop;
+
+    if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
+    placedProps.skovoroda.left = panLeft;
+    placedProps.skovoroda.top = panTop;
+    try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+
+    plitaEl.classList.add('is-combined');
+    skovEl.classList.add('is-combined');
+
+    plitaEl.title = 'Плита со сковородой (🔥 перетащи сюда яйцо для жарки!)';
+    skovEl.title = 'Сковорода на плите (🔥 перетащи сюда яйцо для жарки!)';
+
+    if (withEffects) {
+      clinkSound();
+      particles.push({
+        x: pX + 45,
+        y: pY - 35,
+        vx: 0,
+        vy: -150,
+        size: 20,
+        alpha: 1.2,
+        text: '🔥 Сковорода на плите! Готово к жарке 🍳',
+        color: '#ff9900'
+      });
+    }
+  }
+  window.combineStoveAndPan = combineStoveAndPan;
+
+  function separateStoveAndPan(withEffects = true) {
+    isStoveCombined = false;
+    try { localStorage.removeItem(STOVE_COMBINED_KEY); } catch (e) {}
+
+    const plitaEl = document.getElementById('prop-plita');
+    const skovEl = document.getElementById('prop-skovoroda');
+
+    if (plitaEl) {
+      plitaEl.classList.remove('is-combined');
+      plitaEl.title = 'Плита (перетаскивай! Кликни ✕ чтобы убрать на склад)';
+    }
+    if (skovEl) {
+      skovEl.classList.remove('is-combined');
+      skovEl.title = 'Сковорода (перетаскивай! Кликни ✕ чтобы убрать на склад)';
+
+      if (withEffects && plitaEl) {
+        const pX = parseFloat(plitaEl.style.left) || plitaEl.offsetLeft;
+        const newLeft = Math.min(window.innerWidth - 90, pX + 105) + 'px';
+        skovEl.style.left = newLeft;
+        if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
+        placedProps.skovoroda.left = newLeft;
+        try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+      }
+    }
+
+    if (withEffects) {
+      corkPopSound();
+      particles.push({
+        x: innerWidth / 2,
+        y: innerHeight / 2 - 30,
+        vx: 0,
+        vy: -140,
+        size: 20,
+        alpha: 1.1,
+        text: '🍳 Плита и сковорода разъединены',
+        color: '#94a3b8'
+      });
+    }
+  }
+  window.separateStoveAndPan = separateStoveAndPan;
+
+  function updateCombinedPartnerPosition(movedPropId, x, y) {
+    const plitaEl = document.getElementById('prop-plita');
+    const skovEl = document.getElementById('prop-skovoroda');
+    if (!plitaEl || !skovEl) return;
+
+    if (movedPropId === 'plita') {
+      const panLeft = Math.max(0, Math.min(window.innerWidth - skovEl.offsetWidth, x + 8)) + 'px';
+      const panTop = Math.max(0, Math.min(window.innerHeight - skovEl.offsetHeight, y - 24)) + 'px';
+      skovEl.style.left = panLeft;
+      skovEl.style.top = panTop;
+      if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
+      placedProps.skovoroda.left = panLeft;
+      placedProps.skovoroda.top = panTop;
+    } else if (movedPropId === 'skovoroda') {
+      const plitaLeft = Math.max(0, Math.min(window.innerWidth - plitaEl.offsetWidth, x - 8)) + 'px';
+      const plitaTop = Math.max(0, Math.min(window.innerHeight - plitaEl.offsetHeight, y + 24)) + 'px';
+      plitaEl.style.left = plitaLeft;
+      plitaEl.style.top = plitaTop;
+      if (!placedProps.plita) placedProps.plita = { placed: true };
+      placedProps.plita.left = plitaLeft;
+      placedProps.plita.top = plitaTop;
+    }
+  }
+
+  function checkStovePanCombine() {
+    if (isStoveCombined) return;
+    const plitaEl = document.getElementById('prop-plita');
+    const skovEl = document.getElementById('prop-skovoroda');
+    if (!plitaEl || !skovEl) return;
+    if (plitaEl.style.display === 'none' || skovEl.style.display === 'none') return;
+
+    const rS = skovEl.getBoundingClientRect();
+    const rP = plitaEl.getBoundingClientRect();
+
+    const cS = { x: rS.left + rS.width / 2, y: rS.top + rS.height / 2 };
+    const cP = { x: rP.left + rP.width / 2, y: rP.top + rP.height / 2 };
+
+    const dist = Math.hypot(cS.x - cP.x, cS.y - cP.y);
+    if (dist < 90 || isOverlapping(rS, rP)) {
+      combineStoveAndPan(true);
+    }
+  }
+
   function initDraggableProp(el, propId) {
     if (!el) return;
     let isDragging = false;
@@ -2951,7 +3504,7 @@
     let startY = 0;
 
     el.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.prop-close-btn')) return;
+      if (e.target.closest('.prop-close-btn') || e.target.closest('.stove-separate-btn')) return;
       isDragging = true;
       el.setPointerCapture(e.pointerId);
       const rect = el.getBoundingClientRect();
@@ -2966,6 +3519,10 @@
       const y = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, e.clientY - startY));
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+
+      if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
+        updateCombinedPartnerPosition(propId, x, y);
+      }
     });
 
     const endDrag = (e) => {
@@ -2976,6 +3533,10 @@
       placedProps[propId].left = el.style.left;
       placedProps[propId].top = el.style.top;
       try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (err) {}
+
+      if (!isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
+        checkStovePanCombine();
+      }
     };
 
     el.addEventListener('pointerup', endDrag);
@@ -2993,6 +3554,17 @@
         }
       }
     });
+
+    if (isStoveCombined) {
+      const plitaEl = document.getElementById('prop-plita');
+      const skovEl = document.getElementById('prop-skovoroda');
+      if (plitaEl && skovEl && ownedProps.includes('plita') && ownedProps.includes('skovoroda') && placedProps.plita && placedProps.skovoroda) {
+        combineStoveAndPan(false);
+      } else {
+        isStoveCombined = false;
+        try { localStorage.removeItem(STOVE_COMBINED_KEY); } catch (e) {}
+      }
+    }
   }
 
   // Модальное окно Гардероба
@@ -3374,6 +3946,7 @@
   initDraggableEgg(document.getElementById('normalEgg'));
   initDraggableEgg(document.getElementById('goldenEgg'));
   initDraggableProp(document.getElementById('prop-skovoroda'), 'skovoroda');
+  initDraggableProp(document.getElementById('prop-plita'), 'plita');
   applySkin(currentSkin);
   restorePropsOnScreen();
   buildAchievementCards();
@@ -3384,6 +3957,7 @@
   renderUpgrades(true);
   renderShopBuyTab();
   updateShopButtonVisibility();
+  updateShopTabsVisibility();
   tryUnlock();
 
   /* ---------- цикл ---------- */
