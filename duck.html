@@ -629,23 +629,30 @@
       tryUnlock();
     }
   }
-  function checkDevToolsDimensions() {
-    const threshold = 160;
-    if (window.outerWidth - window.innerWidth > threshold ||
-        window.outerHeight - window.innerHeight > threshold) {
+
+  // Отслеживание открытия DevTools по событию resize:
+  // При открытии встроенной панели DevTools размер окна браузера (outer) не меняется,
+  // а внутренняя область страницы (inner) резко уменьшается (> 140px).
+  let prevOuterW = window.outerWidth;
+  let prevOuterH = window.outerHeight;
+  let prevInnerW = window.innerWidth;
+  let prevInnerH = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    const deltaOuterW = Math.abs(window.outerWidth - prevOuterW);
+    const deltaOuterH = Math.abs(window.outerHeight - prevOuterH);
+    const deltaInnerW = Math.abs(window.innerWidth - prevInnerW);
+    const deltaInnerH = Math.abs(window.innerHeight - prevInnerH);
+
+    prevOuterW = window.outerWidth;
+    prevOuterH = window.outerHeight;
+    prevInnerW = window.innerWidth;
+    prevInnerH = window.innerHeight;
+
+    if ((deltaInnerW > 140 && deltaOuterW < 25) || (deltaInnerH > 140 && deltaOuterH < 25)) {
       triggerDevTools();
     }
-  }
-  window.addEventListener('resize', checkDevToolsDimensions);
-  setInterval(checkDevToolsDimensions, 1000);
-
-  const devDetector = /./;
-  devDetector.toString = () => { triggerDevTools(); return ''; };
-  setInterval(() => {
-    if (!devToolsOpened) {
-      console.debug(devDetector);
-    }
-  }, 2000);
+  });
 
   // клавиатурные ачивки: "Печатать не нужно!", "Я и есть утка", "Поганец!", "Хакер"
   const DUCK_SEQUENCE = [
