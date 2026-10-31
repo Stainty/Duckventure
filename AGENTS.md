@@ -10,7 +10,7 @@
 | `#particles` | Canvas поверх всего. Частицы: текст «Кря» (случайный HSL) или `fly` (эмодзи 🔒, вращаются) |
 | `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
 | `quackCount` / `duckles` / `hintCount` | Глобальные счётчики: клики по утке / баланс Даклей / клики по нижней подсказке `.hint` |
-| `keyPressed` / `duckSeqDone` / `lockedCardClicked` | Флаги для клавиатурных ачивок и взлома карточки |
+| `keyPressed` / `duckSeqDone` / `lockedCardClicked` / `devToolsOpened` / `badWordsTyped` / `hoverWaitDone` | Флаги для клавиатурных, скрытых и таймерных ачивок |
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
 | `GRAVITY` | 1000 px/с² |
@@ -39,7 +39,7 @@
 ## Сохранение
 `localStorage`:
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
-- счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`.
+- счётчики и флаги: `duck-quack-count`, `duck-duckles`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`, `duck-devtools`, `duck-bad-words`, `duck-hover-wait`.
 При загрузке страницы статус ачивок и счётчики считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
@@ -60,10 +60,13 @@
 | 4 | `type-key` | «Печатать не нужно!» | `keyPressed` | нажатие любой клавиши клавиатуры кроме функциональных |
 | 5 | `i-am-duck` | «Я и есть утка» | `duckSeqDone` | последовательное нажатие R H Z (К Р Я в RU) |
 | 6 | `hack-locked` | «Взлом жопы!» | `lockedCardClicked` | клик по любой заблокированной карточке ачивки |
+| 7 | `hacker` | «Хакер» | `devToolsOpened` | открытие панели разработчика DevTools (F12, комбинации, инспектор) |
+| 8 | `bad-boy` | «Поганец!» | `badWordsTyped` | набор {EQ, GBPLF, PFKEGF, <KZ (ХУЙ, ПИЗДА, ЗАЛУПА, БЛЯ) |
+| 9 | `long-wait` | «Томное ожидание» | `hoverWaitDone` | наведение на утку без кликов в течение 10 секунд |
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `duckSeqIndex = 0`) и удаляет их ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания и удаляет ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
 3. удаляет `duck-achv-{id}` из localStorage;
 4. перестраивает карточки через `buildAchievementCards()`;

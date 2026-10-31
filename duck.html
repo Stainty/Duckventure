@@ -263,6 +263,9 @@
   const KEY_PRESSED_KEY = 'duck-key-pressed';
   const SEQ_DONE_KEY = 'duck-seq-done';
   const LOCKED_CLICKED_KEY = 'duck-locked-clicked';
+  const DEVTOOLS_KEY = 'duck-devtools';
+  const BAD_WORDS_KEY = 'duck-bad-words';
+  const HOVER_WAIT_KEY = 'duck-hover-wait';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -270,6 +273,12 @@
   let keyPressed = localStorage.getItem(KEY_PRESSED_KEY) === '1';
   let duckSeqDone = localStorage.getItem(SEQ_DONE_KEY) === '1';
   let lockedCardClicked = localStorage.getItem(LOCKED_CLICKED_KEY) === '1';
+  let devToolsOpened = localStorage.getItem(DEVTOOLS_KEY) === '1';
+  let badWordsTyped = localStorage.getItem(BAD_WORDS_KEY) === '1';
+  let hoverWaitDone = localStorage.getItem(HOVER_WAIT_KEY) === '1';
+
+  let charBuffer = '';
+  let codeBuffer = '';
 
   const ducklesVal = document.getElementById('ducklesVal');
   function updateDuckles(bump = false) {
@@ -327,6 +336,27 @@
       done: false,
       check: () => lockedCardClicked,
     },
+    {
+      id: 'hacker',
+      name: 'Хакер',
+      desc: 'Самый умный?',
+      done: false,
+      check: () => devToolsOpened,
+    },
+    {
+      id: 'bad-boy',
+      name: 'Поганец!',
+      desc: 'Тебя что мама не воспитывала?',
+      done: false,
+      check: () => badWordsTyped,
+    },
+    {
+      id: 'long-wait',
+      name: 'Томное ожидание',
+      desc: 'А жмать то будешь?',
+      done: false,
+      check: () => hoverWaitDone,
+    },
   ];
 
   function buildAchievementCards() {
@@ -361,6 +391,12 @@
     duckSeqDone = false;
     duckSeqIndex = 0;
     lockedCardClicked = false;
+    devToolsOpened = false;
+    badWordsTyped = false;
+    hoverWaitDone = false;
+    clearHoverTimer();
+    charBuffer = '';
+    codeBuffer = '';
     try {
       localStorage.removeItem(QUACK_KEY);
       localStorage.removeItem(DUCKLES_KEY);
@@ -368,6 +404,9 @@
       localStorage.removeItem(KEY_PRESSED_KEY);
       localStorage.removeItem(SEQ_DONE_KEY);
       localStorage.removeItem(LOCKED_CLICKED_KEY);
+      localStorage.removeItem(DEVTOOLS_KEY);
+      localStorage.removeItem(BAD_WORDS_KEY);
+      localStorage.removeItem(HOVER_WAIT_KEY);
     } catch (e) {}
     ACHIEVEMENTS.forEach((a) => {
       a.done = false;
@@ -533,6 +572,11 @@
       localStorage.setItem(DUCKLES_KEY, String(duckles));
     } catch (e) {}
     updateDuckles(true);
+
+    // Нажатие сбрасывает таймер ожидания (нужно навестись и не нажимать 10 сек)
+    clearHoverTimer();
+    startHoverTimer();
+
     // старт из клюва/горловины утки
     spawn(r.left + r.width / 2, r.top + r.height * 0.58);
     // проверка ачивок
@@ -557,7 +601,53 @@
     }
   });
 
-  // клавиатурные ачивки: "Печатать не нужно!" и "Я и есть утка"
+  // ачивка "Томное ожидание": навестись на утку и не нажимать 10 секунд
+  let hoverTimer = null;
+  function startHoverTimer() {
+    clearHoverTimer();
+    if (hoverWaitDone) return;
+    hoverTimer = setTimeout(() => {
+      hoverWaitDone = true;
+      try { localStorage.setItem(HOVER_WAIT_KEY, '1'); } catch (e) {}
+      tryUnlock();
+    }, 10000);
+  }
+  function clearHoverTimer() {
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+  }
+  duck.addEventListener('pointerenter', startHoverTimer);
+  duck.addEventListener('pointerleave', clearHoverTimer);
+
+  // ачивка "Хакер": открытие DevTools
+  function triggerDevTools() {
+    if (!devToolsOpened) {
+      devToolsOpened = true;
+      try { localStorage.setItem(DEVTOOLS_KEY, '1'); } catch (e) {}
+      tryUnlock();
+    }
+  }
+  function checkDevToolsDimensions() {
+    const threshold = 160;
+    if (window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold) {
+      triggerDevTools();
+    }
+  }
+  window.addEventListener('resize', checkDevToolsDimensions);
+  setInterval(checkDevToolsDimensions, 1000);
+
+  const devDetector = /./;
+  devDetector.toString = () => { triggerDevTools(); return ''; };
+  setInterval(() => {
+    if (!devToolsOpened) {
+      console.debug(devDetector);
+    }
+  }, 2000);
+
+  // клавиатурные ачивки: "Печатать не нужно!", "Я и есть утка", "Поганец!", "Хакер"
   const DUCK_SEQUENCE = [
     { code: 'KeyR', keys: ['r', 'к'] },
     { code: 'KeyH', keys: ['h', 'р'] },
@@ -576,6 +666,12 @@
   }
 
   window.addEventListener('keydown', (e) => {
+    // 0. "Хакер" — горячие клавиши открытия DevTools
+    if (e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === 'KeyI' || e.code === 'KeyJ' || e.code === 'KeyC'))) {
+      triggerDevTools();
+    }
+
     if (e.repeat) return;
 
     // 1. "Печатать не нужно!" — любая нефункциональная клавиша
@@ -603,6 +699,32 @@
         duckSeqIndex = 1;
       } else {
         duckSeqIndex = 0;
+      }
+    }
+
+    // 3. "Поганец!" — слова {EQ, GBPLF, PFKEGF, <KZ и русский эквивалент
+    if (e.key.length === 1) {
+      charBuffer = (charBuffer + e.key.toLowerCase()).slice(-30);
+      codeBuffer = (codeBuffer + e.code).slice(-60);
+
+      const badPatterns = [
+        '{eq', '[eq', 'хуй',
+        'gbplf', 'пизда',
+        'pfkegf', 'залупа',
+        '<kz', ',kz', 'бля'
+      ];
+      const codePatterns = [
+        'BracketLeftKeyEKeyQ',
+        'KeyGKeyBKeyPKeyLKeyF',
+        'KeyPKeyFKeyKKeyEKeyGKeyF',
+        'CommaKeyKKeyZ'
+      ];
+
+      if (!badWordsTyped && (badPatterns.some(p => charBuffer.includes(p)) ||
+                             codePatterns.some(p => codeBuffer.includes(p)))) {
+        badWordsTyped = true;
+        try { localStorage.setItem(BAD_WORDS_KEY, '1'); } catch (err) {}
+        tryUnlock();
       }
     }
   });
