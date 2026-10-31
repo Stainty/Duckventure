@@ -47,7 +47,7 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 10;
+    z-index: 50;
   }
   .hint {
     position: fixed;
@@ -64,16 +64,16 @@
   /* ---------- Ачивки ---------- */
   .achv-list {
     position: fixed;
-    left: clamp(14px, 4vw, 42px);
+    left: clamp(0px, 2vw, 16px);
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-height: calc(100vh - 40px);
+    gap: 12px;
+    max-height: calc(100vh - 30px);
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px 6px 8px 2px;
+    padding: 34px 28px;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, .18) transparent;
     z-index: 20;
@@ -104,15 +104,15 @@
   .achv-card.unlocked {
     background: #ffd24d;
     border-color: #ffe99e;
-    box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 28px 4px rgba(255, 214, 77, .42), 0 8px 20px rgba(0, 0, 0, .28);
+    box-shadow: 0 0 0 3px rgba(255, 214, 77, .3), 0 0 16px 2px rgba(255, 214, 77, .42), 0 8px 18px rgba(0, 0, 0, .3);
     animation: achv-glow 2.4s ease-in-out 1s infinite;
   }
   @keyframes achv-glow {
     0%, 100% {
-      box-shadow: 0 0 0 3px rgba(255, 214, 77, .2), 0 0 24px 3px rgba(255, 214, 77, .32), 0 8px 20px rgba(0, 0, 0, .28);
+      box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 14px 2px rgba(255, 214, 77, .35), 0 8px 18px rgba(0, 0, 0, .3);
     }
     50% {
-      box-shadow: 0 0 0 4px rgba(255, 214, 77, .35), 0 0 36px 7px rgba(255, 214, 77, .55), 0 8px 22px rgba(0, 0, 0, .28);
+      box-shadow: 0 0 0 4px rgba(255, 214, 77, .45), 0 0 22px 3px rgba(255, 214, 77, .6), 0 8px 18px rgba(0, 0, 0, .3);
     }
   }
   .achv-card.flash {
@@ -186,7 +186,7 @@
     transform: scale(.96);
   }
   @media (max-width: 560px) {
-    .achv-list { top: 52px; left: 16px; transform: none; max-height: calc(100vh - 100px); }
+    .achv-list { top: 48px; left: 0; transform: none; max-height: calc(100vh - 90px); padding: 24px 16px; }
     .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; border-radius: 20px; }
     .achv-padlock { font-size: 32px; }
     .achv-name { font-size: 14.5px; }
