@@ -70,6 +70,20 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 6px 8px 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .18) transparent;
+    z-index: 20;
+  }
+  .achv-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .achv-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .18);
+    border-radius: 4px;
   }
   .achv-card {
     position: relative;
@@ -80,7 +94,12 @@
     border: 1px solid #3e4757;
     display: grid;
     place-items: center;
-    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, transform .1s ease;
+  }
+  .achv-card:active {
+    transform: scale(.98);
   }
   .achv-card.unlocked {
     background: #ffd24d;
@@ -167,7 +186,7 @@
     transform: scale(.96);
   }
   @media (max-width: 560px) {
-    .achv-list { top: 18px; left: 16px; transform: none; }
+    .achv-list { top: 52px; left: 16px; transform: none; max-height: calc(100vh - 100px); }
     .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; }
     .achv-padlock { font-size: 32px; }
     .achv-name { font-size: 14.5px; }
@@ -201,9 +220,15 @@
   const STORAGE_PREFIX = 'duck-achv-';
   const QUACK_KEY = 'duck-quack-count';
   const HINT_KEY = 'duck-hint-count';
+  const KEY_PRESSED_KEY = 'duck-key-pressed';
+  const SEQ_DONE_KEY = 'duck-seq-done';
+  const LOCKED_CLICKED_KEY = 'duck-locked-clicked';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let hintCount = parseInt(localStorage.getItem(HINT_KEY) || '0', 10) || 0;
+  let keyPressed = localStorage.getItem(KEY_PRESSED_KEY) === '1';
+  let duckSeqDone = localStorage.getItem(SEQ_DONE_KEY) === '1';
+  let lockedCardClicked = localStorage.getItem(LOCKED_CLICKED_KEY) === '1';
 
   /* ---------- ачивки ---------- */
   const ACHIEVEMENTS = [
@@ -227,6 +252,27 @@
       desc: 'Нажать, но не туда...',
       done: false,
       check: () => hintCount >= 1,
+    },
+    {
+      id: 'type-key',
+      name: 'Печатать не нужно!',
+      desc: 'Или нужно?',
+      done: false,
+      check: () => keyPressed,
+    },
+    {
+      id: 'i-am-duck',
+      name: 'Я и есть утка',
+      desc: 'КРЯ!',
+      done: false,
+      check: () => duckSeqDone,
+    },
+    {
+      id: 'hack-locked',
+      name: 'Взлом жопы!',
+      desc: 'Так просто?',
+      done: false,
+      check: () => lockedCardClicked,
     },
   ];
 
@@ -257,9 +303,16 @@
     list.innerHTML = '';
     quackCount = 0;
     hintCount = 0;
+    keyPressed = false;
+    duckSeqDone = false;
+    duckSeqIndex = 0;
+    lockedCardClicked = false;
     try {
       localStorage.removeItem(QUACK_KEY);
       localStorage.removeItem(HINT_KEY);
+      localStorage.removeItem(KEY_PRESSED_KEY);
+      localStorage.removeItem(SEQ_DONE_KEY);
+      localStorage.removeItem(LOCKED_CLICKED_KEY);
     } catch (e) {}
     ACHIEVEMENTS.forEach((a) => {
       a.done = false;
@@ -430,6 +483,66 @@
     hintCount++;
     try { localStorage.setItem(HINT_KEY, String(hintCount)); } catch (e) {}
     tryUnlock();
+  });
+
+  // клик по заблокированной ачивке — ачивка "Взлом жопы!"
+  document.getElementById('achvList').addEventListener('click', (e) => {
+    const card = e.target.closest('.achv-card');
+    if (card && !card.classList.contains('unlocked')) {
+      lockedCardClicked = true;
+      try { localStorage.setItem(LOCKED_CLICKED_KEY, '1'); } catch (err) {}
+      tryUnlock();
+    }
+  });
+
+  // клавиатурные ачивки: "Печатать не нужно!" и "Я и есть утка"
+  const DUCK_SEQUENCE = [
+    { code: 'KeyR', keys: ['r', 'к'] },
+    { code: 'KeyH', keys: ['h', 'р'] },
+    { code: 'KeyZ', keys: ['z', 'я'] },
+  ];
+  let duckSeqIndex = 0;
+
+  function isFunctionalKey(e) {
+    if (/^F\d+$/.test(e.key)) return true;
+    const functional = [
+      'Shift', 'Control', 'Alt', 'Meta', 'AltGraph',
+      'CapsLock', 'Tab', 'Escape', 'NumLock', 'ScrollLock',
+      'Pause', 'PrintScreen', 'ContextMenu'
+    ];
+    return functional.includes(e.key);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+
+    // 1. "Печатать не нужно!" — любая нефункциональная клавиша
+    if (!isFunctionalKey(e)) {
+      if (!keyPressed) {
+        keyPressed = true;
+        try { localStorage.setItem(KEY_PRESSED_KEY, '1'); } catch (err) {}
+        tryUnlock();
+      }
+    }
+
+    // 2. "Я и есть утка" — последовательность R H Z (К Р Я)
+    const pressedKey = e.key.toLowerCase();
+    const step = DUCK_SEQUENCE[duckSeqIndex];
+    if (e.code === step.code || step.keys.includes(pressedKey)) {
+      duckSeqIndex++;
+      if (duckSeqIndex === DUCK_SEQUENCE.length) {
+        duckSeqDone = true;
+        duckSeqIndex = 0;
+        try { localStorage.setItem(SEQ_DONE_KEY, '1'); } catch (err) {}
+        tryUnlock();
+      }
+    } else {
+      if (e.code === DUCK_SEQUENCE[0].code || DUCK_SEQUENCE[0].keys.includes(pressedKey)) {
+        duckSeqIndex = 1;
+      } else {
+        duckSeqIndex = 0;
+      }
+    }
   });
 
   // сброс всех ачивок

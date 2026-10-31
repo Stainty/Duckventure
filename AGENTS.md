@@ -9,6 +9,7 @@
 | `#particles` | Canvas поверх всего. Частицы: текст «Кря» (случайный HSL) или `fly` (эмодзи 🔒, вращаются) |
 | `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
 | `quackCount` / `hintCount` | Глобальные счётчики: клики по утке / по нижней подсказке `.hint` |
+| `keyPressed` / `duckSeqDone` / `lockedCardClicked` | Флаги для клавиатурных ачивок и взлома карточки |
 | `particles` | Глобальный массив частиц |
 | `audioCtx` | AudioContext, создаётся ленью |
 | `GRAVITY` | 1000 px/с² |
@@ -37,7 +38,7 @@
 ## Сохранение
 `localStorage`:
 - ачивки: ключ `duck-achv-{id}`, значение `'1'`;
-- счётчики: ключи `duck-quack-count` и `duck-hint-count`.
+- счётчики и флаги: `duck-quack-count`, `duck-hint-count`, `duck-key-pressed`, `duck-seq-done`, `duck-locked-clicked`.
 При загрузке страницы статус ачивок и счётчики считываются из storage.
 
 ## Звуки (Web Audio API, без файлов)
@@ -55,10 +56,13 @@
 | 1 | `first-quack` | «Первый кря!» | `quackCount >= 1` | клик по утке |
 | 2 | `hundred-quacks` | «Делать нечего?» | `quackCount >= 100` | клики по утке |
 | 3 | `mimambo` | «Мимамбо!» | `hintCount >= 1` | клик по нижней подсказке `.hint`, **не** по утке |
+| 4 | `type-key` | «Печатать не нужно!» | `keyPressed` | нажатие любой клавиши клавиатуры кроме функциональных |
+| 5 | `i-am-duck` | «Я и есть утка» | `duckSeqDone` | последовательное нажатие R H Z (К Р Я в RU) |
+| 6 | `hack-locked` | «Взлом жопы!» | `lockedCardClicked` | клик по любой заблокированной карточке ачивки |
 
 ## Сброс всех ачивок
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики `quackCount = 0`, `hintCount = 0` и удаляет их ключи из `localStorage` (`duck-quack-count`, `duck-hint-count`) — **обязательно**: иначе `first-quack`/`mimambo` мгновенно откроются снова (check() смотрит живые счётчики, а не storage);
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `hintCount = 0`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `duckSeqIndex = 0`) и удаляет их ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
 3. удаляет `duck-achv-{id}` из localStorage;
 4. перестраивает карточки через `buildAchievementCards()`.
