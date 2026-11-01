@@ -3120,6 +3120,7 @@
   window.getCurrentSkin = () => currentSkin;
   window.getCreatureOnDesk = () => creatureOnDesk;
   window.setCreatureOnDesk = (v) => { creatureOnDesk = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
+  window.getIsIncubating = () => isIncubating;
   window.getIncubatingRemaining = () => incubatingRemaining;
   window.setIncubatingRemaining = (v) => { incubatingRemaining = v; if (typeof updateIncubatorUI === 'function') updateIncubatorUI(); };
   window.getDucklingGrowRemaining = () => ducklingGrowRemaining;
@@ -5380,7 +5381,7 @@
           <div style="background: rgba(0,0,0,0.4); border-radius: 999px; height: 10px; width: 100%; overflow: hidden; margin-bottom: 12px; border: 1px solid #334155;">
             <div style="background: linear-gradient(90deg, #f59e0b, #fbbf24); height: 100%; width: ${pct}%; transition: width 0.5s ease;"></div>
           </div>
-          <div style="font: 700 20px monospace; color: #67e8f9; margin-bottom: 18px;">⏳ ${timeStr}</div>
+          <div style="font: 700 20px monospace; color: #67e8f9; margin-bottom: 18px;">${isClockOnTable() ? '⏳ ' + timeStr : '⏳ --:-- (нужны часы на столе)'}</div>
           <div style="font: 500 12.5px system-ui, sans-serif; color: #94a3b8;">
             Шанс вылупления каждого яйца: <b>90%</b>.<br>По завершении появится маленький утёнок!
           </div>
@@ -5490,7 +5491,7 @@
       incEl.classList.toggle('is-incubating', isIncubating);
     }
     if (badge && badgeTime) {
-      if (isIncubating && incEl && incEl.style.display !== 'none') {
+      if (isIncubating && incEl && incEl.style.display !== 'none' && isClockOnTable()) {
         const mins = Math.floor(incubatingRemaining / 60);
         const secs = incubatingRemaining % 60;
         badgeTime.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
@@ -5580,10 +5581,24 @@
     } else if (type === 'goldenDuckling' && goldenDucklings > 0) {
       goldenDucklings--;
       try { localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+    } else if (type === 'goose' && normalGeese > 0) {
+      normalGeese--;
+      try { localStorage.setItem(GEESE_NORMAL_KEY, String(normalGeese)); } catch (e) {}
+    } else if (type === 'goldenGoose' && goldenGeese > 0) {
+      goldenGeese--;
+      try { localStorage.setItem(GEESE_GOLDEN_KEY, String(goldenGeese)); } catch (e) {}
+    } else if (type === 'roastedGoose' && normalRoastedGeese > 0) {
+      normalRoastedGeese--;
+      try { localStorage.setItem(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese)); } catch (e) {}
+    } else if (type === 'goldenRoastedGoose' && goldenRoastedGeese > 0) {
+      goldenRoastedGeese--;
+      try { localStorage.setItem(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese)); } catch (e) {}
     }
 
     creatureOnDesk = { type: type };
-    ducklingGrowRemaining = 600; // 10 минут (600 сек)
+    if (type === 'duckling' || type === 'goldenDuckling') {
+      ducklingGrowRemaining = 600; // 10 минут (600 сек)
+    }
     try {
       localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk));
       localStorage.setItem(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining));
@@ -5895,6 +5910,8 @@
     else if (goldenDucklings > 0) spawnCreatureOnDesk('goldenDuckling');
     else if (normalGeese > 0) spawnCreatureOnDesk('goose');
     else if (goldenGeese > 0) spawnCreatureOnDesk('goldenGoose');
+    else if (normalRoastedGeese > 0) spawnCreatureOnDesk('roastedGoose');
+    else if (goldenRoastedGeese > 0) spawnCreatureOnDesk('goldenRoastedGoose');
   }
 
   function initDraggableCreature(el) {
@@ -5987,19 +6004,13 @@
       e.stopPropagation();
       if (!creatureOnDesk) return;
 
+      activeContextPropId = null;
+      activeContextEggType = null;
+      resetAllContextMenuButtons();
+
       const price = getCreaturePrice(creatureOnDesk.type);
       const name = getCreatureName(creatureOnDesk.type);
-
-      const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
-      const propCtxRefundBtn = document.getElementById('propCtxRefundBtn');
-      const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
-      const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
       const propCtxCreatureSellBtn = document.getElementById('propCtxCreatureSellBtn');
-
-      if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
-      if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
-      if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
-      if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
 
       if (propCtxCreatureSellBtn) {
         propCtxCreatureSellBtn.style.display = 'flex';
@@ -6279,20 +6290,33 @@
   }
   window.initDraggableEgg = initDraggableEgg;
 
+  function resetAllContextMenuButtons() {
+    const returnBtn = document.getElementById('propCtxReturnBtn');
+    const refundBtn = document.getElementById('propCtxRefundBtn');
+    const creatureBtn = document.getElementById('propCtxCreatureSellBtn');
+    const sell1Btn = document.getElementById('propCtxSell1Btn');
+    const sellAllBtn = document.getElementById('propCtxSellAllBtn');
+    const discardBtn = document.getElementById('propCtxDiscardBtn');
+    if (returnBtn) returnBtn.style.display = 'none';
+    if (refundBtn) refundBtn.style.display = 'none';
+    if (creatureBtn) creatureBtn.style.display = 'none';
+    if (sell1Btn) sell1Btn.style.display = 'none';
+    if (sellAllBtn) sellAllBtn.style.display = 'none';
+    if (discardBtn) discardBtn.style.display = 'none';
+  }
+  window.resetAllContextMenuButtons = resetAllContextMenuButtons;
+
   function showEggContextMenu(eggType, x, y) {
     if (!propContextMenu) return;
     activeContextEggType = eggType;
     activeContextPropId = null;
+    resetAllContextMenuButtons();
 
     const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
     const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
     const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
 
     if (eggType === 'rotten') {
-      if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
-      if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
-      if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
-      if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
       if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'flex';
 
       propContextMenu.style.display = 'block';
@@ -6316,9 +6340,6 @@
     else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
 
     if (count <= 0) return;
-
-    if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
-    if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
 
     if (propCtxSell1Btn) {
       propCtxSell1Btn.style.display = 'flex';
@@ -7231,6 +7252,7 @@
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
       if (typeof updateDeflationUI === 'function') updateDeflationUI();
       if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
+      if (typeof updateIncubatorUI === 'function') updateIncubatorUI();
     }
 
     if (propId === 'skovoroda' || propId === 'plita') {
@@ -7250,6 +7272,31 @@
       separateStoveAndPan(false);
     }
 
+    if (propId === 'incubator' && isIncubating) {
+      if (incubatingType === 'golden') goldenEggs += incubatingCount;
+      else normalEggs += incubatingCount;
+      updateEggsDisplay();
+      isIncubating = false;
+      incubatingRemaining = 0;
+      try {
+        localStorage.removeItem(IS_INCUBATING_KEY);
+        localStorage.removeItem(INCUBATING_REMAINING_KEY);
+        localStorage.removeItem(INCUBATING_COUNT_KEY);
+        localStorage.removeItem(INCUBATING_TYPE_KEY);
+      } catch (e) {}
+      updateIncubatorUI();
+      particles.push({
+        x: innerWidth / 2,
+        y: innerHeight / 2 - 30,
+        vx: 0,
+        vy: -90,
+        size: 17,
+        alpha: 1.3,
+        text: `🥚 Инкубация прервана, яйца возвращены (+${incubatingCount} шт.)`,
+        color: '#fbbf24'
+      });
+    }
+
     delete placedProps[propId];
     try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
     corkPopSound();
@@ -7264,6 +7311,7 @@
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
       if (typeof updateDeflationUI === 'function') updateDeflationUI();
       if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
+      if (typeof updateIncubatorUI === 'function') updateIncubatorUI();
     }
   }
   window.returnPropToStorage = returnPropToStorage;
@@ -7455,14 +7503,9 @@
     if (!propContextMenu) return;
     activeContextPropId = propId;
     activeContextEggType = null;
+    resetAllContextMenuButtons();
 
     if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'flex';
-    const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
-    const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
-    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
-    if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
-    if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
-    if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'none';
 
     const prop = PROPS_DATA[propId];
     if (propCtxRefundBtn) {
@@ -7492,6 +7535,7 @@
       propContextMenu.style.display = 'none';
       activeContextPropId = null;
       activeContextEggType = null;
+      resetAllContextMenuButtons();
     }
   }
   window.hidePropContextMenu = hidePropContextMenu;
