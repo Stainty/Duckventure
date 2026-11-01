@@ -485,10 +485,18 @@
     transform: scale(1.22);
   }
 
+  /* ---------- Обертка счетчика даклей и яиц ---------- */
+  .duckles-nav-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   /* ---------- Счетчик яиц (под счетчиком даклей) ---------- */
   .eggs-bar {
-    position: fixed;
-    top: 58px;
+    position: absolute;
+    top: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
     display: none;
@@ -505,6 +513,7 @@
     user-select: none;
     font: 700 13px/1.3 system-ui, "Segoe UI", sans-serif;
     color: #e2e8f0;
+    white-space: nowrap;
   }
   .egg-count-item {
     display: inline-flex;
@@ -1654,7 +1663,15 @@
     <button id="upgradesBtn" class="upgrades-btn" aria-label="Открыть окно прокачки">
       <span class="upgrades-icon">⚡</span> Апгрейды
     </button>
-    <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
+    <div class="duckles-nav-wrap">
+      <div class="duckles-bar" id="ducklesBar">Даклей заработано: <span class="duckles-val" id="ducklesVal">0</span></div>
+      <div class="eggs-bar" id="eggsBar">
+        <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
+        <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
+        <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
+        <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
+      </div>
+    </div>
     <button id="shopBtn" class="shop-btn" aria-label="Открыть Магазин">
       <span class="shop-icon">🛒</span> Магазин
     </button>
@@ -1664,13 +1681,6 @@
     <button id="branchesBtn" class="branches-btn" aria-label="Открыть Филиалы" style="display: none;">
       <span class="branches-icon">🏢</span> Филиалы
     </button>
-  </div>
-
-  <div class="eggs-bar" id="eggsBar">
-    <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
-    <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
-    <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
-    <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
   </div>
 
   <div class="lvl-box" id="lvlBox">
@@ -1942,7 +1952,7 @@
         <div class="upgrades-title">
           <span class="achv-title-icon">🏆</span>
           <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/19)</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/20)</span>
         </div>
         <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
       </div>
@@ -2051,6 +2061,7 @@
   const PLACED_PROPS_KEY = 'duck-placed-props';
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
+  const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -2082,6 +2093,7 @@
   let hasSpawnedKey = localStorage.getItem(SPAWNED_KEY_KEY) === '1';
   let isClothingCollapsed = localStorage.getItem(SHOP_CLOTHING_COLLAPSED_KEY) === '1';
   let isHouseholdCollapsed = localStorage.getItem(SHOP_HOUSEHOLD_COLLAPSED_KEY) === '1';
+  let hasSmashedEggs = localStorage.getItem(HAS_SMASHED_EGGS_KEY) === '1';
 
   let ownedSkins = ['default'];
   try {
@@ -2766,6 +2778,13 @@
       done: false,
       check: () => hasMovedDuck,
     },
+    {
+      id: 'egg-smash',
+      name: 'Всмятку!',
+      desc: 'Разбить яйца неосторожным броском',
+      done: false,
+      check: () => hasSmashedEggs,
+    },
   ];
 
   function updateAchvCounter() {
@@ -2828,6 +2847,7 @@
     hasClearedRoaches = false;
     hasMovedDuck = false;
     hasSpawnedKey = false;
+    hasSmashedEggs = false;
     stopRoaches();
     upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     ownedSkins = ['default'];
@@ -2880,6 +2900,7 @@
       localStorage.removeItem(PLACED_PROPS_KEY);
       localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
       localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
+      localStorage.removeItem(HAS_SMASHED_EGGS_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
       localStorage.removeItem('duck-upg-crit');
@@ -3235,6 +3256,50 @@
     } catch (e) {}
   }
 
+  /* звук разбития яиц (хруст скорлупы + шмяк) */
+  function splatSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const ctx = audioCtx;
+      const t = ctx.currentTime;
+
+      // 1. Хруст скорлупы (шумовой всплеск с полосовым фильтром)
+      const bufSize = Math.floor(ctx.sampleRate * 0.12);
+      const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.025));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, t);
+      filter.Q.setValueAtTime(2, t);
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.42, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noise.start(t);
+
+      // 2. Влажный шмяк (быстро падающий тон)
+      const osc = ctx.createOscillator();
+      const oscGain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(420, t);
+      osc.frequency.exponentialRampToValueAtTime(75, t + 0.18);
+      oscGain.gain.setValueAtTime(0.35, t);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.connect(oscGain);
+      oscGain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+    } catch (e) {}
+  }
+
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
 
@@ -3500,6 +3565,66 @@
   }
   window.cookEggsOnStove = cookEggsOnStove;
 
+  function smashEgg(el, isGolden) {
+    const count = isGolden ? goldenEggs : normalEggs;
+    if (count <= 0) return;
+
+    if (isGolden) {
+      goldenEggs = 0;
+      try { localStorage.setItem(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
+    } else {
+      normalEggs = 0;
+      try { localStorage.setItem(EGGS_NORMAL_KEY, '0'); } catch (e) {}
+    }
+
+    hasSmashedEggs = true;
+    try { localStorage.setItem(HAS_SMASHED_EGGS_KEY, '1'); } catch (e) {}
+
+    splatSound();
+    updateEggsDisplay();
+    updateShopSellTab();
+    tryUnlock();
+
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const noticeText = isGolden
+      ? `💥 Золотые яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`
+      : `💥 Обычные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+
+    particles.push({
+      x: cx,
+      y: cy - 25,
+      vx: 0,
+      vy: -130,
+      size: 22,
+      alpha: 2.2,
+      text: noticeText,
+      color: isGolden ? '#ffd700' : '#ff4d4d'
+    });
+
+    const splashItems = isGolden
+      ? ['✨', '🍳', '🟡', '🥚', '💥', '⭐', '✨']
+      : ['🍳', '🟡', '🥚', '💥', '💧', '🥚', '🟡'];
+
+    for (let i = 0; i < splashItems.length * 3; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 100 + Math.random() * 320;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 20,
+        y: cy + (Math.random() - 0.5) * 20,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 80,
+        size: 16 + Math.random() * 14,
+        alpha: 1.2 + Math.random() * 0.6,
+        text: splashItems[Math.floor(Math.random() * splashItems.length)],
+        color: isGolden ? '#ffd700' : '#ffffff'
+      });
+    }
+  }
+  window.smashEgg = smashEgg;
+
   function initDraggableEgg(el) {
     if (!el) return;
     let isDragging = false;
@@ -3507,6 +3632,11 @@
     let startY = 0;
     let lastClientX = 0;
     let currentTilt = 0;
+
+    let lastMoveTime = 0;
+    let lastMoveX = 0;
+    let lastMoveY = 0;
+    let releaseVelocity = 0;
 
     el.addEventListener('pointerdown', (e) => {
       isDragging = true;
@@ -3518,6 +3648,11 @@
       startY = e.clientY - rect.top;
       lastClientX = e.clientX;
       currentTilt = 0;
+
+      lastMoveTime = performance.now();
+      lastMoveX = e.clientX;
+      lastMoveY = e.clientY;
+      releaseVelocity = 0;
       e.stopPropagation();
     });
 
@@ -3534,6 +3669,17 @@
       currentTilt = Math.max(-28, Math.min(28, dx * 2.8));
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.14) rotate(${currentTilt}deg)`;
+
+      // Расчет скорости перемещения для определения резкого броска
+      const now = performance.now();
+      const dt = (now - lastMoveTime) / 1000;
+      if (dt > 0.012) {
+        const dist = Math.hypot(e.clientX - lastMoveX, e.clientY - lastMoveY);
+        releaseVelocity = dist / dt;
+        lastMoveX = e.clientX;
+        lastMoveY = e.clientY;
+        lastMoveTime = now;
+      }
     });
 
     const endDrag = (e) => {
@@ -3542,6 +3688,22 @@
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
       el.style.transform = '';
+
+      const now = performance.now();
+      // Если перед отпусканием движение прекратилось, сбрасываем скорость броска
+      if (now - lastMoveTime > 110) {
+        releaseVelocity = 0;
+      }
+
+      const isGolden = (el.id === 'goldenEgg');
+      const count = isGolden ? goldenEggs : normalEggs;
+
+      // Если яйцо отпущено с большой скоростью (бросок) — разбиваем яйца вдребезги!
+      if (releaseVelocity >= 750 && count > 0) {
+        smashEgg(el, isGolden);
+        return;
+      }
+
       el.classList.add('is-wobbling');
       setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
@@ -3555,7 +3717,6 @@
           const rPlita = plitaEl.getBoundingClientRect();
 
           if (isOverlapping(rEgg, rSkov) || isOverlapping(rEgg, rPlita)) {
-            const isGolden = (el.id === 'goldenEgg');
             cookEggsOnStove(isGolden ? 'golden' : 'normal');
             return;
           }
@@ -4250,7 +4411,7 @@
     const pY = parseFloat(plitaEl.style.top) || plitaEl.offsetTop;
 
     const panLeft = Math.round(pX + 8) + 'px';
-    const panTop = Math.round(pY - 24) + 'px';
+    const panTop = Math.round(pY - 29) + 'px';
 
     skovEl.style.left = panLeft;
     skovEl.style.top = panTop;
@@ -4330,7 +4491,7 @@
 
     if (movedPropId === 'plita') {
       const panLeft = Math.max(0, Math.min(window.innerWidth - skovEl.offsetWidth, x + 8)) + 'px';
-      const panTop = Math.max(0, Math.min(window.innerHeight - skovEl.offsetHeight, y - 24)) + 'px';
+      const panTop = Math.max(0, Math.min(window.innerHeight - skovEl.offsetHeight, y - 29)) + 'px';
       skovEl.style.left = panLeft;
       skovEl.style.top = panTop;
       if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
@@ -4338,7 +4499,7 @@
       placedProps.skovoroda.top = panTop;
     } else if (movedPropId === 'skovoroda') {
       const plitaLeft = Math.max(0, Math.min(window.innerWidth - plitaEl.offsetWidth, x - 8)) + 'px';
-      const plitaTop = Math.max(0, Math.min(window.innerHeight - plitaEl.offsetHeight, y + 24)) + 'px';
+      const plitaTop = Math.max(0, Math.min(window.innerHeight - plitaEl.offsetHeight, y + 29)) + 'px';
       plitaEl.style.left = plitaLeft;
       plitaEl.style.top = plitaTop;
       if (!placedProps.plita) placedProps.plita = { placed: true };
