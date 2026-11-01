@@ -328,7 +328,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    z-index: 25;
+    z-index: 52;
     user-select: none;
     white-space: nowrap;
   }
@@ -445,7 +445,7 @@
     border-radius: 999px;
     cursor: pointer;
     user-select: none;
-    transition: transform .12s, background .2s, border-color .2s, box-shadow .2s;
+    transition: transform .15s ease, background .2s, border-color .2s, box-shadow .2s, filter .15s ease;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
@@ -457,6 +457,14 @@
   }
   .storage-btn:active {
     transform: scale(.96);
+  }
+  .storage-btn.drag-target-hover {
+    transform: scale(1.24) !important;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.65), rgba(249, 115, 22, 0.38)) !important;
+    border-color: #ffd24d !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(253, 186, 116, 0.95), 0 0 50px rgba(249, 115, 22, 0.6) !important;
+    filter: brightness(1.3) !important;
   }
   .branches-btn {
     display: none;
@@ -1521,30 +1529,46 @@
     background: #0284c7;
     transform: scale(1.15);
   }
-  .prop-close-btn {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: #ef4444;
-    border: 1px solid #fff;
-    color: #fff;
-    font: 800 11px system-ui, sans-serif;
+  /* ---------- Контекстное меню предмета (ПКМ: Убрать на склад) ---------- */
+  .prop-context-menu {
+    position: fixed;
+    z-index: 95;
+    background: #181d28;
+    border: 1px solid rgba(253, 186, 116, 0.45);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8), 0 0 18px rgba(253, 186, 116, 0.2);
+    padding: 5px;
     display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    transition: transform .12s;
+    animation: ctxPopIn .15s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .draggable-prop:hover .prop-close-btn {
+  @keyframes ctxPopIn {
+    from { opacity: 0; transform: scale(0.92) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .prop-ctx-btn {
     display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #f1f5f9;
+    font: 700 13.5px system-ui, sans-serif;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, color .15s, transform .1s;
   }
-  .prop-close-btn:hover {
-    transform: scale(1.15);
-    background: #dc2626;
+  .prop-ctx-btn:hover {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.35), rgba(249, 115, 22, 0.18));
+    color: #fed7aa;
+    transform: translateX(2px);
+  }
+  .prop-ctx-btn:active {
+    transform: scale(0.96);
+  }
+  .prop-ctx-icon {
+    font-size: 16px;
   }
   /* ---------- Теплое свечение напольной лампы ---------- */
   .lamp-warm-glow-overlay {
@@ -2148,42 +2172,43 @@
   <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай!)">🥚</div>
 
   <!-- Перетаскиваемые бытовые предметы на экране -->
-  <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://pngicon.net/file/uploads/skovoroda-243x256.png" alt="Сковорода" draggable="false" referrerpolicy="no-referrer">
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('skovoroda')">✕</button>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-plita" class="draggable-prop" title="Плита (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-plita" class="draggable-prop" title="Плита (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe" alt="Плита" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🎛️</span>
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('plita')">✕</button>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-fridge" class="draggable-prop" title="Вонючий старый холодильник (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-fridge" class="draggable-prop" title="Вонючий старый холодильник (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧊</span>
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('fridge')">✕</button>
   </div>
-  <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧴</span>
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('dichlofos')">✕</button>
   </div>
-  <div id="prop-key" class="draggable-prop" title="Ключ (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-key" class="draggable-prop" title="Ключ (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔑</span>
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('key')">✕</button>
   </div>
-  <div id="prop-lamp" class="draggable-prop" title="Напольная лампа (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+  <div id="prop-lamp" class="draggable-prop" title="Напольная лампа (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">💡</span>
-    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('lamp')">✕</button>
     <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
+  </div>
+
+  <!-- Контекстное меню для предметов на столе (ПКМ) -->
+  <div id="propContextMenu" class="prop-context-menu" style="display: none;">
+    <button class="prop-ctx-btn" id="propCtxReturnBtn">
+      <span class="prop-ctx-icon">📦</span> Убрать на склад
+    </button>
   </div>
 
   <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
@@ -2253,6 +2278,8 @@
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
+  window.setDuckles = (v) => { duckles = v; updateDuckles(); };
+  window.getDuckles = () => duckles;
   let hintCount = parseInt(localStorage.getItem(HINT_KEY) || '0', 10) || 0;
   let keyPressed = localStorage.getItem(KEY_PRESSED_KEY) === '1';
   let duckSeqDone = localStorage.getItem(SEQ_DONE_KEY) === '1';
@@ -2304,12 +2331,14 @@
     ownedProps = JSON.parse(localStorage.getItem(OWNED_PROPS_KEY) || '[]');
     if (!Array.isArray(ownedProps)) ownedProps = [];
   } catch (e) { ownedProps = []; }
+  window.ownedProps = ownedProps;
 
   let placedProps = {};
   try {
     placedProps = JSON.parse(localStorage.getItem(PLACED_PROPS_KEY) || '{}');
     if (typeof placedProps !== 'object' || placedProps === null) placedProps = {};
   } catch (e) { placedProps = {}; }
+  window.placedProps = placedProps;
 
   const SKINS_DATA = {
     default: {
@@ -2495,6 +2524,7 @@
     strength: parseInt(localStorage.getItem('duck-upg-strength') || '0', 10) || 0,
     features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
   };
+  window.upgradeLevels = upgradeLevels;
 
   const MAX_LEVEL = 20;
   const LEVEL_EXP_TABLE = [
@@ -2625,6 +2655,7 @@
   window.isAnyModalOpen = isAnyModalOpen;
 
   function closeAllModals() {
+    if (typeof hidePropContextMenu === 'function') hidePropContextMenu();
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
       modal.classList.remove('open');
     });
@@ -4445,6 +4476,9 @@
         localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
       } catch (e) {}
 
+      // Купленные вещи в магазине сразу выкладывать на стол
+      placePropOnScreen(itemId);
+
       particles.push({
         x: innerWidth / 2,
         y: innerHeight / 2 - 40,
@@ -4452,7 +4486,7 @@
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: '🍳 Предмет на складе!',
+        text: '🍳 Предмет на столе!',
         color: '#fdba74'
       });
     }
@@ -4685,7 +4719,12 @@
     if (!placedProps[propId] || !placedProps[propId].left) {
       const propWidth = el.offsetWidth || 85;
       const propHeight = el.offsetHeight || 85;
-      const offset = (propId === 'plita') ? 45 : (propId === 'skovoroda' ? -45 : (propId === 'lamp' ? -120 : 0));
+      const offset = (propId === 'plita') ? 60 : 
+                     (propId === 'skovoroda' ? -60 : 
+                     (propId === 'lamp' ? -180 : 
+                     (propId === 'fridge' ? -120 : 
+                     (propId === 'dichlofos' ? 140 : 
+                     (propId === 'key' ? 200 : 0)))));
       const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const top = Math.max(70, Math.min(window.innerHeight - propHeight - 20, Math.round(window.innerHeight - propHeight - 55))) + 'px';
       placedProps[propId] = { placed: true, left, top };
@@ -4883,6 +4922,82 @@
     }
   }
 
+  function isOverlappingWithStorageBtn(propEl, clientX, clientY) {
+    const storageBtn = document.getElementById('storageBtn');
+    if (!storageBtn) return false;
+    const style = window.getComputedStyle(storageBtn);
+    if (style.display === 'none' || storageBtn.offsetParent === null) return false;
+
+    const sRect = storageBtn.getBoundingClientRect();
+    const pad = 16;
+
+    if (clientX !== undefined && clientY !== undefined) {
+      if (clientX >= sRect.left - pad && clientX <= sRect.right + pad &&
+          clientY >= sRect.top - pad && clientY <= sRect.bottom + pad) {
+        return true;
+      }
+    }
+
+    if (propEl) {
+      const pRect = propEl.getBoundingClientRect();
+      const overlap = !(pRect.right < sRect.left - pad ||
+                        pRect.left > sRect.right + pad ||
+                        pRect.bottom < sRect.top - pad ||
+                        pRect.top > sRect.bottom + pad);
+      if (overlap) return true;
+    }
+    return false;
+  }
+
+  let activeContextPropId = null;
+  const propContextMenu = document.getElementById('propContextMenu');
+  const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
+
+  function showPropContextMenu(propId, x, y) {
+    if (!propContextMenu) return;
+    activeContextPropId = propId;
+    propContextMenu.style.display = 'block';
+
+    const menuW = 180;
+    const menuH = 46;
+    const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
+    const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
+
+    propContextMenu.style.left = `${posX}px`;
+    propContextMenu.style.top = `${posY}px`;
+  }
+  window.showPropContextMenu = showPropContextMenu;
+
+  function hidePropContextMenu() {
+    if (propContextMenu) {
+      propContextMenu.style.display = 'none';
+      activeContextPropId = null;
+    }
+  }
+  window.hidePropContextMenu = hidePropContextMenu;
+
+  if (propCtxReturnBtn) {
+    propCtxReturnBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeContextPropId) {
+        returnPropToStorage(activeContextPropId);
+        hidePropContextMenu();
+      }
+    });
+  }
+
+  document.addEventListener('pointerdown', (e) => {
+    if (propContextMenu && propContextMenu.style.display === 'block') {
+      if (!e.target.closest('#propContextMenu')) {
+        hidePropContextMenu();
+      }
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hidePropContextMenu();
+  });
+
   function initDraggableProp(el, propId) {
     if (!el) return;
     let isDragging = false;
@@ -4892,7 +5007,9 @@
     let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.prop-close-btn') || e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
+      if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
+      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
+      hidePropContextMenu();
       isDragging = true;
       el.classList.add('is-dragging');
       el.classList.remove('is-wobbling');
@@ -4919,6 +5036,17 @@
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
 
+      // Проверка наведения на кнопку «Склад» при перетаскивании
+      const isOverStorage = isOverlappingWithStorageBtn(el, e.clientX, e.clientY);
+      const storageBtn = document.getElementById('storageBtn');
+      if (storageBtn) {
+        if (isOverStorage) {
+          storageBtn.classList.add('drag-target-hover');
+        } else {
+          storageBtn.classList.remove('drag-target-hover');
+        }
+      }
+
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
@@ -4938,8 +5066,10 @@
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
       el.style.transform = '';
-      el.classList.add('is-wobbling');
-      setTimeout(() => el.classList.remove('is-wobbling'), 650);
+
+      const storageBtn = document.getElementById('storageBtn');
+      const wasOverStorage = storageBtn && (storageBtn.classList.contains('drag-target-hover') || isOverlappingWithStorageBtn(el, e.clientX, e.clientY));
+      if (storageBtn) storageBtn.classList.remove('drag-target-hover');
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
@@ -4951,6 +5081,27 @@
           setTimeout(() => partnerEl.classList.remove('is-wobbling'), 650);
         }
       }
+
+      if (wasOverStorage) {
+        returnPropToStorage(propId);
+        if (storageBtn) {
+          const sRect = storageBtn.getBoundingClientRect();
+          particles.push({
+            x: sRect.left + sRect.width / 2,
+            y: sRect.top + sRect.height / 2,
+            vx: (Math.random() - 0.5) * 60,
+            vy: -140,
+            size: 16,
+            alpha: 1.1,
+            text: '📦 Убрано на склад!',
+            color: '#fdba74'
+          });
+        }
+        return;
+      }
+
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       if (!placedProps[propId]) placedProps[propId] = { placed: true };
       placedProps[propId].left = el.style.left;
@@ -4968,6 +5119,17 @@
 
     el.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
+
+    // ПКМ по предмету: открытие кнопки «Убрать на склад»
+    el.addEventListener('contextmenu', (e) => {
+      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = el.getBoundingClientRect();
+      const posX = e.clientX || (rect.left + rect.width / 2);
+      const posY = e.clientY || (rect.top + rect.height / 2);
+      showPropContextMenu(propId, posX, posY);
+    });
   }
 
   function restorePropsOnScreen() {
