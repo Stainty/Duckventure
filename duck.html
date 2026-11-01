@@ -1283,6 +1283,66 @@
     color: #8da0be;
   }
 
+  /* ---------- Модальное окно зажаренной утки (Game Over) ---------- */
+  .cooked-duck-dialog {
+    width: min(520px, 92vw);
+    background: radial-gradient(circle at 50% 25%, #2a1c18 0%, #15141b 80%);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(234, 88, 12, 0.25);
+    border-radius: 24px;
+    padding: 38px 28px;
+    text-align: center;
+  }
+  .cooked-duck-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .cooked-duck-emoji {
+    font-size: 88px;
+    line-height: 1;
+    filter: drop-shadow(0 10px 24px rgba(234, 88, 12, 0.55));
+    animation: cookedDuckFloat 3s ease-in-out infinite alternate;
+  }
+  @keyframes cookedDuckFloat {
+    0%   { transform: translateY(0) scale(1) rotate(-3deg); }
+    100% { transform: translateY(-8px) scale(1.05) rotate(4deg); }
+  }
+  .cooked-duck-title {
+    font: 900 24px/1.3 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #ffedd5;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  .cooked-duck-desc {
+    font: 500 15px/1.55 system-ui, sans-serif;
+    color: #fdba74;
+    max-width: 380px;
+  }
+  .cooked-duck-restart-btn {
+    margin-top: 10px;
+    padding: 14px 28px;
+    font: 700 16px system-ui, sans-serif;
+    color: #fff;
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    border: 1px solid rgba(254, 215, 170, 0.4);
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.45);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .cooked-duck-restart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 26px rgba(234, 88, 12, 0.6);
+    filter: brightness(1.1);
+  }
+  .cooked-duck-restart-btn:active {
+    transform: scale(0.97);
+  }
+
   /* ---------- Перетаскиваемые предметы на столе ---------- */
   .draggable-prop {
     position: fixed;
@@ -1952,12 +2012,26 @@
         <div class="upgrades-title">
           <span class="achv-title-icon">🏆</span>
           <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/20)</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/21)</span>
         </div>
         <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
       </div>
       <div class="achv-body" id="achvModalBody">
         <div class="achv-grid" id="achvList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно зажаренной утки (Game Over) -->
+  <div class="upgrades-modal" id="cookedDuckModal">
+    <div class="upgrades-dialog cooked-duck-dialog">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true">🍗</div>
+        <div class="cooked-duck-title">О нет! Кажется эта утка больше не крякает</div>
+        <div class="cooked-duck-desc">Мама утка превратилась в аппетитное хрустящее блюдо прямо на плите...</div>
+        <button id="cookedDuckRestartBtn" class="cooked-duck-restart-btn">
+          <span>🔄</span> Начать игру заново
+        </button>
       </div>
     </div>
   </div>
@@ -2011,6 +2085,7 @@
     <img class="duck-img" id="duckImg" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png" alt="Резиновая утка"
          onload="document.querySelector('.duck-fallback').style.display='none'"
          onerror="this.style.display='none'; document.querySelector('.duck-fallback').style.display='grid'">
+    <span id="cookedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🍗</span>
   </button>
 
   <div id="achvToastContainer" class="achv-toast-container"></div>
@@ -2063,6 +2138,7 @@
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
+  const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -2095,6 +2171,11 @@
   let isClothingCollapsed = localStorage.getItem(SHOP_CLOTHING_COLLAPSED_KEY) === '1';
   let isHouseholdCollapsed = localStorage.getItem(SHOP_HOUSEHOLD_COLLAPSED_KEY) === '1';
   let hasSmashedEggs = localStorage.getItem(HAS_SMASHED_EGGS_KEY) === '1';
+  let hasFriedDuck = false;
+  try {
+    hasFriedDuck = localStorage.getItem(HAS_FRIED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'monster') === '1';
+  } catch (e) {}
+  let isCookedDuckActive = false;
 
   let ownedSkins = ['default'];
   try {
@@ -2786,6 +2867,13 @@
       done: false,
       check: () => hasSmashedEggs,
     },
+    {
+      id: 'monster',
+      name: 'Ты монстр!',
+      desc: 'Зажарить маму утку',
+      done: false,
+      check: () => hasFriedDuck,
+    },
   ];
 
   function updateAchvCounter() {
@@ -2802,9 +2890,13 @@
     list.innerHTML = '';
     ACHIEVEMENTS.forEach((a) => {
       try {
-        a.done = localStorage.getItem(STORAGE_PREFIX + a.id) === '1';
+        if (a.id === 'monster' && hasFriedDuck) {
+          a.done = true;
+        } else {
+          a.done = localStorage.getItem(STORAGE_PREFIX + a.id) === '1';
+        }
       } catch (e) {
-        a.done = false;
+        a.done = (a.id === 'monster' && hasFriedDuck);
       }
       const card = document.createElement('div');
       card.id = 'achv-card-' + a.id;
@@ -2909,6 +3001,10 @@
       localStorage.removeItem('duck-upg-features');
     } catch (e) {}
     ACHIEVEMENTS.forEach((a) => {
+      if (a.id === 'monster' && (hasFriedDuck || a.done)) {
+        a.done = true;
+        return;
+      }
       a.done = false;
       try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
     });
@@ -2956,6 +3052,11 @@
     duck.style.margin = '';
     duck.style.zIndex = '';
     duck.classList.remove('can-drag', 'is-dragging');
+    isCookedDuckActive = false;
+    const cookedDuckView = document.getElementById('cookedDuckView');
+    if (cookedDuckView) cookedDuckView.style.display = 'none';
+    const cookedDuckModal = document.getElementById('cookedDuckModal');
+    if (cookedDuckModal) cookedDuckModal.classList.remove('open');
     const lvlRoachWarn = document.getElementById('lvlRoachWarning');
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
@@ -3348,8 +3449,8 @@
     const intervalMs = getAutoQuackInterval();
 
     autoQuackTimer = setInterval(() => {
-      // Игра на паузе пока открыты любые модальные окна
-      if (isAnyModalOpen()) return;
+      // Игра на паузе пока открыты любые модальные окна или когда утка зажарена
+      if (isAnyModalOpen() || isCookedDuckActive) return;
 
       addDuckles(rate);
 
@@ -3630,6 +3731,106 @@
     }
   }
   window.smashEgg = smashEgg;
+
+  /* ---------- Кулинарный финал: Зажарить маму утку ---------- */
+  function checkDuckStoveCombine() {
+    if (!isStoveCombined || isCookedDuckActive) return;
+    const plitaEl = document.getElementById('prop-plita');
+    const skovEl = document.getElementById('prop-skovoroda');
+    if (!plitaEl || !skovEl) return;
+    if (plitaEl.style.display === 'none' || skovEl.style.display === 'none') return;
+
+    const rDuck = duck.getBoundingClientRect();
+    const rPlita = plitaEl.getBoundingClientRect();
+    const rSkov = skovEl.getBoundingClientRect();
+
+    if (isOverlapping(rDuck, rSkov) || isOverlapping(rDuck, rPlita)) {
+      cookMotherDuck();
+    }
+  }
+  window.checkDuckStoveCombine = checkDuckStoveCombine;
+
+  function cookMotherDuck() {
+    if (isCookedDuckActive) return;
+    isCookedDuckActive = true;
+
+    // Звуки шипения и жарки
+    sizzleSound(false);
+    setTimeout(() => { try { corkPopSound(); } catch (e) {} }, 180);
+    setTimeout(() => { try { critSound(); } catch (e) {} }, 380);
+
+    // Подмена утки на эмодзи жареной курицы 🍗
+    const duckImg = document.getElementById('duckImg');
+    const duckFallback = document.querySelector('.duck-fallback');
+    const cookedDuckView = document.getElementById('cookedDuckView');
+    if (duckImg) duckImg.style.display = 'none';
+    if (duckFallback) duckFallback.style.display = 'none';
+    if (cookedDuckView) cookedDuckView.style.display = 'flex';
+
+    // Эффектные частицы огня, дыма и курочки
+    const rDuck = duck.getBoundingClientRect();
+    const cx = rDuck.left + rDuck.width / 2;
+    const cy = rDuck.top + rDuck.height / 2;
+    spawnDuckCookParticles(cx, cy);
+
+    // Открываем модальное окно завершения игры
+    setTimeout(() => {
+      closeAllModals();
+      const modal = document.getElementById('cookedDuckModal');
+      if (modal) modal.classList.add('open');
+    }, 750);
+  }
+  window.cookMotherDuck = cookMotherDuck;
+
+  function spawnDuckCookParticles(cx, cy) {
+    if (!isWindowFocused()) return;
+    const cookItems = ['🔥', '💨', '🍗', '✨', '🍳', '💥'];
+    for (let i = 0; i < 28; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 100 + Math.random() * 240;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 50,
+        y: cy + (Math.random() - 0.5) * 50,
+        vx: Math.cos(angle) * speed,
+        vy: -Math.abs(Math.sin(angle) * speed) - 40,
+        size: 24 + Math.random() * 18,
+        alpha: 1.1 + Math.random() * 0.4,
+        text: cookItems[Math.floor(Math.random() * cookItems.length)],
+        color: '#ff7700',
+        rot: 0,
+        rotSpeed: (Math.random() - 0.5) * 12
+      });
+    }
+  }
+
+  function restartFromCookedDuck() {
+    hasFriedDuck = true;
+    try {
+      localStorage.setItem(HAS_FRIED_DUCK_KEY, '1');
+      localStorage.setItem(STORAGE_PREFIX + 'monster', '1');
+    } catch (e) {}
+
+    // Сброс всего игрового процесса
+    resetAchievements();
+
+    const modal = document.getElementById('cookedDuckModal');
+    if (modal) modal.classList.remove('open');
+
+    // Восстанавливаем внешний вид утки
+    isCookedDuckActive = false;
+    const duckImg = document.getElementById('duckImg');
+    const cookedDuckView = document.getElementById('cookedDuckView');
+    if (cookedDuckView) cookedDuckView.style.display = 'none';
+    if (duckImg) duckImg.style.display = 'block';
+
+    // Выдаем ачивку "Ты монстр!" (не сбрасывается) со всеми анимациями тоста
+    const monsterIdx = ACHIEVEMENTS.findIndex(a => a.id === 'monster');
+    if (monsterIdx !== -1) {
+      ACHIEVEMENTS[monsterIdx].done = false;
+      unlockAchievement(monsterIdx);
+    }
+  }
+  window.restartFromCookedDuck = restartFromCookedDuck;
 
   function initDraggableEgg(el) {
     if (!el) return;
@@ -4533,6 +4734,7 @@
     const dist = Math.hypot(cS.x - cP.x, cS.y - cP.y);
     if (dist < 90 || isOverlapping(rS, rP)) {
       combineStoveAndPan(true);
+      checkDuckStoveCombine();
     }
   }
 
@@ -4612,6 +4814,10 @@
 
       if (!isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         checkStovePanCombine();
+      }
+
+      if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
+        checkDuckStoveCombine();
       }
     };
 
@@ -5065,6 +5271,7 @@
   }
 
   duck.addEventListener('pointerdown', (e) => {
+    if (isCookedDuckActive) return;
     if (isAnyModalOpen()) return;
     if (upgradeLevels.features < 4) return;
     if (e.button !== 0) return;
@@ -5136,12 +5343,19 @@
           top: duck.style.top
         }));
       } catch (err) {}
+
+      checkDuckStoveCombine();
     }
   };
   duck.addEventListener('pointerup', endDuckDrag);
   duck.addEventListener('pointercancel', endDuckDrag);
 
   duck.addEventListener('click', () => {
+    if (isCookedDuckActive) {
+      const modal = document.getElementById('cookedDuckModal');
+      if (modal) modal.classList.add('open');
+      return;
+    }
     if (isAnyModalOpen()) return;
     if (suppressNextDuckClick) {
       suppressNextDuckClick = false;
@@ -5426,6 +5640,19 @@
 
   // сброс всех ачивок
   document.getElementById('resetBtn').addEventListener('click', resetAchievements);
+
+  const cookedDuckModal = document.getElementById('cookedDuckModal');
+  const cookedDuckRestartBtn = document.getElementById('cookedDuckRestartBtn');
+  if (cookedDuckRestartBtn) {
+    cookedDuckRestartBtn.addEventListener('click', restartFromCookedDuck);
+  }
+  if (cookedDuckModal) {
+    cookedDuckModal.addEventListener('click', (e) => {
+      if (e.target === cookedDuckModal) {
+        cookedDuckModal.classList.remove('open');
+      }
+    });
+  }
 
   /* ---------- инициализация ---------- */
   initDraggableEgg(document.getElementById('normalEgg'));
