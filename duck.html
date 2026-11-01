@@ -61,42 +61,109 @@
     user-select: none;
   }
 
-  /* ---------- Ачивки ---------- */
-  .achv-list {
+  /* ---------- Кнопки в углах: Ачивки (слева) и Начать заново (справа) ---------- */
+  .achv-btn {
     position: fixed;
-    left: clamp(0px, 2vw, 16px);
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: calc(100vh - 30px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 34px 28px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, .18) transparent;
+    top: 12px;
+    left: 12px;
     z-index: 20;
+    font: 12px/1.25 system-ui, "Segoe UI", sans-serif;
+    color: #8b93a7;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 9px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: color .18s, background .18s, border-color .18s, transform .12s;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
-  .achv-list::-webkit-scrollbar {
-    width: 6px;
+  .achv-btn:hover {
+    color: #ffd24d;
+    background: rgba(255, 210, 77, .08);
+    border-color: rgba(255, 210, 77, .35);
   }
-  .achv-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, .18);
-    border-radius: 4px;
+  .achv-btn:active {
+    transform: scale(.96);
   }
+
+  .reset-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 20;
+    font: 12px/1.25 system-ui, "Segoe UI", sans-serif;
+    color: #8b93a7;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 9px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: color .18s, background .18s, border-color .18s, transform .12s;
+    user-select: none;
+  }
+  .reset-btn:hover {
+    color: #ffd24d;
+    background: rgba(255, 210, 77, .08);
+    border-color: rgba(255, 210, 77, .35);
+  }
+  .reset-btn:active {
+    transform: scale(.96);
+  }
+
+  /* ---------- Модальное окно ачивок ---------- */
+  .achv-dialog {
+    width: min(980px, 95vw);
+    max-height: min(88vh, 760px);
+  }
+  .achv-title-icon {
+    font-size: 20px;
+  }
+  .achv-counter-badge {
+    font: 700 14px system-ui, sans-serif;
+    color: #ffd24d;
+    margin-left: 6px;
+  }
+  .achv-body {
+    padding: 22px 24px;
+    overflow-y: auto;
+    max-height: 72vh;
+  }
+  .achv-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .achv-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 480px) {
+    .achv-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Карточки ачивок (в модальном окне) ---------- */
   .achv-card {
     position: relative;
-    width: min(212px, 88vw);
+    width: 100%;
     height: 96px;
-    border-radius: 24px;
+    border-radius: 20px;
     background: #313742;
     border: 1px solid #3e4757;
     display: grid;
     place-items: center;
     cursor: pointer;
-    flex-shrink: 0;
-    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, transform .1s ease;
+    box-sizing: border-box;
+    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, transform .12s ease;
+  }
+  .achv-card:hover {
+    border-color: #4e5b72;
+    transform: translateY(-1px);
   }
   .achv-card:active {
     transform: scale(.98);
@@ -104,24 +171,16 @@
   .achv-card.unlocked {
     background: #ffd24d;
     border-color: #ffe99e;
-    box-shadow: 0 0 0 3px rgba(255, 214, 77, .3), 0 0 16px 2px rgba(255, 214, 77, .42), 0 8px 18px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 0 3px rgba(255, 214, 77, .3), 0 0 16px 2px rgba(255, 214, 77, .42), 0 6px 16px rgba(0, 0, 0, .25);
     animation: achv-glow 2.4s ease-in-out 1s infinite;
   }
   @keyframes achv-glow {
     0%, 100% {
-      box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 14px 2px rgba(255, 214, 77, .35), 0 8px 18px rgba(0, 0, 0, .3);
+      box-shadow: 0 0 0 3px rgba(255, 214, 77, .25), 0 0 14px 2px rgba(255, 214, 77, .35), 0 6px 16px rgba(0, 0, 0, .25);
     }
     50% {
-      box-shadow: 0 0 0 4px rgba(255, 214, 77, .45), 0 0 22px 3px rgba(255, 214, 77, .6), 0 8px 18px rgba(0, 0, 0, .3);
+      box-shadow: 0 0 0 4px rgba(255, 214, 77, .45), 0 0 22px 3px rgba(255, 214, 77, .6), 0 6px 16px rgba(0, 0, 0, .25);
     }
-  }
-  .achv-card.flash {
-    animation: card-flash .5s cubic-bezier(.2, .9, .3, 1.35) .25s;
-  }
-  @keyframes card-flash {
-    0%   { transform: scale(.88); }
-    60%  { transform: scale(1.05); }
-    100% { transform: scale(1); }
   }
   .achv-padlock {
     position: absolute;
@@ -143,7 +202,7 @@
     justify-content: center;
     text-align: center;
     gap: 4px;
-    padding: 0 14px;
+    padding: 0 12px;
     color: #2b2409;
     opacity: 0;
     pointer-events: none;
@@ -157,33 +216,79 @@
     100% { opacity: 1; transform: none; }
   }
   .achv-name {
-    font: 700 15.5px/1.3 system-ui, "Segoe UI", sans-serif;
+    font: 700 15px/1.25 system-ui, "Segoe UI", sans-serif;
   }
   .achv-desc {
-    font: 13px/1.45 system-ui, "Segoe UI", sans-serif;
+    font: 12.5px/1.35 system-ui, "Segoe UI", sans-serif;
     color: #6a5b14;
   }
-  .reset-btn {
+
+  /* ---------- Контейнер и всплывающие плашки над уткой ---------- */
+  .achv-toast-container {
     position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 20;
-    font: 12px/1.25 system-ui, "Segoe UI", sans-serif;
-    color: #8b93a7;
-    background: rgba(255, 255, 255, .05);
-    border: 1px solid rgba(255, 255, 255, .14);
-    border-radius: 9px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: color .18s, background .18s, border-color .18s, transform .12s;
+    left: 50%;
+    bottom: calc(50% + min(155px, 28vw) + 16px);
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 14px;
+    pointer-events: none;
+    z-index: 55;
+    max-width: min(92vw, 920px);
   }
-  .reset-btn:hover {
-    color: #ffd24d;
-    background: rgba(255, 210, 77, .08);
-    border-color: rgba(255, 210, 77, .35);
+  .achv-toast-card {
+    position: relative;
+    width: 212px;
+    height: 96px;
+    border-radius: 24px;
+    background: #313742;
+    border: 1px solid #3e4757;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
   }
-  .reset-btn:active {
-    transform: scale(.96);
+  .achv-toast-card.fade-in {
+    animation: achvToastIn .35s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+  @keyframes achvToastIn {
+    0% {
+      opacity: 0;
+      transform: translateY(14px) scale(.92);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .achv-toast-card.golden-glow {
+    background: #ffd24d;
+    border-color: #ffe99e;
+    box-shadow: 0 0 0 4px rgba(255, 214, 77, .45), 0 0 28px 4px rgba(255, 214, 77, .75), 0 10px 30px rgba(0, 0, 0, .4);
+    animation: toastFlash .45s cubic-bezier(.2, .9, .3, 1.35);
+  }
+  @keyframes toastFlash {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .achv-toast-card.fade-out {
+    animation: achvToastOut .45s ease-in forwards;
+  }
+  @keyframes achvToastOut {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-16px) scale(.92);
+    }
   }
 
   /* ---------- Верхняя панель (Апгрейды + Дакли) ---------- */
@@ -1344,11 +1449,10 @@
     .upgrade-card { flex-direction: column; align-items: stretch; gap: 10px; }
     .upgrade-levels-row { justify-content: space-between; }
     .upgrade-lvl-btn { flex: 1; width: auto; height: 50px; }
-    .achv-list { top: 48px; left: 0; transform: none; max-height: calc(100vh - 90px); padding: 24px 16px; }
-    .achv-card { width: min(208px, calc(100vw - 32px)); height: 86px; border-radius: 20px; }
+    .achv-card { height: 86px; border-radius: 18px; }
     .achv-padlock { font-size: 32px; }
-    .achv-name { font-size: 14.5px; }
-    .achv-desc { font-size: 12px; }
+    .achv-name { font-size: 14px; }
+    .achv-desc { font-size: 11.5px; }
   }
 </style>
 </head>
@@ -1608,6 +1712,28 @@
     </div>
   </div>
 
+  <!-- Модальное окно ачивок -->
+  <div class="upgrades-modal" id="achievementsModal">
+    <div class="upgrades-dialog achv-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="achv-title-icon">🏆</span>
+          <span>Ачивки</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/16)</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="achv-body" id="achvModalBody">
+        <div class="achv-grid" id="achvList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Кнопка Ачивок (слева вверху) -->
+  <button id="achvBtn" class="achv-btn" aria-label="Открыть окно ачивок">
+    <span>🏆</span> Ачивки
+  </button>
+
   <!-- Перетаскиваемые яйца на экране -->
   <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай!)">🥚</div>
   <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай!)">🥚</div>
@@ -1648,7 +1774,7 @@
          onerror="this.style.display='none'; document.querySelector('.duck-fallback').style.display='grid'">
   </button>
 
-  <div class="achv-list" id="achvList"></div>
+  <div id="achvToastContainer" class="achv-toast-container"></div>
 
   <canvas id="particles"></canvas>
   <div class="hint">Жмякни крякалку</div>
@@ -2337,8 +2463,18 @@
     },
   ];
 
+  function updateAchvCounter() {
+    const counter = document.getElementById('achvModalCounter');
+    if (counter) {
+      const unlockedCount = ACHIEVEMENTS.filter(a => a.done).length;
+      counter.textContent = `(${unlockedCount}/${ACHIEVEMENTS.length})`;
+    }
+  }
+
   function buildAchievementCards() {
     const list = document.getElementById('achvList');
+    if (!list) return;
+    list.innerHTML = '';
     ACHIEVEMENTS.forEach((a) => {
       try {
         a.done = localStorage.getItem(STORAGE_PREFIX + a.id) === '1';
@@ -2355,13 +2491,19 @@
           '<div class="achv-desc">' + a.desc + '</div>' +
         '</div>';
       list.appendChild(card);
-      if (a.done) document.getElementById('achv-padlock-' + a.id).style.display = 'none';
+      if (a.done) {
+        const padlock = document.getElementById('achv-padlock-' + a.id);
+        if (padlock) padlock.style.display = 'none';
+      }
     });
+    updateAchvCounter();
   }
 
   function resetAchievements() {
     const list = document.getElementById('achvList');
-    list.innerHTML = '';
+    if (list) list.innerHTML = '';
+    const toastContainer = document.getElementById('achvToastContainer');
+    if (toastContainer) toastContainer.innerHTML = '';
     quackCount = 0;
     duckles = 0;
     hintCount = 0;
@@ -2488,45 +2630,89 @@
 
   function unlockAchievement(i) {
     const a = ACHIEVEMENTS[i];
+    if (a.done) return;
     a.done = true;
     try {
       localStorage.setItem(STORAGE_PREFIX + a.id, '1');
     } catch (e) { /* без сохранения тоже ок */ }
 
+    // Обновляем карточку в модальном окне ачивок
     const card = document.getElementById('achv-card-' + a.id);
     const padlock = document.getElementById('achv-padlock-' + a.id);
     const info = document.getElementById('achv-info-' + a.id);
-    const r = padlock.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
+    if (card) card.classList.add('unlocked');
+    if (padlock) padlock.style.display = 'none';
+    if (info) info.classList.add('shown');
+    updateAchvCounter();
 
-    // опыт: звук как в Minecraft
-    xpSound();
+    // Запускаем анимированную плашку над уткой
+    showAchievementUnlockToast(a);
+  }
 
-    // окно подсвечивается жёлтым; название и описание появляются чуть позже
-    card.classList.add('unlocked');
-    card.classList.add('flash');
-    card.addEventListener('animationend', () => card.classList.remove('flash'), { once: true });
-    setTimeout(() => info.classList.add('shown'), 220);
+  function showAchievementUnlockToast(a) {
+    const container = document.getElementById('achvToastContainer');
+    if (!container) return;
 
-    // замок отлетает как «Кря»
-    padlock.style.display = 'none';
-    const ang = 0.15 + Math.random() * Math.PI * 0.85;
-    const speed = 240 + Math.random() * 260;
-    particles.push({
-      x: cx,
-      y: cy,
-      vx: Math.cos(ang) * speed,
-      vy: -Math.sin(ang) * speed,
-      size: 44,
-      alpha: 1,
-      hue: 0,
-      sat: 0,
-      light: 50,
-      fly: true,
-      rot: 0,
-      rotSpeed: (Math.random() - 0.5) * 14,
-    });
+    const toast = document.createElement('div');
+    toast.className = 'achv-toast-card fade-in';
+    toast.innerHTML =
+      '<span class="achv-padlock" aria-hidden="true">🔒</span>' +
+      '<div class="achv-info" aria-live="polite">' +
+        '<div class="achv-name">' + a.name + '</div>' +
+        '<div class="achv-desc">' + a.desc + '</div>' +
+      '</div>';
+    container.appendChild(toast);
+
+    const padlock = toast.querySelector('.achv-padlock');
+    const info = toast.querySelector('.achv-info');
+
+    // Шаг 2: Золотое свечение через 350мс
+    setTimeout(() => {
+      toast.classList.add('golden-glow');
+    }, 350);
+
+    // Шаг 3: Замочек со звуком отпадает через 520мс
+    setTimeout(() => {
+      xpSound();
+      if (padlock) {
+        const r = padlock.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        padlock.style.display = 'none';
+
+        const ang = 0.2 + Math.random() * Math.PI * 0.6;
+        const speed = 250 + Math.random() * 200;
+        particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(ang) * speed,
+          vy: -Math.sin(ang) * speed,
+          size: 44,
+          alpha: 1,
+          hue: 0,
+          sat: 0,
+          light: 50,
+          fly: true,
+          rot: 0,
+          rotSpeed: (Math.random() - 0.5) * 14,
+        });
+      }
+    }, 520);
+
+    // Шаг 4: Показывает Имя и описание через 580мс
+    setTimeout(() => {
+      if (info) info.classList.add('shown');
+    }, 580);
+
+    // Шаг 5: fade-out через 2800мс
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+    }, 2800);
+
+    // Удаление из DOM через 3300мс
+    setTimeout(() => {
+      toast.remove();
+    }, 3300);
   }
 
   function xpSound() {
@@ -4101,6 +4287,28 @@
     storageModal.addEventListener('click', (e) => {
       if (e.target === storageModal) {
         storageModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
+      }
+    });
+  }
+
+  // Модальное окно Ачивок
+  const achvBtn = document.getElementById('achvBtn');
+  const achievementsModal = document.getElementById('achievementsModal');
+  const closeAchvBtn = document.getElementById('closeAchvBtn');
+
+  if (achvBtn && achievementsModal && closeAchvBtn) {
+    achvBtn.addEventListener('click', () => {
+      achievementsModal.classList.add('open');
+      updateAchvCounter();
+    });
+    closeAchvBtn.addEventListener('click', () => {
+      achievementsModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
+    });
+    achievementsModal.addEventListener('click', (e) => {
+      if (e.target === achievementsModal) {
+        achievementsModal.classList.remove('open');
         updateUpgradesButtonHighlight();
       }
     });

@@ -1,6 +1,6 @@
 # Резиновая утка — duck.html
 
-Однофайловая HTML-страница без зависимостей. Клик по утке → звук, частицы «Кря», проверка ачивок. Слева — панель ачивок.
+Однофайловая HTML-страница без зависимостей. Клик по утке → звук, частицы «Кря», проверка ачивок. Слева вверху — кнопка «🏆 Ачивки», открывающая модальное окно со всеми достижениями в 4 столбца. При открытии ачивки над уткой по центру всплывает анимированная карточка.
 
 ## Ключевые элементы
 | Элемент | Назначение |
@@ -13,12 +13,13 @@
 | `#shopBtn` / `#shopModal` | Кнопка «🛒 Магазин» (скрыта до «Возможности» LVL 2). В модальном окне две вкладки: «🛒 Покупка» («Duckberries») и «💰 Продажа яиц» (заблокирована до «Возможности» LVL 3; цены продажи: 200 🦆 за 🥚, 5 000 🦆 за ✨🥚, 1 600 🦆 за 🍳, 15 000 🦆 за ✨🍳) |
 | `#wardrobeBtn` / `#wardrobeModal` | Кнопка «👔 Гардероб» (слева от «⚡ Апгрейды», появляется после первой покупки одежды/аксессуаров в Duckberries). Позволяет выбирать экипированный скин утки (Классика, Цепь «Арго», Мафиозник, Рокер, Бикини, Галстук, Набор 47, JOJO, Очки, Гусыня, Вейп, Доширак) |
 | `#storageBtn` / `#storageModal` | Кнопка «📦 Склад» (справа от «🛒 Магазин», появляется после первой покупки предмета быта). Позволяет доставать предметы на экран в нижнюю часть окна или убирать обратно на склад |
+| `#achvBtn` / `#achievementsModal` / `#achvList` | Кнопка «🏆 Ачивки» в левом верхнем углу (стиль как у кнопки «Начать заново»). Открывает модальное окно со всеми ачивками (закрытые с замком 🔒 и выполненные с подсветкой), расположенными в 4 столбца, со счётчиком `(X/16)`. Клик по закрытой карточке внутри модалки триггерит ачивку «Взлом жопы!» |
+| `#achvToastContainer` / `.achv-toast-card` | Контейнер всплывающих уведомлений над уткой по центру. При получении ачивки проигрывается анимация: `fade-in` → `Золотое свечение` → `замочек со звуком xpSound отпадает в физику частиц` → `показывает Имя и Описание` → `fade-out`. При одновременном получении нескольких ачивок плашки располагаются рядом без наложения |
 | `#prop-skovoroda` / `#prop-plita` / `#prop-fridge` / `#prop-dichlofos` / `.draggable-prop` | Перетаскиваемые бытовые предметы на экране (Сковорода, Плита, Вонючий старый холодильник, Дихлофос). Появляются в нижней части окна и сохраняют позицию на экране (`duck-placed-props`). При сближении плита и сковорода объединяются в кухонную станцию для жарки яиц (`isStoveCombined`) |
 | `#roachesContainer` / `#greenSmokeContainer` / `#lvlRoachWarning` | Элементы квеста с тараканами: контейнер ползающих векторных SVG тараканов (не зависят от шрифтов ОС), контейнер зелёного дыма 💨 дихлофоса и плашка предупреждения над уровнем со встроенными SVG иконками («Тараканы! Опыт не накапливается!») |
 | `#cheatPanel` | Тестовая панель слева внизу: кнопки быстрого начисления Даклей (+1k, +50k, +1M), яиц (+🥚) и тумблер тараканов для тестирования |
 | `#lvlBox` / `#lvlNum` / `#lvlBarFill` | Система уровней в правом нижнем углу (LVL 1..20, полоса опыта, `lvlExpText` и анонс следующего разблокирования `lvlNextUnlock`; таблица опыта `LEVEL_EXP_TABLE` уменьшена в два раза) |
 | `#particles` | Canvas поверх всего. Частицы: обычный текст «Кря» (случайный HSL), тусклые частицы автокрякалки (0.10..0.30 alpha), криты («💥 КРИТ! +X 🦆»), `fly` (эмодзи 🔒) и `LVL UP!` (жёлтый) |
-| `#achvList` / `.achv-card` | Карточки ачивок слева. Серое окно = не открыта (🔒, текст скрыт); `.unlocked` = жёлтая подсветка + свет |
 | `quackCount` / `duckles` / `hintCount` / `playerLevel` / `playerExp` / `normalEggs` / `goldenEggs` | Глобальные счётчики: клики, валюта, подсказка, уровень, опыт, обычные и золотые яйца |
 | `upgradeLevels` | Уровни купленных улучшений (`autoquack`, `speed`, `crit`, `strength`, `features`) |
 | `keyPressed` / `duckSeqDone` / `lockedCardClicked` / `devToolsOpened` / `badWordsTyped` / `hoverWaitDone` / `hasPlacedFridge` / `isRoachesActive` / `hasUsedDichlofos` / `hasClearedRoaches` | Флаги для клавиатурных, скрытых, таймерных ачивок и квеста с тараканами |
@@ -72,9 +73,12 @@
 
 2. Готово. Всё остальное — UI, сохранение, звук, анимация — работает автоматически:
    - порядок в массиве = порядок карточек в списке;
-   - `buildAchievementCards()` сам строит карточки;
+   - `buildAchievementCards()` сам строит карточки в модальном окне ачивок `#achievementsModal` в 4 столбца;
    - после каждого клика `tryUnlock()` проверяет `check()` у не-открытых ачивок;
-   - при разблокировке: `xpSound()` (звук опыта из Minecraft), жёлтая подсветка карточки (`.unlocked`) + анимация `flash`, появление названия/описания (`.shown`, 220 мс), замок 🔒 отлетает с карточки как частица `fly`.
+   - при разблокировке:
+     - карточка в модальном окне обновляется в статус `.unlocked`, прячет замок и показывает название/описание;
+     - над уткой по центру спавнится карточка уведомления `.achv-toast-card`: `fade-in` (0-350мс) → `Золотое свечение` (350мс) → `звук xpSound и отлет замка как частицы fly` (520мс) → `появление названия и описания` (580мс) → `комфортное чтение` (~2.2 сек) → `fade-out` (2800-3300мс) → `удаление из DOM`.
+     - если несколько ачивок открыты одновременно, они отображаются рядом друг с другом без наложения.
 
 ## Магазин «Duckberries», Гардероб и Склад
 1. **Вкладка «🛒 Покупка» в Магазине**:
@@ -131,7 +135,7 @@
    - Координаты выложенных предметов сохраняются в `localStorage`.
 
 ## Пауза игры в модальных окнах
-- При открытии любого окна (`#upgradesModal`, `#shopModal`, `#wardrobeModal`, `#storageModal`) срабатывает `isAnyModalOpen()`:
+- При открытии любого окна (`#upgradesModal`, `#shopModal`, `#wardrobeModal`, `#storageModal`, `#achievementsModal`) срабатывает `isAnyModalOpen()`:
   - Тики автокрякалки (`autoQuackTimer`) приостанавливаются (нет начисления пассивного дохода, нет спавна частиц автокряка и проверки выпадения яиц).
   - Клики по утке и таймер зависания курсора игнорируются.
   - Нажатия клавиш геймплея не обрабатываются; по клавише **Escape** активное окно закрывается.
@@ -187,10 +191,10 @@
 
 ## Сброс прогресса («Начать заново»)
 `#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `friedEggs = 0`, `goldenFriedEggs = 0`, `hasUnlockedFriedEggs = false`, `hasCookedEgg = false`, `isStoveCombined = false`, `hasPlacedFridge = false`, `isRoachesActive = false`, `hasUsedDichlofos = false`, `hasClearedRoaches = false`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `ownedSkins = ['default']`, `currentSkin = 'default'`, `ownedProps = []`, `placedProps = {}`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания, останавливает тараканов и дым, удаляет все ключи из `localStorage`;
+1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `friedEggs = 0`, `goldenFriedEggs = 0`, `hasUnlockedFriedEggs = false`, `hasCookedEgg = false`, `isStoveCombined = false`, `hasPlacedFridge = false`, `isRoachesActive = false`, `hasUsedDichlofos = false`, `hasClearedRoaches = false`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `ownedSkins = ['default']`, `currentSkin = 'default'`, `ownedProps = []`, `placedProps = {}`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания, останавливает тараканов и дым, удаляет всплывающие тосты ачивок (`achvToastContainer`), удаляет все ключи из `localStorage`;
 2. ставит `done = false` у всех ачивок;
 3. удаляет `duck-achv-{id}`, `duck-level`, `duck-level-exp`, `duck-eggs-*`, `duck-fried-eggs`, `duck-golden-fried-eggs`, `duck-has-fried-eggs`, `duck-cooked-egg`, `duck-stove-combined`, `duck-placed-fridge`, `duck-roaches-active`, `duck-used-dichlofos`, `duck-cleared-roaches`, `duck-upg-*`, `duck-owned-skins`, `duck-current-skin`, `duck-owned-props` и `duck-placed-props` из localStorage;
-4. перестраивает карточки через `buildAchievementCards()`;
+4. перестраивает карточки через `buildAchievementCards()` (все блокируются 🔒, счётчик `(0/16)`);
 5. скрывает перетаскиваемые яйца `#normalEgg` и `#goldenEgg`, обновляет отображение яиц (`updateEggsDisplay()`), скрывает выложенные предметы, разъединяет плиту со сковородой, скрывает предупреждение о тараканах, очищает тараканов и сбрасывает скин на дефолтный;
 6. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки, скрывает кнопку Магазина, Гардероба и Склада (`updateShopButtonVisibility()`), блокирует вкладку продажи яиц (`updateShopTabsVisibility()`) и обновляет карточки улучшений (`renderUpgrades()`).
 
