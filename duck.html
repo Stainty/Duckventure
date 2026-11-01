@@ -497,6 +497,37 @@
   }
 
   /* ---------- Перетаскиваемые яйца на экране ---------- */
+  /* ---------- Физичное качание перемещаемых предметов ---------- */
+  @keyframes physicsSway {
+    0% {
+      transform: translateY(0) rotate(0deg);
+    }
+    20% {
+      transform: translateY(-2px) rotate(3.6deg);
+    }
+    40% {
+      transform: translateY(0) rotate(0.4deg);
+    }
+    60% {
+      transform: translateY(-2px) rotate(-3.6deg);
+    }
+    80% {
+      transform: translateY(0) rotate(-0.4deg);
+    }
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  @keyframes physicsWobble {
+    0%   { transform: scale(1.08) rotate(var(--sway-tilt, 10deg)); }
+    22%  { transform: scale(1.04) rotate(calc(var(--sway-tilt, 10deg) * -0.65)); }
+    44%  { transform: scale(1.02) rotate(calc(var(--sway-tilt, 10deg) * 0.4)); }
+    66%  { transform: scale(1.01) rotate(calc(var(--sway-tilt, 10deg) * -0.2)); }
+    85%  { transform: scale(1.005) rotate(calc(var(--sway-tilt, 10deg) * 0.08)); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
   .draggable-egg {
     position: fixed;
     user-select: none;
@@ -506,10 +537,11 @@
     transition: transform .12s ease;
     display: none;
     line-height: 1;
+    transform-origin: 50% 90%;
+    animation: physicsSway 2.4s ease-in-out infinite;
   }
   .draggable-egg:active {
     cursor: grabbing;
-    transform: scale(1.18);
   }
   .normal-egg {
     font-size: 38px;
@@ -518,7 +550,8 @@
   .golden-egg {
     font-size: 50px;
     filter: drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 30px #ffa500) saturate(2.2);
-    animation: goldenEggPulse 2s ease-in-out infinite alternate;
+    animation: goldenEggPulse 2s ease-in-out infinite alternate, physicsSway 2.6s ease-in-out infinite;
+    animation-delay: 0s, -0.7s;
   }
   @keyframes goldenEggPulse {
     0%   { filter: drop-shadow(0 0 12px #ffd700) saturate(2); }
@@ -1119,10 +1152,31 @@
     display: none;
     line-height: 1;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+    transform-origin: 50% 85%;
+    animation: physicsSway 3.2s ease-in-out infinite;
   }
   .draggable-prop:active {
     cursor: grabbing;
-    transform: scale(1.08);
+  }
+  #prop-skovoroda {
+    animation-duration: 2.8s;
+    animation-delay: -0.4s;
+  }
+  #prop-plita {
+    animation-duration: 3.4s;
+    animation-delay: -1.2s;
+  }
+  #prop-fridge {
+    animation-duration: 3.6s;
+    animation-delay: -0.8s;
+  }
+  #prop-dichlofos {
+    animation-duration: 2.6s;
+    animation-delay: -1.7s;
+  }
+  #prop-key {
+    animation-duration: 2.5s;
+    animation-delay: -0.6s;
   }
   .draggable-prop img {
     width: 82px;
@@ -1145,9 +1199,23 @@
   #duck.can-drag {
     cursor: grab;
     touch-action: none;
+    transform-origin: 50% 85%;
+    animation: physicsSway 3.2s ease-in-out infinite;
   }
+  #duck.can-drag.pop {
+    animation: pop .3s ease-out;
+  }
+  .draggable-egg.is-dragging,
+  .draggable-prop.is-dragging,
   #duck.is-dragging {
     cursor: grabbing !important;
+    animation: none !important;
+    transition: transform 0.06s ease-out !important;
+  }
+  .draggable-egg.is-wobbling,
+  .draggable-prop.is-wobbling,
+  #duck.is-wobbling {
+    animation: physicsWobble 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
   }
   #roachesContainer {
     position: fixed;
@@ -1211,6 +1279,8 @@
   }
   .draggable-prop.is-combined {
     filter: drop-shadow(0 0 16px rgba(255, 120, 20, 0.75)) drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+    animation: physicsSway 3.4s ease-in-out infinite !important;
+    animation-delay: 0s !important;
   }
   #prop-skovoroda.is-combined {
     z-index: 46;
@@ -3241,13 +3311,19 @@
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let lastClientX = 0;
+    let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
       isDragging = true;
+      el.classList.add('is-dragging');
+      el.classList.remove('is-wobbling');
       el.setPointerCapture(e.pointerId);
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      lastClientX = e.clientX;
+      currentTilt = 0;
       e.stopPropagation();
     });
 
@@ -3257,12 +3333,23 @@
       const y = e.clientY - startY;
       el.style.left = `${Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x))}px`;
       el.style.top = `${Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y))}px`;
+
+      // Физичное качание при перемещении (tilt)
+      const dx = e.clientX - lastClientX;
+      lastClientX = e.clientX;
+      currentTilt = Math.max(-18, Math.min(18, dx * 2.2));
+      el.style.setProperty('--sway-tilt', `${currentTilt || 8}deg`);
+      el.style.transform = `scale(1.14) rotate(${currentTilt}deg)`;
     });
 
     const endDrag = (e) => {
       if (!isDragging) return;
       isDragging = false;
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+      el.classList.remove('is-dragging');
+      el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       // Проверка переноса яйца на объединённую плиту со сковородой
       if (isStoveCombined) {
@@ -4061,14 +4148,20 @@
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let lastClientX = 0;
+    let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.prop-close-btn') || e.target.closest('.stove-separate-btn')) return;
       isDragging = true;
+      el.classList.add('is-dragging');
+      el.classList.remove('is-wobbling');
       el.setPointerCapture(e.pointerId);
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      lastClientX = e.clientX;
+      currentTilt = 0;
       e.stopPropagation();
     });
 
@@ -4079,8 +4172,23 @@
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
 
+      // Физичное качание при перемещении (tilt)
+      const dx = e.clientX - lastClientX;
+      lastClientX = e.clientX;
+      currentTilt = Math.max(-16, Math.min(16, dx * 1.8));
+      el.style.setProperty('--sway-tilt', `${currentTilt || 8}deg`);
+      el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
+
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
+        const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
+        const partnerEl = document.getElementById('prop-' + partnerId);
+        if (partnerEl) {
+          partnerEl.classList.add('is-dragging');
+          partnerEl.classList.remove('is-wobbling');
+          partnerEl.style.setProperty('--sway-tilt', `${currentTilt || 8}deg`);
+          partnerEl.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
+        }
       }
     });
 
@@ -4088,6 +4196,22 @@
       if (!isDragging) return;
       isDragging = false;
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+      el.classList.remove('is-dragging');
+      el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
+
+      if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
+        const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
+        const partnerEl = document.getElementById('prop-' + partnerId);
+        if (partnerEl) {
+          partnerEl.classList.remove('is-dragging');
+          partnerEl.style.transform = '';
+          partnerEl.classList.add('is-wobbling');
+          setTimeout(() => partnerEl.classList.remove('is-wobbling'), 650);
+        }
+      }
+
       if (!placedProps[propId]) placedProps[propId] = { placed: true };
       placedProps[propId].left = el.style.left;
       placedProps[propId].top = el.style.top;
@@ -4464,6 +4588,8 @@
   let duckStartTop = 0;
   let duckHasMoved = false;
   let suppressNextDuckClick = false;
+  let lastDuckClientX = 0;
+  let duckTilt = 0;
 
   function updateDuckDragCursor() {
     if (upgradeLevels.features >= 4) {
@@ -4528,6 +4654,7 @@
 
     isDuckDragging = true;
     duckHasMoved = false;
+    duck.classList.remove('is-wobbling');
     try { duck.setPointerCapture(e.pointerId); } catch (err) {}
 
     const rect = duck.getBoundingClientRect();
@@ -4535,6 +4662,8 @@
     duckDragStartY = e.clientY;
     duckStartLeft = rect.left;
     duckStartTop = rect.top;
+    lastDuckClientX = e.clientX;
+    duckTilt = 0;
   });
 
   duck.addEventListener('pointermove', (e) => {
@@ -4557,6 +4686,13 @@
       duck.style.left = `${newLeft}px`;
       duck.style.top = `${newTop}px`;
 
+      // Физичное качание при перемещении (tilt)
+      const stepDx = e.clientX - lastDuckClientX;
+      lastDuckClientX = e.clientX;
+      duckTilt = Math.max(-14, Math.min(14, stepDx * 1.5));
+      duck.style.setProperty('--sway-tilt', `${duckTilt || 6}deg`);
+      duck.style.transform = `scale(1.04) rotate(${duckTilt}deg)`;
+
       if (dist > 15) {
         triggerDuckMoveSecret(duckStartLeft, duckStartTop);
       }
@@ -4567,9 +4703,13 @@
     if (!isDuckDragging) return;
     isDuckDragging = false;
     duck.classList.remove('is-dragging');
+    duck.style.transform = '';
     try { duck.releasePointerCapture(e.pointerId); } catch (err) {}
 
     if (duckHasMoved) {
+      duck.classList.add('is-wobbling');
+      setTimeout(() => duck.classList.remove('is-wobbling'), 650);
+
       suppressNextDuckClick = true;
       setTimeout(() => { suppressNextDuckClick = false; }, 120);
 
