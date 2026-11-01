@@ -432,6 +432,32 @@
   .storage-btn:active {
     transform: scale(.96);
   }
+  .branches-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(56, 189, 248, 0.08));
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    color: #7dd3fc;
+    font: 700 14.5px/1.3 system-ui, "Segoe UI", sans-serif;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .12s, background .2s, border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .branches-btn:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.38), rgba(56, 189, 248, 0.18));
+    border-color: #bae6fd;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+  }
+  .branches-btn:active {
+    transform: scale(.96);
+  }
   .duckles-bar {
     display: inline-flex;
     align-items: center;
@@ -1204,6 +1230,50 @@
     color: #fff;
   }
 
+  /* ---------- Филиалы модальное окно ---------- */
+  .branches-dialog {
+    max-width: 580px;
+  }
+  .branches-dialog,
+  .branches-dialog * {
+    box-sizing: border-box;
+  }
+  .branches-title-icon { color: #38bdf8; }
+  .branches-body {
+    padding: 38px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .branches-placeholder {
+    text-align: center;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .branches-placeholder-icon {
+    font-size: 54px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+    animation: duckBob 2.4s ease-in-out infinite;
+  }
+  .branches-placeholder-title {
+    font: 800 20px system-ui, sans-serif;
+    color: #fff;
+  }
+  .branches-placeholder-desc {
+    font: 500 13.5px/1.55 system-ui, sans-serif;
+    color: #8da0be;
+  }
+
   /* ---------- Перетаскиваемые предметы на столе ---------- */
   .draggable-prop {
     position: fixed;
@@ -1559,6 +1629,7 @@
     .shop-btn { font-size: 12px; padding: 6px 12px; }
     .wardrobe-btn { font-size: 12px; padding: 6px 12px; }
     .storage-btn { font-size: 12px; padding: 6px 12px; }
+    .branches-btn { font-size: 12px; padding: 6px 12px; }
     .duckles-bar { font-size: 12.5px; padding: 6px 12px; }
     .duckles-val { font-size: 15px; }
     .lvl-box { bottom: 12px; right: 12px; }
@@ -1589,6 +1660,9 @@
     </button>
     <button id="storageBtn" class="storage-btn" aria-label="Открыть Склад">
       <span class="storage-icon">📦</span> Склад
+    </button>
+    <button id="branchesBtn" class="branches-btn" aria-label="Открыть Филиалы" style="display: none;">
+      <span class="branches-icon">🏢</span> Филиалы
     </button>
   </div>
 
@@ -1833,6 +1907,31 @@
         Предметы со склада можно выкладывать на экран и передвигать в любое место, а также убирать обратно на склад.
       </div>
       <div class="storage-body" id="storageList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Филиалов -->
+  <div class="upgrades-modal" id="branchesModal">
+    <div class="upgrades-dialog branches-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="branches-title-icon">🏢</span>
+          <span>Филиалы бизнеса</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="branchesDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeBranchesBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="branches-body" id="branchesList">
+        <div class="branches-placeholder">
+          <div class="branches-placeholder-icon">🏢</div>
+          <div class="branches-placeholder-title">Бизнес-империя на стадии запуска</div>
+          <div class="branches-placeholder-desc">
+            Скоро здесь появится возможность открывать филиалы и расширять деловую паутину утиного бизнеса.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2223,7 +2322,7 @@
     15: 'Крит LVL 4 (26%, x7)',
     16: 'Новые рубежи опыта',
     17: 'Сила LVL 5 (1000 🦆/кл)',
-    18: 'Возможности LVL 5 (Золотая утка)',
+    18: 'Возможности LVL 5 (Бизнес)',
     19: 'Автокрякалка LVL 5 / Скорость LVL 5',
     20: 'МАКСИМАЛЬНЫЙ УРОВЕНЬ & Крит LVL 5'
   };
@@ -2238,7 +2337,7 @@
         { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 600, reqLvl: 4 },
         { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 9000, reqLvl: 8 },
         { lvl: 4, text: 'Открывает возможность перемещать утку', short: 'Переезд', cost: 90000, reqLvl: 13 },
-        { lvl: 5, text: 'Золотая Утка (постоянный x2 ко всей добыче)', short: 'Золото x2', cost: 1250000, reqLvl: 18 },
+        { lvl: 5, text: 'Бизнес (открывает возможность вести бизнес)', short: 'Бизнес', cost: 1250000, reqLvl: 18 },
       ]
     },
     {
@@ -2310,6 +2409,14 @@
   }
   window.isAnyModalOpen = isAnyModalOpen;
 
+  function closeAllModals() {
+    document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
+      modal.classList.remove('open');
+    });
+    updateUpgradesButtonHighlight();
+  }
+  window.closeAllModals = closeAllModals;
+
   function isWindowFocused() {
     return !document.hidden && (typeof document.hasFocus === 'function' ? document.hasFocus() : true);
   }
@@ -2375,6 +2482,10 @@
     if (shopDucklesVal) {
       shopDucklesVal.textContent = duckles.toLocaleString('ru-RU');
     }
+    const branchesDucklesVal = document.getElementById('branchesDucklesVal');
+    if (branchesDucklesVal) {
+      branchesDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+    }
     updateUpgradesButtonHighlight();
   }
 
@@ -2390,6 +2501,10 @@
     const storageBtn = document.getElementById('storageBtn');
     if (storageBtn) {
       storageBtn.style.display = (ownedProps.length > 0) ? 'inline-flex' : 'none';
+    }
+    const branchesBtn = document.getElementById('branchesBtn');
+    if (branchesBtn) {
+      branchesBtn.style.display = (upgradeLevels.features >= 5) ? 'inline-flex' : 'none';
     }
     updateShopTabsVisibility();
   }
@@ -2690,6 +2805,7 @@
   }
 
   function resetAchievements() {
+    closeAllModals();
     const list = document.getElementById('achvList');
     if (list) list.innerHTML = '';
     const toastContainer = document.getElementById('achvToastContainer');
@@ -2850,6 +2966,11 @@
     try {
       localStorage.setItem(STORAGE_PREFIX + a.id, '1');
     } catch (e) { /* без сохранения тоже ок */ }
+
+    // Если ачивка была получена вне основного окна, принудительно возвращаем игрока на основное окно
+    if (isAnyModalOpen()) {
+      closeAllModals();
+    }
 
     // Обновляем карточку в модальном окне ачивок
     const card = document.getElementById('achv-card-' + a.id);
@@ -4591,6 +4712,29 @@
     storageModal.addEventListener('click', (e) => {
       if (e.target === storageModal) {
         storageModal.classList.remove('open');
+        updateUpgradesButtonHighlight();
+      }
+    });
+  }
+
+  // Модальное окно Филиалов
+  const branchesBtn = document.getElementById('branchesBtn');
+  const branchesModal = document.getElementById('branchesModal');
+  const closeBranchesBtn = document.getElementById('closeBranchesBtn');
+
+  if (branchesBtn && branchesModal && closeBranchesBtn) {
+    branchesBtn.addEventListener('click', () => {
+      const branchesDucklesVal = document.getElementById('branchesDucklesVal');
+      if (branchesDucklesVal) branchesDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+      branchesModal.classList.add('open');
+    });
+    closeBranchesBtn.addEventListener('click', () => {
+      branchesModal.classList.remove('open');
+      updateUpgradesButtonHighlight();
+    });
+    branchesModal.addEventListener('click', (e) => {
+      if (e.target === branchesModal) {
+        branchesModal.classList.remove('open');
         updateUpgradesButtonHighlight();
       }
     });
