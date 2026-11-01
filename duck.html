@@ -1467,9 +1467,204 @@
     color: #fff;
   }
 
-  /* ---------- Филиалы модальное окно ---------- */
+  /* ---------- Филиалы модальное окно и бизнесы ---------- */
   .branches-dialog {
-    max-width: 580px;
+    max-width: 640px;
+    width: min(640px, 94vw);
+  }
+  .branches-btn {
+    position: relative;
+  }
+  .branches-btn.has-attention {
+    border-color: #f59e0b !important;
+    color: #fde047 !important;
+    animation: branchBtnAttentionPulse 1s ease-in-out infinite alternate;
+  }
+  @keyframes branchBtnAttentionPulse {
+    from { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+    to   { box-shadow: 0 0 22px rgba(245, 158, 11, 0.85); }
+  }
+  .branches-alert-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: #fff;
+    font: 900 11px system-ui, sans-serif;
+    border-radius: 999px;
+    padding: 1px 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    animation: badgePulseBounce 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes badgePulseBounce {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.25); }
+  }
+  .branches-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    max-height: 75vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .business-card {
+    background: rgba(21, 26, 38, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+  .business-card.owned {
+    border-color: rgba(56, 189, 248, 0.45);
+    background: linear-gradient(135deg, rgba(26, 36, 52, 0.9), rgba(15, 23, 42, 0.95));
+  }
+  .business-card.requires-attention {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, rgba(69, 41, 12, 0.85), rgba(26, 20, 16, 0.95));
+    animation: businessAttentionGlow 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes businessAttentionGlow {
+    from { box-shadow: 0 0 10px rgba(245, 158, 11, 0.25); }
+    to   { box-shadow: 0 0 24px rgba(245, 158, 11, 0.65); }
+  }
+  .business-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .business-card-icon {
+    font-size: 38px;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  .business-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .business-card-title {
+    font: 800 17px/1.25 system-ui, sans-serif;
+    color: #f8fafc;
+    margin-bottom: 4px;
+  }
+  .business-card-desc {
+    font: 500 12.5px/1.4 system-ui, sans-serif;
+    color: #94a3b8;
+  }
+  .business-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .business-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font: 600 11.5px system-ui, sans-serif;
+  }
+  .business-stat-lbl {
+    color: #64748b;
+  }
+  .business-stat-val {
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .business-stat-val.cost { color: #cbd5e1; }
+  .business-stat-val.income { color: #4ade80; }
+  .business-stat-val.penalty { color: #f87171; }
+  .business-card-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .business-status-box {
+    flex: 1;
+    min-width: 0;
+  }
+  .business-status-text {
+    font: 700 12.5px system-ui, sans-serif;
+    color: #7dd3fc;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .business-status-text.attention {
+    color: #facc15;
+  }
+  .business-progress-bg {
+    height: 7px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .business-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    transition: width 0.4s ease;
+  }
+  .business-progress-fill.attention {
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+  }
+  .business-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font: 700 13px system-ui, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .business-buy-btn {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(14, 165, 233, 0.35);
+  }
+  .business-buy-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    transform: translateY(-1px);
+  }
+  .business-buy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .business-work-btn {
+    background: rgba(51, 65, 85, 0.6);
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+  .business-attention-btn {
+    background: linear-gradient(135deg, #eab308, #ca8a04);
+    color: #0f172a;
+    font-weight: 800;
+    box-shadow: 0 0 16px rgba(234, 179, 8, 0.6);
+    animation: attentionBtnPulse 0.8s ease-in-out infinite alternate;
+  }
+  .business-attention-btn:hover {
+    background: linear-gradient(135deg, #facc15, #eab308);
+    transform: scale(1.04);
+  }
+  @keyframes attentionBtnPulse {
+    from { transform: scale(1); box-shadow: 0 0 12px rgba(234, 179, 8, 0.4); }
+    to   { transform: scale(1.05); box-shadow: 0 0 22px rgba(234, 179, 8, 0.8); }
   }
   .branches-dialog,
   .branches-dialog * {
@@ -2376,6 +2571,7 @@
     </button>
     <button id="branchesBtn" class="branches-btn" aria-label="Открыть Филиалы" style="display: none;">
       <span class="branches-icon">🏢</span> Филиалы
+      <span class="branches-alert-badge" id="branchesAlertBadge" style="display: none;">!</span>
     </button>
   </div>
 
@@ -3270,6 +3466,50 @@
     }
   };
 
+  const BUSINESSES_DATA = {
+    carwash: {
+      id: 'carwash',
+      name: 'Автомойка',
+      desc: 'Бесконтактная мойка для водоплавающего транспорта. Перья блестят, дакли капают!',
+      cost: 100000,
+      income: 200000,
+      penalty: 150000,
+      icon: '🚗🧼',
+      workDuration: 300,
+      attentionDuration: 60
+    },
+    utilnya: {
+      id: 'utilnya',
+      name: 'Утильня',
+      desc: 'Лучше вам не знать какие услуги они оказывают',
+      cost: 500000,
+      income: 1000000,
+      penalty: 800000,
+      icon: '🏢🕶️',
+      workDuration: 300,
+      attentionDuration: 60
+    },
+    factory: {
+      id: 'factory',
+      name: 'Завод резиновых уточек',
+      desc: 'Высокотехнологичный конвейер по производству лучших резиновых крякалок в мире!',
+      cost: 1000000,
+      income: 3000000,
+      penalty: 2800000,
+      icon: '🏭🦆',
+      workDuration: 300,
+      attentionDuration: 60
+    }
+  };
+  window.BUSINESSES_DATA = BUSINESSES_DATA;
+  const BUSINESSES_STATE_KEY = 'duck-businesses-state';
+  let businessesState = {};
+  try {
+    businessesState = JSON.parse(localStorage.getItem(BUSINESSES_STATE_KEY) || '{}');
+    if (typeof businessesState !== 'object' || businessesState === null) businessesState = {};
+  } catch (e) { businessesState = {}; }
+  window.businessesState = businessesState;
+
   const PROPS_DATA = {
         incubator: {
       id: 'incubator',
@@ -3604,10 +3844,7 @@
     if (storageBtn) {
       storageBtn.style.display = (ownedProps.length > 0) ? 'inline-flex' : 'none';
     }
-    const branchesBtn = document.getElementById('branchesBtn');
-    if (branchesBtn) {
-      branchesBtn.style.display = (upgradeLevels.features >= 5) ? 'inline-flex' : 'none';
-    }
+    updateBranchesButtonUI();
     updateShopTabsVisibility();
   }
 
@@ -3999,6 +4236,10 @@
     incubatingCount = 1;
     creatureOnDesk = null;
     ducklingGrowRemaining = 600;
+    businessesState = {};
+    window.businessesState = businessesState;
+    try { localStorage.removeItem(BUSINESSES_STATE_KEY); } catch (e) {}
+    updateBranchesButtonUI();
     normalDucklings = 0;
     goldenDucklings = 0;
     normalGeese = 0;
@@ -6306,6 +6547,217 @@
   }
   window.resetAllContextMenuButtons = resetAllContextMenuButtons;
 
+  /* ---------- Механика филиалов бизнеса ---------- */
+  function saveBusinessesState() {
+    try { localStorage.setItem(BUSINESSES_STATE_KEY, JSON.stringify(businessesState)); } catch (e) {}
+  }
+  window.saveBusinessesState = saveBusinessesState;
+
+  function updateBranchesButtonUI() {
+    const btn = document.getElementById('branchesBtn');
+    const badge = document.getElementById('branchesAlertBadge');
+    if (!btn) return;
+    const canBusiness = upgradeLevels.features >= 5;
+    btn.style.display = canBusiness ? 'inline-flex' : 'none';
+    let hasAttention = false;
+    Object.keys(businessesState).forEach(id => {
+      if (businessesState[id]?.status === 'attention') hasAttention = true;
+    });
+    btn.classList.toggle('has-attention', hasAttention);
+    if (badge) badge.style.display = hasAttention ? 'inline-block' : 'none';
+  }
+  window.updateBranchesButtonUI = updateBranchesButtonUI;
+
+  function renderBranchesModal() {
+    const list = document.getElementById('branchesList');
+    const bBal = document.getElementById('branchesDucklesVal');
+    if (bBal) bBal.textContent = duckles.toLocaleString('ru-RU');
+    if (!list) return;
+
+    const clockOn = isClockOnTable();
+    let html = '';
+    Object.values(BUSINESSES_DATA).forEach(b => {
+      const state = businessesState[b.id];
+      const isOwned = Boolean(state);
+      const status = state ? state.status : 'not_owned';
+
+      let actionHtml = '';
+      if (!isOwned) {
+        actionHtml = `<button class="business-btn business-buy-btn" onclick="buyBusiness('${b.id}')" ${duckles < b.cost ? 'disabled' : ''}>🏢 Купить бизнес (${b.cost.toLocaleString('ru-RU')} 🦆)</button>`;
+      } else if (status === 'working') {
+        const rem = state.remaining ?? b.workDuration;
+        const mins = Math.floor(rem / 60);
+        const secs = rem % 60;
+        const timeFormatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        const timeDisplay = clockOn ? timeFormatted : '⏳ (нужны часы)';
+        const pct = Math.min(100, Math.max(0, Math.round((1 - rem / b.workDuration) * 100)));
+        actionHtml = `
+          <div class="business-status-box">
+            <div class="business-status-text">⚙️ В работе: <b style="color: #67e8f9;">${timeDisplay}</b></div>
+            <div class="business-progress-bg"><div class="business-progress-fill" style="width: ${pct}%;"></div></div>
+          </div>
+          <button class="business-btn business-work-btn" disabled>⚙️ В процессе</button>
+        `;
+      } else if (status === 'attention') {
+        const rem = state.attentionRemaining ?? b.attentionDuration;
+        const timeDisplay = clockOn ? `⏱️ ${rem} сек.` : '⚠️ Срочно! (< 1 мин)';
+        const pct = Math.min(100, Math.max(0, Math.round((rem / b.attentionDuration) * 100)));
+        actionHtml = `
+          <div class="business-status-box">
+            <div class="business-status-text attention">🚨 ТРЕБУЕТ ВНИМАНИЯ! <b style="color: #facc15;">${timeDisplay}</b></div>
+            <div class="business-progress-bg"><div class="business-progress-fill attention" style="width: ${pct}%;"></div></div>
+          </div>
+          <button class="business-btn business-attention-btn" onclick="payBusinessAttention('${b.id}')">🎯 Уделить внимание (+${b.income.toLocaleString('ru-RU')} 🦆)</button>
+        `;
+      }
+
+      html += `
+        <div class="business-card ${isOwned ? 'owned' : ''} ${status === 'attention' ? 'requires-attention' : ''}" id="businessCard-${b.id}">
+          <div class="business-card-header">
+            <div class="business-card-icon">${b.icon}</div>
+            <div class="business-card-info">
+              <div class="business-card-title">${b.name}</div>
+              <div class="business-card-desc">${b.desc}</div>
+            </div>
+          </div>
+          <div class="business-card-stats">
+            <div class="business-stat">
+              <span class="business-stat-lbl">Стоимость:</span>
+              <span class="business-stat-val cost">${b.cost.toLocaleString('ru-RU')} 🦆</span>
+            </div>
+            <div class="business-stat">
+              <span class="business-stat-lbl">Доход:</span>
+              <span class="business-stat-val income">+${b.income.toLocaleString('ru-RU')} 🦆</span>
+            </div>
+            <div class="business-stat">
+              <span class="business-stat-lbl">Штраф:</span>
+              <span class="business-stat-val penalty">-${b.penalty.toLocaleString('ru-RU')} 🦆</span>
+            </div>
+          </div>
+          <div class="business-card-action-row">
+            ${actionHtml}
+          </div>
+        </div>
+      `;
+    });
+    list.innerHTML = html;
+  }
+  window.renderBranchesModal = renderBranchesModal;
+
+  function buyBusiness(id) {
+    const b = BUSINESSES_DATA[id];
+    if (!b || businessesState[id] || duckles < b.cost) return;
+    duckles -= b.cost;
+    updateDuckles(true);
+    corkPopSound();
+    businessesState[id] = {
+      status: 'working',
+      remaining: b.workDuration,
+      attentionRemaining: b.attentionDuration
+    };
+    saveBusinessesState();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 40,
+      vx: 0,
+      vy: -140,
+      size: 22,
+      alpha: 1.4,
+      text: `🏢 Бизнес куплен: ${b.name}!`,
+      color: '#38bdf8'
+    });
+    renderBranchesModal();
+    updateBranchesButtonUI();
+  }
+  window.buyBusiness = buyBusiness;
+
+  function payBusinessAttention(id) {
+    const b = BUSINESSES_DATA[id];
+    const state = businessesState[id];
+    if (!b || !state || state.status !== 'attention') return;
+    duckles += b.income;
+    updateDuckles(true);
+    xpSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 40,
+      vx: 0,
+      vy: -140,
+      size: 24,
+      alpha: 1.5,
+      text: `💰 Доход от бизнеса (${b.name}): +${b.income.toLocaleString('ru-RU')} 🦆!`,
+      color: '#4ade80'
+    });
+    state.status = 'working';
+    state.remaining = b.workDuration;
+    state.attentionRemaining = b.attentionDuration;
+    saveBusinessesState();
+    renderBranchesModal();
+    updateBranchesButtonUI();
+  }
+  window.payBusinessAttention = payBusinessAttention;
+
+  function tickBusinesses() {
+    let changed = false;
+    Object.keys(businessesState).forEach(id => {
+      const b = BUSINESSES_DATA[id];
+      const state = businessesState[id];
+      if (!b || !state) return;
+
+      if (state.status === 'working') {
+        state.remaining = Math.max(0, (state.remaining ?? b.workDuration) - 1);
+        changed = true;
+        if (state.remaining <= 0) {
+          state.status = 'attention';
+          state.attentionRemaining = b.attentionDuration;
+          corkPopSound();
+          particles.push({
+            x: window.innerWidth / 2,
+            y: 80,
+            vx: 0,
+            vy: -80,
+            size: 20,
+            alpha: 1.6,
+            text: `🚨 ${b.name} требует внимания в Филиалах!`,
+            color: '#facc15'
+          });
+        }
+      } else if (state.status === 'attention') {
+        state.attentionRemaining = Math.max(0, (state.attentionRemaining ?? b.attentionDuration) - 1);
+        changed = true;
+        if (state.attentionRemaining <= 0) {
+          // Пропуск внимания в течение 1 минуты -> штраф и сброс цикла
+          duckles = Math.max(0, duckles - b.penalty);
+          updateDuckles(true);
+          rottenEggSound();
+          particles.push({
+            x: window.innerWidth / 2,
+            y: 90,
+            vx: 0,
+            vy: -80,
+            size: 20,
+            alpha: 1.6,
+            text: `⚠️ Штраф за простой (${b.name}): -${b.penalty.toLocaleString('ru-RU')} 🦆! Доход упущен.`,
+            color: '#ef4444'
+          });
+          state.status = 'working';
+          state.remaining = b.workDuration;
+          state.attentionRemaining = b.attentionDuration;
+        }
+      }
+    });
+
+    if (changed) {
+      saveBusinessesState();
+      const modal = document.getElementById('branchesModal');
+      if (modal && modal.classList.contains('open')) {
+        renderBranchesModal();
+      }
+      updateBranchesButtonUI();
+    }
+  }
+  window.tickBusinesses = tickBusinesses;
+
   function showEggContextMenu(eggType, x, y) {
     if (!propContextMenu) return;
     activeContextEggType = eggType;
@@ -8365,8 +8817,7 @@
 
   if (branchesBtn && branchesModal && closeBranchesBtn) {
     branchesBtn.addEventListener('click', () => {
-      const branchesDucklesVal = document.getElementById('branchesDucklesVal');
-      if (branchesDucklesVal) branchesDucklesVal.textContent = duckles.toLocaleString('ru-RU');
+      renderBranchesModal();
       branchesModal.classList.add('open');
     });
     closeBranchesBtn.addEventListener('click', () => {
@@ -9222,6 +9673,9 @@
         }
       }
 
+      // Тик филиалов бизнеса
+      tickBusinesses();
+
       // Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
       if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
         ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - 1);
@@ -9772,6 +10226,7 @@
   }
 
   window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); clampDeskCreatureToScreen(); });
+  updateBranchesButtonUI();
   startEggSpoilTicker();
 
   if (localStorage.getItem('duck-rotten-egg-active') === '1') {
