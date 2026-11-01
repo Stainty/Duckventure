@@ -2025,6 +2025,7 @@
   const ctx = canvas.getContext('2d');
   const duck = document.getElementById('duck');
   const particles = [];
+  window.particlesList = particles;
   let audioCtx = null;
 
   const STORAGE_PREFIX = 'duck-achv-';
@@ -3565,9 +3566,18 @@
   }
   window.cookEggsOnStove = cookEggsOnStove;
 
-  function smashEgg(el, isGolden) {
+  function smashEgg(el, isGolden, cursorX, cursorY) {
     const count = isGolden ? goldenEggs : normalEggs;
     if (count <= 0) return;
+
+    // Определяем позицию спавна строго на курсоре мыши
+    let cx = cursorX;
+    let cy = cursorY;
+    if (typeof cx !== 'number' || isNaN(cx) || typeof cy !== 'number' || isNaN(cy)) {
+      const rect = el.getBoundingClientRect();
+      cx = (rect.left || (window.innerWidth / 2)) + (rect.width ? rect.width / 2 : 0);
+      cy = (rect.top || (window.innerHeight / 2)) + (rect.height ? rect.height / 2 : 0);
+    }
 
     if (isGolden) {
       goldenEggs = 0;
@@ -3584,10 +3594,6 @@
     updateEggsDisplay();
     updateShopSellTab();
     tryUnlock();
-
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
 
     const noticeText = isGolden
       ? `💥 Золотые яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`
@@ -3698,9 +3704,12 @@
       const isGolden = (el.id === 'goldenEgg');
       const count = isGolden ? goldenEggs : normalEggs;
 
-      // Если яйцо отпущено с большой скоростью (бросок) — разбиваем яйца вдребезги!
+      const cursorX = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastMoveX;
+      const cursorY = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastMoveY;
+
+      // Если яйцо отпущено с большой скоростью (бросок) — разбиваем яйца вдребезги на курсоре мыши!
       if (releaseVelocity >= 750 && count > 0) {
-        smashEgg(el, isGolden);
+        smashEgg(el, isGolden, cursorX, cursorY);
         return;
       }
 
