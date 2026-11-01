@@ -13,22 +13,35 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
   }
+  *::-webkit-scrollbar,
   ::-webkit-scrollbar {
     width: 6px;
     height: 0px;
   }
+  *::-webkit-scrollbar:horizontal,
   ::-webkit-scrollbar:horizontal {
     display: none !important;
     height: 0px !important;
     width: 0px !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    background: transparent !important;
   }
+  *::-webkit-scrollbar-corner,
+  ::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+  }
+  *::-webkit-scrollbar-track,
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+  *::-webkit-scrollbar-thumb,
   ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.18);
     border-radius: 999px;
   }
+  *::-webkit-scrollbar-thumb:hover,
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.32);
   }
@@ -393,7 +406,7 @@
     border-radius: 999px;
     cursor: pointer;
     user-select: none;
-    transition: transform .12s, background .2s, border-color .2s, box-shadow .2s;
+    transition: transform .15s ease, background .2s, border-color .2s, box-shadow .2s, filter .15s ease;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
@@ -405,6 +418,14 @@
   }
   .shop-btn:active {
     transform: scale(.96);
+  }
+  .shop-btn.drag-target-hover {
+    transform: scale(1.24) !important;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.65), rgba(6, 182, 212, 0.38)) !important;
+    border-color: #67e8f9 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.95), 0 0 50px rgba(6, 182, 212, 0.6) !important;
+    filter: brightness(1.3) !important;
   }
   .wardrobe-btn {
     display: none;
@@ -801,6 +822,8 @@
   }
   .shop-dialog {
     max-width: 580px;
+    overflow: hidden !important;
+    overflow-x: clip !important;
   }
   .shop-dialog,
   .shop-dialog * {
@@ -809,8 +832,10 @@
   .shop-body {
     padding: 38px 24px;
     overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
+    overflow-x: hidden !important;
+    overflow-x: clip !important;
+    max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -818,6 +843,7 @@
     min-height: 240px;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    overscroll-behavior-x: none;
   }
   .shop-placeholder {
     text-align: center;
@@ -877,11 +903,17 @@
   }
   .sell-list {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    overflow-x: clip;
   }
   .sell-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     background: #202736;
     border: 1px solid #2c364b;
     border-radius: 14px;
@@ -973,8 +1005,11 @@
     text-align: center;
     padding: 8px 10px 16px;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     margin-bottom: 8px;
     border-bottom: 1px solid rgba(187, 51, 255, 0.22);
+    overflow: hidden;
   }
   .duckberries-logo {
     font: 900 32px/1.2 system-ui, "Segoe UI", sans-serif;
@@ -999,11 +1034,17 @@
   }
   .shop-sections-wrap {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    overflow-x: clip;
   }
   .shop-section {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     transition: margin-bottom .15s ease;
   }
   .shop-section-title {
@@ -1021,6 +1062,9 @@
     cursor: pointer;
     user-select: none;
     transition: background .15s, border-color .15s, color .15s;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .shop-section-title:hover {
     background: rgba(255, 255, 255, 0.07);
@@ -1051,11 +1095,17 @@
     margin-bottom: 0;
   }
   .buy-items-grid {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
   .buy-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     background: #202736;
     border: 1px solid #2c364b;
     border-radius: 14px;
@@ -2034,7 +2084,7 @@
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
         <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
       </div>
-      <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start;">
+      <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start; overflow-x: hidden; overflow-x: clip;">
         <div class="duckberries-header">
           <div class="duckberries-logo">Duckberries</div>
           <div class="duckberries-tagline">Маркетплейс утиного стиля и уюта</div>
@@ -2064,7 +2114,7 @@
           </div>
         </div>
       </div>
-      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
+      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start; overflow-x: hidden; overflow-x: clip;">
         <div class="sell-list">
           <div class="sell-card">
             <div class="sell-item-left">
@@ -2537,7 +2587,7 @@
       cost: 10000,
       icon: 'https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe',
       fallbackEmoji: '🎛️',
-      desc: 'Настольная плита с регулятором температуры. Отлично смотрится на кухне!'
+      desc: 'Плита с регулятором температуры. Отлично смотрится на кухне!'
     },
     fridge: {
       id: 'fridge',
@@ -4845,12 +4895,6 @@
         ? `<button class="storage-toggle-btn placed" onclick="returnPropToStorage('${id}')">Убрать на склад</button>`
         : `<button class="storage-toggle-btn" onclick="placePropOnScreen('${id}')">Выложить на стол</button>`;
 
-      let refundBtnHtml = '';
-      if (prop.cost && prop.cost > 0) {
-        const refundPrice = Math.floor(prop.cost / 2);
-        refundBtnHtml = `<button class="storage-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('household', '${id}')">Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)</button>`;
-      }
-
       card.innerHTML = `
         <div class="buy-item-left">
           <div class="buy-item-img-box">
@@ -4865,7 +4909,6 @@
         </div>
         <div class="storage-card-actions">
           ${btnHtml}
-          ${refundBtnHtml}
         </div>
       `;
       list.appendChild(card);
@@ -5109,6 +5152,33 @@
     return false;
   }
 
+  function isOverlappingWithShopBtn(propEl, clientX, clientY) {
+    const shopBtn = document.getElementById('shopBtn');
+    if (!shopBtn) return false;
+    const style = window.getComputedStyle(shopBtn);
+    if (style.display === 'none' || shopBtn.offsetParent === null) return false;
+
+    const sRect = shopBtn.getBoundingClientRect();
+    const pad = 16;
+
+    if (clientX !== undefined && clientY !== undefined) {
+      if (clientX >= sRect.left - pad && clientX <= sRect.right + pad &&
+          clientY >= sRect.top - pad && clientY <= sRect.bottom + pad) {
+        return true;
+      }
+    }
+
+    if (propEl) {
+      const pRect = propEl.getBoundingClientRect();
+      const overlap = !(pRect.right < sRect.left - pad ||
+                        pRect.left > sRect.right + pad ||
+                        pRect.bottom < sRect.top - pad ||
+                        pRect.top > sRect.bottom + pad);
+      if (overlap) return true;
+    }
+    return false;
+  }
+
   let activeContextPropId = null;
   const propContextMenu = document.getElementById('propContextMenu');
   const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
@@ -5230,6 +5300,17 @@
         }
       }
 
+      // Проверка наведения на кнопку «Магазин» при перетаскивании (для возврата)
+      const isOverShop = isOverlappingWithShopBtn(el, e.clientX, e.clientY);
+      const shopBtn = document.getElementById('shopBtn');
+      if (shopBtn) {
+        if (isOverShop && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0) {
+          shopBtn.classList.add('drag-target-hover');
+        } else {
+          shopBtn.classList.remove('drag-target-hover');
+        }
+      }
+
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
@@ -5254,6 +5335,10 @@
       const wasOverStorage = storageBtn && (storageBtn.classList.contains('drag-target-hover') || isOverlappingWithStorageBtn(el, e.clientX, e.clientY));
       if (storageBtn) storageBtn.classList.remove('drag-target-hover');
 
+      const shopBtn = document.getElementById('shopBtn');
+      const wasOverShop = shopBtn && (shopBtn.classList.contains('drag-target-hover') || isOverlappingWithShopBtn(el, e.clientX, e.clientY));
+      if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
         const partnerEl = document.getElementById('prop-' + partnerId);
@@ -5263,6 +5348,25 @@
           partnerEl.classList.add('is-wobbling');
           setTimeout(() => partnerEl.classList.remove('is-wobbling'), 650);
         }
+      }
+
+      if (wasOverShop && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0) {
+        const refundPrice = Math.floor(PROPS_DATA[propId].cost / 2);
+        refundShopItem('household', propId);
+        if (shopBtn) {
+          const shRect = shopBtn.getBoundingClientRect();
+          particles.push({
+            x: shRect.left + shRect.width / 2,
+            y: shRect.top + shRect.height / 2,
+            vx: (Math.random() - 0.5) * 60,
+            vy: -140,
+            size: 16,
+            alpha: 1.1,
+            text: `💰 Сдано в магазин: +${refundPrice.toLocaleString('ru-RU')} 🦆`,
+            color: '#34d399'
+          });
+        }
+        return;
       }
 
       if (wasOverStorage) {
