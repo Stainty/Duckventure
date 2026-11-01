@@ -822,28 +822,23 @@
   }
   .shop-dialog {
     max-width: 580px;
-    overflow: hidden !important;
-    overflow-x: clip !important;
   }
   .shop-dialog,
   .shop-dialog * {
     box-sizing: border-box;
   }
   .shop-body {
-    padding: 38px 24px;
+    padding: 24px 20px;
     overflow-y: auto;
-    overflow-x: hidden !important;
-    overflow-x: clip !important;
-    max-width: 100%;
-    box-sizing: border-box;
+    overflow-x: hidden;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: flex-start;
     min-height: 240px;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-    overscroll-behavior-x: none;
   }
   .shop-placeholder {
     text-align: center;
@@ -903,17 +898,11 @@
   }
   .sell-list {
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    overflow-x: clip;
   }
   .sell-card {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
     background: #202736;
     border: 1px solid #2c364b;
     border-radius: 14px;
@@ -1005,11 +994,8 @@
     text-align: center;
     padding: 8px 10px 16px;
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
     margin-bottom: 8px;
     border-bottom: 1px solid rgba(187, 51, 255, 0.22);
-    overflow: hidden;
   }
   .duckberries-logo {
     font: 900 32px/1.2 system-ui, "Segoe UI", sans-serif;
@@ -1034,12 +1020,9 @@
   }
   .shop-sections-wrap {
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    overflow-x: clip;
   }
   .shop-section {
     width: 100%;
@@ -2084,7 +2067,7 @@
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
         <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
       </div>
-      <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start; overflow-x: hidden; overflow-x: clip;">
+      <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start;">
         <div class="duckberries-header">
           <div class="duckberries-logo">Duckberries</div>
           <div class="duckberries-tagline">Маркетплейс утиного стиля и уюта</div>
@@ -2114,7 +2097,7 @@
           </div>
         </div>
       </div>
-      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start; overflow-x: hidden; overflow-x: clip;">
+      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
         <div class="sell-list">
           <div class="sell-card">
             <div class="sell-item-left">
@@ -4533,6 +4516,8 @@
       updateShopTabsVisibility();
       renderShopBuyTab();
       updateShopSellTab();
+      if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
+      if (shopBodySell) shopBodySell.scrollTop = 0;
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {
@@ -5125,58 +5110,53 @@
     }
   }
 
-  function isOverlappingWithStorageBtn(propEl, clientX, clientY) {
+  function getActiveDragTarget(propEl, clientX, clientY, propId) {
     const storageBtn = document.getElementById('storageBtn');
-    if (!storageBtn) return false;
-    const style = window.getComputedStyle(storageBtn);
-    if (style.display === 'none' || storageBtn.offsetParent === null) return false;
-
-    const sRect = storageBtn.getBoundingClientRect();
-    const pad = 16;
-
-    if (clientX !== undefined && clientY !== undefined) {
-      if (clientX >= sRect.left - pad && clientX <= sRect.right + pad &&
-          clientY >= sRect.top - pad && clientY <= sRect.bottom + pad) {
-        return true;
-      }
-    }
-
-    if (propEl) {
-      const pRect = propEl.getBoundingClientRect();
-      const overlap = !(pRect.right < sRect.left - pad ||
-                        pRect.left > sRect.right + pad ||
-                        pRect.bottom < sRect.top - pad ||
-                        pRect.top > sRect.bottom + pad);
-      if (overlap) return true;
-    }
-    return false;
-  }
-
-  function isOverlappingWithShopBtn(propEl, clientX, clientY) {
     const shopBtn = document.getElementById('shopBtn');
-    if (!shopBtn) return false;
-    const style = window.getComputedStyle(shopBtn);
-    if (style.display === 'none' || shopBtn.offsetParent === null) return false;
 
-    const sRect = shopBtn.getBoundingClientRect();
-    const pad = 16;
+    const storageVisible = storageBtn && storageBtn.offsetParent !== null && window.getComputedStyle(storageBtn).display !== 'none';
+    const shopVisible = shopBtn && shopBtn.offsetParent !== null && window.getComputedStyle(shopBtn).display !== 'none' && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0;
 
-    if (clientX !== undefined && clientY !== undefined) {
-      if (clientX >= sRect.left - pad && clientX <= sRect.right + pad &&
-          clientY >= sRect.top - pad && clientY <= sRect.bottom + pad) {
-        return true;
-      }
+    if (!storageVisible && !shopVisible) return null;
+
+    let px = clientX;
+    let py = clientY;
+    if (px === undefined || py === undefined) {
+      if (!propEl) return null;
+      const pr = propEl.getBoundingClientRect();
+      px = pr.left + pr.width / 2;
+      py = pr.top + pr.height / 2;
     }
 
-    if (propEl) {
-      const pRect = propEl.getBoundingClientRect();
-      const overlap = !(pRect.right < sRect.left - pad ||
-                        pRect.left > sRect.right + pad ||
-                        pRect.bottom < sRect.top - pad ||
-                        pRect.top > sRect.bottom + pad);
-      if (overlap) return true;
+    let distStorage = Infinity;
+    let isNearStorage = false;
+    if (storageVisible) {
+      const sr = storageBtn.getBoundingClientRect();
+      const inBox = (px >= sr.left - 6 && px <= sr.right + 6 && py >= sr.top - 8 && py <= sr.bottom + 20);
+      const cx = sr.left + sr.width / 2;
+      const cy = sr.top + sr.height / 2;
+      distStorage = Math.hypot(px - cx, py - cy);
+      isNearStorage = inBox || distStorage < 55;
     }
-    return false;
+
+    let distShop = Infinity;
+    let isNearShop = false;
+    if (shopVisible) {
+      const shr = shopBtn.getBoundingClientRect();
+      const inBox = (px >= shr.left - 6 && px <= shr.right + 6 && py >= shr.top - 8 && py <= shr.bottom + 20);
+      const cx = shr.left + shr.width / 2;
+      const cy = shr.top + shr.height / 2;
+      distShop = Math.hypot(px - cx, py - cy);
+      isNearShop = inBox || distShop < 55;
+    }
+
+    if (!isNearStorage && !isNearShop) return null;
+
+    // Строго раздельный фокус: подсвечивается только та кнопка, которая ближе к курсору
+    if (isNearStorage && isNearShop) {
+      return distShop < distStorage ? 'shop' : 'storage';
+    }
+    return isNearShop ? 'shop' : 'storage';
   }
 
   let activeContextPropId = null;
@@ -5289,27 +5269,12 @@
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
 
-      // Проверка наведения на кнопку «Склад» при перетаскивании
-      const isOverStorage = isOverlappingWithStorageBtn(el, e.clientX, e.clientY);
+      // Проверка наведения на кнопку «Склад» или «Магазин» (строго раздельный фокус)
+      const activeTarget = getActiveDragTarget(el, e.clientX, e.clientY, propId);
       const storageBtn = document.getElementById('storageBtn');
-      if (storageBtn) {
-        if (isOverStorage) {
-          storageBtn.classList.add('drag-target-hover');
-        } else {
-          storageBtn.classList.remove('drag-target-hover');
-        }
-      }
-
-      // Проверка наведения на кнопку «Магазин» при перетаскивании (для возврата)
-      const isOverShop = isOverlappingWithShopBtn(el, e.clientX, e.clientY);
       const shopBtn = document.getElementById('shopBtn');
-      if (shopBtn) {
-        if (isOverShop && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0) {
-          shopBtn.classList.add('drag-target-hover');
-        } else {
-          shopBtn.classList.remove('drag-target-hover');
-        }
-      }
+      if (storageBtn) storageBtn.classList.toggle('drag-target-hover', activeTarget === 'storage');
+      if (shopBtn) shopBtn.classList.toggle('drag-target-hover', activeTarget === 'shop');
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
@@ -5331,12 +5296,10 @@
       el.classList.remove('is-dragging');
       el.style.transform = '';
 
+      const activeTarget = getActiveDragTarget(el, e.clientX, e.clientY, propId);
       const storageBtn = document.getElementById('storageBtn');
-      const wasOverStorage = storageBtn && (storageBtn.classList.contains('drag-target-hover') || isOverlappingWithStorageBtn(el, e.clientX, e.clientY));
-      if (storageBtn) storageBtn.classList.remove('drag-target-hover');
-
       const shopBtn = document.getElementById('shopBtn');
-      const wasOverShop = shopBtn && (shopBtn.classList.contains('drag-target-hover') || isOverlappingWithShopBtn(el, e.clientX, e.clientY));
+      if (storageBtn) storageBtn.classList.remove('drag-target-hover');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
@@ -5350,7 +5313,7 @@
         }
       }
 
-      if (wasOverShop && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0) {
+      if (activeTarget === 'shop' && PROPS_DATA[propId] && PROPS_DATA[propId].cost > 0) {
         const refundPrice = Math.floor(PROPS_DATA[propId].cost / 2);
         refundShopItem('household', propId);
         if (shopBtn) {
@@ -5369,7 +5332,7 @@
         return;
       }
 
-      if (wasOverStorage) {
+      if (activeTarget === 'storage') {
         returnPropToStorage(propId);
         if (storageBtn) {
           const sRect = storageBtn.getBoundingClientRect();
