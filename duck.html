@@ -5194,8 +5194,8 @@
         if (id === 'key') return;
         // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
         if (id === 'dichlofos' && !hasPlacedFridge) return;
-        // Если тараканы уже выведены дихлофосом, холодильник и дихлофос больше не нужны
-        if ((id === 'fridge' || id === 'dichlofos') && hasClearedRoaches) return;
+        // Если тараканы уже выведены дихлофосом, дихлофос больше не продаётся в магазине
+        if (id === 'dichlofos' && hasClearedRoaches) return;
 
         const prop = PROPS_DATA[id];
         const isOwned = ownedProps.includes(id);
@@ -6080,10 +6080,14 @@
         tryUnlock();
       }
     } else {
-      // При выключении таймер свежести ограничен стандартными 300 сек (5 мин)
-      if (eggSpoilRemaining > 300) {
-        eggSpoilRemaining = 300;
+      if (wasActive) {
+        // При выключении отнимает 1 мин (60 сек) от текущего таймера
+        eggSpoilRemaining = eggSpoilRemaining - 60;
         try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+        if (eggSpoilRemaining <= 0) {
+          spoilEggs();
+          return;
+        }
       }
     }
     updateEggSpoilTimerDisplay();
@@ -6298,18 +6302,14 @@
 
       stopRoaches();
 
-      // Холодильник и дихлофос пропадают со склада и со стола
-      ownedProps = ownedProps.filter(id => id !== 'fridge' && id !== 'dichlofos');
-      delete placedProps['fridge'];
+      // Дихлофос расходуется и пропадает, а холодильник остаётся!
+      ownedProps = ownedProps.filter(id => id !== 'dichlofos');
       delete placedProps['dichlofos'];
       try {
         localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
         localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps));
       } catch (e) {}
 
-      setFridgeState(false);
-      const fEl = document.getElementById('prop-fridge');
-      if (fEl) fEl.style.display = 'none';
       const dEl = document.getElementById('prop-dichlofos');
       if (dEl) dEl.style.display = 'none';
 
@@ -6938,15 +6938,19 @@
     });
   }
 
-  /* ---------- Механика свежести и порчи сырых яиц (Таймер 5 мин и холодильник) ---------- */
+  /* ---------- Механика свежести и порчи яиц (Таймер 5 мин и холодильник) ---------- */
+  function hasAnyEggsOnPlayer() {
+    return (normalEggs > 0 || goldenEggs > 0 || friedEggs > 0 || goldenFriedEggs > 0);
+  }
+
   function updateEggSpoilTimerDisplay() {
     const timerItem = document.getElementById('eggSpoilTimerItem');
     const timerIcon = document.getElementById('eggSpoilTimerIcon');
     const timerText = document.getElementById('eggSpoilTimerText');
     if (!timerItem || !timerIcon || !timerText) return;
 
-    const hasRawEggs = (normalEggs > 0 || goldenEggs > 0);
-    if (upgradeLevels.features < 3 || !hasRawEggs) {
+    const hasEggs = hasAnyEggsOnPlayer();
+    if (upgradeLevels.features < 3 || !hasEggs) {
       timerItem.style.display = 'none';
       return;
     }
@@ -6966,7 +6970,7 @@
     } else {
       timerItem.classList.remove('fridge');
       timerIcon.textContent = '⏱️';
-      timerItem.title = 'Время до порчи сырых яиц на столе';
+      timerItem.title = 'Время до порчи яиц на столе';
       if (eggSpoilRemaining <= 60) {
         timerItem.classList.add('warning');
       } else {
@@ -6984,15 +6988,19 @@
   window.resetEggSpoilTimer = resetEggSpoilTimer;
 
   function spoilEggs() {
-    const spoiledCount = normalEggs + goldenEggs;
+    const spoiledCount = normalEggs + goldenEggs + friedEggs + goldenFriedEggs;
     if (spoiledCount <= 0) return;
 
     normalEggs = 0;
     goldenEggs = 0;
+    friedEggs = 0;
+    goldenFriedEggs = 0;
     eggSpoilRemaining = isFridgeOn ? 360 : 300;
     try {
       localStorage.setItem(EGGS_NORMAL_KEY, '0');
       localStorage.setItem(EGGS_GOLDEN_KEY, '0');
+      localStorage.setItem(FRIED_EGGS_KEY, '0');
+      localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, '0');
       localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining));
     } catch (e) {}
 
@@ -7055,8 +7063,8 @@
   function startEggSpoilTicker() {
     if (eggSpoilInterval) clearInterval(eggSpoilInterval);
     eggSpoilInterval = setInterval(() => {
-      const hasRawEggs = (normalEggs > 0 || goldenEggs > 0);
-      if (!hasRawEggs) {
+      const hasEggs = hasAnyEggsOnPlayer();
+      if (!hasEggs) {
         updateEggSpoilTimerDisplay();
         return;
       }
