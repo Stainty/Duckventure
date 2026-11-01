@@ -1633,6 +1633,43 @@
   #prop-clock img {
     width: 82px;
   }
+  #prop-knife img {
+    width: 76px;
+  }
+  #prop-tape img {
+    width: 72px;
+  }
+  #duck.prop-target-hover {
+    transform: scale(1.08) !important;
+    filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 45px rgba(14, 165, 233, 0.75)) !important;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  #duck.has-deflate {
+    animation: duckDeflateLeak 2s ease-in-out infinite alternate !important;
+  }
+  @keyframes duckDeflateLeak {
+    0% { transform: scale(1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.35)); }
+    50% { transform: scale(0.96, 0.98); filter: drop-shadow(0 6px 14px rgba(239, 68, 68, 0.35)); }
+    100% { transform: scale(0.93, 0.94); filter: drop-shadow(0 4px 10px rgba(239, 68, 68, 0.65)); }
+  }
+  .duck-deflate-badge {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.55), 0 4px 12px rgba(0,0,0,0.5) !important;
+    color: #fca5a5 !important;
+    animation: deflateBadgePulse 1.2s ease-in-out infinite alternate !important;
+  }
+  @keyframes deflateBadgePulse {
+    0% { transform: translateX(-50%) scale(0.98); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+    100% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 22px rgba(239, 68, 68, 0.85); }
+  }
+  .deflate-badge-timer {
+    background: rgba(239, 68, 68, 0.22) !important;
+    color: #fecaca !important;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+  }
   #duck.has-stink-debuff {
     filter: drop-shadow(0 0 18px rgba(34, 197, 94, 0.85)) drop-shadow(0 0 35px rgba(21, 128, 61, 0.65)) hue-rotate(65deg) !important;
     animation: stinkDuckWobble 1.8s ease-in-out infinite alternate !important;
@@ -2221,6 +2258,7 @@
       <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
       <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
       <button class="cheat-btn" onclick="cheatFastDebuff()" title="Вызвать дебафф тухлых яиц (таймер 2 сек)">🤢⚡</button>
+      <button class="cheat-btn" onclick="cheatFastDeflate()" title="Ускорить сдувание утки (таймер 2 сек)">🔪💨</button>
       <button class="cheat-btn" onclick="toggleCheatRoaches()" title="Вкл/выкл тараканов">
         <span class="cheat-roach-icon">
           <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2435,7 +2473,7 @@
         <div class="upgrades-title">
           <span class="achv-title-icon">🏆</span>
           <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/21)</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/23)</span>
         </div>
         <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
       </div>
@@ -2453,6 +2491,37 @@
         <div class="cooked-duck-title">О нет! Кажется эта утка больше не крякает</div>
         <div class="cooked-duck-desc">Мама утка превратилась в аппетитное хрустящее блюдо прямо на плите...</div>
         <button id="cookedDuckRestartBtn" class="cooked-duck-restart-btn">
+          <span>🔄</span> Начать игру заново
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно инцидента с ножом -->
+  <div class="upgrades-modal" id="knifeAccidentModal">
+    <div class="upgrades-dialog cooked-duck-dialog" style="max-width: 440px;">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true" style="font-size: 64px; filter: drop-shadow(0 8px 20px rgba(239, 68, 68, 0.6));">😱🔪</div>
+        <div class="cooked-duck-title" style="color: #f87171;">Ой, я случайно!</div>
+        <div class="cooked-duck-desc" style="color: #cbd5e1; font-size: 15px;">
+          Кажется эта утка скоро сдуется...<br>
+          <span style="font-size: 13px; color: #94a3b8; margin-top: 6px; display: inline-block;">У вас есть 5 минут, чтобы найти способ её починить!</span>
+        </div>
+        <button id="knifeAccidentCloseBtn" class="cooked-duck-restart-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #fca5a5; box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);">
+          <span>🩹</span> Я всё исправлю!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно сдувшейся утки (Game Over) -->
+  <div class="upgrades-modal" id="deflatedDuckModal">
+    <div class="upgrades-dialog cooked-duck-dialog">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true" style="font-size: 78px; filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.55));">🎈💨</div>
+        <div class="cooked-duck-title" style="color: #67e8f9;">В вашей утке не осталось воздуха</div>
+        <div class="cooked-duck-desc">Резиновая утка полностью сдулась и превратилась в тонкую тряпочку... Без изоленты не обойтись!</div>
+        <button id="deflatedDuckRestartBtn" class="cooked-duck-restart-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);">
           <span>🔄</span> Начать игру заново
         </button>
       </div>
@@ -2514,6 +2583,16 @@
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🕰️</span>
   </div>
+  <div id="prop-knife" class="draggable-prop" title="Кухонный нож (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1V2Yi1ljXGKo-8FUbYne42jgeSJY2I8gY" alt="Кухонный нож" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🔪</span>
+  </div>
+  <div id="prop-tape" class="draggable-prop" title="Изолента (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a" alt="Изолента" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🩹</span>
+  </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
@@ -2553,6 +2632,11 @@
     <span class="debuff-badge-text">Дебафф: -50%</span>
     <span id="duckDebuffTimer" class="debuff-badge-timer" style="display: none;">02:00</span>
   </div>
+  <div id="duckDeflateBadge" class="duck-debuff-badge duck-deflate-badge" style="display: none;">
+    <span class="debuff-badge-icon">💨</span>
+    <span class="debuff-badge-text">Сдувается!</span>
+    <span id="duckDeflateTimer" class="debuff-badge-timer deflate-badge-timer" style="display: none;">05:00</span>
+  </div>
 
   <button id="duck" aria-label="Крякнуть">
     <span class="duck-fallback">🦆</span>
@@ -2560,6 +2644,7 @@
          onload="document.querySelector('.duck-fallback').style.display='none'"
          onerror="this.style.display='none'; document.querySelector('.duck-fallback').style.display='grid'">
     <span id="cookedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🍗</span>
+    <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
   </button>
 
   <div id="achvToastContainer" class="achv-toast-container"></div>
@@ -2613,6 +2698,10 @@
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
+  const HAS_STABBED_DUCK_KEY = 'duck-has-stabbed-duck';
+  const DUCK_IS_DEFLATING_KEY = 'duck-is-deflating';
+  const DUCK_DEFLATING_REMAINING_KEY = 'duck-deflating-remaining';
+  const HAS_PATCHED_DUCK_KEY = 'duck-has-patched-duck';
   const LAMP_ON_KEY = 'duck-lamp-on';
   const FRIDGE_ON_KEY = 'duck-fridge-on';
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
@@ -2654,7 +2743,18 @@
   try {
     hasFriedDuck = localStorage.getItem(HAS_FRIED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'monster') === '1';
   } catch (e) {}
+  let hasStabbedDuck = false;
+  try {
+    hasStabbedDuck = localStorage.getItem(HAS_STABBED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'accident') === '1';
+  } catch (e) {}
+  let hasPatchedDuck = false;
+  try {
+    hasPatchedDuck = localStorage.getItem(HAS_PATCHED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'emergency-surgery') === '1';
+  } catch (e) {}
   let isCookedDuckActive = false;
+  let isDuckDeflating = localStorage.getItem(DUCK_IS_DEFLATING_KEY) === '1';
+  let deflationRemaining = parseInt(localStorage.getItem(DUCK_DEFLATING_REMAINING_KEY) || '300', 10);
+  let isDeflatedDuckActive = false;
   let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
   let isFridgeOn = localStorage.getItem(FRIDGE_ON_KEY) === '1';
   let eggSpoilRemaining = parseInt(localStorage.getItem(EGG_SPOIL_TIMER_KEY) || '300', 10);
@@ -2805,6 +2905,16 @@
       fallbackEmoji: '🍜',
       img: 'https://lh3.googleusercontent.com/d/1F6KDQar0Bb2Wfo3R-agsuqgX4Q-KcF9v',
       desc: 'Сытный обед за 5 минут'
+    },
+    patched: {
+      id: 'patched',
+      name: 'Утка с изолентой',
+      category: 'clothing',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/1l6IN25t2HH-MLnKmvU0NWj9lVcmOLnYR',
+      fallbackEmoji: '🩹',
+      img: 'https://lh3.googleusercontent.com/d/1l6IN25t2HH-MLnKmvU0NWj9lVcmOLnYR',
+      desc: 'Надежно перемотана синей изолентой. Больше воздух не спускает!'
     }
   };
 
@@ -2880,6 +2990,24 @@
       icon: 'https://lh3.googleusercontent.com/d/1LBfmZcEwiCMYQRDy-GKlgAnQZBJYesag',
       fallbackEmoji: '🕰️',
       desc: 'Показывают точное время и отображают таймеры на экране.'
+    },
+    knife: {
+      id: 'knife',
+      name: 'Кухонный нож',
+      category: 'household',
+      cost: 1600,
+      icon: 'https://lh3.googleusercontent.com/d/1V2Yi1ljXGKo-8FUbYne42jgeSJY2I8gY',
+      fallbackEmoji: '🔪',
+      desc: 'Подходит для нарезки овощей'
+    },
+    tape: {
+      id: 'tape',
+      name: 'Изолента',
+      category: 'household',
+      cost: 300,
+      icon: 'https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a',
+      fallbackEmoji: '🩹',
+      desc: 'Чинит все!'
     }
   };
   window.PROPS_DATA = PROPS_DATA;
@@ -3393,6 +3521,20 @@
       done: false,
       check: () => hasFriedDuck,
     },
+    {
+      id: 'accident',
+      name: 'Несчастный случай!',
+      desc: 'Зарежьте утку',
+      done: false,
+      check: () => hasStabbedDuck,
+    },
+    {
+      id: 'emergency-surgery',
+      name: 'Неотложная операция!',
+      desc: 'Почините утку',
+      done: false,
+      check: () => hasPatchedDuck,
+    },
   ];
 
   function updateAchvCounter() {
@@ -3411,11 +3553,13 @@
       try {
         if (a.id === 'monster' && hasFriedDuck) {
           a.done = true;
+        } else if (a.id === 'accident' && hasStabbedDuck) {
+          a.done = true;
         } else {
           a.done = localStorage.getItem(STORAGE_PREFIX + a.id) === '1';
         }
       } catch (e) {
-        a.done = (a.id === 'monster' && hasFriedDuck);
+        a.done = (a.id === 'monster' && hasFriedDuck) || (a.id === 'accident' && hasStabbedDuck);
       }
       const card = document.createElement('div');
       card.id = 'achv-card-' + a.id;
@@ -3531,6 +3675,10 @@
           a.done = true;
           return;
         }
+        if (a.id === 'accident' && (hasStabbedDuck || a.done)) {
+          a.done = true;
+          return;
+        }
         a.done = false;
         try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
       });
@@ -3606,6 +3754,16 @@
       propClock.style.display = 'none';
       delete propClock.dataset.placed;
     }
+    const propKnife = document.getElementById('prop-knife');
+    if (propKnife) {
+      propKnife.style.display = 'none';
+      delete propKnife.dataset.placed;
+    }
+    const propTape = document.getElementById('prop-tape');
+    if (propTape) {
+      propTape.style.display = 'none';
+      delete propTape.dataset.placed;
+    }
     isLampOn = false;
     updateLampGlowUI();
     isFridgeOn = false;
@@ -3614,17 +3772,31 @@
     rottenEggRotRemaining = 0;
     stinkDebuffRemaining = 0;
     if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
+    isDuckDeflating = false;
+    deflationRemaining = 0;
+    isDeflatedDuckActive = false;
+    try {
+      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
+      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+    } catch (e) {}
+    if (typeof updateDeflationUI === 'function') updateDeflationUI();
     duck.style.position = '';
     duck.style.left = '';
     duck.style.top = '';
     duck.style.margin = '';
     duck.style.zIndex = '';
-    duck.classList.remove('can-drag', 'is-dragging');
+    duck.classList.remove('can-drag', 'is-dragging', 'has-deflate');
     isCookedDuckActive = false;
     const cookedDuckView = document.getElementById('cookedDuckView');
     if (cookedDuckView) cookedDuckView.style.display = 'none';
     const cookedDuckModal = document.getElementById('cookedDuckModal');
     if (cookedDuckModal) cookedDuckModal.classList.remove('open');
+    const deflatedDuckView = document.getElementById('deflatedDuckView');
+    if (deflatedDuckView) deflatedDuckView.style.display = 'none';
+    const deflatedDuckModal = document.getElementById('deflatedDuckModal');
+    if (deflatedDuckModal) deflatedDuckModal.classList.remove('open');
+    const knifeAccidentModal = document.getElementById('knifeAccidentModal');
+    if (knifeAccidentModal) knifeAccidentModal.classList.remove('open');
     const lvlRoachWarn = document.getElementById('lvlRoachWarning');
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
@@ -4002,6 +4174,88 @@
     } catch (e) {}
   }
 
+  /* звук пореза ножом и выходящего воздуха */
+  function knifeStabSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(2400, t);
+      osc.frequency.exponentialRampToValueAtTime(320, t + 0.18);
+      gain.gain.setValueAtTime(0.28, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.35);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 2200;
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.2, t + 0.08);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(t + 0.08);
+    } catch (e) {}
+  }
+
+  /* звук заклеивания изолентой */
+  function tapePatchSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.18);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1200, t);
+      filter.frequency.exponentialRampToValueAtTime(3400, t + 0.16);
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.24, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.16);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(t);
+
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + 0.1 + i * 0.06);
+        g.gain.setValueAtTime(0.18, t + 0.1 + i * 0.06);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.35 + i * 0.06);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t + 0.1 + i * 0.06);
+        osc.stop(t + 0.38 + i * 0.06);
+      });
+    } catch (e) {}
+  }
+
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
 
@@ -4057,8 +4311,8 @@
     }
 
     autoQuackTimer = setInterval(() => {
-      // Игра на паузе пока открыты любые модальные окна или когда утка зажарена
-      if (isAnyModalOpen() || isCookedDuckActive) return;
+      // Игра на паузе пока открыты любые модальные окна или когда утка зажарена / сдулась
+      if (isAnyModalOpen() || isCookedDuckActive || isDeflatedDuckActive) return;
 
       addDuckles(rate);
 
@@ -4611,9 +4865,11 @@
 
     el.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      const x = e.clientX - startX;
-      const y = e.clientY - startY;
-      el.style.left = `${Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x))}px`;
+      const dims = getPropDimensions(propId);
+      const propW = Math.max(el.offsetWidth || 0, dims.width || 0);
+      const propH = Math.max(el.offsetHeight || 0, dims.height || 0);
+      const x = Math.max(10, Math.min(window.innerWidth - propW - 10, e.clientX - startX));
+      const y = Math.max(60, Math.min(window.innerHeight - propH - 20, e.clientY - startY));
       el.style.top = `${Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y))}px`;
 
       // Физичное качание при перемещении (tilt) — наклон увеличен на 10 градусов
@@ -5200,7 +5456,7 @@
   function refundShopItem(category, itemId) {
     if (category === 'clothing') {
       const item = SKINS_DATA[itemId];
-      if (!item || !ownedSkins.includes(itemId) || itemId === 'default') return;
+      if (!item || !ownedSkins.includes(itemId) || itemId === 'default' || itemId === 'patched') return;
       const refundAmount = Math.floor(item.cost / 2);
 
       // Если скин сейчас надет, возвращаем стандартный классический скин
@@ -5280,7 +5536,7 @@
     if (clothingContainer) {
       clothingContainer.innerHTML = '';
       Object.keys(SKINS_DATA).forEach(id => {
-        if (id === 'default') return;
+        if (id === 'default' || id === 'patched') return;
         const item = SKINS_DATA[id];
         if (item.category !== 'clothing') return;
 
@@ -5515,6 +5771,8 @@
     if (propId === 'skovoroda') return { width: 82, height: 82 };
     if (propId === 'dichlofos') return { width: 68, height: 90 };
     if (propId === 'key') return { width: 72, height: 72 };
+    if (propId === 'knife') return { width: 76, height: 76 };
+    if (propId === 'tape') return { width: 72, height: 72 };
     return { width: 85, height: 85 };
   }
 
@@ -5535,7 +5793,9 @@
                      (propId === 'dichlofos' ? 140 : 
                      (propId === 'trashcan' ? 200 :
                      (propId === 'clock' ? -240 :
-                     (propId === 'key' ? 260 : 0)))))));
+                     (propId === 'knife' ? -300 :
+                     (propId === 'tape' ? 320 :
+                     (propId === 'key' ? 260 : 0)))))))));
       const maxLeft = Math.max(20, window.innerWidth - propWidth - 20);
       const left = Math.max(20, Math.min(maxLeft, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const maxTop = Math.max(70, window.innerHeight - propHeight - 20);
@@ -5564,6 +5824,7 @@
     } else if (propId === 'clock') {
       updateEggSpoilTimerDisplay();
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
+      if (typeof updateDeflationUI === 'function') updateDeflationUI();
     }
 
     if (propId === 'skovoroda' || propId === 'plita') {
@@ -5595,6 +5856,7 @@
     } else if (propId === 'clock') {
       updateEggSpoilTimerDisplay();
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
+      if (typeof updateDeflationUI === 'function') updateDeflationUI();
     }
   }
   window.returnPropToStorage = returnPropToStorage;
@@ -5946,6 +6208,13 @@
         }
       }
 
+      // Нож и Изолента: подсветка утки при наведении
+      if (propId === 'knife' || propId === 'tape') {
+        const rDuck = duck.getBoundingClientRect();
+        const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom);
+        duck.classList.toggle('prop-target-hover', isOverDuck);
+      }
+
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
@@ -5971,6 +6240,25 @@
       const shopBtn = document.getElementById('shopBtn');
       if (storageBtn) storageBtn.classList.remove('drag-target-hover');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+      if (duck) duck.classList.remove('prop-target-hover');
+
+      // Нож: перетаскивание на утку (инцидент с проколом утки)
+      if (propId === 'knife') {
+        const rDuck = duck.getBoundingClientRect();
+        const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom) || isOverlapping(el.getBoundingClientRect(), rDuck);
+        if (isOverDuck && !isCookedDuckActive && !isDeflatedDuckActive) {
+          stabDuckWithKnife(true);
+        }
+      }
+
+      // Изолента: перетаскивание на утку (починка утки)
+      if (propId === 'tape') {
+        const rDuck = duck.getBoundingClientRect();
+        const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom) || isOverlapping(el.getBoundingClientRect(), rDuck);
+        if (isOverDuck && !isCookedDuckActive && !isDeflatedDuckActive) {
+          applyTapeToDuck();
+        }
+      }
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';
@@ -6117,6 +6405,44 @@
       updateLampGlowUI();
     }
   }
+
+  function clampAllPlacedPropsToScreen() {
+    let changed = false;
+    Object.keys(placedProps).forEach(id => {
+      if (ownedProps.includes(id) && placedProps[id] && placedProps[id].placed) {
+        const el = document.getElementById('prop-' + id);
+        if (el && el.style.display !== 'none') {
+          const dims = getPropDimensions(id);
+          const propW = Math.max(el.offsetWidth || 0, dims.width || 0);
+          const propH = Math.max(el.offsetHeight || 0, dims.height || 0);
+          let curLeft = parseFloat(el.style.left || placedProps[id].left);
+          let curTop = parseFloat(el.style.top || placedProps[id].top);
+          if (!isNaN(curLeft)) {
+            const maxL = Math.max(10, window.innerWidth - propW - 10);
+            const clampedL = Math.max(10, Math.min(maxL, curLeft));
+            if (Math.abs(clampedL - curLeft) > 1) {
+              el.style.left = clampedL + 'px';
+              placedProps[id].left = el.style.left;
+              changed = true;
+            }
+          }
+          if (!isNaN(curTop)) {
+            const maxT = Math.max(60, window.innerHeight - propH - 20);
+            const clampedT = Math.max(60, Math.min(maxT, curTop));
+            if (Math.abs(clampedT - curTop) > 1) {
+              el.style.top = clampedT + 'px';
+              placedProps[id].top = el.style.top;
+              changed = true;
+            }
+          }
+        }
+      }
+    });
+    if (changed) {
+      try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+    }
+  }
+  window.clampAllPlacedPropsToScreen = clampAllPlacedPropsToScreen;
 
   /* ---------- Механика напольной лампы ---------- */
   function lampSwitchSound(on) {
@@ -6756,7 +7082,7 @@
   }
 
   duck.addEventListener('pointerdown', (e) => {
-    if (isCookedDuckActive) return;
+    if (isCookedDuckActive || isDeflatedDuckActive) return;
     if (isAnyModalOpen()) return;
     if (upgradeLevels.features < 4) return;
     if (e.button !== 0) return;
@@ -6801,6 +7127,7 @@
       duckTilt = Math.max(-24, Math.min(24, stepDx * 2.0));
       duck.style.setProperty('--sway-tilt', `${duckTilt || 12}deg`);
       duck.style.transform = `scale(1.04) rotate(${duckTilt}deg)`;
+      if (typeof updateBadgesPosition === 'function') updateBadgesPosition();
 
       if (dist > 15) {
         triggerDuckMoveSecret(duckStartLeft, duckStartTop);
@@ -6838,6 +7165,11 @@
   duck.addEventListener('click', () => {
     if (isCookedDuckActive) {
       const modal = document.getElementById('cookedDuckModal');
+      if (modal) modal.classList.add('open');
+      return;
+    }
+    if (isDeflatedDuckActive) {
+      const modal = document.getElementById('deflatedDuckModal');
       if (modal) modal.classList.add('open');
       return;
     }
@@ -7146,6 +7478,34 @@
     });
   }
 
+  const knifeAccidentModal = document.getElementById('knifeAccidentModal');
+  const knifeAccidentCloseBtn = document.getElementById('knifeAccidentCloseBtn');
+  if (knifeAccidentCloseBtn) {
+    knifeAccidentCloseBtn.addEventListener('click', () => {
+      if (knifeAccidentModal) knifeAccidentModal.classList.remove('open');
+    });
+  }
+  if (knifeAccidentModal) {
+    knifeAccidentModal.addEventListener('click', (e) => {
+      if (e.target === knifeAccidentModal) {
+        knifeAccidentModal.classList.remove('open');
+      }
+    });
+  }
+
+  const deflatedDuckModal = document.getElementById('deflatedDuckModal');
+  const deflatedDuckRestartBtn = document.getElementById('deflatedDuckRestartBtn');
+  if (deflatedDuckRestartBtn) {
+    deflatedDuckRestartBtn.addEventListener('click', restartFromDeflatedDuck);
+  }
+  if (deflatedDuckModal) {
+    deflatedDuckModal.addEventListener('click', (e) => {
+      if (e.target === deflatedDuckModal) {
+        deflatedDuckModal.classList.remove('open');
+      }
+    });
+  }
+
   /* ---------- Механика свежести и порчи яиц (Таймер 5 мин и холодильник) ---------- */
   function isClockOnTable() {
     return ownedProps.includes('clock') && !!placedProps['clock'] && document.getElementById('prop-clock')?.style.display !== 'none';
@@ -7397,8 +7757,295 @@
           clearStinkDebuff();
         }
       }
+
+      // Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
+      if (isDuckDeflating) {
+        deflationRemaining = Math.max(0, deflationRemaining - 1);
+        try { localStorage.setItem(DUCK_DEFLATING_REMAINING_KEY, String(deflationRemaining)); } catch (e) {}
+        updateDeflationUI();
+
+        // Периодические частицы выходящего воздуха
+        if (deflationRemaining > 0 && Math.random() < 0.28) {
+          const rD = duck.getBoundingClientRect();
+          particles.push({
+            x: rD.left + rD.width / 2 + (Math.random() - 0.5) * 40,
+            y: rD.top + rD.height / 2,
+            vx: (Math.random() - 0.5) * 40,
+            vy: -50 - Math.random() * 40,
+            size: 14 + Math.random() * 8,
+            alpha: 0.9,
+            text: '💨',
+            color: '#93c5fd'
+          });
+        }
+
+        if (deflationRemaining <= 0) {
+          triggerDeflatedDuckGameOver();
+        }
+      }
     }, 1000);
   }
+
+  /* ---------- Механика ножа, изоленты и сдувания утки ---------- */
+  function updateDeflationUI() {
+    const badge = document.getElementById('duckDeflateBadge');
+    const timerSpan = document.getElementById('duckDeflateTimer');
+    const duckEl = document.getElementById('duck');
+
+    if (isDuckDeflating && !isCookedDuckActive && !isDeflatedDuckActive) {
+      if (duckEl) duckEl.classList.add('has-deflate');
+      if (badge) {
+        badge.style.display = 'flex';
+        if (timerSpan) {
+          if (isClockOnTable()) {
+            const m = Math.floor(deflationRemaining / 60);
+            const s = deflationRemaining % 60;
+            timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            timerSpan.style.display = 'inline-block';
+          } else {
+            timerSpan.style.display = 'none';
+          }
+        }
+      }
+    } else {
+      if (duckEl) duckEl.classList.remove('has-deflate');
+      if (badge) badge.style.display = 'none';
+    }
+    updateBadgesPosition();
+  }
+  window.updateDeflationUI = updateDeflationUI;
+
+  function updateBadgesPosition() {
+    const rDuck = duck.getBoundingClientRect();
+    const cx = rDuck.left + rDuck.width / 2;
+    const badgeStink = document.getElementById('duckDebuffBadge');
+    const badgeDeflate = document.getElementById('duckDeflateBadge');
+    let topOffset = 36;
+
+    if (badgeDeflate && badgeDeflate.style.display !== 'none') {
+      badgeDeflate.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
+      badgeDeflate.style.left = `${cx}px`;
+      topOffset += 38;
+    }
+    if (badgeStink && badgeStink.style.display !== 'none') {
+      badgeStink.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
+      badgeStink.style.left = `${cx}px`;
+    }
+  }
+  window.updateBadgesPosition = updateBadgesPosition;
+
+  function stabDuckWithKnife(showModal = true) {
+    knifeStabSound();
+    const rD = duck.getBoundingClientRect();
+    const cx = rD.left + rD.width / 2;
+    const cy = rD.top + rD.height / 2;
+
+    particles.push({
+      x: cx,
+      y: cy - 30,
+      vx: 0,
+      vy: -130,
+      size: 22,
+      alpha: 2.0,
+      text: '😱 ОЙ! СЛУЧАЙНО!',
+      color: '#ef4444'
+    });
+
+    for (let i = 0; i < 12; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 50 + Math.random() * 100;
+      particles.push({
+        x: cx,
+        y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 40,
+        size: 14 + Math.random() * 8,
+        alpha: 1.0,
+        text: '💨',
+        color: '#93c5fd'
+      });
+    }
+
+    if (!isDuckDeflating) {
+      isDuckDeflating = true;
+      deflationRemaining = 300; // 5 минут
+      try {
+        localStorage.setItem(DUCK_IS_DEFLATING_KEY, '1');
+        localStorage.setItem(DUCK_DEFLATING_REMAINING_KEY, '300');
+      } catch (e) {}
+    }
+
+    updateDeflationUI();
+
+    if (showModal) {
+      const modal = document.getElementById('knifeAccidentModal');
+      if (modal) modal.classList.add('open');
+    }
+  }
+  window.stabDuckWithKnife = stabDuckWithKnife;
+
+  function applyTapeToDuck() {
+    if (isDuckDeflating) {
+      isDuckDeflating = false;
+      deflationRemaining = 0;
+      try {
+        localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
+        localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+      } catch (e) {}
+      updateDeflationUI();
+
+      tapePatchSound();
+
+      const rD = duck.getBoundingClientRect();
+      const cx = rD.left + rD.width / 2;
+      const cy = rD.top + rD.height / 2;
+
+      particles.push({
+        x: cx,
+        y: cy - 35,
+        vx: 0,
+        vy: -140,
+        size: 22,
+        alpha: 2.2,
+        text: '🩹 Утка починена и спасена!',
+        color: '#38bdf8'
+      });
+
+      for (let i = 0; i < 15; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 60 + Math.random() * 120;
+        particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 50,
+          size: 16 + Math.random() * 8,
+          alpha: 1.2,
+          text: (i % 2 === 0) ? '✨' : '🩹',
+          color: '#38bdf8'
+        });
+      }
+
+      // Открываем и применяем скин с изолентой
+      if (!ownedSkins.includes('patched')) {
+        ownedSkins.push('patched');
+        try { localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(ownedSkins)); } catch (e) {}
+      }
+      applySkin('patched');
+
+      hasPatchedDuck = true;
+      try {
+        localStorage.setItem(HAS_PATCHED_DUCK_KEY, '1');
+        localStorage.setItem(STORAGE_PREFIX + 'emergency-surgery', '1');
+      } catch (e) {}
+
+      tryUnlock();
+    } else {
+      if (ownedSkins.includes('patched')) {
+        applySkin('patched');
+        tapePatchSound();
+        const rD = duck.getBoundingClientRect();
+        particles.push({
+          x: rD.left + rD.width / 2,
+          y: rD.top - 20,
+          vx: 0,
+          vy: -100,
+          size: 16,
+          alpha: 1.2,
+          text: '🩹 Синяя изолента на месте!',
+          color: '#38bdf8'
+        });
+      } else {
+        corkPopSound();
+        const rD = duck.getBoundingClientRect();
+        particles.push({
+          x: rD.left + rD.width / 2,
+          y: rD.top - 20,
+          vx: 0,
+          vy: -90,
+          size: 15,
+          alpha: 1.2,
+          text: '💡 Утка целая, чинить не требуется!',
+          color: '#bae6fd'
+        });
+      }
+    }
+  }
+  window.applyTapeToDuck = applyTapeToDuck;
+
+  function triggerDeflatedDuckGameOver() {
+    isDuckDeflating = false;
+    deflationRemaining = 0;
+    isDeflatedDuckActive = true;
+    try {
+      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
+      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+    } catch (e) {}
+
+    updateDeflationUI();
+
+    const duckImg = document.getElementById('duckImg');
+    const deflatedDuckView = document.getElementById('deflatedDuckView');
+    if (duckImg) duckImg.style.display = 'none';
+    if (deflatedDuckView) deflatedDuckView.style.display = 'flex';
+
+    closeAllModals();
+    const modal = document.getElementById('deflatedDuckModal');
+    if (modal) modal.classList.add('open');
+  }
+  window.triggerDeflatedDuckGameOver = triggerDeflatedDuckGameOver;
+
+  function restartFromDeflatedDuck() {
+    hasStabbedDuck = true;
+    try {
+      localStorage.setItem(HAS_STABBED_DUCK_KEY, '1');
+      localStorage.setItem(STORAGE_PREFIX + 'accident', '1');
+    } catch (e) {}
+
+    // Сброс игры с сохранением уже открытых ачивок
+    resetAchievements(true);
+
+    const modal = document.getElementById('deflatedDuckModal');
+    if (modal) modal.classList.remove('open');
+
+    isDeflatedDuckActive = false;
+    isDuckDeflating = false;
+    deflationRemaining = 0;
+    try {
+      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
+      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+    } catch (e) {}
+
+    const duckImg = document.getElementById('duckImg');
+    const deflatedDuckView = document.getElementById('deflatedDuckView');
+    if (deflatedDuckView) deflatedDuckView.style.display = 'none';
+    if (duckImg) duckImg.style.display = 'block';
+
+    updateDeflationUI();
+
+    // Разблокируем ачивку "Несчастный случай!"
+    const accIdx = ACHIEVEMENTS.findIndex(a => a.id === 'accident');
+    if (accIdx !== -1) {
+      if (!ACHIEVEMENTS[accIdx].done) {
+        ACHIEVEMENTS[accIdx].done = true;
+        try { localStorage.setItem(STORAGE_PREFIX + 'accident', '1'); } catch (e) {}
+        showAchvToast(ACHIEVEMENTS[accIdx]);
+        updateAchvCounter();
+      } else {
+        updateAchvCounter();
+      }
+    }
+  }
+  window.restartFromDeflatedDuck = restartFromDeflatedDuck;
+
+  function cheatFastDeflate() {
+    if (!isDuckDeflating) {
+      stabDuckWithKnife(false);
+    }
+    deflationRemaining = 2;
+    updateDeflationUI();
+  }
+  window.cheatFastDeflate = cheatFastDeflate;
 
   function cheatFastSpoil() {
     eggSpoilRemaining = 2;
@@ -7608,10 +8255,16 @@
   initDraggableProp(document.getElementById('prop-lamp'), 'lamp');
   initDraggableProp(document.getElementById('prop-trashcan'), 'trashcan');
   initDraggableProp(document.getElementById('prop-clock'), 'clock');
+  initDraggableProp(document.getElementById('prop-knife'), 'knife');
+  initDraggableProp(document.getElementById('prop-tape'), 'tape');
   applySkin(currentSkin);
   restorePropsOnScreen();
+  clampAllPlacedPropsToScreen();
   updateLampGlowUI();
   updateFridgeUI();
+  updateDeflationUI();
+  updateBadgesPosition();
+  window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); });
   startEggSpoilTicker();
 
   if (localStorage.getItem('duck-rotten-egg-active') === '1') {
