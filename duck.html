@@ -2749,7 +2749,7 @@
   } catch (e) {}
   let hasPatchedDuck = false;
   try {
-    hasPatchedDuck = localStorage.getItem(HAS_PATCHED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'emergency-surgery') === '1';
+    hasPatchedDuck = localStorage.getItem(HAS_PATCHED_DUCK_KEY) === '1';
   } catch (e) {}
   let isCookedDuckActive = false;
   let isDuckDeflating = localStorage.getItem(DUCK_IS_DEFLATING_KEY) === '1';
@@ -3604,6 +3604,10 @@
     hasMovedDuck = false;
     hasSpawnedKey = false;
     hasSmashedEggs = false;
+    hasPatchedDuck = false;
+    isDuckDeflating = false;
+    deflationRemaining = 0;
+    isDeflatedDuckActive = false;
     stopRoaches();
     upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     ownedSkins = ['default'];
@@ -3652,6 +3656,9 @@
       localStorage.removeItem(DUCK_POS_KEY);
       localStorage.removeItem(OWNED_SKINS_KEY);
       localStorage.removeItem(CURRENT_SKIN_KEY);
+      localStorage.removeItem(HAS_PATCHED_DUCK_KEY);
+      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
+      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
       localStorage.removeItem(OWNED_PROPS_KEY);
       localStorage.removeItem(PLACED_PROPS_KEY);
       localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
@@ -3772,13 +3779,16 @@
     rottenEggRotRemaining = 0;
     stinkDebuffRemaining = 0;
     if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
+    hasPatchedDuck = false;
     isDuckDeflating = false;
     deflationRemaining = 0;
     isDeflatedDuckActive = false;
     try {
+      localStorage.removeItem(HAS_PATCHED_DUCK_KEY);
       localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
       localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
     } catch (e) {}
+    updateDeflationUI();
     if (typeof updateDeflationUI === 'function') updateDeflationUI();
     duck.style.position = '';
     duck.style.left = '';
@@ -4865,11 +4875,9 @@
 
     el.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      const dims = getPropDimensions(propId);
-      const propW = Math.max(el.offsetWidth || 0, dims.width || 0);
-      const propH = Math.max(el.offsetHeight || 0, dims.height || 0);
-      const x = Math.max(10, Math.min(window.innerWidth - propW - 10, e.clientX - startX));
-      const y = Math.max(60, Math.min(window.innerHeight - propH - 20, e.clientY - startY));
+      const x = e.clientX - startX;
+      const y = e.clientY - startY;
+      el.style.left = `${Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x))}px`;
       el.style.top = `${Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y))}px`;
 
       // Физичное качание при перемещении (tilt) — наклон увеличен на 10 градусов
@@ -6178,8 +6186,11 @@
 
     el.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      const x = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, e.clientX - startX));
-      const y = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, e.clientY - startY));
+      const dims = getPropDimensions(propId);
+      const propW = Math.max(el.offsetWidth || 0, dims.width || 0);
+      const propH = Math.max(el.offsetHeight || 0, dims.height || 0);
+      const x = Math.max(10, Math.min(window.innerWidth - propW - 10, e.clientX - startX));
+      const y = Math.max(60, Math.min(window.innerHeight - propH - 20, e.clientY - startY));
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
 
