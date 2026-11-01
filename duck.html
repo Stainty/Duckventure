@@ -587,6 +587,32 @@
     color: #fde047;
     text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
   }
+  .egg-count-item.egg-spoil-timer-item {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    padding: 1px 8px;
+    color: #e2e8f0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
+  }
+  .egg-count-item.egg-spoil-timer-item.warning {
+    border-color: rgba(239, 68, 68, 0.7);
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.22);
+    animation: spoilTimerPulse 1s ease-in-out infinite alternate;
+  }
+  .egg-count-item.egg-spoil-timer-item.fridge {
+    border-color: rgba(56, 189, 248, 0.65);
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.18);
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+  }
+  @keyframes spoilTimerPulse {
+    0%   { transform: scale(1); box-shadow: 0 0 4px rgba(239, 68, 68, 0.2); }
+    100% { transform: scale(1.05); box-shadow: 0 0 12px rgba(239, 68, 68, 0.65); }
+  }
 
   /* ---------- Перетаскиваемые яйца на экране ---------- */
   /* ---------- Физичное качание перемещаемых предметов ---------- */
@@ -622,9 +648,86 @@
     filter: drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 30px #ffa500) saturate(2.2);
     animation: goldenEggPulse 2s ease-in-out infinite alternate;
   }
+  .fried-egg {
+    font-size: 40px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
+  }
+  .golden-fried-egg {
+    font-size: 46px;
+    filter: drop-shadow(0 0 16px #ffd700) drop-shadow(0 0 28px #ff8800) saturate(2.2);
+    animation: goldenEggPulse 2s ease-in-out infinite alternate;
+  }
+  .rotten-egg {
+    font-size: 42px;
+    filter: drop-shadow(0 0 14px #22c55e) drop-shadow(0 0 26px #15803d);
+    cursor: pointer !important;
+    animation: rottenEggFloat 2.2s ease-in-out infinite alternate;
+  }
+  @keyframes rottenEggFloat {
+    0%   { transform: translateY(0px) rotate(-4deg); }
+    100% { transform: translateY(-7px) rotate(4deg); }
+  }
   @keyframes goldenEggPulse {
     0%   { filter: drop-shadow(0 0 12px #ffd700) saturate(2); }
     100% { filter: drop-shadow(0 0 24px #fff176) drop-shadow(0 0 36px #ffb300) saturate(2.6); }
+  }
+
+  /* ---------- Баннер уведомления о тухлых яйцах ---------- */
+  .egg-spoil-alert {
+    position: fixed;
+    top: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: rgba(22, 16, 22, 0.95);
+    border: 2px solid #ef4444;
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(239, 68, 68, 0.45);
+    backdrop-filter: blur(12px);
+    max-width: 500px;
+    width: 90%;
+    animation: alertSlideDown 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  @keyframes alertSlideDown {
+    0%   { transform: translate(-50%, -40px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+  }
+  .egg-spoil-alert-icon {
+    font-size: 34px;
+    line-height: 1;
+    filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.6));
+    flex-shrink: 0;
+  }
+  .egg-spoil-alert-body {
+    flex: 1;
+  }
+  .egg-spoil-alert-title {
+    font: 800 15px system-ui, -apple-system, sans-serif;
+    color: #fca5a5;
+    margin-bottom: 3px;
+  }
+  .egg-spoil-alert-desc {
+    font: 500 13px/1.35 system-ui, -apple-system, sans-serif;
+    color: #e2e8f0;
+  }
+  .egg-spoil-alert-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .egg-spoil-alert-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
   }
 
   /* ---------- Панель тестирования (чит-панель) ---------- */
@@ -994,6 +1097,7 @@
     text-align: center;
     padding: 8px 10px 16px;
     width: 100%;
+    flex-shrink: 0;
     margin-bottom: 8px;
     border-bottom: 1px solid rgba(187, 51, 255, 0.22);
   }
@@ -1944,6 +2048,9 @@
         <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
         <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
         <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
+        <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
+          <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">05:00</span>
+        </span>
       </div>
     </div>
     <button id="shopBtn" class="shop-btn" aria-label="Открыть Магазин">
@@ -2011,6 +2118,7 @@
       <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
       <button class="cheat-btn" onclick="addDuckles(1000000)">+1M</button>
       <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
+      <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
       <button class="cheat-btn" onclick="toggleCheatRoaches()" title="Вкл/выкл тараканов">
         <span class="cheat-roach-icon">
           <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2256,8 +2364,11 @@
   </button>
 
   <!-- Перетаскиваемые яйца на экране -->
-  <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай!)">🥚</div>
-  <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай!)">🥚</div>
+  <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
+  <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
+  <div id="friedEgg" class="draggable-egg fried-egg" title="Жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">🍳</div>
+  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" title="Золотое жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">✨🍳</div>
+  <div id="rottenEgg" class="draggable-egg rotten-egg" title="Тухлое яйцо (Кликни, чтобы выбросить!)" style="display: none;">🤢</div>
 
   <!-- Перетаскиваемые бытовые предметы на экране -->
   <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
@@ -2292,7 +2403,7 @@
     <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
   </div>
 
-  <!-- Контекстное меню для предметов на столе (ПКМ) -->
+  <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
       <span class="prop-ctx-icon">📦</span> Убрать на склад
@@ -2300,6 +2411,22 @@
     <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxRefundBtn" style="color: #fca5a5;">
       <span class="prop-ctx-icon">💰</span> Вернуть в магазин
     </button>
+    <button class="prop-ctx-btn" id="propCtxSell1Btn" style="display: none; color: #4ade80;">
+      <span class="prop-ctx-icon">💰</span> Продать 1
+    </button>
+    <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxSellAllBtn" style="display: none; color: #facc15;">
+      <span class="prop-ctx-icon">✨</span> Продать всё
+    </button>
+  </div>
+
+  <!-- Явное предупреждение о стухших яйцах -->
+  <div id="eggSpoilAlert" class="egg-spoil-alert" style="display: none;">
+    <div class="egg-spoil-alert-icon">🤢</div>
+    <div class="egg-spoil-alert-body">
+      <div class="egg-spoil-alert-title">О нет! Яйца испортились и протухли!</div>
+      <div class="egg-spoil-alert-desc">Они пролежали на столе более 5 минут. Пора задуматься о покупке холодильника в магазине! ❄️</div>
+    </div>
+    <button class="egg-spoil-alert-close" id="eggSpoilAlertClose" aria-label="Закрыть">✕</button>
   </div>
 
   <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
@@ -2366,6 +2493,7 @@
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
   const LAMP_ON_KEY = 'duck-lamp-on';
+  const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -2406,6 +2534,10 @@
   } catch (e) {}
   let isCookedDuckActive = false;
   let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
+  let eggSpoilRemaining = parseInt(localStorage.getItem(EGG_SPOIL_TIMER_KEY) || '300', 10);
+  let activeContextEggType = null;
+  let eggSpoilInterval = null;
+  let eggSpoilAlertTimeout = null;
 
   let ownedSkins = ['default'];
   try {
@@ -3240,6 +3372,7 @@
       localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       localStorage.removeItem(HAS_SMASHED_EGGS_KEY);
       localStorage.removeItem(LAMP_ON_KEY);
+      localStorage.removeItem(EGG_SPOIL_TIMER_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
       localStorage.removeItem('duck-upg-crit');
@@ -3259,6 +3392,12 @@
     }
     const normalEggEl = document.getElementById('normalEgg');
     const goldenEggEl = document.getElementById('goldenEgg');
+    const friedEggEl = document.getElementById('friedEgg');
+    const goldenFriedEggEl = document.getElementById('goldenFriedEgg');
+    const rottenEggEl = document.getElementById('rottenEgg');
+    const eggSpoilAlert = document.getElementById('eggSpoilAlert');
+    eggSpoilRemaining = 300;
+    if (eggSpoilAlert) eggSpoilAlert.style.display = 'none';
     if (normalEggEl) {
       normalEggEl.style.display = 'none';
       delete normalEggEl.dataset.placed;
@@ -3266,6 +3405,17 @@
     if (goldenEggEl) {
       goldenEggEl.style.display = 'none';
       delete goldenEggEl.dataset.placed;
+    }
+    if (friedEggEl) {
+      friedEggEl.style.display = 'none';
+      delete friedEggEl.dataset.placed;
+    }
+    if (goldenFriedEggEl) {
+      goldenFriedEggEl.style.display = 'none';
+      delete goldenFriedEggEl.dataset.placed;
+    }
+    if (rottenEggEl) {
+      rottenEggEl.style.display = 'none';
     }
     const propSkovoroda = document.getElementById('prop-skovoroda');
     if (propSkovoroda) {
@@ -3658,6 +3808,38 @@
     } catch (e) {}
   }
 
+  /* звук протухших яиц */
+  function rottenEggSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const ctx = audioCtx;
+      const t = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(280, t);
+      osc.frequency.exponentialRampToValueAtTime(70, t + 0.42);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(480, t);
+      filter.frequency.linearRampToValueAtTime(140, t + 0.42);
+
+      gain.gain.setValueAtTime(0.3, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.42);
+    } catch (e) {}
+  }
+
   /* ---------- Логика апгрейдов и автокрякалки ---------- */
   const SPEED_INTERVALS = [2000, 1500, 1100, 800, 550, 350];
 
@@ -3800,6 +3982,8 @@
     const goldenFriedVal = document.getElementById('goldenFriedEggsVal');
     const friedItem = document.getElementById('friedEggsBarItem');
     const goldenFriedItem = document.getElementById('goldenFriedEggsBarItem');
+    const friedEggEl = document.getElementById('friedEgg');
+    const goldenFriedEggEl = document.getElementById('goldenFriedEgg');
 
     if (hasUnlockedFriedEggs) {
       if (friedItem) friedItem.style.display = 'inline-flex';
@@ -3811,6 +3995,53 @@
       if (goldenFriedItem) goldenFriedItem.style.display = 'none';
     }
 
+    // Одно эмодзи жареного яйца на столе
+    if (friedEggEl) {
+      if (friedEggs > 0) {
+        friedEggEl.style.display = 'block';
+        if (!friedEggEl.dataset.placed) {
+          const plitaEl = document.getElementById('prop-plita');
+          if (plitaEl && plitaEl.style.display !== 'none') {
+            const pRect = plitaEl.getBoundingClientRect();
+            friedEggEl.style.left = `${Math.min(window.innerWidth - 65, Math.max(10, pRect.right + 12))}px`;
+            friedEggEl.style.top = `${Math.min(window.innerHeight - 65, Math.max(10, pRect.top + 8))}px`;
+          } else {
+            const r = duck.getBoundingClientRect();
+            friedEggEl.style.left = `${Math.min(window.innerWidth - 65, r.right + 20)}px`;
+            friedEggEl.style.top = `${Math.min(window.innerHeight - 65, r.bottom - 40)}px`;
+          }
+          friedEggEl.dataset.placed = '1';
+        }
+      } else {
+        friedEggEl.style.display = 'none';
+        delete friedEggEl.dataset.placed;
+      }
+    }
+
+    // Одно эмодзи золотого жареного яйца на столе
+    if (goldenFriedEggEl) {
+      if (goldenFriedEggs > 0) {
+        goldenFriedEggEl.style.display = 'block';
+        if (!goldenFriedEggEl.dataset.placed) {
+          const plitaEl = document.getElementById('prop-plita');
+          if (plitaEl && plitaEl.style.display !== 'none') {
+            const pRect = plitaEl.getBoundingClientRect();
+            goldenFriedEggEl.style.left = `${Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12))}px`;
+            goldenFriedEggEl.style.top = `${Math.min(window.innerHeight - 75, Math.max(10, pRect.top + 55))}px`;
+          } else {
+            const r = duck.getBoundingClientRect();
+            goldenFriedEggEl.style.left = `${Math.min(window.innerWidth - 75, r.right + 65)}px`;
+            goldenFriedEggEl.style.top = `${Math.min(window.innerHeight - 75, r.bottom - 40)}px`;
+          }
+          goldenFriedEggEl.dataset.placed = '1';
+        }
+      } else {
+        goldenFriedEggEl.style.display = 'none';
+        delete goldenFriedEggEl.dataset.placed;
+      }
+    }
+
+    updateEggSpoilTimerDisplay();
     updateShopSellTab();
   }
 
@@ -3843,6 +4074,18 @@
       } catch (e) {}
 
       sizzleSound(false);
+
+      // Спавним эмодзи жареного яйца возле плиты
+      const friedEggEl = document.getElementById('friedEgg');
+      if (friedEggEl && plitaEl) {
+        const pRect = plitaEl.getBoundingClientRect();
+        const posX = Math.min(window.innerWidth - 65, Math.max(10, pRect.right + 12));
+        const posY = Math.min(window.innerHeight - 65, Math.max(10, pRect.top + 8));
+        friedEggEl.style.left = `${posX}px`;
+        friedEggEl.style.top = `${posY}px`;
+        friedEggEl.dataset.placed = '1';
+        friedEggEl.style.display = 'block';
+      }
 
       for (let i = 0; i < 12; i++) {
         const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
@@ -3890,6 +4133,18 @@
 
       sizzleSound(true);
 
+      // Спавним эмодзи золотого жареного яйца возле плиты
+      const goldenFriedEggEl = document.getElementById('goldenFriedEgg');
+      if (goldenFriedEggEl && plitaEl) {
+        const pRect = plitaEl.getBoundingClientRect();
+        const posX = Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12));
+        const posY = Math.min(window.innerHeight - 75, Math.max(10, pRect.top + 55));
+        goldenFriedEggEl.style.left = `${posX}px`;
+        goldenFriedEggEl.style.top = `${posY}px`;
+        goldenFriedEggEl.dataset.placed = '1';
+        goldenFriedEggEl.style.display = 'block';
+      }
+
       for (let i = 0; i < 16; i++) {
         const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
         const spd = 40 + Math.random() * 120;
@@ -3923,11 +4178,19 @@
   }
   window.cookEggsOnStove = cookEggsOnStove;
 
-  function smashEgg(el, isGolden, cursorX, cursorY) {
-    const count = isGolden ? goldenEggs : normalEggs;
+  function smashEgg(el, typeOrIsGolden, cursorX, cursorY) {
+    let eggType = 'normal';
+    if (typeOrIsGolden === true || typeOrIsGolden === 'golden') eggType = 'golden';
+    else if (typeOrIsGolden === 'fried') eggType = 'fried';
+    else if (typeOrIsGolden === 'goldenFried') eggType = 'goldenFried';
+
+    let count = normalEggs;
+    if (eggType === 'golden') count = goldenEggs;
+    else if (eggType === 'fried') count = friedEggs;
+    else if (eggType === 'goldenFried') count = goldenFriedEggs;
+
     if (count <= 0) return;
 
-    // Определяем позицию спавна строго на курсоре мыши
     let cx = cursorX;
     let cy = cursorY;
     if (typeof cx !== 'number' || isNaN(cx) || typeof cy !== 'number' || isNaN(cy)) {
@@ -3936,12 +4199,18 @@
       cy = (rect.top || (window.innerHeight / 2)) + (rect.height ? rect.height / 2 : 0);
     }
 
-    if (isGolden) {
+    if (eggType === 'golden') {
       goldenEggs = 0;
       try { localStorage.setItem(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
-    } else {
+    } else if (eggType === 'normal') {
       normalEggs = 0;
       try { localStorage.setItem(EGGS_NORMAL_KEY, '0'); } catch (e) {}
+    } else if (eggType === 'fried') {
+      friedEggs = 0;
+      try { localStorage.setItem(FRIED_EGGS_KEY, '0'); } catch (e) {}
+    } else if (eggType === 'goldenFried') {
+      goldenFriedEggs = 0;
+      try { localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, '0'); } catch (e) {}
     }
 
     hasSmashedEggs = true;
@@ -3952,9 +4221,18 @@
     updateShopSellTab();
     tryUnlock();
 
-    const noticeText = isGolden
-      ? `💥 Золотые яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`
-      : `💥 Обычные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+    let noticeText = `💥 Обычные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+    let color = '#ff4d4d';
+    if (eggType === 'golden') {
+      noticeText = `💥 Золотые яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+      color = '#ffd700';
+    } else if (eggType === 'fried') {
+      noticeText = `💥 Жареные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+      color = '#fdba74';
+    } else if (eggType === 'goldenFried') {
+      noticeText = `💥 Золотые жареные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
+      color = '#fde047';
+    }
 
     particles.push({
       x: cx,
@@ -3964,10 +4242,11 @@
       size: 22,
       alpha: 2.2,
       text: noticeText,
-      color: isGolden ? '#ffd700' : '#ff4d4d'
+      color: color
     });
 
-    const splashItems = isGolden
+    const isGold = (eggType === 'golden' || eggType === 'goldenFried');
+    const splashItems = isGold
       ? ['✨', '🍳', '🟡', '🥚', '💥', '⭐', '✨']
       : ['🍳', '🟡', '🥚', '💥', '💧', '🥚', '🟡'];
 
@@ -3982,7 +4261,7 @@
         size: 16 + Math.random() * 14,
         alpha: 1.2 + Math.random() * 0.6,
         text: splashItems[Math.floor(Math.random() * splashItems.length)],
-        color: isGolden ? '#ffd700' : '#ffffff'
+        color: isGold ? '#ffd700' : '#ffffff'
       });
     }
   }
@@ -4093,7 +4372,27 @@
   }
   window.restartFromCookedDuck = restartFromCookedDuck;
 
-  function initDraggableEgg(el) {
+  function isCursorNearShop(clientX, clientY, eggEl) {
+    const shopBtn = document.getElementById('shopBtn');
+    if (!shopBtn || shopBtn.offsetParent === null || window.getComputedStyle(shopBtn).display === 'none') return false;
+    let px = clientX;
+    let py = clientY;
+    if (px === undefined || py === undefined) {
+      if (!eggEl) return false;
+      const er = eggEl.getBoundingClientRect();
+      px = er.left + er.width / 2;
+      py = er.top + er.height / 2;
+    }
+    const shr = shopBtn.getBoundingClientRect();
+    const inBox = (px >= shr.left - 8 && px <= shr.right + 8 && py >= shr.top - 10 && py <= shr.bottom + 25);
+    const cx = shr.left + shr.width / 2;
+    const cy = shr.top + shr.height / 2;
+    const dist = Math.hypot(px - cx, py - cy);
+    return inBox || dist < 65;
+  }
+  window.isCursorNearShop = isCursorNearShop;
+
+  function initDraggableEgg(el, explicitType) {
     if (!el) return;
     let isDragging = false;
     let startX = 0;
@@ -4106,11 +4405,37 @@
     let lastMoveY = 0;
     let releaseVelocity = 0;
 
+    const getEggType = () => {
+      if (explicitType) return explicitType;
+      if (el.id === 'goldenEgg') return 'golden';
+      if (el.id === 'friedEgg') return 'fried';
+      if (el.id === 'goldenFriedEgg') return 'goldenFried';
+      return 'normal';
+    };
+
+    const getEggCount = () => {
+      const t = getEggType();
+      if (t === 'golden') return goldenEggs;
+      if (t === 'fried') return friedEggs;
+      if (t === 'goldenFried') return goldenFriedEggs;
+      return normalEggs;
+    };
+
+    const getEggPrice = () => {
+      const t = getEggType();
+      if (t === 'golden') return 5000;
+      if (t === 'fried') return 1600;
+      if (t === 'goldenFried') return 15000;
+      return 200;
+    };
+
     el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      hidePropContextMenu();
       isDragging = true;
       el.classList.add('is-dragging');
       el.classList.remove('is-wobbling');
-      el.setPointerCapture(e.pointerId);
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
@@ -4138,6 +4463,13 @@
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.14) rotate(${currentTilt}deg)`;
 
+      // Подсветка кнопки «Магазин» при наведении яйца для быстрой продажи
+      const shopBtn = document.getElementById('shopBtn');
+      if (shopBtn) {
+        const isNear = isCursorNearShop(e.clientX, e.clientY, el);
+        shopBtn.classList.toggle('drag-target-hover', isNear);
+      }
+
       // Расчет скорости перемещения для определения резкого броска
       const now = performance.now();
       const dt = (now - lastMoveTime) / 1000;
@@ -4157,29 +4489,53 @@
       el.classList.remove('is-dragging');
       el.style.transform = '';
 
+      const shopBtn = document.getElementById('shopBtn');
+      if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+
       const now = performance.now();
       // Если перед отпусканием движение прекратилось, сбрасываем скорость броска
       if (now - lastMoveTime > 110) {
         releaseVelocity = 0;
       }
 
-      const isGolden = (el.id === 'goldenEgg');
-      const count = isGolden ? goldenEggs : normalEggs;
+      const eggType = getEggType();
+      const count = getEggCount();
+      const price = getEggPrice();
 
       const cursorX = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastMoveX;
       const cursorY = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastMoveY;
 
+      // Продажа перетаскиванием на кнопку «Магазин»
+      const isOverShop = isCursorNearShop(cursorX, cursorY, el);
+      if (isOverShop && count > 0) {
+        sellEgg(eggType, 1);
+        if (shopBtn) {
+          const shr = shopBtn.getBoundingClientRect();
+          particles.push({
+            x: shr.left + shr.width / 2,
+            y: shr.top - 12,
+            vx: 0,
+            vy: -110,
+            size: 20,
+            alpha: 1.4,
+            text: `💰 Продано: +${price.toLocaleString('ru-RU')} 🦆`,
+            color: '#4ade80'
+          });
+        }
+        return;
+      }
+
       // Если яйцо отпущено с большой скоростью (бросок) — разбиваем яйца вдребезги на курсоре мыши!
       if (releaseVelocity >= 750 && count > 0) {
-        smashEgg(el, isGolden, cursorX, cursorY);
+        smashEgg(el, eggType, cursorX, cursorY);
         return;
       }
 
       el.classList.add('is-wobbling');
       setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
-      // Проверка переноса яйца на объединённую плиту со сковородой
-      if (isStoveCombined) {
+      // Проверка переноса яйца на объединённую плиту со сковородой (только сырые яйца!)
+      if ((eggType === 'normal' || eggType === 'golden') && isStoveCombined) {
         const plitaEl = document.getElementById('prop-plita');
         const skovEl = document.getElementById('prop-skovoroda');
         if (plitaEl && skovEl && plitaEl.style.display !== 'none' && skovEl.style.display !== 'none') {
@@ -4188,7 +4544,7 @@
           const rPlita = plitaEl.getBoundingClientRect();
 
           if (isOverlapping(rEgg, rSkov) || isOverlapping(rEgg, rPlita)) {
-            cookEggsOnStove(isGolden ? 'golden' : 'normal');
+            cookEggsOnStove(eggType);
             return;
           }
         }
@@ -4197,7 +4553,63 @@
 
     el.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
+
+    // Контекстное меню ПКМ для яиц (Продать 1 / Продать всё)
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = el.getBoundingClientRect();
+      const posX = e.clientX || (rect.left + rect.width / 2);
+      const posY = e.clientY || (rect.top + rect.height / 2);
+      showEggContextMenu(getEggType(), posX, posY);
+    });
   }
+  window.initDraggableEgg = initDraggableEgg;
+
+  function showEggContextMenu(eggType, x, y) {
+    if (!propContextMenu) return;
+    activeContextEggType = eggType;
+    activeContextPropId = null;
+
+    let count = 0;
+    let price = 0;
+    if (eggType === 'normal') { count = normalEggs; price = 200; }
+    else if (eggType === 'golden') { count = goldenEggs; price = 5000; }
+    else if (eggType === 'fried') { count = friedEggs; price = 1600; }
+    else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
+
+    if (count <= 0) return;
+
+    if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
+    if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
+
+    const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
+    const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+
+    if (propCtxSell1Btn) {
+      propCtxSell1Btn.style.display = 'flex';
+      propCtxSell1Btn.innerHTML = `<span class="prop-ctx-icon">💰</span> Продать 1 (+${price.toLocaleString('ru-RU')} 🦆)`;
+    }
+    if (propCtxSellAllBtn) {
+      if (count > 1) {
+        propCtxSellAllBtn.style.display = 'flex';
+        propCtxSellAllBtn.innerHTML = `<span class="prop-ctx-icon">✨</span> Продать всё (+${(count * price).toLocaleString('ru-RU')} 🦆)`;
+      } else {
+        propCtxSellAllBtn.style.display = 'none';
+      }
+    }
+
+    propContextMenu.style.display = 'block';
+
+    const menuW = 210;
+    const menuH = (count > 1) ? 85 : 46;
+    const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
+    const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
+
+    propContextMenu.style.left = `${posX}px`;
+    propContextMenu.style.top = `${posY}px`;
+  }
+  window.showEggContextMenu = showEggContextMenu;
 
   /* ---------- Вкладка продажи в магазине ---------- */
   function updateShopSellTab() {
@@ -4285,6 +4697,7 @@
     }
 
     if (earned > 0) {
+      resetEggSpoilTimer();
       xpSound();
       addDuckles(earned);
       updateEggsDisplay();
@@ -5167,6 +5580,13 @@
   function showPropContextMenu(propId, x, y) {
     if (!propContextMenu) return;
     activeContextPropId = propId;
+    activeContextEggType = null;
+
+    if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'flex';
+    const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
+    const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+    if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
+    if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
 
     const prop = PROPS_DATA[propId];
     if (propCtxRefundBtn) {
@@ -5195,6 +5615,7 @@
     if (propContextMenu) {
       propContextMenu.style.display = 'none';
       activeContextPropId = null;
+      activeContextEggType = null;
     }
   }
   window.hidePropContextMenu = hidePropContextMenu;
@@ -5214,6 +5635,28 @@
       e.stopPropagation();
       if (activeContextPropId) {
         refundShopItem('household', activeContextPropId);
+        hidePropContextMenu();
+      }
+    });
+  }
+
+  const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
+  if (propCtxSell1Btn) {
+    propCtxSell1Btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeContextEggType) {
+        sellEgg(activeContextEggType, 1);
+        hidePropContextMenu();
+      }
+    });
+  }
+
+  const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+  if (propCtxSellAllBtn) {
+    propCtxSellAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeContextEggType) {
+        sellEgg(activeContextEggType, 'all');
         hidePropContextMenu();
       }
     });
@@ -5246,7 +5689,7 @@
       isDragging = true;
       el.classList.add('is-dragging');
       el.classList.remove('is-wobbling');
-      el.setPointerCapture(e.pointerId);
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
@@ -6328,9 +6771,186 @@
     });
   }
 
+  /* ---------- Механика свежести и порчи сырых яиц (Таймер 5 мин и холодильник) ---------- */
+  function updateEggSpoilTimerDisplay() {
+    const timerItem = document.getElementById('eggSpoilTimerItem');
+    const timerIcon = document.getElementById('eggSpoilTimerIcon');
+    const timerText = document.getElementById('eggSpoilTimerText');
+    if (!timerItem || !timerIcon || !timerText) return;
+
+    const hasRawEggs = (normalEggs > 0 || goldenEggs > 0);
+    if (upgradeLevels.features < 3 || !hasRawEggs) {
+      timerItem.style.display = 'none';
+      return;
+    }
+
+    timerItem.style.display = 'inline-flex';
+
+    const isFridgeProtecting = (ownedProps.includes('fridge') && placedProps['fridge'] && document.getElementById('prop-fridge')?.style.display !== 'none');
+
+    if (isFridgeProtecting) {
+      timerItem.classList.remove('warning');
+      timerItem.classList.add('fridge');
+      timerIcon.textContent = '❄️';
+      timerText.textContent = 'В холоде';
+      timerItem.title = 'Холодильник сохраняет яйца свежими!';
+    } else {
+      timerItem.classList.remove('fridge');
+      const mins = Math.floor(eggSpoilRemaining / 60);
+      const secs = eggSpoilRemaining % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      timerIcon.textContent = '⏱️';
+      timerText.textContent = formatted;
+      timerItem.title = 'Время до порчи сырых яиц (сброс при продаже или защите холодильником)';
+      if (eggSpoilRemaining <= 60) {
+        timerItem.classList.add('warning');
+      } else {
+        timerItem.classList.remove('warning');
+      }
+    }
+  }
+  window.updateEggSpoilTimerDisplay = updateEggSpoilTimerDisplay;
+
+  function resetEggSpoilTimer() {
+    eggSpoilRemaining = 300;
+    try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, '300'); } catch (e) {}
+    updateEggSpoilTimerDisplay();
+  }
+  window.resetEggSpoilTimer = resetEggSpoilTimer;
+
+  function spoilEggs() {
+    const spoiledCount = normalEggs + goldenEggs;
+    if (spoiledCount <= 0) return;
+
+    normalEggs = 0;
+    goldenEggs = 0;
+    eggSpoilRemaining = 300;
+    try {
+      localStorage.setItem(EGGS_NORMAL_KEY, '0');
+      localStorage.setItem(EGGS_GOLDEN_KEY, '0');
+      localStorage.setItem(EGG_SPOIL_TIMER_KEY, '300');
+    } catch (e) {}
+
+    updateEggsDisplay();
+    updateShopSellTab();
+    rottenEggSound();
+
+    const rottenEggEl = document.getElementById('rottenEgg');
+    if (rottenEggEl) {
+      const r = duck.getBoundingClientRect();
+      rottenEggEl.style.left = `${Math.max(10, r.left - 50)}px`;
+      rottenEggEl.style.top = `${Math.min(window.innerHeight - 80, r.bottom - 40)}px`;
+      rottenEggEl.style.display = 'block';
+    }
+
+    showEggSpoilAlert();
+
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    particles.push({
+      x: cx,
+      y: cy - 30,
+      vx: 0,
+      vy: -110,
+      size: 22,
+      alpha: 2.0,
+      text: `🤢 Яйца протухли! (-${spoiledCount.toLocaleString('ru-RU')} шт.)`,
+      color: '#84cc16'
+    });
+
+    const stinkItems = ['🤢', '💨', '🟢', '🪰', '💀', '💩', '💨'];
+    for (let i = 0; i < 22; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 60 + Math.random() * 180;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 40,
+        y: cy + (Math.random() - 0.5) * 40,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 60,
+        size: 16 + Math.random() * 14,
+        alpha: 1.3,
+        text: stinkItems[Math.floor(Math.random() * stinkItems.length)],
+        color: '#84cc16'
+      });
+    }
+  }
+  window.spoilEggs = spoilEggs;
+
+  function showEggSpoilAlert() {
+    const alertEl = document.getElementById('eggSpoilAlert');
+    if (!alertEl) return;
+    alertEl.style.display = 'flex';
+    if (eggSpoilAlertTimeout) clearTimeout(eggSpoilAlertTimeout);
+    eggSpoilAlertTimeout = setTimeout(() => {
+      alertEl.style.display = 'none';
+    }, 12000);
+  }
+  window.showEggSpoilAlert = showEggSpoilAlert;
+
+  function startEggSpoilTicker() {
+    if (eggSpoilInterval) clearInterval(eggSpoilInterval);
+    eggSpoilInterval = setInterval(() => {
+      const hasRawEggs = (normalEggs > 0 || goldenEggs > 0);
+      if (!hasRawEggs) {
+        updateEggSpoilTimerDisplay();
+        return;
+      }
+
+      const isFridgeProtecting = (ownedProps.includes('fridge') && placedProps['fridge'] && document.getElementById('prop-fridge')?.style.display !== 'none');
+      if (isFridgeProtecting) {
+        updateEggSpoilTimerDisplay();
+        return;
+      }
+
+      eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 1);
+      try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+      updateEggSpoilTimerDisplay();
+
+      if (eggSpoilRemaining <= 0) {
+        spoilEggs();
+      }
+    }, 1000);
+  }
+
+  function cheatFastSpoil() {
+    eggSpoilRemaining = 2;
+    updateEggSpoilTimerDisplay();
+  }
+  window.cheatFastSpoil = cheatFastSpoil;
+
+  const rottenEggEl = document.getElementById('rottenEgg');
+  if (rottenEggEl) {
+    rottenEggEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      rottenEggEl.style.display = 'none';
+      splatSound();
+      const rect = rottenEggEl.getBoundingClientRect();
+      particles.push({
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+        vx: 0,
+        vy: -90,
+        size: 18,
+        alpha: 1.2,
+        text: '🗑️ Выброшено!',
+        color: '#a3e635'
+      });
+    });
+  }
+
+  const spoilAlertCloseBtn = document.getElementById('eggSpoilAlertClose');
+  if (spoilAlertCloseBtn) {
+    spoilAlertCloseBtn.addEventListener('click', () => {
+      const alertEl = document.getElementById('eggSpoilAlert');
+      if (alertEl) alertEl.style.display = 'none';
+    });
+  }
+
   /* ---------- инициализация ---------- */
-  initDraggableEgg(document.getElementById('normalEgg'));
-  initDraggableEgg(document.getElementById('goldenEgg'));
+  initDraggableEgg(document.getElementById('normalEgg'), 'normal');
+  initDraggableEgg(document.getElementById('goldenEgg'), 'golden');
+  initDraggableEgg(document.getElementById('friedEgg'), 'fried');
+  initDraggableEgg(document.getElementById('goldenFriedEgg'), 'goldenFried');
   initDraggableProp(document.getElementById('prop-skovoroda'), 'skovoroda');
   initDraggableProp(document.getElementById('prop-plita'), 'plita');
   initDraggableProp(document.getElementById('prop-fridge'), 'fridge');
@@ -6340,6 +6960,7 @@
   applySkin(currentSkin);
   restorePropsOnScreen();
   updateLampGlowUI();
+  startEggSpoilTicker();
 
   if (upgradeLevels.features >= 4) {
     try {
