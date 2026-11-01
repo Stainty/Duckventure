@@ -7,6 +7,31 @@
 <style>
   html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradient(120% 90% at 50% 40%, #151a26 0%, #080a10 100%); }
   body { display: grid; place-items: center; }
+
+  /* Кастомный темный скроллбар и полное отключение горизонтального скролла во всех браузерах */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 0px;
+  }
+  ::-webkit-scrollbar:horizontal {
+    display: none !important;
+    height: 0px !important;
+    width: 0px !important;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.32);
+  }
   #duck {
     position: relative;
     z-index: 50;
@@ -720,6 +745,7 @@
     display: none;
     place-items: center;
     padding: 16px;
+    overflow-x: hidden;
     animation: modalFadeIn .2s ease-out;
   }
   .upgrades-modal.open {
@@ -1378,6 +1404,14 @@
   #prop-key img {
     width: 72px;
   }
+  #prop-lamp img {
+    width: 68px;
+    height: auto;
+    transition: filter 0.3s ease;
+  }
+  #prop-lamp.is-on img {
+    filter: drop-shadow(0 0 16px rgba(255, 200, 60, 0.85)) drop-shadow(0 0 32px rgba(255, 150, 20, 0.5));
+  }
   #duck.can-drag {
     cursor: grab;
     touch-action: none;
@@ -1511,6 +1545,73 @@
   .prop-close-btn:hover {
     transform: scale(1.15);
     background: #dc2626;
+  }
+  /* ---------- Теплое свечение напольной лампы ---------- */
+  .lamp-warm-glow-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 18;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 0 100px 35px rgba(255, 175, 45, 0.45),
+                inset 0 0 220px 85px rgba(255, 140, 20, 0.3),
+                inset 0 0 360px 140px rgba(255, 105, 0, 0.18);
+  }
+  .lamp-warm-glow-overlay.active {
+    opacity: 1;
+    animation: lampWarmBreathe 4s ease-in-out infinite alternate;
+  }
+  @keyframes lampWarmBreathe {
+    0% {
+      box-shadow: inset 0 0 90px 30px rgba(255, 175, 45, 0.4),
+                  inset 0 0 200px 75px rgba(255, 140, 20, 0.26),
+                  inset 0 0 330px 125px rgba(255, 105, 0, 0.15);
+    }
+    100% {
+      box-shadow: inset 0 0 120px 45px rgba(255, 185, 55, 0.55),
+                  inset 0 0 245px 95px rgba(255, 150, 25, 0.36),
+                  inset 0 0 390px 155px rgba(255, 115, 10, 0.22);
+    }
+  }
+  .lamp-toggle-btn {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #1e2638;
+    border: 1px solid #ffd24d;
+    color: #ffd24d;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform .12s, background .15s, box-shadow .15s, border-color .15s;
+    z-index: 48;
+    padding: 0;
+  }
+  .lamp-toggle-btn:hover {
+    transform: scale(1.18);
+    background: #2a354c;
+    box-shadow: 0 0 12px rgba(255, 210, 77, 0.6);
+  }
+  .lamp-toggle-btn:active {
+    transform: scale(0.92);
+  }
+  .lamp-toggle-btn.is-on {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #fef08a;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.8), 0 0 24px rgba(251, 191, 36, 0.4);
+    animation: lampBtnGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes lampBtnGlow {
+    0%   { box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+    100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.95), 0 0 30px rgba(245, 158, 11, 0.5); }
   }
   .upgrades-modal-balance {
     font: 700 14px system-ui, sans-serif;
@@ -2077,7 +2178,15 @@
     <span style="display: none; font-size: 52px;">🔑</span>
     <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('key')">✕</button>
   </div>
+  <div id="prop-lamp" class="draggable-prop" title="Напольная лампа (перетаскивай! Кликни ✕ чтобы убрать на склад)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">💡</span>
+    <button class="prop-close-btn" title="Убрать на склад" onclick="returnPropToStorage('lamp')">✕</button>
+    <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
+  </div>
 
+  <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
   <div id="roachesContainer"></div>
   <div id="greenSmokeContainer"></div>
 
@@ -2140,6 +2249,7 @@
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
+  const LAMP_ON_KEY = 'duck-lamp-on';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -2177,6 +2287,7 @@
     hasFriedDuck = localStorage.getItem(HAS_FRIED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'monster') === '1';
   } catch (e) {}
   let isCookedDuckActive = false;
+  let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
 
   let ownedSkins = ['default'];
   try {
@@ -2365,6 +2476,15 @@
       icon: 'https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO',
       fallbackEmoji: '🔑',
       desc: 'Открывает что угодно'
+    },
+    lamp: {
+      id: 'lamp',
+      name: 'Напольная лампа',
+      category: 'household',
+      cost: 550,
+      icon: 'https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru',
+      fallbackEmoji: '💡',
+      desc: 'Создает ламповую атмосферу и теплое уютное свечение по краям экрана.'
     }
   };
 
@@ -2995,6 +3115,7 @@
       localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
       localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       localStorage.removeItem(HAS_SMASHED_EGGS_KEY);
+      localStorage.removeItem(LAMP_ON_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
       localStorage.removeItem('duck-upg-crit');
@@ -3049,6 +3170,14 @@
       propKey.style.display = 'none';
       delete propKey.dataset.placed;
     }
+    const propLamp = document.getElementById('prop-lamp');
+    if (propLamp) {
+      propLamp.style.display = 'none';
+      propLamp.classList.remove('is-on');
+      delete propLamp.dataset.placed;
+    }
+    isLampOn = false;
+    updateLampGlowUI();
     duck.style.position = '';
     duck.style.left = '';
     duck.style.top = '';
@@ -4556,7 +4685,7 @@
     if (!placedProps[propId] || !placedProps[propId].left) {
       const propWidth = el.offsetWidth || 85;
       const propHeight = el.offsetHeight || 85;
-      const offset = (propId === 'plita') ? 45 : (propId === 'skovoroda' ? -45 : 0);
+      const offset = (propId === 'plita') ? 45 : (propId === 'skovoroda' ? -45 : (propId === 'lamp' ? -120 : 0));
       const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const top = Math.max(70, Math.min(window.innerHeight - propHeight - 20, Math.round(window.innerHeight - propHeight - 55))) + 'px';
       placedProps[propId] = { placed: true, left, top };
@@ -4571,6 +4700,10 @@
     try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
     corkPopSound();
     renderStorage();
+
+    if (propId === 'lamp') {
+      updateLampGlowUI();
+    }
 
     if (propId === 'skovoroda' || propId === 'plita') {
       checkStovePanCombine();
@@ -4613,6 +4746,10 @@
     try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
     corkPopSound();
     renderStorage();
+
+    if (propId === 'lamp') {
+      setLampState(false);
+    }
   }
   window.returnPropToStorage = returnPropToStorage;
 
@@ -4755,7 +4892,7 @@
     let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.prop-close-btn') || e.target.closest('.stove-separate-btn')) return;
+      if (e.target.closest('.prop-close-btn') || e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
       isDragging = true;
       el.classList.add('is-dragging');
       el.classList.remove('is-wobbling');
@@ -4854,6 +4991,127 @@
         isStoveCombined = false;
         try { localStorage.removeItem(STOVE_COMBINED_KEY); } catch (e) {}
       }
+    }
+
+    if (placedProps.lamp && ownedProps.includes('lamp') && isLampOn) {
+      updateLampGlowUI();
+    } else {
+      isLampOn = false;
+      updateLampGlowUI();
+    }
+  }
+
+  /* ---------- Механика напольной лампы ---------- */
+  function lampSwitchSound(on) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(on ? 780 : 480, t);
+      osc.frequency.exponentialRampToValueAtTime(on ? 1100 : 280, t + 0.05);
+
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.07);
+
+      if (on) {
+        const warmOsc = audioCtx.createOscillator();
+        const warmGain = audioCtx.createGain();
+        warmOsc.type = 'sine';
+        warmOsc.frequency.setValueAtTime(440, t + 0.02);
+        warmOsc.frequency.exponentialRampToValueAtTime(587.33, t + 0.22);
+
+        warmGain.gain.setValueAtTime(0.12, t + 0.02);
+        warmGain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+        warmOsc.connect(warmGain);
+        warmGain.connect(audioCtx.destination);
+        warmOsc.start(t + 0.02);
+        warmOsc.stop(t + 0.25);
+      }
+    } catch (e) {}
+  }
+
+  function toggleLamp(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const lampEl = document.getElementById('prop-lamp');
+    if (!lampEl || lampEl.style.display === 'none') {
+      setLampState(false);
+      return;
+    }
+    setLampState(!isLampOn);
+  }
+  window.toggleLamp = toggleLamp;
+
+  function setLampState(active) {
+    isLampOn = Boolean(active);
+    try {
+      localStorage.setItem(LAMP_ON_KEY, isLampOn ? '1' : '0');
+    } catch (e) {}
+
+    updateLampGlowUI();
+    lampSwitchSound(isLampOn);
+
+    if (isLampOn) {
+      spawnLampParticles();
+    }
+  }
+  window.setLampState = setLampState;
+
+  function updateLampGlowUI() {
+    const overlay = document.getElementById('lampWarmGlowOverlay');
+    const lampEl = document.getElementById('prop-lamp');
+    const toggleBtn = document.getElementById('lampToggleBtn');
+
+    if (overlay) {
+      overlay.classList.toggle('active', isLampOn);
+    }
+    if (lampEl) {
+      lampEl.classList.toggle('is-on', isLampOn);
+    }
+    if (toggleBtn) {
+      toggleBtn.classList.toggle('is-on', isLampOn);
+      toggleBtn.title = isLampOn ? 'Выключить лампу' : 'Включить лампу';
+    }
+  }
+  window.updateLampGlowUI = updateLampGlowUI;
+
+  function spawnLampParticles() {
+    if (!isWindowFocused()) return;
+    const lampEl = document.getElementById('prop-lamp');
+    if (!lampEl || lampEl.style.display === 'none') return;
+    const rect = lampEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + 28;
+
+    const list = window.particlesList || particles;
+    const items = ['✨', '💡', '🌟', '🟡', '☀️'];
+    for (let i = 0; i < 15; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const speed = 40 + Math.random() * 90;
+      list.push({
+        x: cx + (Math.random() - 0.5) * 20,
+        y: cy + (Math.random() - 0.5) * 15,
+        vx: Math.cos(ang) * speed,
+        vy: -Math.abs(Math.sin(ang) * speed) - 30,
+        size: 16 + Math.random() * 10,
+        alpha: 1.0,
+        text: items[Math.floor(Math.random() * items.length)],
+        color: '#ffc107',
+        rot: 0,
+        rotSpeed: (Math.random() - 0.5) * 8
+      });
     }
   }
 
@@ -5670,8 +5928,10 @@
   initDraggableProp(document.getElementById('prop-fridge'), 'fridge');
   initDraggableProp(document.getElementById('prop-dichlofos'), 'dichlofos');
   initDraggableProp(document.getElementById('prop-key'), 'key');
+  initDraggableProp(document.getElementById('prop-lamp'), 'lamp');
   applySkin(currentSkin);
   restorePropsOnScreen();
+  updateLampGlowUI();
 
   if (upgradeLevels.features >= 4) {
     try {
