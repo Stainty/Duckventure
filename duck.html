@@ -931,7 +931,7 @@
     box-sizing: border-box;
   }
   .shop-body {
-    padding: 24px 20px;
+    padding: 16px 20px 24px;
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
@@ -1095,14 +1095,15 @@
   /* ---------- Duckberries Маркетплейс ---------- */
   .duckberries-header {
     text-align: center;
-    padding: 8px 10px 16px;
+    padding: 10px 14px 14px;
     width: 100%;
     flex-shrink: 0;
-    margin-bottom: 8px;
+    background: #181d28;
     border-bottom: 1px solid rgba(187, 51, 255, 0.22);
+    box-sizing: border-box;
   }
   .duckberries-logo {
-    font: 900 32px/1.2 system-ui, "Segoe UI", sans-serif;
+    font: 900 30px/1.2 system-ui, "Segoe UI", sans-serif;
     background: linear-gradient(135deg, #f0abfc, #d946ef, #a855f7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1597,6 +1598,15 @@
   }
   #prop-fridge img {
     width: 88px;
+    transition: filter 0.3s ease;
+  }
+  #prop-fridge.is-on img {
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 32px rgba(14, 165, 233, 0.6));
+  }
+  #prop-fridge.dichlofos-target-hover {
+    transform: scale(1.12) !important;
+    filter: drop-shadow(0 0 25px rgba(34, 197, 94, 0.95)) drop-shadow(0 0 45px rgba(22, 163, 74, 0.75)) !important;
+    transition: transform .15s ease, filter .15s ease;
   }
   #prop-dichlofos img {
     width: 68px;
@@ -1828,6 +1838,45 @@
   @keyframes lampBtnGlow {
     0%   { box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
     100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.95), 0 0 30px rgba(245, 158, 11, 0.5); }
+  }
+  .fridge-toggle-btn {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #1e2638;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform .12s, background .15s, box-shadow .15s, border-color .15s;
+    z-index: 48;
+    padding: 0;
+  }
+  .fridge-toggle-btn:hover {
+    transform: scale(1.18);
+    background: #20334d;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  }
+  .fridge-toggle-btn:active {
+    transform: scale(0.92);
+  }
+  .fridge-toggle-btn.is-on {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border-color: #bae6fd;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(14, 165, 233, 0.8), 0 0 24px rgba(56, 189, 248, 0.5);
+    animation: fridgeBtnGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes fridgeBtnGlow {
+    0%   { box-shadow: 0 0 10px rgba(14, 165, 233, 0.6); }
+    100% { box-shadow: 0 0 20px rgba(56, 189, 248, 0.95), 0 0 30px rgba(14, 165, 233, 0.5); }
   }
   .upgrades-modal-balance {
     font: 700 14px system-ui, sans-serif;
@@ -2175,12 +2224,11 @@
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
         <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
       </div>
+      <div class="duckberries-header" id="duckberriesHeader">
+        <div class="duckberries-logo">Duckberries</div>
+        <div class="duckberries-tagline">Маркетплейс утиного стиля и уюта</div>
+      </div>
       <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start;">
-        <div class="duckberries-header">
-          <div class="duckberries-logo">Duckberries</div>
-          <div class="duckberries-tagline">Маркетплейс утиного стиля и уюта</div>
-        </div>
-
         <div class="shop-sections-wrap">
           <!-- Секция: Одежда&Аксессуары -->
           <div class="shop-section" id="clothingShopSection">
@@ -2385,6 +2433,7 @@
     <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧊</span>
+    <button class="fridge-toggle-btn" id="fridgeToggleBtn" title="Включить / Выключить холодильник" onclick="toggleFridge(event)">❄️</button>
   </div>
   <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
@@ -2493,6 +2542,7 @@
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
   const LAMP_ON_KEY = 'duck-lamp-on';
+  const FRIDGE_ON_KEY = 'duck-fridge-on';
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
@@ -2534,6 +2584,7 @@
   } catch (e) {}
   let isCookedDuckActive = false;
   let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
+  let isFridgeOn = localStorage.getItem(FRIDGE_ON_KEY) === '1';
   let eggSpoilRemaining = parseInt(localStorage.getItem(EGG_SPOIL_TIMER_KEY) || '300', 10);
   let activeContextEggType = null;
   let eggSpoilInterval = null;
@@ -3372,6 +3423,7 @@
       localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       localStorage.removeItem(HAS_SMASHED_EGGS_KEY);
       localStorage.removeItem(LAMP_ON_KEY);
+      localStorage.removeItem(FRIDGE_ON_KEY);
       localStorage.removeItem(EGG_SPOIL_TIMER_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
@@ -3452,6 +3504,8 @@
     }
     isLampOn = false;
     updateLampGlowUI();
+    isFridgeOn = false;
+    updateFridgeUI();
     duck.style.position = '';
     duck.style.left = '';
     duck.style.top = '';
@@ -4075,15 +4129,18 @@
 
       sizzleSound(false);
 
-      // Спавним эмодзи жареного яйца возле плиты
+      // Спавним эмодзи жареного яйца возле плиты (если его еще нет на столе)
       const friedEggEl = document.getElementById('friedEgg');
       if (friedEggEl && plitaEl) {
-        const pRect = plitaEl.getBoundingClientRect();
-        const posX = Math.min(window.innerWidth - 65, Math.max(10, pRect.right + 12));
-        const posY = Math.min(window.innerHeight - 65, Math.max(10, pRect.top + 8));
-        friedEggEl.style.left = `${posX}px`;
-        friedEggEl.style.top = `${posY}px`;
-        friedEggEl.dataset.placed = '1';
+        const isAlreadyOnDesk = friedEggEl.dataset.placed && friedEggEl.style.display !== 'none';
+        if (!isAlreadyOnDesk) {
+          const pRect = plitaEl.getBoundingClientRect();
+          const posX = Math.min(window.innerWidth - 65, Math.max(10, pRect.right + 12));
+          const posY = Math.min(window.innerHeight - 65, Math.max(10, pRect.top + 8));
+          friedEggEl.style.left = `${posX}px`;
+          friedEggEl.style.top = `${posY}px`;
+          friedEggEl.dataset.placed = '1';
+        }
         friedEggEl.style.display = 'block';
       }
 
@@ -4133,15 +4190,18 @@
 
       sizzleSound(true);
 
-      // Спавним эмодзи золотого жареного яйца возле плиты
+      // Спавним эмодзи золотого жареного яйца возле плиты (если его еще нет на столе)
       const goldenFriedEggEl = document.getElementById('goldenFriedEgg');
       if (goldenFriedEggEl && plitaEl) {
-        const pRect = plitaEl.getBoundingClientRect();
-        const posX = Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12));
-        const posY = Math.min(window.innerHeight - 75, Math.max(10, pRect.top + 55));
-        goldenFriedEggEl.style.left = `${posX}px`;
-        goldenFriedEggEl.style.top = `${posY}px`;
-        goldenFriedEggEl.dataset.placed = '1';
+        const isAlreadyOnDesk = goldenFriedEggEl.dataset.placed && goldenFriedEggEl.style.display !== 'none';
+        if (!isAlreadyOnDesk) {
+          const pRect = plitaEl.getBoundingClientRect();
+          const posX = Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12));
+          const posY = Math.min(window.innerHeight - 75, Math.max(10, pRect.top + 55));
+          goldenFriedEggEl.style.left = `${posX}px`;
+          goldenFriedEggEl.style.top = `${posY}px`;
+          goldenFriedEggEl.dataset.placed = '1';
+        }
         goldenFriedEggEl.style.display = 'block';
       }
 
@@ -4181,14 +4241,10 @@
   function smashEgg(el, typeOrIsGolden, cursorX, cursorY) {
     let eggType = 'normal';
     if (typeOrIsGolden === true || typeOrIsGolden === 'golden') eggType = 'golden';
-    else if (typeOrIsGolden === 'fried') eggType = 'fried';
-    else if (typeOrIsGolden === 'goldenFried') eggType = 'goldenFried';
+    // Жареные яйца не могут быть разбиты
+    if (eggType !== 'normal' && eggType !== 'golden') return;
 
-    let count = normalEggs;
-    if (eggType === 'golden') count = goldenEggs;
-    else if (eggType === 'fried') count = friedEggs;
-    else if (eggType === 'goldenFried') count = goldenFriedEggs;
-
+    let count = (eggType === 'golden') ? goldenEggs : normalEggs;
     if (count <= 0) return;
 
     let cx = cursorX;
@@ -4202,15 +4258,9 @@
     if (eggType === 'golden') {
       goldenEggs = 0;
       try { localStorage.setItem(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
-    } else if (eggType === 'normal') {
+    } else {
       normalEggs = 0;
       try { localStorage.setItem(EGGS_NORMAL_KEY, '0'); } catch (e) {}
-    } else if (eggType === 'fried') {
-      friedEggs = 0;
-      try { localStorage.setItem(FRIED_EGGS_KEY, '0'); } catch (e) {}
-    } else if (eggType === 'goldenFried') {
-      goldenFriedEggs = 0;
-      try { localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, '0'); } catch (e) {}
     }
 
     hasSmashedEggs = true;
@@ -4226,12 +4276,6 @@
     if (eggType === 'golden') {
       noticeText = `💥 Золотые яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
       color = '#ffd700';
-    } else if (eggType === 'fried') {
-      noticeText = `💥 Жареные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
-      color = '#fdba74';
-    } else if (eggType === 'goldenFried') {
-      noticeText = `💥 Золотые жареные яйца разбились вдребезги! (${count.toLocaleString('ru-RU')} шт.)`;
-      color = '#fde047';
     }
 
     particles.push({
@@ -4505,10 +4549,11 @@
       const cursorX = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastMoveX;
       const cursorY = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastMoveY;
 
-      // Продажа перетаскиванием на кнопку «Магазин»
+      // Продажа перетаскиванием на кнопку «Магазин» (всегда продаются ВСЕ яйца перетаскиваемого типа)
       const isOverShop = isCursorNearShop(cursorX, cursorY, el);
       if (isOverShop && count > 0) {
-        sellEgg(eggType, 1);
+        const totalEarned = count * price;
+        sellEgg(eggType, 'all');
         if (shopBtn) {
           const shr = shopBtn.getBoundingClientRect();
           particles.push({
@@ -4518,15 +4563,15 @@
             vy: -110,
             size: 20,
             alpha: 1.4,
-            text: `💰 Продано: +${price.toLocaleString('ru-RU')} 🦆`,
+            text: `💰 Продано всё: +${totalEarned.toLocaleString('ru-RU')} 🦆 (${count.toLocaleString('ru-RU')} шт.)`,
             color: '#4ade80'
           });
         }
         return;
       }
 
-      // Если яйцо отпущено с большой скоростью (бросок) — разбиваем яйца вдребезги на курсоре мыши!
-      if (releaseVelocity >= 750 && count > 0) {
+      // Если яйцо отпущено с большой скоростью (бросок) — разбиваем только сырые яйца вдребезги!
+      if (releaseVelocity >= 750 && count > 0 && (eggType === 'normal' || eggType === 'golden')) {
         smashEgg(el, eggType, cursorX, cursorY);
         return;
       }
@@ -4906,20 +4951,26 @@
   const shopBodyBuy = document.getElementById('shopBodyBuy');
   const shopBodySell = document.getElementById('shopBodySell');
 
+  const duckberriesHdr = document.getElementById('duckberriesHeader');
+
   if (shopTabBuyBtn && shopTabSellBtn && shopBodyBuy && shopBodySell) {
     shopTabBuyBtn.addEventListener('click', () => {
       shopTabBuyBtn.classList.add('active');
       shopTabSellBtn.classList.remove('active');
+      if (duckberriesHdr) duckberriesHdr.style.display = 'block';
       shopBodyBuy.style.display = 'flex';
       shopBodySell.style.display = 'none';
+      if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
     });
     shopTabSellBtn.addEventListener('click', () => {
       if (upgradeLevels.features < 3) return;
       shopTabSellBtn.classList.add('active');
       shopTabBuyBtn.classList.remove('active');
+      if (duckberriesHdr) duckberriesHdr.style.display = 'none';
       shopBodySell.style.display = 'flex';
       shopBodyBuy.style.display = 'none';
       updateShopSellTab();
+      if (shopBodySell) shopBodySell.scrollTop = 0;
     });
   }
 
@@ -4929,6 +4980,7 @@
       updateShopTabsVisibility();
       renderShopBuyTab();
       updateShopSellTab();
+      if (duckberriesHdr) duckberriesHdr.style.display = shopTabBuyBtn.classList.contains('active') ? 'block' : 'none';
       if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
       if (shopBodySell) shopBodySell.scrollTop = 0;
       shopModal.classList.add('open');
@@ -5344,30 +5396,12 @@
 
     if (propId === 'lamp') {
       updateLampGlowUI();
+    } else if (propId === 'fridge') {
+      updateFridgeUI();
     }
 
     if (propId === 'skovoroda' || propId === 'plita') {
       checkStovePanCombine();
-    } else if (propId === 'fridge') {
-      if (!hasClearedRoaches) {
-        hasPlacedFridge = true;
-        isRoachesActive = true;
-        try {
-          localStorage.setItem(PLACED_FRIDGE_KEY, '1');
-          localStorage.setItem(ROACHES_ACTIVE_KEY, '1');
-        } catch (e) {}
-        startRoaches();
-        updateLevelDisplay();
-        renderShopBuyTab();
-        tryUnlock();
-      }
-    } else if (propId === 'dichlofos') {
-      hasUsedDichlofos = true;
-      try {
-        localStorage.setItem(USED_DICHLOFOS_KEY, '1');
-      } catch (e) {}
-      applyDichlofos();
-      tryUnlock();
     }
   }
   window.placePropOnScreen = placePropOnScreen;
@@ -5390,6 +5424,8 @@
 
     if (propId === 'lamp') {
       setLampState(false);
+    } else if (propId === 'fridge') {
+      setFridgeState(false);
     }
   }
   window.returnPropToStorage = returnPropToStorage;
@@ -5684,7 +5720,7 @@
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
       hidePropContextMenu();
       isDragging = true;
       el.classList.add('is-dragging');
@@ -5718,6 +5754,17 @@
       const shopBtn = document.getElementById('shopBtn');
       if (storageBtn) storageBtn.classList.toggle('drag-target-hover', activeTarget === 'storage');
       if (shopBtn) shopBtn.classList.toggle('drag-target-hover', activeTarget === 'shop');
+
+      // Дихлофос: наведение на холодильник для избавления от тараканов
+      if (propId === 'dichlofos') {
+        const fridgeEl = document.getElementById('prop-fridge');
+        if (fridgeEl && fridgeEl.style.display !== 'none' && !hasClearedRoaches) {
+          const fr = fridgeEl.getBoundingClientRect();
+          const isOverFridge = (e.clientX >= fr.left - 20 && e.clientX <= fr.right + 20 &&
+                                e.clientY >= fr.top - 20 && e.clientY <= fr.bottom + 20);
+          fridgeEl.classList.toggle('dichlofos-target-hover', isOverFridge);
+        }
+      }
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         updateCombinedPartnerPosition(propId, x, y);
@@ -5753,6 +5800,24 @@
           partnerEl.style.transform = '';
           partnerEl.classList.add('is-wobbling');
           setTimeout(() => partnerEl.classList.remove('is-wobbling'), 650);
+        }
+      }
+
+      // Дихлофос: перетаскивание на холодильник для уничтожения тараканов
+      if (propId === 'dichlofos') {
+        const fridgeEl = document.getElementById('prop-fridge');
+        if (fridgeEl) {
+          const wasOverFridge = fridgeEl.classList.contains('dichlofos-target-hover');
+          fridgeEl.classList.remove('dichlofos-target-hover');
+          if (wasOverFridge && !hasClearedRoaches) {
+            hasUsedDichlofos = true;
+            try {
+              localStorage.setItem(USED_DICHLOFOS_KEY, '1');
+            } catch (err) {}
+            applyDichlofos();
+            tryUnlock();
+            return;
+          }
         }
       }
 
@@ -5809,9 +5874,9 @@
     el.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
 
-    // ПКМ по предмету: открытие кнопки «Убрать на склад»
+    // ПКМ по предмету: открытие контекстного меню
     el.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
       e.preventDefault();
       e.stopPropagation();
       const rect = el.getBoundingClientRect();
@@ -5965,6 +6030,107 @@
       });
     }
   }
+
+  /* ---------- Механика холодильника ---------- */
+  function fridgeSwitchSound(turningOn) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(turningOn ? 320 : 540, t);
+      osc.frequency.exponentialRampToValueAtTime(turningOn ? 640 : 260, t + 0.12);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.15);
+    } catch (e) {}
+  }
+
+  function setFridgeState(active) {
+    const wasActive = isFridgeOn;
+    isFridgeOn = Boolean(active);
+    try {
+      localStorage.setItem(FRIDGE_ON_KEY, isFridgeOn ? '1' : '0');
+    } catch (e) {}
+
+    updateFridgeUI();
+
+    if (isFridgeOn) {
+      if (!wasActive) {
+        // При включении добавляет +1 мин (60 сек) к таймеру
+        eggSpoilRemaining = Math.min(360, eggSpoilRemaining + 60);
+        try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+      }
+      // Тараканы появляются при включении холодильника (если еще не пройден квест)
+      if (!hasClearedRoaches && !isRoachesActive) {
+        hasPlacedFridge = true;
+        isRoachesActive = true;
+        try {
+          localStorage.setItem(PLACED_FRIDGE_KEY, '1');
+          localStorage.setItem(ROACHES_ACTIVE_KEY, '1');
+        } catch (e) {}
+        startRoaches();
+        updateLevelDisplay();
+        renderShopBuyTab();
+        tryUnlock();
+      }
+    } else {
+      // При выключении таймер свежести ограничен стандартными 300 сек (5 мин)
+      if (eggSpoilRemaining > 300) {
+        eggSpoilRemaining = 300;
+        try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+      }
+    }
+    updateEggSpoilTimerDisplay();
+  }
+  window.setFridgeState = setFridgeState;
+
+  function toggleFridge(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const fridgeEl = document.getElementById('prop-fridge');
+    if (!fridgeEl || fridgeEl.style.display === 'none') {
+      setFridgeState(false);
+      return;
+    }
+    const nextState = !isFridgeOn;
+    setFridgeState(nextState);
+    fridgeSwitchSound(nextState);
+
+    const fRect = fridgeEl.getBoundingClientRect();
+    particles.push({
+      x: fRect.left + fRect.width / 2,
+      y: fRect.top - 15,
+      vx: 0,
+      vy: -90,
+      size: 18,
+      alpha: 1.3,
+      text: nextState ? '❄️ Холодильник включён (+1 мин свежести!)' : '❄️ Холодильник выключен',
+      color: '#38bdf8'
+    });
+  }
+  window.toggleFridge = toggleFridge;
+
+  function updateFridgeUI() {
+    const fridgeEl = document.getElementById('prop-fridge');
+    const toggleBtn = document.getElementById('fridgeToggleBtn');
+
+    if (fridgeEl) {
+      fridgeEl.classList.toggle('is-on', isFridgeOn);
+    }
+    if (toggleBtn) {
+      toggleBtn.classList.toggle('is-on', isFridgeOn);
+      toggleBtn.title = isFridgeOn ? 'Выключить холодильник' : 'Включить холодильник';
+    }
+  }
+  window.updateFridgeUI = updateFridgeUI;
 
   /* ---------- Механика тараканов и дихлофоса ---------- */
   const ROACH_SVG_MARKUP = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -6141,6 +6307,7 @@
         localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps));
       } catch (e) {}
 
+      setFridgeState(false);
       const fEl = document.getElementById('prop-fridge');
       if (fEl) fEl.style.display = 'none';
       const dEl = document.getElementById('prop-dichlofos');
@@ -6786,22 +6953,20 @@
 
     timerItem.style.display = 'inline-flex';
 
-    const isFridgeProtecting = (ownedProps.includes('fridge') && placedProps['fridge'] && document.getElementById('prop-fridge')?.style.display !== 'none');
+    const mins = Math.floor(eggSpoilRemaining / 60);
+    const secs = eggSpoilRemaining % 60;
+    const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    timerText.textContent = formatted;
 
-    if (isFridgeProtecting) {
-      timerItem.classList.remove('warning');
+    if (isFridgeOn) {
       timerItem.classList.add('fridge');
+      timerItem.classList.remove('warning');
       timerIcon.textContent = '❄️';
-      timerText.textContent = 'В холоде';
-      timerItem.title = 'Холодильник сохраняет яйца свежими!';
+      timerItem.title = 'Холодильник включён (+1 мин свежести)';
     } else {
       timerItem.classList.remove('fridge');
-      const mins = Math.floor(eggSpoilRemaining / 60);
-      const secs = eggSpoilRemaining % 60;
-      const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       timerIcon.textContent = '⏱️';
-      timerText.textContent = formatted;
-      timerItem.title = 'Время до порчи сырых яиц (сброс при продаже или защите холодильником)';
+      timerItem.title = 'Время до порчи сырых яиц на столе';
       if (eggSpoilRemaining <= 60) {
         timerItem.classList.add('warning');
       } else {
@@ -6812,8 +6977,8 @@
   window.updateEggSpoilTimerDisplay = updateEggSpoilTimerDisplay;
 
   function resetEggSpoilTimer() {
-    eggSpoilRemaining = 300;
-    try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, '300'); } catch (e) {}
+    eggSpoilRemaining = isFridgeOn ? 360 : 300;
+    try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     updateEggSpoilTimerDisplay();
   }
   window.resetEggSpoilTimer = resetEggSpoilTimer;
@@ -6824,11 +6989,11 @@
 
     normalEggs = 0;
     goldenEggs = 0;
-    eggSpoilRemaining = 300;
+    eggSpoilRemaining = isFridgeOn ? 360 : 300;
     try {
       localStorage.setItem(EGGS_NORMAL_KEY, '0');
       localStorage.setItem(EGGS_GOLDEN_KEY, '0');
-      localStorage.setItem(EGG_SPOIL_TIMER_KEY, '300');
+      localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining));
     } catch (e) {}
 
     updateEggsDisplay();
@@ -6896,12 +7061,6 @@
         return;
       }
 
-      const isFridgeProtecting = (ownedProps.includes('fridge') && placedProps['fridge'] && document.getElementById('prop-fridge')?.style.display !== 'none');
-      if (isFridgeProtecting) {
-        updateEggSpoilTimerDisplay();
-        return;
-      }
-
       eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 1);
       try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       updateEggSpoilTimerDisplay();
@@ -6960,6 +7119,7 @@
   applySkin(currentSkin);
   restorePropsOnScreen();
   updateLampGlowUI();
+  updateFridgeUI();
   startEggSpoilTicker();
 
   if (upgradeLevels.features >= 4) {
