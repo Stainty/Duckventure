@@ -1719,7 +1719,7 @@
         <div class="upgrades-title">
           <span class="achv-title-icon">🏆</span>
           <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/16)</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/17)</span>
         </div>
         <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
       </div>
@@ -1797,6 +1797,7 @@
   const LOCKED_CLICKED_KEY = 'duck-locked-clicked';
   const DEVTOOLS_KEY = 'duck-devtools';
   const BAD_WORDS_KEY = 'duck-bad-words';
+  const GTA_CHEAT_KEY = 'duck-gta-cheat';
   const HOVER_WAIT_KEY = 'duck-hover-wait';
   const LEVEL_KEY = 'duck-level';
   const EXP_KEY = 'duck-level-exp';
@@ -1824,6 +1825,7 @@
   let lockedCardClicked = localStorage.getItem(LOCKED_CLICKED_KEY) === '1';
   let devToolsOpened = localStorage.getItem(DEVTOOLS_KEY) === '1';
   let badWordsTyped = localStorage.getItem(BAD_WORDS_KEY) === '1';
+  let gtaCheatTyped = localStorage.getItem(GTA_CHEAT_KEY) === '1';
   let hoverWaitDone = localStorage.getItem(HOVER_WAIT_KEY) === '1';
 
   let playerLevel = parseInt(localStorage.getItem(LEVEL_KEY) || '1', 10) || 1;
@@ -2461,6 +2463,13 @@
       done: false,
       check: () => playerLevel >= 20,
     },
+    {
+      id: 'hands-remember',
+      name: 'Руки помнят!',
+      desc: 'О щит хир ви гоу эгейн',
+      done: false,
+      check: () => gtaCheatTyped,
+    },
   ];
 
   function updateAchvCounter() {
@@ -2532,6 +2541,7 @@
     lockedCardClicked = false;
     devToolsOpened = false;
     badWordsTyped = false;
+    gtaCheatTyped = false;
     hoverWaitDone = false;
     clearHoverTimer();
     charBuffer = '';
@@ -2545,6 +2555,7 @@
       localStorage.removeItem(LOCKED_CLICKED_KEY);
       localStorage.removeItem(DEVTOOLS_KEY);
       localStorage.removeItem(BAD_WORDS_KEY);
+      localStorage.removeItem(GTA_CHEAT_KEY);
       localStorage.removeItem(HOVER_WAIT_KEY);
       localStorage.removeItem(LEVEL_KEY);
       localStorage.removeItem(EXP_KEY);
@@ -4617,8 +4628,8 @@
 
     // 3. "Поганец!" — слова {EQ, GBPLF, PFKEGF, <KZ и русский эквивалент
     if (e.key.length === 1) {
-      charBuffer = (charBuffer + e.key.toLowerCase()).slice(-30);
-      codeBuffer = (codeBuffer + e.code).slice(-60);
+      charBuffer = (charBuffer + e.key.toLowerCase()).slice(-40);
+      codeBuffer = (codeBuffer + e.code).slice(-80);
 
       const badPatterns = [
         '{eq', '[eq', 'хуй',
@@ -4637,6 +4648,23 @@
                              codePatterns.some(p => codeBuffer.includes(p)))) {
         badWordsTyped = true;
         try { localStorage.setItem(BAD_WORDS_KEY, '1'); } catch (err) {}
+        tryUnlock();
+      }
+
+      // 4. "Руки помнят!" — читы GTA: AEZAKMI или HESOYAM
+      const gtaPatterns = [
+        'aezakmi', 'фуяфльш',
+        'hesoyam', 'руыщнфь'
+      ];
+      const gtaCodePatterns = [
+        'KeyAKeyEKeyZKeyAKeyKKeyMKeyI',
+        'KeyHKeyEKeySKeyOKeyYKeyAKeyM'
+      ];
+
+      if (!gtaCheatTyped && (gtaPatterns.some(p => charBuffer.includes(p)) ||
+                             gtaCodePatterns.some(p => codeBuffer.includes(p)))) {
+        gtaCheatTyped = true;
+        try { localStorage.setItem(GTA_CHEAT_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
     }
