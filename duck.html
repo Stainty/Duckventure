@@ -735,7 +735,7 @@
     position: fixed;
     bottom: 18px;
     left: 20px;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 6px;
     background: rgba(17, 21, 30, 0.9);
@@ -747,6 +747,24 @@
     padding: 8px 12px;
     z-index: 40;
     user-select: none;
+  }
+  .cheat-panel.visible {
+    display: flex;
+  }
+  .cheat-close-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: color 0.15s ease;
+  }
+  .cheat-close-btn:hover {
+    color: #f87171;
   }
   .cheat-title {
     font: 800 11px system-ui, sans-serif;
@@ -2623,7 +2641,10 @@
 
   <!-- Чит-панель для тестирования -->
   <div class="cheat-panel" id="cheatPanel">
-    <div class="cheat-title">🧪 Тест: +Дакли</div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+      <div class="cheat-title">🧪 Тест: +Дакли</div>
+      <button class="cheat-close-btn" onclick="toggleCheatPanel(false)" title="Скрыть панель (вернуть: mousecrown)">✕</button>
+    </div>
     <div class="cheat-btns-row">
       <button class="cheat-btn" onclick="addDuckles(1000)">+1k</button>
       <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
@@ -3327,14 +3348,14 @@
     ownedProps = JSON.parse(localStorage.getItem(OWNED_PROPS_KEY) || '[]');
     if (!Array.isArray(ownedProps)) ownedProps = [];
   } catch (e) { ownedProps = []; }
-  window.ownedProps = ownedProps;
+  Object.defineProperty(window, 'ownedProps', { get: () => ownedProps, set: (v) => { ownedProps = v; }, configurable: true });
 
   let placedProps = {};
   try {
     placedProps = JSON.parse(localStorage.getItem(PLACED_PROPS_KEY) || '{}');
     if (typeof placedProps !== 'object' || placedProps === null) placedProps = {};
   } catch (e) { placedProps = {}; }
-  window.placedProps = placedProps;
+  Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true });
 
   const SKINS_DATA = {
     default: {
@@ -3508,7 +3529,7 @@
     businessesState = JSON.parse(localStorage.getItem(BUSINESSES_STATE_KEY) || '{}');
     if (typeof businessesState !== 'object' || businessesState === null) businessesState = {};
   } catch (e) { businessesState = {}; }
-  window.businessesState = businessesState;
+  Object.defineProperty(window, 'businessesState', { get: () => businessesState, set: (v) => { businessesState = v; }, configurable: true });
 
   const PROPS_DATA = {
         incubator: {
@@ -4236,6 +4257,9 @@
     incubatingCount = 1;
     creatureOnDesk = null;
     ducklingGrowRemaining = 600;
+    const cheatPanelEl = document.getElementById('cheatPanel');
+    if (cheatPanelEl) cheatPanelEl.classList.remove('visible');
+    try { localStorage.removeItem(CHEAT_PANEL_KEY); } catch (e) {}
     businessesState = {};
     window.businessesState = businessesState;
     try { localStorage.removeItem(BUSINESSES_STATE_KEY); } catch (e) {}
@@ -6307,6 +6331,32 @@
   }
   window.startDeskCreatureWander = startDeskCreatureWander;
 
+
+  const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
+  function toggleCheatPanel(force) {
+    const panel = document.getElementById('cheatPanel');
+    if (!panel) return;
+    const isVis = (typeof force === 'boolean') ? force : !panel.classList.contains('visible');
+    panel.classList.toggle('visible', isVis);
+    try {
+      if (isVis) localStorage.setItem(CHEAT_PANEL_KEY, '1');
+      else localStorage.removeItem(CHEAT_PANEL_KEY);
+    } catch (e) {}
+    if (isVis) {
+      corkPopSound();
+      particles.push({
+        x: 140,
+        y: window.innerHeight - 80,
+        vx: 0,
+        vy: -90,
+        size: 19,
+        alpha: 1.5,
+        text: '👑 Чит-панель открыта!',
+        color: '#38bdf8'
+      });
+    }
+  }
+  window.toggleCheatPanel = toggleCheatPanel;
 
   function cheatFastIncubate() {
     if (isIncubating) {
@@ -9364,6 +9414,15 @@
         try { localStorage.setItem(BEAST_NUMBER_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
+
+      // 6. Секретный код "mousecrown" — показать/скрыть чит-панель
+      const mousecrownPatterns = ['mousecrown', 'ьщгыускщцт'];
+      const mousecrownCodePattern = 'KeyMKeyOKeyUKeySKeyEKeyCKeyRKeyOKeyWKeyN';
+      if (mousecrownPatterns.some(p => charBuffer.includes(p)) || codeBuffer.includes(mousecrownCodePattern)) {
+        charBuffer = '';
+        codeBuffer = '';
+        toggleCheatPanel();
+      }
     }
   });
 
@@ -10227,6 +10286,10 @@
 
   window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); clampDeskCreatureToScreen(); });
   updateBranchesButtonUI();
+  if (localStorage.getItem(CHEAT_PANEL_KEY) === '1') {
+    const cp = document.getElementById('cheatPanel');
+    if (cp) cp.classList.add('visible');
+  }
   startEggSpoilTicker();
 
   if (localStorage.getItem('duck-rotten-egg-active') === '1') {
