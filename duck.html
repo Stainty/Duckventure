@@ -129,7 +129,9 @@
   .achv-body {
     padding: 22px 24px;
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: 72vh;
+    box-sizing: border-box;
   }
   .achv-grid {
     display: grid;
@@ -702,6 +704,10 @@
     flex-direction: column;
     overflow: hidden;
   }
+  .upgrades-dialog,
+  .upgrades-dialog * {
+    box-sizing: border-box;
+  }
   .upgrades-header {
     display: flex;
     align-items: center;
@@ -726,14 +732,22 @@
   .shop-dialog {
     max-width: 580px;
   }
+  .shop-dialog,
+  .shop-dialog * {
+    box-sizing: border-box;
+  }
   .shop-body {
     padding: 38px 24px;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 240px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
   .shop-placeholder {
     text-align: center;
@@ -1100,15 +1114,25 @@
   .wardrobe-dialog, .storage-dialog {
     max-width: 540px;
   }
+  .wardrobe-dialog,
+  .wardrobe-dialog *,
+  .storage-dialog,
+  .storage-dialog * {
+    box-sizing: border-box;
+  }
   .wardrobe-title-icon { color: #f0abfc; }
   .storage-title-icon { color: #fdba74; }
   .wardrobe-body, .storage-body {
     padding: 18px 24px;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
     max-height: 55vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
   .storage-intro {
     padding: 14px 24px 0;
@@ -1374,6 +1398,8 @@
   .upgrades-body {
     padding: 18px 20px;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 14px;
