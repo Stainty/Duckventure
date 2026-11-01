@@ -917,7 +917,10 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
+  }
+  .shop-section {
+    transition: margin-bottom .15s ease;
   }
   .shop-section-title {
     font: 800 15px system-ui, sans-serif;
@@ -925,9 +928,43 @@
     margin-bottom: 8px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
-    padding-bottom: 4px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .shop-section-title:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+  }
+  .shop-section-title-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .shop-collapse-arrow {
+    font-size: 11px;
+    color: #94a3b8;
+    display: inline-block;
+    transition: transform .2s ease, color .15s;
+  }
+  .shop-section-title:hover .shop-collapse-arrow {
+    color: #f1f5f9;
+  }
+  .shop-section.collapsed .shop-collapse-arrow {
+    transform: rotate(-90deg);
+  }
+  .shop-section.collapsed .buy-items-grid {
+    display: none;
+  }
+  .shop-section.collapsed .shop-section-title {
+    margin-bottom: 0;
   }
   .buy-items-grid {
     display: flex;
@@ -1629,17 +1666,23 @@
 
         <div class="shop-sections-wrap">
           <!-- Секция: Одежда&Аксессуары -->
-          <div class="shop-section">
-            <div class="shop-section-title">
-              <span>👚</span> <span>Одежда&Аксессуары</span>
+          <div class="shop-section" id="clothingShopSection">
+            <div class="shop-section-title" id="clothingSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('clothing')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('clothing');}">
+              <div class="shop-section-title-left">
+                <span>👚</span> <span>Одежда&Аксессуары</span>
+              </div>
+              <span class="shop-collapse-arrow" id="clothingSectionArrow">▼</span>
             </div>
             <div class="buy-items-grid" id="clothingBuyList"></div>
           </div>
 
           <!-- Секция: Быт -->
-          <div class="shop-section">
-            <div class="shop-section-title">
-              <span>🍳</span> <span>Быт</span>
+          <div class="shop-section" id="householdShopSection">
+            <div class="shop-section-title" id="householdSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('household')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('household');}">
+              <div class="shop-section-title-left">
+                <span>🍳</span> <span>Быт</span>
+              </div>
+              <span class="shop-collapse-arrow" id="householdSectionArrow">▼</span>
             </div>
             <div class="buy-items-grid" id="householdBuyList"></div>
           </div>
@@ -1856,6 +1899,8 @@
   const CURRENT_SKIN_KEY = 'duck-current-skin';
   const OWNED_PROPS_KEY = 'duck-owned-props';
   const PLACED_PROPS_KEY = 'duck-placed-props';
+  const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
+  const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
 
   let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
   let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
@@ -1885,6 +1930,8 @@
   let hasClearedRoaches = localStorage.getItem(CLEARED_ROACHES_KEY) === '1';
   let hasMovedDuck = localStorage.getItem(MOVED_DUCK_KEY) === '1';
   let hasSpawnedKey = localStorage.getItem(SPAWNED_KEY_KEY) === '1';
+  let isClothingCollapsed = localStorage.getItem(SHOP_CLOTHING_COLLAPSED_KEY) === '1';
+  let isHouseholdCollapsed = localStorage.getItem(SHOP_HOUSEHOLD_COLLAPSED_KEY) === '1';
 
   let ownedSkins = ['default'];
   try {
@@ -2664,6 +2711,8 @@
       localStorage.removeItem(CURRENT_SKIN_KEY);
       localStorage.removeItem(OWNED_PROPS_KEY);
       localStorage.removeItem(PLACED_PROPS_KEY);
+      localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
+      localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       localStorage.removeItem('duck-upg-autoquack');
       localStorage.removeItem('duck-upg-speed');
       localStorage.removeItem('duck-upg-crit');
@@ -2720,6 +2769,9 @@
     duck.classList.remove('can-drag', 'is-dragging');
     const lvlRoachWarn = document.getElementById('lvlRoachWarning');
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
+    isClothingCollapsed = false;
+    isHouseholdCollapsed = false;
+    updateShopSectionCollapsedUI();
     applySkin('default');
     buildAchievementCards();
     updateDuckles();
@@ -3819,7 +3871,36 @@
         householdContainer.appendChild(card);
       });
     }
+    updateShopSectionCollapsedUI();
   }
+
+  function updateShopSectionCollapsedUI() {
+    const clothingSection = document.getElementById('clothingShopSection');
+    const householdSection = document.getElementById('householdShopSection');
+    if (clothingSection) {
+      clothingSection.classList.toggle('collapsed', isClothingCollapsed);
+    }
+    if (householdSection) {
+      householdSection.classList.toggle('collapsed', isHouseholdCollapsed);
+    }
+  }
+
+  function toggleShopSection(sectionKey) {
+    if (sectionKey === 'clothing') {
+      isClothingCollapsed = !isClothingCollapsed;
+      try {
+        localStorage.setItem(SHOP_CLOTHING_COLLAPSED_KEY, isClothingCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'household') {
+      isHouseholdCollapsed = !isHouseholdCollapsed;
+      try {
+        localStorage.setItem(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+      } catch (e) {}
+    }
+    updateShopSectionCollapsedUI();
+  }
+  window.toggleShopSection = toggleShopSection;
+  window.updateShopSectionCollapsedUI = updateShopSectionCollapsedUI;
 
   /* ---------- Гардероб ---------- */
   function applySkin(skinId) {
