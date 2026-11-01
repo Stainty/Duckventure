@@ -980,15 +980,40 @@
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    transition: border-color .15s, background .15s;
+    transition: border-color .15s, background .15s, opacity .15s;
   }
   .buy-card:hover {
     border-color: #3e4c68;
     background: #242c3d;
   }
   .buy-card.owned {
-    border-color: rgba(34, 197, 94, 0.35);
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), #202736);
+    background: #141822;
+    border-color: #212838;
+    opacity: 0.52;
+    box-shadow: none;
+  }
+  .buy-card.owned:hover {
+    opacity: 0.85;
+    background: #181d28;
+    border-color: #2e384c;
+  }
+  .buy-card.owned .buy-item-img {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) grayscale(15%);
+  }
+  .buy-card.owned .buy-item-name {
+    color: #cbd5e1;
+  }
+  .buy-card.owned .buy-item-desc {
+    color: #64748b;
+  }
+  .buy-card.owned .buy-item-price {
+    color: #64748b;
+  }
+  .buy-card.owned .buy-owned-badge {
+    background: rgba(52, 211, 153, 0.08);
+    border-color: rgba(52, 211, 153, 0.2);
+    color: #10b981;
+    opacity: 0.9;
   }
   .buy-item-left {
     display: flex;
