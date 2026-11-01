@@ -5,7 +5,7 @@
 ## Ключевые элементы
 | Элемент | Назначение |
 |---|---|
-| `#duck` | Кнопка-утка (центр). Клик: `pop`-анимация, звук, частицы, крит-расчёт, `quackCount++`, `duckles++`, `checkEggRoll(true)`, `tryUnlock()` |
+| `#duck` | Кнопка-утка (центр, `z-index: 50`, всегда гарантированно перекрывает все остальные предметы на столе, в том числе сковороду и плиту). Клик: `pop`-анимация, звук, частицы, крит-расчёт, `quackCount++`, `duckles++`, `checkEggRoll(true)`, `tryUnlock()` |
 | `#ducklesBar` / `.duckles-val` | Верхняя плашка баланса валюты («Даклей заработано: X») |
 | `#eggsBar` / `#normalEggsVal` / `#goldenEggsVal` / `#friedEggsBarItem` / `#goldenFriedEggsBarItem` | Плашка счётчиков яиц под плашкой даклей (внутри `.duckles-nav-wrap`, всегда строго центрирована относительно плашки «Даклей заработано»): обычные 🥚 и золотые ✨🥚 (скрыта до «Возможности» LVL 3 «Гусыня»), а также жареные 🍳 и золотые жареные ✨🍳 (скрыты до первой прожарки яиц) |
 | `#normalEgg` / `#goldenEgg` | Перетаскиваемые (drag & drop через pointer events) эмодзи яиц на экране с анимацией физичного качания. Отображаются только если их количество > 0. Золотое яйцо больше и пульсирует светом. При отпускании с высокой скоростью (бросок) яйца разбиваются вдребезги (счётчик обнуляется, вылетает частица-надпись и брызги, разблокируется ачивка «Всмятку!»). При переносе на собранную плиту со сковородой (сковорода приподнята на 5px) яйца жарятся |
@@ -127,9 +127,10 @@
          - Анимированный крупный эмодзи готовой курочки 🍗
          - Кнопка: «Начать игру заново» (`#cookedDuckRestartBtn`)
        - При нажатии на кнопку «Начать игру заново»:
-         - Вызывается сброс игры (`resetAchievements()`) и восстанавливается стандартная утка.
+         - Вызывается сброс игры с сохранением всех уже открытых ачивок (`resetAchievements(true)`), закрывается окно и восстанавливается стандартная утка.
          - Игроку выдаётся ачивка №21: **«Ты монстр!»** («Зажарить маму утку») с золотым тостом и отлётом замка.
-         - **Критическое правило**: данная ачивка **никогда не сбрасывается** после получения (флаг `hasFriedDuck = true` и ключ `duck-achv-monster` навсегда сохраняются в `localStorage`, даже при последующих нажатиях на обычную кнопку «Начать заново»).
+         - Все ранее открытые ачивки полностью сохраняются при таком перезапуске.
+         - **Критическое правило**: данная ачивка **никогда не сбрасывается** после получения (флаг `hasFriedDuck = true` и ключ `duck-achv-monster` навсегда сохраняются в `localStorage`, даже если игрок нажмёт на обычную кнопку «Начать заново» в основном окне, которая сбрасывает все остальные ачивки).
    - Механика **«Вонючий холодильник и Тараканы»**:
      - При выкладывании холодильника на стол со склада:
        - Разблокируется ачивка «Это было зря!» («Завести новых друзей»).
@@ -220,13 +221,15 @@
 | 21 | `monster` | «Ты монстр!» | `hasFriedDuck` | зажарить маму утку на плите со сковородой (никогда не сбрасывается) |
 
 ## Сброс прогресса («Начать заново»)
-`#resetBtn` (правый верхний угол). Клик → `resetAchievements()`:
-1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `friedEggs = 0`, `goldenFriedEggs = 0`, `hasUnlockedFriedEggs = false`, `hasCookedEgg = false`, `isStoveCombined = false`, `hasPlacedFridge = false`, `isRoachesActive = false`, `hasUsedDichlofos = false`, `hasClearedRoaches = false`, `gtaCheatTyped = false`, `beastNumberTyped = false`, `hasMovedDuck = false`, `hasSpawnedKey = false`, `hasSmashedEggs = false`, `isCookedDuckActive = false`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `ownedSkins = ['default']`, `currentSkin = 'default'`, `ownedProps = []`, `placedProps = {}`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания, останавливает тараканов и дым, удаляет всплывающие тосты ачивок (`achvToastContainer`), удаляет ключи из `localStorage` (кроме вечной ачивки `duck-achv-monster` и флага `duck-has-fried-duck`);
-2. ставит `done = false` у всех ачивок, кроме «Ты монстр!» (`monster`), которая навсегда остаётся открытой;
-3. удаляет `duck-achv-{id}` (кроме `duck-achv-monster`), `duck-level`, `duck-level-exp`, `duck-eggs-*`, `duck-fried-eggs`, `duck-golden-fried-eggs`, `duck-has-fried-eggs`, `duck-cooked-egg`, `duck-stove-combined`, `duck-placed-fridge`, `duck-roaches-active`, `duck-used-dichlofos`, `duck-cleared-roaches`, `duck-gta-cheat`, `duck-beast-number`, `duck-moved-duck`, `duck-spawned-key`, `duck-pos`, `duck-has-smashed-eggs`, `duck-upg-*`, `duck-owned-skins`, `duck-current-skin`, `duck-owned-props` и `duck-placed-props` из localStorage;
-4. перестраивает карточки через `buildAchievementCards()` (все блокируются 🔒, кроме «Ты монстр!», счётчик `(0/21)` или `(1/21)`);
-5. скрывает перетаскиваемые яйца `#normalEgg` и `#goldenEgg`, обновляет отображение яиц (`updateEggsDisplay()`), скрывает выложенные предметы (включая секретный ключ `#prop-key`), возвращает утку в исходную центральную позицию, разъединяет плиту со сковородой, скрывает предупреждение о тараканах, очищает тараканов и сбрасывает скин на дефолтный;
-6. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки, скрывает кнопку Магазина, Гардероба и Склада (`updateShopButtonVisibility()`), блокирует вкладку продажи яиц (`updateShopTabsVisibility()`) и обновляет карточки улучшений (`renderUpgrades()`).
+- **Из основного окна (`#resetBtn`)** → `resetAchievements(false)`:
+  1. обнуляет глобальные счётчики и флаги (`quackCount = 0`, `duckles = 0`, `hintCount = 0`, `playerLevel = 1`, `playerExp = 0`, `normalEggs = 0`, `goldenEggs = 0`, `friedEggs = 0`, `goldenFriedEggs = 0`, `hasUnlockedFriedEggs = false`, `hasCookedEgg = false`, `isStoveCombined = false`, `hasPlacedFridge = false`, `isRoachesActive = false`, `hasUsedDichlofos = false`, `hasClearedRoaches = false`, `gtaCheatTyped = false`, `beastNumberTyped = false`, `hasMovedDuck = false`, `hasSpawnedKey = false`, `hasSmashedEggs = false`, `isCookedDuckActive = false`, `upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 }`, `ownedSkins = ['default']`, `currentSkin = 'default'`, `ownedProps = []`, `placedProps = {}`, `keyPressed = false`, `duckSeqDone = false`, `lockedCardClicked = false`, `devToolsOpened = false`, `badWordsTyped = false`, `hoverWaitDone = false`, `duckSeqIndex = 0`), очищает таймер ожидания, останавливает тараканов и дым, удаляет всплывающие тосты ачивок (`achvToastContainer`), удаляет ключи из `localStorage` (кроме вечной ачивки `duck-achv-monster` и флага `duck-has-fried-duck`);
+  2. ставит `done = false` у всех ачивок, кроме «Ты монстр!» (`monster`), которая навсегда остаётся открытой;
+  3. удаляет `duck-achv-{id}` (кроме `duck-achv-monster`), `duck-level`, `duck-level-exp`, `duck-eggs-*`, `duck-fried-eggs`, `duck-golden-fried-eggs`, `duck-has-fried-eggs`, `duck-cooked-egg`, `duck-stove-combined`, `duck-placed-fridge`, `duck-roaches-active`, `duck-used-dichlofos`, `duck-cleared-roaches`, `duck-gta-cheat`, `duck-beast-number`, `duck-moved-duck`, `duck-spawned-key`, `duck-pos`, `duck-has-smashed-eggs`, `duck-upg-*`, `duck-owned-skins`, `duck-current-skin`, `duck-owned-props` и `duck-placed-props` из localStorage;
+  4. перестраивает карточки через `buildAchievementCards()` (все блокируются 🔒, кроме «Ты монстр!», счётчик `(0/21)` или `(1/21)`);
+  5. скрывает перетаскиваемые яйца `#normalEgg` и `#goldenEgg`, обновляет отображение яиц (`updateEggsDisplay()`), скрывает выложенные предметы (включая секретный ключ `#prop-key`), возвращает утку в исходную центральную позицию (`z-index: 50`), разъединяет плиту со сковородой, скрывает предупреждение о тараканах, очищает тараканов и сбрасывает скин на дефолтный;
+  6. обновляет отображение Даклей, полосу и плашку уровня (`updateLevelDisplay()`), сбрасывает таймер автокрякалки, скрывает кнопку Магазина, Гардероба и Склада (`updateShopButtonVisibility()`), блокирует вкладку продажи яиц (`updateShopTabsVisibility()`) и обновляет карточки улучшений (`renderUpgrades()`).
+- **Из окна Game Over (`#cookedDuckRestartBtn`)** → `restartFromCookedDuck()` / `resetAchievements(true)`:
+  - Сбрасывает игровой прогресс (валюту, уровень, яйца, предметы на столе, прокачку), но **полностью сохраняет все ранее открытые ачивки** в `localStorage` и памяти, а также разблокирует вечную ачивку «Ты монстр!».
 
 ## Подводные камни (Pitfalls)
 1. **HTML карточки собирается конкатенацией — потерянная кавычка молча ломает DOM.**

@@ -9,6 +9,7 @@
   body { display: grid; place-items: center; }
   #duck {
     position: relative;
+    z-index: 50;
     display: inline-block;
     background: transparent;
     border: 0;
@@ -2916,7 +2917,7 @@
     updateAchvCounter();
   }
 
-  function resetAchievements() {
+  function resetAchievements(preserveAchievements = false) {
     closeAllModals();
     const list = document.getElementById('achvList');
     if (list) list.innerHTML = '';
@@ -3000,15 +3001,17 @@
       localStorage.removeItem('duck-upg-strength');
       localStorage.removeItem('duck-upg-features');
     } catch (e) {}
-    ACHIEVEMENTS.forEach((a) => {
-      if (a.id === 'monster' && (hasFriedDuck || a.done)) {
-        a.done = true;
-        return;
-      }
-      a.done = false;
-      try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
-    });
-    try { localStorage.removeItem(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
+    if (!preserveAchievements) {
+      ACHIEVEMENTS.forEach((a) => {
+        if (a.id === 'monster' && (hasFriedDuck || a.done)) {
+          a.done = true;
+          return;
+        }
+        a.done = false;
+        try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
+      });
+      try { localStorage.removeItem(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
+    }
     const normalEggEl = document.getElementById('normalEgg');
     const goldenEggEl = document.getElementById('goldenEgg');
     if (normalEggEl) {
@@ -3804,14 +3807,15 @@
   }
 
   function restartFromCookedDuck() {
+    const wasMonsterDone = hasFriedDuck;
     hasFriedDuck = true;
     try {
       localStorage.setItem(HAS_FRIED_DUCK_KEY, '1');
       localStorage.setItem(STORAGE_PREFIX + 'monster', '1');
     } catch (e) {}
 
-    // Сброс всего игрового процесса
-    resetAchievements();
+    // Сброс игрового процесса с сохранением всех открытых ачивок
+    resetAchievements(true);
 
     const modal = document.getElementById('cookedDuckModal');
     if (modal) modal.classList.remove('open');
@@ -3826,8 +3830,12 @@
     // Выдаем ачивку "Ты монстр!" (не сбрасывается) со всеми анимациями тоста
     const monsterIdx = ACHIEVEMENTS.findIndex(a => a.id === 'monster');
     if (monsterIdx !== -1) {
-      ACHIEVEMENTS[monsterIdx].done = false;
-      unlockAchievement(monsterIdx);
+      if (!wasMonsterDone) {
+        ACHIEVEMENTS[monsterIdx].done = false;
+        unlockAchievement(monsterIdx);
+      } else {
+        updateAchvCounter();
+      }
     }
   }
   window.restartFromCookedDuck = restartFromCookedDuck;
@@ -5302,7 +5310,7 @@
         duck.classList.add('is-dragging');
         duck.style.position = 'fixed';
         duck.style.margin = '0';
-        duck.style.zIndex = '45';
+        duck.style.zIndex = '50';
       }
 
       const newLeft = Math.max(0, Math.min(window.innerWidth - duck.offsetWidth, duckStartLeft + dx));
@@ -5639,7 +5647,7 @@
   });
 
   // сброс всех ачивок
-  document.getElementById('resetBtn').addEventListener('click', resetAchievements);
+  document.getElementById('resetBtn').addEventListener('click', () => resetAchievements(false));
 
   const cookedDuckModal = document.getElementById('cookedDuckModal');
   const cookedDuckRestartBtn = document.getElementById('cookedDuckRestartBtn');
@@ -5673,7 +5681,7 @@
         duck.style.left = savedDuckPos.left;
         duck.style.top = savedDuckPos.top;
         duck.style.margin = '0';
-        duck.style.zIndex = '45';
+        duck.style.zIndex = '50';
       }
     } catch (e) {}
   }
