@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Резиновая утка</title>
+<title>Duckventure</title>
 <style>
   html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradient(120% 90% at 50% 40%, #151a26 0%, #080a10 100%); }
   body { display: grid; place-items: center; }
@@ -1179,6 +1179,61 @@
     border-radius: 8px;
     flex-shrink: 0;
   }
+  .buy-owned-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .buy-refund-btn {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+    font: 700 11.5px system-ui, sans-serif;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+  }
+  .buy-refund-btn:hover {
+    background: rgba(248, 113, 113, 0.28);
+    border-color: #f87171;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  }
+  .buy-refund-btn:active {
+    transform: scale(.96);
+  }
+  .storage-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .storage-refund-btn {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+    font: 700 11.5px system-ui, sans-serif;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+  }
+  .storage-refund-btn:hover {
+    background: rgba(248, 113, 113, 0.28);
+    border-color: #f87171;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  }
+  .storage-refund-btn:active {
+    transform: scale(.96);
+  }
 
   /* ---------- Гардероб и Склад модальные окна ---------- */
   .wardrobe-dialog, .storage-dialog {
@@ -2209,6 +2264,9 @@
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
       <span class="prop-ctx-icon">📦</span> Убрать на склад
     </button>
+    <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxRefundBtn" style="color: #fca5a5;">
+      <span class="prop-ctx-icon">💰</span> Вернуть в магазин
+    </button>
   </div>
 
   <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
@@ -2323,8 +2381,10 @@
       ownedSkins = ['default'];
     }
   } catch (e) { ownedSkins = ['default']; }
+  window.ownedSkins = ownedSkins;
 
   let currentSkin = localStorage.getItem(CURRENT_SKIN_KEY) || 'default';
+  window.getCurrentSkin = () => currentSkin;
 
   let ownedProps = [];
   try {
@@ -2477,7 +2537,7 @@
       cost: 10000,
       icon: 'https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe',
       fallbackEmoji: '🎛️',
-      desc: 'Компактная настольная плита с регулятором температуры. Отлично смотрится на кухне!'
+      desc: 'Настольная плита с регулятором температуры. Отлично смотрится на кухне!'
     },
     fridge: {
       id: 'fridge',
@@ -4500,6 +4560,82 @@
   }
   window.buyShopItem = buyShopItem;
 
+  function refundShopItem(category, itemId) {
+    if (category === 'clothing') {
+      const item = SKINS_DATA[itemId];
+      if (!item || !ownedSkins.includes(itemId) || itemId === 'default') return;
+      const refundAmount = Math.floor(item.cost / 2);
+
+      // Если скин сейчас надет, возвращаем стандартный классический скин
+      if (currentSkin === itemId) {
+        applySkin('default');
+      }
+
+      const sIdx = ownedSkins.indexOf(itemId);
+      if (sIdx !== -1) ownedSkins.splice(sIdx, 1);
+      window.ownedSkins = ownedSkins;
+      try {
+        localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(ownedSkins));
+      } catch (e) {}
+
+      duckles += refundAmount;
+      try {
+        localStorage.setItem(DUCKLES_KEY, String(duckles));
+      } catch (e) {}
+
+      particles.push({
+        x: innerWidth / 2,
+        y: innerHeight / 2 - 40,
+        vx: 0,
+        vy: -180,
+        size: 22,
+        alpha: 1.2,
+        text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
+        color: '#ffd24d'
+      });
+    } else if (category === 'household') {
+      const prop = PROPS_DATA[itemId];
+      if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
+      const refundAmount = Math.floor(prop.cost / 2);
+
+      // Если предмет сейчас на столе, возвращаем его со стола
+      if (placedProps[itemId]) {
+        returnPropToStorage(itemId);
+      }
+
+      const pIdx = ownedProps.indexOf(itemId);
+      if (pIdx !== -1) ownedProps.splice(pIdx, 1);
+      window.ownedProps = ownedProps;
+      try {
+        localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
+      } catch (e) {}
+
+      duckles += refundAmount;
+      try {
+        localStorage.setItem(DUCKLES_KEY, String(duckles));
+      } catch (e) {}
+
+      particles.push({
+        x: innerWidth / 2,
+        y: innerHeight / 2 - 40,
+        vx: 0,
+        vy: -180,
+        size: 22,
+        alpha: 1.2,
+        text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
+        color: '#ffd24d'
+      });
+    }
+
+    xpSound();
+    updateDuckles(true);
+    updateShopButtonVisibility();
+    renderShopBuyTab();
+    renderWardrobe();
+    renderStorage();
+  }
+  window.refundShopItem = refundShopItem;
+
   function renderShopBuyTab() {
     const clothingContainer = document.getElementById('clothingBuyList');
     const householdContainer = document.getElementById('householdBuyList');
@@ -4516,7 +4652,15 @@
 
         let actionHtml = '';
         if (isOwned) {
-          actionHtml = '<div class="buy-owned-badge">✓ В гардеробе</div>';
+          const refundPrice = Math.floor(item.cost / 2);
+          actionHtml = `
+            <div class="buy-owned-wrap">
+              <div class="buy-owned-badge">✓ В гардеробе</div>
+              <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('clothing', '${id}')">
+                Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+              </button>
+            </div>
+          `;
         } else {
           const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
           actionHtml = `<button class="${btnClass}" onclick="buyShopItem('clothing', '${id}')">Купить (${item.cost.toLocaleString('ru-RU')} 🦆)</button>`;
@@ -4559,7 +4703,15 @@
 
         let actionHtml = '';
         if (isOwned) {
-          actionHtml = '<div class="buy-owned-badge">✓ На складе</div>';
+          const refundPrice = Math.floor(prop.cost / 2);
+          actionHtml = `
+            <div class="buy-owned-wrap">
+              <div class="buy-owned-badge">✓ На складе</div>
+              <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('household', '${id}')">
+                Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+              </button>
+            </div>
+          `;
         } else {
           const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
           actionHtml = `<button class="${btnClass}" onclick="buyShopItem('household', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
@@ -4693,6 +4845,12 @@
         ? `<button class="storage-toggle-btn placed" onclick="returnPropToStorage('${id}')">Убрать на склад</button>`
         : `<button class="storage-toggle-btn" onclick="placePropOnScreen('${id}')">Выложить на стол</button>`;
 
+      let refundBtnHtml = '';
+      if (prop.cost && prop.cost > 0) {
+        const refundPrice = Math.floor(prop.cost / 2);
+        refundBtnHtml = `<button class="storage-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('household', '${id}')">Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)</button>`;
+      }
+
       card.innerHTML = `
         <div class="buy-item-left">
           <div class="buy-item-img-box">
@@ -4705,7 +4863,10 @@
             <div class="buy-item-desc">${isPlaced ? '🟢 Сейчас выложен на столе' : '📦 Находится на складе'}</div>
           </div>
         </div>
-        ${btnHtml}
+        <div class="storage-card-actions">
+          ${btnHtml}
+          ${refundBtnHtml}
+        </div>
       `;
       list.appendChild(card);
     });
@@ -4918,7 +5079,6 @@
     const dist = Math.hypot(cS.x - cP.x, cS.y - cP.y);
     if (dist < 90 || isOverlapping(rS, rP)) {
       combineStoveAndPan(true);
-      checkDuckStoveCombine();
     }
   }
 
@@ -4952,14 +5112,27 @@
   let activeContextPropId = null;
   const propContextMenu = document.getElementById('propContextMenu');
   const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
+  const propCtxRefundBtn = document.getElementById('propCtxRefundBtn');
 
   function showPropContextMenu(propId, x, y) {
     if (!propContextMenu) return;
     activeContextPropId = propId;
+
+    const prop = PROPS_DATA[propId];
+    if (propCtxRefundBtn) {
+      if (prop && prop.cost && prop.cost > 0) {
+        const refundPrice = Math.floor(prop.cost / 2);
+        propCtxRefundBtn.style.display = 'flex';
+        propCtxRefundBtn.innerHTML = `<span class="prop-ctx-icon">💰</span> Сдать за ${refundPrice.toLocaleString('ru-RU')} 🦆`;
+      } else {
+        propCtxRefundBtn.style.display = 'none';
+      }
+    }
+
     propContextMenu.style.display = 'block';
 
-    const menuW = 180;
-    const menuH = 46;
+    const menuW = 200;
+    const menuH = (propCtxRefundBtn && propCtxRefundBtn.style.display !== 'none') ? 85 : 46;
     const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
     const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
 
@@ -4981,6 +5154,16 @@
       e.stopPropagation();
       if (activeContextPropId) {
         returnPropToStorage(activeContextPropId);
+        hidePropContextMenu();
+      }
+    });
+  }
+
+  if (propCtxRefundBtn) {
+    propCtxRefundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeContextPropId) {
+        refundShopItem('household', activeContextPropId);
         hidePropContextMenu();
       }
     });
@@ -5110,10 +5293,6 @@
 
       if (!isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         checkStovePanCombine();
-      }
-
-      if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
-        checkDuckStoveCombine();
       }
     };
 
