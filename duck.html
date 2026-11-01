@@ -47,7 +47,7 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 50;
+    z-index: 60;
   }
   .hint {
     position: fixed;
@@ -2704,15 +2704,15 @@
       if (info) info.classList.add('shown');
     }, 580);
 
-    // Шаг 5: fade-out через 2800мс
+    // Шаг 5: fade-out через 3800мс (увеличено на 1 секунду для чтения)
     setTimeout(() => {
       toast.classList.add('fade-out');
-    }, 2800);
+    }, 3800);
 
-    // Удаление из DOM через 3300мс
+    // Удаление из DOM через 4300мс
     setTimeout(() => {
       toast.remove();
-    }, 3300);
+    }, 4300);
   }
 
   function xpSound() {
