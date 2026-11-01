@@ -2529,6 +2529,9 @@
     <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxSellAllBtn" style="display: none; color: #facc15;">
       <span class="prop-ctx-icon">✨</span> Продать всё
     </button>
+    <button class="prop-ctx-btn" id="propCtxDiscardBtn" style="display: none; color: #a3e635;">
+      <span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку
+    </button>
   </div>
 
   <!-- Явное предупреждение о стухших яйцах -->
@@ -4729,6 +4732,30 @@
     activeContextEggType = eggType;
     activeContextPropId = null;
 
+    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
+    const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
+    const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+
+    if (eggType === 'rotten') {
+      if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
+      if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
+      if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
+      if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
+      if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'flex';
+
+      propContextMenu.style.display = 'block';
+      const menuW = 210;
+      const menuH = 46;
+      const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
+      const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
+
+      propContextMenu.style.left = `${posX}px`;
+      propContextMenu.style.top = `${posY}px`;
+      return;
+    }
+
+    if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'none';
+
     let count = 0;
     let price = 0;
     if (eggType === 'normal') { count = normalEggs; price = 200; }
@@ -4740,9 +4767,6 @@
 
     if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
     if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
-
-    const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
-    const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
 
     if (propCtxSell1Btn) {
       propCtxSell1Btn.style.display = 'flex';
@@ -5478,14 +5502,32 @@
     });
   }
 
+  function getPropDimensions(propId) {
+    const el = document.getElementById('prop-' + propId);
+    if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
+      return { width: el.offsetWidth, height: el.offsetHeight };
+    }
+    if (propId === 'trashcan') return { width: 234, height: 234 };
+    if (propId === 'plita') return { width: 96, height: 96 };
+    if (propId === 'fridge') return { width: 88, height: 96 };
+    if (propId === 'clock') return { width: 82, height: 82 };
+    if (propId === 'lamp') return { width: 68, height: 110 };
+    if (propId === 'skovoroda') return { width: 82, height: 82 };
+    if (propId === 'dichlofos') return { width: 68, height: 90 };
+    if (propId === 'key') return { width: 72, height: 72 };
+    return { width: 85, height: 85 };
+  }
+
   function placePropOnScreen(propId) {
     if (!ownedProps.includes(propId)) return;
     const el = document.getElementById('prop-' + propId);
     if (!el) return;
 
+    const dims = getPropDimensions(propId);
+    const propWidth = dims.width;
+    const propHeight = dims.height;
+
     if (!placedProps[propId] || !placedProps[propId].left) {
-      const propWidth = el.offsetWidth || 85;
-      const propHeight = el.offsetHeight || 85;
       const offset = (propId === 'plita') ? 60 : 
                      (propId === 'skovoroda' ? -60 : 
                      (propId === 'lamp' ? -180 : 
@@ -5494,10 +5536,16 @@
                      (propId === 'trashcan' ? 200 :
                      (propId === 'clock' ? -240 :
                      (propId === 'key' ? 260 : 0)))))));
-      const left = Math.max(20, Math.min(window.innerWidth - propWidth - 20, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
-      const top = Math.max(70, Math.min(window.innerHeight - propHeight - 20, Math.round(window.innerHeight - propHeight - 55))) + 'px';
+      const maxLeft = Math.max(20, window.innerWidth - propWidth - 20);
+      const left = Math.max(20, Math.min(maxLeft, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
+      const maxTop = Math.max(70, window.innerHeight - propHeight - 20);
+      const top = Math.max(70, Math.min(maxTop, Math.round(window.innerHeight - propHeight - 25))) + 'px';
       placedProps[propId] = { placed: true, left, top };
     } else {
+      const curTop = parseFloat(placedProps[propId].top);
+      if (!isNaN(curTop) && curTop + propHeight > window.innerHeight - 10) {
+        placedProps[propId].top = Math.max(70, window.innerHeight - propHeight - 20) + 'px';
+      }
       placedProps[propId].placed = true;
     }
 
@@ -5742,8 +5790,10 @@
     if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'flex';
     const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
     const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
     if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
     if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
+    if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'none';
 
     const prop = PROPS_DATA[propId];
     if (propCtxRefundBtn) {
@@ -5816,6 +5866,15 @@
         sellEgg(activeContextEggType, 'all');
         hidePropContextMenu();
       }
+    });
+  }
+
+  const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
+  if (propCtxDiscardBtn) {
+    propCtxDiscardBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hidePropContextMenu();
+      discardRottenEgg();
     });
   }
 
@@ -6008,16 +6067,37 @@
   }
 
   function restorePropsOnScreen() {
+    let changed = false;
     Object.keys(placedProps).forEach(id => {
       if (ownedProps.includes(id)) {
         const el = document.getElementById('prop-' + id);
         if (el && placedProps[id].left && placedProps[id].top) {
+          const dims = getPropDimensions(id);
+          let curTop = parseFloat(placedProps[id].top);
+          let curLeft = parseFloat(placedProps[id].left);
+
+          const maxTop = Math.max(70, window.innerHeight - dims.height - 20);
+          if (isNaN(curTop) || curTop + dims.height > window.innerHeight - 10) {
+            curTop = maxTop;
+            placedProps[id].top = curTop + 'px';
+            changed = true;
+          }
+          const maxLeft = Math.max(20, window.innerWidth - dims.width - 20);
+          if (isNaN(curLeft) || curLeft > maxLeft) {
+            curLeft = Math.min(maxLeft, Math.max(20, curLeft || 20));
+            placedProps[id].left = curLeft + 'px';
+            changed = true;
+          }
+
           el.style.left = placedProps[id].left;
           el.style.top = placedProps[id].top;
           el.style.display = 'block';
         }
       }
     });
+    if (changed) {
+      try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+    }
 
     if (isStoveCombined) {
       const plitaEl = document.getElementById('prop-plita');
@@ -7415,11 +7495,15 @@
   if (rottenEggEl) {
     let rDragging = false;
     let rStartX = 0, rStartY = 0;
+    let rHasMoved = false;
 
     rottenEggEl.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
+      hidePropContextMenu();
       rDragging = true;
+      rHasMoved = false;
       rottenEggEl.classList.add('is-dragging');
+      rottenEggEl.classList.remove('is-wobbling');
       try { rottenEggEl.setPointerCapture(e.pointerId); } catch (err) {}
       const rect = rottenEggEl.getBoundingClientRect();
       rStartX = e.clientX - rect.left;
@@ -7429,6 +7513,7 @@
 
     rottenEggEl.addEventListener('pointermove', (e) => {
       if (!rDragging) return;
+      rHasMoved = true;
       const x = e.clientX - rStartX;
       const y = e.clientY - rStartY;
       rottenEggEl.style.left = `${Math.max(0, Math.min(window.innerWidth - rottenEggEl.offsetWidth, x))}px`;
@@ -7437,7 +7522,7 @@
       const trashEl = document.getElementById('prop-trashcan');
       if (trashEl && trashEl.style.display !== 'none') {
         const trRect = trashEl.getBoundingClientRect();
-        const isHover = (e.clientX >= trRect.left && e.clientX <= trRect.right && e.clientY >= trRect.top && e.clientY <= trRect.bottom);
+        const isHover = (e.clientX >= trRect.left - 10 && e.clientX <= trRect.right + 10 && e.clientY >= trRect.top - 10 && e.clientY <= trRect.bottom + 10);
         trashEl.classList.toggle('drag-target-hover', isHover);
       }
     });
@@ -7448,19 +7533,57 @@
       try { rottenEggEl.releasePointerCapture(e.pointerId); } catch (err) {}
       rottenEggEl.classList.remove('is-dragging');
 
-      const trashEl = document.getElementById('prop-trashcan');
-      if (trashEl) trashEl.classList.remove('drag-target-hover');
-
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : undefined;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
-      discardRottenEgg(cx, cy);
+
+      const trashEl = document.getElementById('prop-trashcan');
+      let isOverTrash = false;
+      if (trashEl && trashEl.style.display !== 'none' && cx !== undefined && cy !== undefined) {
+        const trRect = trashEl.getBoundingClientRect();
+        isOverTrash = (cx >= trRect.left - 20 && cx <= trRect.right + 20 && cy >= trRect.top - 20 && cy <= trRect.bottom + 20);
+        trashEl.classList.remove('drag-target-hover');
+      }
+
+      if (isOverTrash && rHasMoved) {
+        // Успешный сброс в мусорку перетаскиванием
+        discardRottenEgg(cx, cy);
+      } else {
+        // Если отпущено не над мусоркой или если это был простой клик без перетаскивания — яйцо НЕ выбрасывается!
+        if (rHasMoved) {
+          rottenEggEl.classList.add('is-wobbling');
+          setTimeout(() => rottenEggEl.classList.remove('is-wobbling'), 650);
+        } else {
+          // Обычный короткий клик без переноса: подсказка игроку
+          corkPopSound();
+          const rect = rottenEggEl.getBoundingClientRect();
+          particles.push({
+            x: rect.left + rect.width / 2,
+            y: rect.top - 12,
+            vx: 0,
+            vy: -80,
+            size: 15,
+            alpha: 1.5,
+            text: '💡 Перетащи в мусорку или нажми ПКМ!',
+            color: '#a3e635'
+          });
+        }
+      }
     };
 
     rottenEggEl.addEventListener('pointerup', endEggDrag);
     rottenEggEl.addEventListener('pointercancel', endEggDrag);
     rottenEggEl.addEventListener('click', (e) => {
       e.stopPropagation();
-      discardRottenEgg(e.clientX, e.clientY);
+      // Обычный клик ЛКМ не выбрасывает яйцо
+    });
+
+    rottenEggEl.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = rottenEggEl.getBoundingClientRect();
+      const posX = e.clientX || (rect.left + rect.width / 2);
+      const posY = e.clientY || (rect.top + rect.height / 2);
+      showEggContextMenu('rotten', posX, posY);
     });
   }
 
