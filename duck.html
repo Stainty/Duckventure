@@ -1636,6 +1636,183 @@
   #prop-knife img {
     width: 76px;
   }
+  
+  /* ---------- Инкубатор и питомцы ---------- */
+  #prop-incubator img {
+    width: 92px;
+  }
+  #prop-incubator.drag-target-hover {
+    transform: scale(1.1) !important;
+    filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.95)) drop-shadow(0 0 45px rgba(245, 158, 11, 0.75)) !important;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  #prop-incubator.is-incubating {
+    animation: incubatorPulse 2s ease-in-out infinite alternate;
+  }
+  @keyframes incubatorPulse {
+    0%   { filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5)); }
+    100% { filter: drop-shadow(0 0 24px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 35px rgba(249, 115, 22, 0.6)); }
+  }
+  .incubator-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font: 700 11.5px monospace;
+    color: #fbbf24;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 10px rgba(245, 158, 11, 0.4);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 46;
+  }
+  .desk-creature {
+    z-index: 46;
+    display: none;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+    transition: transform .12s ease;
+  }
+  .desk-creature:active {
+    cursor: grabbing;
+  }
+  .desk-creature.is-walking {
+    animation: creatureWaddle 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes creatureWaddle {
+    0%   { transform: rotate(-8deg) translateY(-2px); }
+    100% { transform: rotate(8deg) translateY(2px); }
+  }
+  .creature-visual {
+    font-size: 52px;
+    line-height: 1;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45));
+    transition: transform .15s;
+    display: inline-block;
+  }
+  .creature-visual.golden-creature {
+    filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
+    animation: goldPulseGlow 2s infinite alternate;
+  }
+  .creature-visual.goose-sprite {
+    font-size: 72px;
+  }
+  .creature-visual.roasted-goose-sprite {
+    font-size: 64px;
+    filter: drop-shadow(0 0 16px rgba(234, 88, 12, 0.7));
+  }
+  .creature-age-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid #38bdf8;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font: 700 11px monospace;
+    color: #bae6fd;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .incubator-dialog {
+    max-width: 480px;
+  }
+  .incubator-modal-body {
+    padding: 20px 24px;
+    color: #e2e8f0;
+  }
+  .incubator-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .incubator-tab-btn {
+    flex: 1;
+    background: #1e2638;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px;
+    color: #94a3b8;
+    font: 700 13px system-ui, sans-serif;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .incubator-tab-btn.active {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: #f59e0b;
+    color: #fbbf24;
+  }
+  .incubator-qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .incubator-qty-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #252e42;
+    border: 1px solid #3b4866;
+    color: #fff;
+    font: 700 16px monospace;
+    cursor: pointer;
+    transition: transform .1s, background .15s;
+  }
+  .incubator-qty-btn:hover {
+    background: #334155;
+    transform: scale(1.1);
+  }
+  .incubator-qty-val {
+    font: 800 24px monospace;
+    color: #fbbf24;
+    min-width: 60px;
+    text-align: center;
+  }
+  .incubator-start-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    color: #1e1b4b;
+    font: 800 15px system-ui, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+    transition: transform .12s, filter .15s;
+  }
+  .incubator-start-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+  .incubator-active-view {
+    text-align: center;
+    padding: 10px 0;
+  }
+  .incubator-active-icon {
+    font-size: 58px;
+    animation: eggWobble 1.8s ease-in-out infinite alternate;
+    margin-bottom: 8px;
+  }
+  @keyframes eggWobble {
+    0%   { transform: rotate(-6deg) scale(1); }
+    100% { transform: rotate(6deg) scale(1.08); }
+  }
+
   #prop-tape img {
     width: 72px;
   }
@@ -2258,6 +2435,7 @@
       <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
       <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
       <button class="cheat-btn" onclick="cheatFastDebuff()" title="Вызвать дебафф тухлых яиц (таймер 2 сек)">🤢⚡</button>
+            <button class="cheat-btn" onclick="cheatFastIncubate()" title="Ускорить инкубатор / рост утенка (1 сек)">🐣⚡</button>
       <button class="cheat-btn" onclick="cheatFastDeflate()" title="Ускорить сдувание утки (таймер 2 сек)">🔪💨</button>
       <button class="cheat-btn" onclick="toggleCheatRoaches()" title="Вкл/выкл тараканов">
         <span class="cheat-roach-icon">
@@ -2391,6 +2569,98 @@
             </div>
           </div>
 
+          
+          <!-- Карточки продажи питомцев из инкубатора -->
+          <div class="sell-card" id="sellDucklingCard" style="border-color: rgba(251, 191, 36, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🐥</div>
+              <div>
+                <div class="sell-item-title" style="color: #fbbf24;">Утёнок</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">10 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopDucklingsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellDuckling1Btn" onclick="sellCreature('duckling', 1)">Продать 1 (+10k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellDucklingAllBtn" onclick="sellCreature('duckling', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenDucklingCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🐥</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой утёнок</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">50 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenDucklingsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenDuckling1Btn" onclick="sellCreature('goldenDuckling', 1)">Продать 1 (+50k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenDucklingAllBtn" onclick="sellCreature('goldenDuckling', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🪿</div>
+              <div>
+                <div class="sell-item-title" style="color: #67e8f9;">Большой гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+150k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenGooseCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🪿</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой большой гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+500k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card" id="sellRoastedGooseCard" style="border-color: rgba(249, 115, 22, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🍗🪿</div>
+              <div>
+                <div class="sell-item-title" style="color: #fb923c;">Жареный гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+180k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🍗</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой жареный гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">650 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+650k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
           <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
             <div class="sell-item-left">
               <div class="sell-egg-icon golden">✨🍳</div>
@@ -2473,7 +2743,7 @@
         <div class="upgrades-title">
           <span class="achv-title-icon">🏆</span>
           <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/23)</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/26)</span>
         </div>
         <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
       </div>
@@ -2498,6 +2768,21 @@
   </div>
 
   <!-- Окно инцидента с ножом -->
+  
+  <!-- Модальное окно инкубатора -->
+  <div class="upgrades-modal" id="incubatorModal">
+    <div class="upgrades-dialog incubator-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="shop-title-icon">🐣</span>
+          <span>Инкубатор яиц</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeIncubatorBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="incubator-modal-body" id="incubatorModalBody"></div>
+    </div>
+  </div>
+
   <div class="upgrades-modal" id="knifeAccidentModal">
     <div class="upgrades-dialog cooked-duck-dialog" style="max-width: 440px;">
       <div class="cooked-duck-content">
@@ -2588,6 +2873,24 @@
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔪</span>
   </div>
+  
+  <div id="prop-incubator" class="draggable-prop" title="Инкубатор (перетаскивай! Нажми, чтобы загрузить яйца)" style="display: none;" onclick="handleIncubatorClick(event)">
+    <img src="https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7" alt="Инкубатор" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🐣</span>
+    <div id="incubatorProgressBadge" class="incubator-badge" style="display: none;">
+      <span class="incubator-badge-icon">🥚</span>
+      <span id="incubatorBadgeTime">02:00</span>
+    </div>
+  </div>
+
+  <div id="deskCreature" class="draggable-prop desk-creature" title="Питомец (перетаскивай! Перетащи в магазин, чтобы продать)" style="display: none;">
+    <div id="deskCreatureVisual" class="creature-visual">🐣</div>
+    <div id="deskCreatureAgeBadge" class="creature-age-badge" style="display: none;">
+      <span id="deskCreatureAgeText">10:00</span>
+    </div>
+  </div>
+
   <div id="prop-tape" class="draggable-prop" title="Изолента (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a" alt="Изолента" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
@@ -2601,6 +2904,9 @@
     </button>
     <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxRefundBtn" style="color: #fca5a5;">
       <span class="prop-ctx-icon">💰</span> Вернуть в магазин
+    </button>
+        <button class="prop-ctx-btn" id="propCtxCreatureSellBtn" style="display: none; color: #4ade80;">
+      <span class="prop-ctx-icon">💰</span> Продать питомца
     </button>
     <button class="prop-ctx-btn" id="propCtxSell1Btn" style="display: none; color: #4ade80;">
       <span class="prop-ctx-icon">💰</span> Продать 1
@@ -2755,6 +3061,45 @@
   let isDuckDeflating = localStorage.getItem(DUCK_IS_DEFLATING_KEY) === '1';
   let deflationRemaining = parseInt(localStorage.getItem(DUCK_DEFLATING_REMAINING_KEY) || '300', 10);
   let isDeflatedDuckActive = false;
+  
+  const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
+  const HAS_FRIED_DUCKLING_KEY = 'duck-has-fried-duckling';
+  const HAS_COOKED_GOOSE_KEY = 'duck-has-cooked-goose';
+  const IS_INCUBATING_KEY = 'duck-is-incubating';
+  const INCUBATING_TYPE_KEY = 'duck-incubating-type';
+  const INCUBATING_COUNT_KEY = 'duck-incubating-count';
+  const INCUBATING_REMAINING_KEY = 'duck-incubating-remaining';
+  const CREATURE_ON_DESK_KEY = 'duck-creature-on-desk';
+  const DUCKLING_GROW_REMAINING_KEY = 'duck-duckling-grow-remaining';
+  const DUCKLINGS_NORMAL_KEY = 'duck-ducklings-normal';
+  const DUCKLINGS_GOLDEN_KEY = 'duck-ducklings-golden';
+  const GEESE_NORMAL_KEY = 'duck-geese-normal';
+  const GEESE_GOLDEN_KEY = 'duck-geese-golden';
+  const ROASTED_GEESE_NORMAL_KEY = 'duck-roasted-geese-normal';
+  const ROASTED_GEESE_GOLDEN_KEY = 'duck-roasted-geese-golden';
+
+  let hasHatchedDuckling = localStorage.getItem(HAS_HATCHED_DUCKLING_KEY) === '1';
+  let hasFriedDuckling = localStorage.getItem(HAS_FRIED_DUCKLING_KEY) === '1';
+  let hasCookedGoose = localStorage.getItem(HAS_COOKED_GOOSE_KEY) === '1';
+
+  let isIncubating = localStorage.getItem(IS_INCUBATING_KEY) === '1';
+  let incubatingType = localStorage.getItem(INCUBATING_TYPE_KEY) || 'normal';
+  let incubatingCount = parseInt(localStorage.getItem(INCUBATING_COUNT_KEY) || '1', 10);
+  let incubatingRemaining = parseInt(localStorage.getItem(INCUBATING_REMAINING_KEY) || '120', 10);
+
+  let creatureOnDesk = null;
+  try {
+    creatureOnDesk = JSON.parse(localStorage.getItem(CREATURE_ON_DESK_KEY) || 'null');
+  } catch (e) { creatureOnDesk = null; }
+  let ducklingGrowRemaining = parseInt(localStorage.getItem(DUCKLING_GROW_REMAINING_KEY) || '600', 10);
+
+  let normalDucklings = parseInt(localStorage.getItem(DUCKLINGS_NORMAL_KEY) || '0', 10);
+  let goldenDucklings = parseInt(localStorage.getItem(DUCKLINGS_GOLDEN_KEY) || '0', 10);
+  let normalGeese = parseInt(localStorage.getItem(GEESE_NORMAL_KEY) || '0', 10);
+  let goldenGeese = parseInt(localStorage.getItem(GEESE_GOLDEN_KEY) || '0', 10);
+  let normalRoastedGeese = parseInt(localStorage.getItem(ROASTED_GEESE_NORMAL_KEY) || '0', 10);
+  let goldenRoastedGeese = parseInt(localStorage.getItem(ROASTED_GEESE_GOLDEN_KEY) || '0', 10);
+
   let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
   let isFridgeOn = localStorage.getItem(FRIDGE_ON_KEY) === '1';
   let eggSpoilRemaining = parseInt(localStorage.getItem(EGG_SPOIL_TIMER_KEY) || '30', 10);
@@ -2773,6 +3118,12 @@
 
   let currentSkin = localStorage.getItem(CURRENT_SKIN_KEY) || 'default';
   window.getCurrentSkin = () => currentSkin;
+  window.getCreatureOnDesk = () => creatureOnDesk;
+  window.setCreatureOnDesk = (v) => { creatureOnDesk = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
+  window.getIncubatingRemaining = () => incubatingRemaining;
+  window.setIncubatingRemaining = (v) => { incubatingRemaining = v; if (typeof updateIncubatorUI === 'function') updateIncubatorUI(); };
+  window.getDucklingGrowRemaining = () => ducklingGrowRemaining;
+  window.setDucklingGrowRemaining = (v) => { ducklingGrowRemaining = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
 
   let ownedProps = [];
   try {
@@ -2919,6 +3270,15 @@
   };
 
   const PROPS_DATA = {
+        incubator: {
+      id: 'incubator',
+      name: 'Инкубатор',
+      category: 'household',
+      cost: 50000,
+      icon: 'https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7',
+      fallbackEmoji: '🐣',
+      desc: 'Автоматический инкубатор для яиц. За 2 минуты с шансом 90% выводит маленького утенка.'
+    },
     skovoroda: {
       id: 'skovoroda',
       name: 'Сковорода',
@@ -3529,6 +3889,27 @@
       check: () => hasStabbedDuck,
     },
     {
+      id: 'new-generation',
+      name: 'Новое поколение',
+      desc: 'Вырастите утенка',
+      done: false,
+      check: () => hasHatchedDuckling,
+    },
+    {
+      id: 'crispy-duckling',
+      name: 'Хрустящий утенок',
+      desc: 'Зажарьте маленького утенка',
+      done: false,
+      check: () => hasFriedDuckling,
+    },
+    {
+      id: 'roasted-goose',
+      name: 'Рождественский гусь',
+      desc: 'Зажарьте взрослого гуся',
+      done: false,
+      check: () => hasCookedGoose,
+    },
+    {
       id: 'emergency-surgery',
       name: 'Неотложная операция!',
       desc: 'Почините утку',
@@ -3536,6 +3917,7 @@
       check: () => hasPatchedDuck,
     },
   ];
+  window.ACHIEVEMENTS = ACHIEVEMENTS;
 
   function updateAchvCounter() {
     const counter = document.getElementById('achvModalCounter');
@@ -3608,6 +3990,20 @@
     isDuckDeflating = false;
     deflationRemaining = 0;
     isDeflatedDuckActive = false;
+    hasHatchedDuckling = false;
+    hasFriedDuckling = false;
+    hasCookedGoose = false;
+    isIncubating = false;
+    incubatingRemaining = 120;
+    incubatingCount = 1;
+    creatureOnDesk = null;
+    ducklingGrowRemaining = 600;
+    normalDucklings = 0;
+    goldenDucklings = 0;
+    normalGeese = 0;
+    goldenGeese = 0;
+    normalRoastedGeese = 0;
+    goldenRoastedGeese = 0;
     stopRoaches();
     upgradeLevels = { autoquack: 0, speed: 0, crit: 0, strength: 0, features: 0 };
     ownedSkins = ['default'];
@@ -3659,6 +4055,21 @@
       localStorage.removeItem(HAS_PATCHED_DUCK_KEY);
       localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
       localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+      localStorage.removeItem(HAS_HATCHED_DUCKLING_KEY);
+      localStorage.removeItem(HAS_FRIED_DUCKLING_KEY);
+      localStorage.removeItem(HAS_COOKED_GOOSE_KEY);
+      localStorage.removeItem(IS_INCUBATING_KEY);
+      localStorage.removeItem(INCUBATING_REMAINING_KEY);
+      localStorage.removeItem(INCUBATING_COUNT_KEY);
+      localStorage.removeItem(INCUBATING_TYPE_KEY);
+      localStorage.removeItem(CREATURE_ON_DESK_KEY);
+      localStorage.removeItem(DUCKLING_GROW_REMAINING_KEY);
+      localStorage.removeItem(DUCKLINGS_NORMAL_KEY);
+      localStorage.removeItem(DUCKLINGS_GOLDEN_KEY);
+      localStorage.removeItem(GEESE_NORMAL_KEY);
+      localStorage.removeItem(GEESE_GOLDEN_KEY);
+      localStorage.removeItem(ROASTED_GEESE_NORMAL_KEY);
+      localStorage.removeItem(ROASTED_GEESE_GOLDEN_KEY);
       localStorage.removeItem(OWNED_PROPS_KEY);
       localStorage.removeItem(PLACED_PROPS_KEY);
       localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
@@ -3771,6 +4182,15 @@
       propTape.style.display = 'none';
       delete propTape.dataset.placed;
     }
+    const propIncubator = document.getElementById('prop-incubator');
+    if (propIncubator) {
+      propIncubator.style.display = 'none';
+      delete propIncubator.dataset.placed;
+    }
+    const deskCreatureEl = document.getElementById('deskCreature');
+    if (deskCreatureEl) {
+      deskCreatureEl.style.display = 'none';
+    }
     isLampOn = false;
     updateLampGlowUI();
     isFridgeOn = false;
@@ -3790,6 +4210,8 @@
     } catch (e) {}
     updateDeflationUI();
     if (typeof updateDeflationUI === 'function') updateDeflationUI();
+    updateIncubatorUI();
+    updateDeskCreatureUI();
     duck.style.position = '';
     duck.style.left = '';
     duck.style.top = '';
@@ -4185,6 +4607,60 @@
   }
 
   /* звук пореза ножом и выходящего воздуха */
+  
+  function eggHatchSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    [520, 650, 780, 980].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
+      gain.gain.setValueAtTime(0.25, now + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.18);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.2);
+    });
+  }
+
+  function burnSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(140, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.36);
+  }
+
+  function gooseHonkSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(380, now + 0.1);
+    osc.frequency.exponentialRampToValueAtTime(240, now + 0.32);
+    gain.gain.setValueAtTime(0.28, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.36);
+  }
+
   function knifeStabSound() {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -4816,6 +5292,782 @@
   }
   window.isCursorNearShop = isCursorNearShop;
 
+  
+  /* ---------- Механика инкубатора и питомцев ---------- */
+  let incubatorSelectedType = 'normal';
+  let incubatorSelectedCount = 1;
+
+  function handleIncubatorClick(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    openIncubatorModal();
+  }
+  window.handleIncubatorClick = handleIncubatorClick;
+
+  function openIncubatorModal(preferredType) {
+    if (preferredType) incubatorSelectedType = preferredType;
+    else if (goldenEggs > 0 && normalEggs === 0) incubatorSelectedType = 'golden';
+    else incubatorSelectedType = 'normal';
+
+    const maxAvail = incubatorSelectedType === 'golden' ? goldenEggs : normalEggs;
+    incubatorSelectedCount = Math.max(1, Math.min(maxAvail || 1, 1));
+
+    renderIncubatorModal();
+    const modal = document.getElementById('incubatorModal');
+    if (modal) modal.classList.add('open');
+  }
+  window.openIncubatorModal = openIncubatorModal;
+
+  function closeIncubatorModal() {
+    const modal = document.getElementById('incubatorModal');
+    if (modal) modal.classList.remove('open');
+  }
+  window.closeIncubatorModal = closeIncubatorModal;
+
+  const closeIncubatorBtn = document.getElementById('closeIncubatorBtn');
+  if (closeIncubatorBtn) {
+    closeIncubatorBtn.addEventListener('click', closeIncubatorModal);
+  }
+  const incModalEl = document.getElementById('incubatorModal');
+  if (incModalEl) {
+    incModalEl.addEventListener('click', (e) => {
+      if (e.target === incModalEl) closeIncubatorModal();
+    });
+  }
+
+  function setIncubatorType(type) {
+    incubatorSelectedType = type;
+    const maxAvail = type === 'golden' ? goldenEggs : normalEggs;
+    incubatorSelectedCount = Math.max(1, Math.min(maxAvail || 1, 1));
+    renderIncubatorModal();
+  }
+  window.setIncubatorType = setIncubatorType;
+
+  function adjustIncubatorQty(delta) {
+    const maxAvail = incubatorSelectedType === 'golden' ? goldenEggs : normalEggs;
+    incubatorSelectedCount = Math.max(1, Math.min(maxAvail, incubatorSelectedCount + delta));
+    renderIncubatorModal();
+  }
+  window.adjustIncubatorQty = adjustIncubatorQty;
+
+  function setIncubatorMaxQty() {
+    const maxAvail = incubatorSelectedType === 'golden' ? goldenEggs : normalEggs;
+    incubatorSelectedCount = Math.max(1, maxAvail);
+    renderIncubatorModal();
+  }
+  window.setIncubatorMaxQty = setIncubatorMaxQty;
+
+  function renderIncubatorModal() {
+    const body = document.getElementById('incubatorModalBody');
+    if (!body) return;
+
+    if (isIncubating) {
+      const mins = Math.floor(incubatingRemaining / 60);
+      const secs = incubatingRemaining % 60;
+      const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const eggName = incubatingType === 'golden' ? '✨ золотых яиц' : 'обычных яиц';
+      const pct = Math.min(100, Math.max(0, Math.round((1 - incubatingRemaining / 120) * 100)));
+
+      body.innerHTML = `
+        <div class="incubator-active-view">
+          <div class="incubator-active-icon">🥚✨</div>
+          <div style="font: 800 18px system-ui, sans-serif; color: #fbbf24; margin-bottom: 6px;">Идёт инкубация...</div>
+          <div style="font: 600 13.5px system-ui, sans-serif; color: #cbd5e1; margin-bottom: 14px;">
+            В инкубаторе: <span style="color: #ffd24d;">${incubatingCount} шт. ${eggName}</span>
+          </div>
+          <div style="background: rgba(0,0,0,0.4); border-radius: 999px; height: 10px; width: 100%; overflow: hidden; margin-bottom: 12px; border: 1px solid #334155;">
+            <div style="background: linear-gradient(90deg, #f59e0b, #fbbf24); height: 100%; width: ${pct}%; transition: width 0.5s ease;"></div>
+          </div>
+          <div style="font: 700 20px monospace; color: #67e8f9; margin-bottom: 18px;">⏳ ${timeStr}</div>
+          <div style="font: 500 12.5px system-ui, sans-serif; color: #94a3b8;">
+            Шанс вылупления каждого яйца: <b>90%</b>.<br>По завершении появится маленький утёнок!
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const availNormal = normalEggs;
+    const availGolden = goldenEggs;
+    const currentAvail = incubatorSelectedType === 'golden' ? availGolden : availNormal;
+
+    let selectorHtml = '';
+    if (currentAvail <= 0) {
+      selectorHtml = `
+        <div style="text-align: center; padding: 20px 0; color: #94a3b8; font: 600 14px system-ui, sans-serif;">
+          У вас нет яиц этого типа.<br>Подождите, пока утка снесёт яйца, или выберите другой тип!
+        </div>
+      `;
+    } else {
+      selectorHtml = `
+        <div style="text-align: center; font: 600 13px system-ui, sans-serif; color: #94a3b8; margin-top: 8px;">
+          Доступно: <b style="color: #ffd24d;">${currentAvail} шт.</b>
+        </div>
+        <div class="incubator-qty-row">
+          <button class="incubator-qty-btn" onclick="adjustIncubatorQty(-1)">−</button>
+          <div class="incubator-qty-val">${incubatorSelectedCount}</div>
+          <button class="incubator-qty-btn" onclick="adjustIncubatorQty(1)">+</button>
+          <button class="sell-btn" style="padding: 6px 12px; font-size: 12px;" onclick="setIncubatorMaxQty()">Всё (${currentAvail})</button>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 6px; font: 600 12.5px/1.4 system-ui, sans-serif; color: #fde68a; margin-bottom: 18px;">
+          ⏱️ Время инкубации: <b>2 минуты</b><br>
+          🐣 Шанс успешного вылупления: <b>90%</b> для каждого яйца
+        </div>
+        <button class="incubator-start-btn" onclick="startIncubation('${incubatorSelectedType}', ${incubatorSelectedCount})">
+          🚀 Запустить инкубацию (${incubatorSelectedCount} шт.)
+        </button>
+      `;
+    }
+
+    body.innerHTML = `
+      <div style="font: 700 14px system-ui, sans-serif; color: #cbd5e1; margin-bottom: 12px;">Выберите яйца для инкубации:</div>
+      <div class="incubator-tabs">
+        <button class="incubator-tab-btn ${incubatorSelectedType === 'normal' ? 'active' : ''}" onclick="setIncubatorType('normal')">
+          <span>🥚</span> Обычные (${availNormal})
+        </button>
+        <button class="incubator-tab-btn ${incubatorSelectedType === 'golden' ? 'active' : ''}" onclick="setIncubatorType('golden')">
+          <span>✨🥚</span> Золотые (${availGolden})
+        </button>
+      </div>
+      ${selectorHtml}
+    `;
+  }
+  window.renderIncubatorModal = renderIncubatorModal;
+
+  function startIncubation(type, count) {
+    const avail = (type === 'golden') ? goldenEggs : normalEggs;
+    if (count <= 0 || avail < count || isIncubating) return;
+
+    if (type === 'golden') {
+      goldenEggs -= count;
+      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+    } else {
+      normalEggs -= count;
+      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+    }
+    updateEggsDisplay();
+
+    isIncubating = true;
+    incubatingType = type;
+    incubatingCount = count;
+    incubatingRemaining = 120; // 2 минуты (120 сек)
+    try {
+      localStorage.setItem(IS_INCUBATING_KEY, '1');
+      localStorage.setItem(INCUBATING_TYPE_KEY, type);
+      localStorage.setItem(INCUBATING_COUNT_KEY, String(count));
+      localStorage.setItem(INCUBATING_REMAINING_KEY, String(incubatingRemaining));
+    } catch (e) {}
+
+    corkPopSound();
+    closeIncubatorModal();
+    updateIncubatorUI();
+
+    const incEl = document.getElementById('prop-incubator');
+    if (incEl) {
+      const r = incEl.getBoundingClientRect();
+      particles.push({
+        x: r.left + r.width / 2,
+        y: r.top - 15,
+        vx: 0,
+        vy: -90,
+        size: 18,
+        alpha: 1.3,
+        text: `🥚 Инкубация запущена (${count} шт.)!`,
+        color: '#fbbf24'
+      });
+    }
+  }
+  window.startIncubation = startIncubation;
+
+  function updateIncubatorUI() {
+    const incEl = document.getElementById('prop-incubator');
+    const badge = document.getElementById('incubatorProgressBadge');
+    const badgeTime = document.getElementById('incubatorBadgeTime');
+
+    if (incEl) {
+      incEl.classList.toggle('is-incubating', isIncubating);
+    }
+    if (badge && badgeTime) {
+      if (isIncubating && incEl && incEl.style.display !== 'none') {
+        const mins = Math.floor(incubatingRemaining / 60);
+        const secs = incubatingRemaining % 60;
+        badgeTime.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+  window.updateIncubatorUI = updateIncubatorUI;
+
+  function finishIncubation() {
+    isIncubating = false;
+    try {
+      localStorage.removeItem(IS_INCUBATING_KEY);
+      localStorage.removeItem(INCUBATING_REMAINING_KEY);
+      localStorage.removeItem(INCUBATING_COUNT_KEY);
+      localStorage.removeItem(INCUBATING_TYPE_KEY);
+    } catch (e) {}
+
+    let hatched = 0;
+    for (let i = 0; i < incubatingCount; i++) {
+      if (Math.random() < 0.90) hatched++;
+    }
+
+    const incEl = document.getElementById('prop-incubator');
+    const posX = incEl ? incEl.getBoundingClientRect().left + 46 : (window.innerWidth / 2);
+    const posY = incEl ? incEl.getBoundingClientRect().top : (window.innerHeight / 2);
+
+    if (hatched > 0) {
+      eggHatchSound();
+      hasHatchedDuckling = true;
+      try {
+        localStorage.setItem(HAS_HATCHED_DUCKLING_KEY, '1');
+        localStorage.setItem(STORAGE_PREFIX + 'new-generation', '1');
+      } catch (e) {}
+      tryUnlock();
+
+      const isGold = (incubatingType === 'golden');
+      if (isGold) {
+        goldenDucklings += hatched;
+        try { localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+      } else {
+        normalDucklings += hatched;
+        try { localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+      }
+
+      particles.push({
+        x: posX,
+        y: posY - 20,
+        vx: 0,
+        vy: -110,
+        size: 22,
+        alpha: 1.5,
+        text: isGold ? `✨🐣 Вылупилось золотых утят: ${hatched}!` : `🐣 Вылупилось утят: ${hatched}!`,
+        color: isGold ? '#facc15' : '#4ade80'
+      });
+
+      // Если на столе нет питомца, спавним одного утёнка на стол
+      if (!creatureOnDesk) {
+        spawnCreatureOnDesk(isGold ? 'goldenDuckling' : 'duckling');
+      }
+    } else {
+      corkPopSound();
+      particles.push({
+        x: posX,
+        y: posY - 15,
+        vx: 0,
+        vy: -80,
+        size: 16,
+        alpha: 1.3,
+        text: '💨 Яйца не вылупились...',
+        color: '#94a3b8'
+      });
+    }
+
+    updateIncubatorUI();
+    updateShopSellTab();
+  }
+  window.finishIncubation = finishIncubation;
+
+  /* ---------- Питомец на столе (Утёнок / Гусь / Жареный гусь) ---------- */
+  function spawnCreatureOnDesk(type) {
+    if (type === 'duckling' && normalDucklings > 0) {
+      normalDucklings--;
+      try { localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+    } else if (type === 'goldenDuckling' && goldenDucklings > 0) {
+      goldenDucklings--;
+      try { localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+    }
+
+    creatureOnDesk = { type: type };
+    ducklingGrowRemaining = 600; // 10 минут (600 сек)
+    try {
+      localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk));
+      localStorage.setItem(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining));
+    } catch (e) {}
+
+    const el = document.getElementById('deskCreature');
+    if (el) {
+      const incEl = document.getElementById('prop-incubator');
+      if (incEl && incEl.style.display !== 'none') {
+        const r = incEl.getBoundingClientRect();
+        el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, r.right + 20))}px`;
+        el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, r.top))}px`;
+      } else {
+        const rD = duck.getBoundingClientRect();
+        el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, rD.right + 30))}px`;
+        el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, rD.top + 50))}px`;
+      }
+      el.style.display = 'block';
+      if (creatureOnDesk) {
+        creatureOnDesk.left = el.style.left;
+        creatureOnDesk.top = el.style.top;
+        try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+      }
+    }
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+  }
+  window.spawnCreatureOnDesk = spawnCreatureOnDesk;
+
+  function updateDeskCreatureUI() {
+    const el = document.getElementById('deskCreature');
+    const vis = document.getElementById('deskCreatureVisual');
+    const badge = document.getElementById('deskCreatureAgeBadge');
+    const ageText = document.getElementById('deskCreatureAgeText');
+
+    if (!el || !vis) return;
+
+    if (!creatureOnDesk) {
+      el.style.display = 'none';
+      if (badge) badge.style.display = 'none';
+      return;
+    }
+
+    if (creatureOnDesk.left && creatureOnDesk.top && (!el.style.left || el.style.left === '')) {
+      el.style.left = creatureOnDesk.left;
+      el.style.top = creatureOnDesk.top;
+    }
+
+    el.style.display = 'block';
+    const type = creatureOnDesk.type;
+
+    vis.className = 'creature-visual';
+    if (type === 'duckling') {
+      vis.textContent = '🐥';
+      el.title = 'Маленький утёнок (перетаскивай! Продай в магазине или подожди, пока вырастет)';
+    } else if (type === 'goldenDuckling') {
+      vis.textContent = '✨🐥';
+      vis.classList.add('golden-creature');
+      el.title = 'Золотой утёнок (перетаскивай! Дорогая птица)';
+    } else if (type === 'goose') {
+      vis.textContent = '🪿';
+      vis.classList.add('goose-sprite');
+      el.title = 'Большой гусь (перетаскивай! Продай в магазине или зажарь)';
+    } else if (type === 'goldenGoose') {
+      vis.textContent = '✨🪿';
+      vis.classList.add('goose-sprite', 'golden-creature');
+      el.title = 'Золотой большой гусь (перетаскивай! Легендарная птица)';
+    } else if (type === 'roastedGoose') {
+      vis.textContent = '🍗🪿';
+      vis.classList.add('roasted-goose-sprite');
+      el.title = 'Жареный гусь (перетаскивай! Продай в магазине)';
+    } else if (type === 'goldenRoastedGoose') {
+      vis.textContent = '✨🍗';
+      vis.classList.add('roasted-goose-sprite', 'golden-creature');
+      el.title = 'Золотой жареный гусь (перетаскивай! Царское блюдо)';
+    }
+
+    // Таймер роста отображается только для утят и только если на столе есть Часы
+    if (badge && ageText) {
+      if ((type === 'duckling' || type === 'goldenDuckling') && isClockOnTable()) {
+        const mins = Math.floor(ducklingGrowRemaining / 60);
+        const secs = ducklingGrowRemaining % 60;
+        ageText.textContent = `🪿 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+  window.updateDeskCreatureUI = updateDeskCreatureUI;
+
+  function growDucklingToGoose() {
+    if (!creatureOnDesk) return;
+    const isGold = (creatureOnDesk.type === 'goldenDuckling');
+    creatureOnDesk.type = isGold ? 'goldenGoose' : 'goose';
+    try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+
+    gooseHonkSound();
+    const el = document.getElementById('deskCreature');
+    const r = el ? el.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2 };
+
+    particles.push({
+      x: r.left + 35,
+      y: r.top - 20,
+      vx: 0,
+      vy: -110,
+      size: 24,
+      alpha: 1.5,
+      text: isGold ? '✨🪿 Утёнок вырос в ЗОЛОТОГО гуся!' : '🪿 Утёнок вырос в большого гуся!',
+      color: isGold ? '#facc15' : '#38bdf8'
+    });
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+  }
+  window.growDucklingToGoose = growDucklingToGoose;
+
+  function burnDeskCreature() {
+    if (!creatureOnDesk) return;
+    burnSound();
+
+    const el = document.getElementById('deskCreature');
+    const r = el ? el.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2 };
+
+    particles.push({
+      x: r.left + 25,
+      y: r.top - 20,
+      vx: 0,
+      vy: -90,
+      size: 20,
+      alpha: 1.5,
+      text: '🔥💨 Утёнок сгорел дотла...',
+      color: '#ef4444'
+    });
+
+    creatureOnDesk = null;
+    try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+
+    hasFriedDuckling = true;
+    try {
+      localStorage.setItem(HAS_FRIED_DUCKLING_KEY, '1');
+      localStorage.setItem(STORAGE_PREFIX + 'crispy-duckling', '1');
+    } catch (e) {}
+    tryUnlock();
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+    checkAutoNextCreature();
+  }
+  window.burnDeskCreature = burnDeskCreature;
+
+  function roastDeskCreature() {
+    if (!creatureOnDesk) return;
+    sizzleSound(true);
+
+    const isGold = (creatureOnDesk.type === 'goldenGoose');
+    creatureOnDesk.type = isGold ? 'goldenRoastedGoose' : 'roastedGoose';
+    try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+
+    hasCookedGoose = true;
+    try {
+      localStorage.setItem(HAS_COOKED_GOOSE_KEY, '1');
+      localStorage.setItem(STORAGE_PREFIX + 'roasted-goose', '1');
+    } catch (e) {}
+    tryUnlock();
+
+    const el = document.getElementById('deskCreature');
+    const r = el ? el.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2 };
+
+    particles.push({
+      x: r.left + 35,
+      y: r.top - 20,
+      vx: 0,
+      vy: -110,
+      size: 22,
+      alpha: 1.5,
+      text: isGold ? '✨🍗 Золотой гусь аппетитно зажарен!' : '🍗🔥 Ароматный жареный гусь готов!',
+      color: isGold ? '#facc15' : '#ea580c'
+    });
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+  }
+  window.roastDeskCreature = roastDeskCreature;
+
+  function getCreaturePrice(type) {
+    if (type === 'duckling') return 10000;
+    if (type === 'goldenDuckling') return 50000;
+    if (type === 'goose') return 150000;
+    if (type === 'goldenGoose') return 500000;
+    if (type === 'roastedGoose') return 180000;
+    if (type === 'goldenRoastedGoose') return 650000;
+    return 0;
+  }
+
+  function getCreatureName(type) {
+    if (type === 'duckling') return 'Утёнок';
+    if (type === 'goldenDuckling') return 'Золотой утёнок';
+    if (type === 'goose') return 'Большой гусь';
+    if (type === 'goldenGoose') return 'Золотой большой гусь';
+    if (type === 'roastedGoose') return 'Жареный гусь';
+    if (type === 'goldenRoastedGoose') return 'Золотой жареный гусь';
+    return 'Питомец';
+  }
+
+  function sellDeskCreature() {
+    if (!creatureOnDesk) return;
+    const type = creatureOnDesk.type;
+    const price = getCreaturePrice(type);
+    const name = getCreatureName(type);
+
+    duckles += price;
+    updateDuckles(true);
+    xpSound();
+
+    const shopBtn = document.getElementById('shopBtn');
+    const shr = shopBtn ? shopBtn.getBoundingClientRect() : { left: window.innerWidth / 2, top: 40, width: 0 };
+    particles.push({
+      x: shr.left + shr.width / 2,
+      y: shr.top - 15,
+      vx: 0,
+      vy: -110,
+      size: 20,
+      alpha: 1.4,
+      text: `💰 Продано: ${name} (+${price.toLocaleString('ru-RU')} 🦆)`,
+      color: '#4ade80'
+    });
+
+    creatureOnDesk = null;
+    try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+    checkAutoNextCreature();
+  }
+  window.sellDeskCreature = sellDeskCreature;
+
+  function sellCreature(type, countOrAll) {
+    let avail = 0;
+    let onDesk = (creatureOnDesk && creatureOnDesk.type === type) ? 1 : 0;
+
+    if (type === 'duckling') avail = normalDucklings;
+    else if (type === 'goldenDuckling') avail = goldenDucklings;
+    else if (type === 'goose') avail = normalGeese;
+    else if (type === 'goldenGoose') avail = goldenGeese;
+    else if (type === 'roastedGoose') avail = normalRoastedGeese;
+    else if (type === 'goldenRoastedGoose') avail = goldenRoastedGeese;
+
+    const totalAvail = avail + onDesk;
+    if (totalAvail <= 0) return;
+
+    let sellCount = (countOrAll === 'all') ? totalAvail : Math.min(totalAvail, 1);
+    const price = getCreaturePrice(type);
+    const totalEarned = sellCount * price;
+    const name = getCreatureName(type);
+
+    let remainingToSell = sellCount;
+    // Сначала продаем из инвентаря
+    if (remainingToSell > 0 && avail > 0) {
+      const takeFromInv = Math.min(avail, remainingToSell);
+      if (type === 'duckling') normalDucklings -= takeFromInv;
+      else if (type === 'goldenDuckling') goldenDucklings -= takeFromInv;
+      else if (type === 'goose') normalGeese -= takeFromInv;
+      else if (type === 'goldenGoose') goldenGeese -= takeFromInv;
+      else if (type === 'roastedGoose') normalRoastedGeese -= takeFromInv;
+      else if (type === 'goldenRoastedGoose') goldenRoastedGeese -= takeFromInv;
+      remainingToSell -= takeFromInv;
+    }
+    // Если нужно, продаем и питомца со стола
+    if (remainingToSell > 0 && onDesk > 0) {
+      creatureOnDesk = null;
+      try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+    }
+
+    try {
+      localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+      localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+      localStorage.setItem(GEESE_NORMAL_KEY, String(normalGeese));
+      localStorage.setItem(GEESE_GOLDEN_KEY, String(goldenGeese));
+      localStorage.setItem(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+      localStorage.setItem(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+    } catch (e) {}
+
+    duckles += totalEarned;
+    updateDuckles(true);
+    xpSound();
+
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -110,
+      size: 20,
+      alpha: 1.4,
+      text: `💰 Продано: ${sellCount} шт. (${name}) +${totalEarned.toLocaleString('ru-RU')} 🦆`,
+      color: '#4ade80'
+    });
+
+    updateDeskCreatureUI();
+    updateShopSellTab();
+    checkAutoNextCreature();
+  }
+  window.sellCreature = sellCreature;
+
+  function checkAutoNextCreature() {
+    if (creatureOnDesk) return;
+    if (normalDucklings > 0) spawnCreatureOnDesk('duckling');
+    else if (goldenDucklings > 0) spawnCreatureOnDesk('goldenDuckling');
+    else if (normalGeese > 0) spawnCreatureOnDesk('goose');
+    else if (goldenGeese > 0) spawnCreatureOnDesk('goldenGoose');
+  }
+
+  function initDraggableCreature(el) {
+    if (!el) return;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      hidePropContextMenu();
+      isDragging = true;
+      el.classList.add('is-dragging');
+      el.classList.remove('is-walking');
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      const rect = el.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      e.stopPropagation();
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const x = Math.max(10, Math.min(window.innerWidth - el.offsetWidth - 10, e.clientX - startX));
+      const y = Math.max(60, Math.min(window.innerHeight - el.offsetHeight - 20, e.clientY - startY));
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+
+      // Проверка наведения на кнопку Магазин
+      const shopBtn = document.getElementById('shopBtn');
+      if (shopBtn) {
+        const isNear = isCursorNearShop(e.clientX, e.clientY, el);
+        shopBtn.classList.toggle('drag-target-hover', isNear);
+      }
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+      el.classList.remove('is-dragging');
+
+      const shopBtn = document.getElementById('shopBtn');
+      if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+
+      const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : undefined;
+      const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
+
+      // 1. Проверка продажи на кнопку Магазин
+      if (cx !== undefined && cy !== undefined && isCursorNearShop(cx, cy, el)) {
+        sellDeskCreature();
+        return;
+      }
+
+      // 2. Проверка зажаривания на плите со сковородой
+      if (isStoveCombined && cx !== undefined && cy !== undefined && creatureOnDesk) {
+        const plitaEl = document.getElementById('prop-plita');
+        const skovEl = document.getElementById('prop-skovoroda');
+        const stoveEl = (plitaEl && plitaEl.style.display !== 'none') ? plitaEl : skovEl;
+        if (stoveEl && stoveEl.style.display !== 'none') {
+          const stRect = stoveEl.getBoundingClientRect();
+          const isOverStove = (cx >= stRect.left - 25 && cx <= stRect.right + 25 &&
+                               cy >= stRect.top - 25 && cy <= stRect.bottom + 25);
+          if (isOverStove) {
+            const t = creatureOnDesk.type;
+            if (t === 'duckling' || t === 'goldenDuckling') {
+              burnDeskCreature();
+              return;
+            } else if (t === 'goose' || t === 'goldenGoose') {
+              roastDeskCreature();
+              return;
+            }
+          }
+        }
+      }
+
+      if (creatureOnDesk) {
+        creatureOnDesk.left = el.style.left;
+        creatureOnDesk.top = el.style.top;
+        try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (err) {}
+      }
+    };
+
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+
+    // ПКМ контекстное меню для питомца
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!creatureOnDesk) return;
+
+      const price = getCreaturePrice(creatureOnDesk.type);
+      const name = getCreatureName(creatureOnDesk.type);
+
+      const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
+      const propCtxRefundBtn = document.getElementById('propCtxRefundBtn');
+      const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
+      const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
+      const propCtxCreatureSellBtn = document.getElementById('propCtxCreatureSellBtn');
+
+      if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
+      if (propCtxRefundBtn) propCtxRefundBtn.style.display = 'none';
+      if (propCtxSell1Btn) propCtxSell1Btn.style.display = 'none';
+      if (propCtxSellAllBtn) propCtxSellAllBtn.style.display = 'none';
+
+      if (propCtxCreatureSellBtn) {
+        propCtxCreatureSellBtn.style.display = 'flex';
+        propCtxCreatureSellBtn.innerHTML = `<span class="prop-ctx-icon">💰</span> Продать ${name} (+${price.toLocaleString('ru-RU')} 🦆)`;
+        propCtxCreatureSellBtn.onclick = () => {
+          sellDeskCreature();
+          hidePropContextMenu();
+        };
+      }
+
+      const propContextMenu = document.getElementById('propContextMenu');
+      if (propContextMenu) {
+        propContextMenu.style.display = 'block';
+        propContextMenu.style.left = `${Math.min(window.innerWidth - 220, e.clientX)}px`;
+        propContextMenu.style.top = `${Math.min(window.innerHeight - 80, e.clientY)}px`;
+      }
+    });
+  }
+  window.initDraggableCreature = initDraggableCreature;
+
+  let deskCreatureWanderInterval = null;
+  function startDeskCreatureWander() {
+    if (deskCreatureWanderInterval) clearInterval(deskCreatureWanderInterval);
+    deskCreatureWanderInterval = setInterval(() => {
+      const el = document.getElementById('deskCreature');
+      if (!el || el.style.display === 'none' || el.classList.contains('is-dragging')) return;
+      if (!creatureOnDesk) return;
+      if (creatureOnDesk.type === 'roastedGoose' || creatureOnDesk.type === 'goldenRoastedGoose') return;
+
+      if (Math.random() < 0.45) {
+        let curLeft = parseFloat(el.style.left) || (window.innerWidth / 2);
+        let curTop = parseFloat(el.style.top) || (window.innerHeight - 120);
+
+        const moveX = (Math.random() - 0.5) * 70;
+        const moveY = (Math.random() - 0.5) * 40;
+
+        const newLeft = Math.max(20, Math.min(window.innerWidth - 90, curLeft + moveX));
+        const newTop = Math.max(window.innerHeight - 220, Math.min(window.innerHeight - 80, curTop + moveY));
+
+        el.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out, transform 0.4s ease';
+        el.style.left = `${newLeft}px`;
+        el.style.top = `${newTop}px`;
+
+        const facing = moveX < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+        el.style.transform = `${facing} translateY(-8px)`;
+        setTimeout(() => {
+          if (!el.classList.contains('is-dragging')) {
+            el.style.transform = facing;
+          }
+        }, 400);
+      }
+    }, 2400);
+  }
+  window.startDeskCreatureWander = startDeskCreatureWander;
+
+
+  function cheatFastIncubate() {
+    if (isIncubating) {
+      incubatingRemaining = 1;
+      updateIncubatorUI();
+    }
+    if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
+      ducklingGrowRemaining = 1;
+      updateDeskCreatureUI();
+    }
+  }
+  window.cheatFastIncubate = cheatFastIncubate;
+
   function initDraggableEgg(el, explicitType) {
     if (!el) return;
     let isDragging = false;
@@ -4886,6 +6138,15 @@
       currentTilt = Math.max(-28, Math.min(28, dx * 2.8));
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.14) rotate(${currentTilt}deg)`;
+
+            // Подсветка инкубатора при наведении яйца
+      const incubatorEl = document.getElementById('prop-incubator');
+      if (incubatorEl && incubatorEl.style.display !== 'none') {
+        const rInc = incubatorEl.getBoundingClientRect();
+        const isNear = (e.clientX >= rInc.left - 15 && e.clientX <= rInc.right + 15 &&
+                        e.clientY >= rInc.top - 15 && e.clientY <= rInc.bottom + 15);
+        incubatorEl.classList.toggle('drag-target-hover', isNear);
+      }
 
       // Подсветка кнопки «Магазин» при наведении яйца для быстрой продажи
       const shopBtn = document.getElementById('shopBtn');
@@ -4958,6 +6219,33 @@
 
       el.classList.add('is-wobbling');
       setTimeout(() => el.classList.remove('is-wobbling'), 650);
+
+            // Проверка переноса яйца на Инкубатор
+      const incubatorEl = document.getElementById('prop-incubator');
+      if (incubatorEl && incubatorEl.style.display !== 'none' && (eggType === 'normal' || eggType === 'golden')) {
+        const rInc = incubatorEl.getBoundingClientRect();
+        const isOverIncubator = (cursorX >= rInc.left - 20 && cursorX <= rInc.right + 20 &&
+                                 cursorY >= rInc.top - 20 && cursorY <= rInc.bottom + 20);
+        incubatorEl.classList.remove('drag-target-hover');
+        if (isOverIncubator) {
+          if (isIncubating) {
+            corkPopSound();
+            particles.push({
+              x: cursorX,
+              y: cursorY - 15,
+              vx: 0,
+              vy: -90,
+              size: 16,
+              alpha: 1.2,
+              text: '🐣 Инкубатор уже занят!',
+              color: '#fbbf24'
+            });
+          } else {
+            openIncubatorModal(eggType);
+          }
+          return;
+        }
+      }
 
       // Проверка переноса яйца на объединённую плиту со сковородой (только сырые яйца!)
       if ((eggType === 'normal' || eggType === 'golden') && isStoveCombined) {
@@ -5111,6 +6399,99 @@
     } else {
       if (sellFriedCard) sellFriedCard.style.display = 'none';
       if (sellGoldenFriedCard) sellGoldenFriedCard.style.display = 'none';
+    }
+
+    // Обновление карточек продажи питомцев
+    const dCount = normalDucklings + ((creatureOnDesk && creatureOnDesk.type === 'duckling') ? 1 : 0);
+    const gdCount = goldenDucklings + ((creatureOnDesk && creatureOnDesk.type === 'goldenDuckling') ? 1 : 0);
+    const gCount = normalGeese + ((creatureOnDesk && creatureOnDesk.type === 'goose') ? 1 : 0);
+    const ggCount = goldenGeese + ((creatureOnDesk && creatureOnDesk.type === 'goldenGoose') ? 1 : 0);
+    const rgCount = normalRoastedGeese + ((creatureOnDesk && creatureOnDesk.type === 'roastedGoose') ? 1 : 0);
+    const grgCount = goldenRoastedGeese + ((creatureOnDesk && creatureOnDesk.type === 'goldenRoastedGoose') ? 1 : 0);
+
+    const sDCard = document.getElementById('sellDucklingCard');
+    const sGDCard = document.getElementById('sellGoldenDucklingCard');
+    const sGCard = document.getElementById('sellGooseCard');
+    const sGGCard = document.getElementById('sellGoldenGooseCard');
+    const sRGCard = document.getElementById('sellRoastedGooseCard');
+    const sGRGCard = document.getElementById('sellGoldenRoastedGooseCard');
+
+    if (sDCard) {
+      sDCard.style.display = (dCount > 0 || hasHatchedDuckling) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopDucklingsCount');
+      if (cEl) cEl.textContent = dCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellDuckling1Btn');
+      const bAll = document.getElementById('sellDucklingAllBtn');
+      if (b1) b1.disabled = dCount < 1;
+      if (bAll) {
+        bAll.disabled = dCount < 1;
+        bAll.textContent = `Продать всё (+${(dCount * 10000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
+    if (sGDCard) {
+      sGDCard.style.display = (gdCount > 0 || (hasHatchedDuckling && goldenEggs > 0)) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopGoldenDucklingsCount');
+      if (cEl) cEl.textContent = gdCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellGoldenDuckling1Btn');
+      const bAll = document.getElementById('sellGoldenDucklingAllBtn');
+      if (b1) b1.disabled = gdCount < 1;
+      if (bAll) {
+        bAll.disabled = gdCount < 1;
+        bAll.textContent = `Продать всё (+${(gdCount * 50000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
+    if (sGCard) {
+      sGCard.style.display = (gCount > 0) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopGeeseCount');
+      if (cEl) cEl.textContent = gCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellGoose1Btn');
+      const bAll = document.getElementById('sellGooseAllBtn');
+      if (b1) b1.disabled = gCount < 1;
+      if (bAll) {
+        bAll.disabled = gCount < 1;
+        bAll.textContent = `Продать всё (+${(gCount * 150000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
+    if (sGGCard) {
+      sGGCard.style.display = (ggCount > 0) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopGoldenGeeseCount');
+      if (cEl) cEl.textContent = ggCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellGoldenGoose1Btn');
+      const bAll = document.getElementById('sellGoldenGooseAllBtn');
+      if (b1) b1.disabled = ggCount < 1;
+      if (bAll) {
+        bAll.disabled = ggCount < 1;
+        bAll.textContent = `Продать всё (+${(ggCount * 500000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
+    if (sRGCard) {
+      sRGCard.style.display = (rgCount > 0 || hasCookedGoose) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopRoastedGeeseCount');
+      if (cEl) cEl.textContent = rgCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellRoastedGoose1Btn');
+      const bAll = document.getElementById('sellRoastedGooseAllBtn');
+      if (b1) b1.disabled = rgCount < 1;
+      if (bAll) {
+        bAll.disabled = rgCount < 1;
+        bAll.textContent = `Продать всё (+${(rgCount * 180000).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
+    if (sGRGCard) {
+      sGRGCard.style.display = (grgCount > 0 || hasCookedGoose) ? 'flex' : 'none';
+      const cEl = document.getElementById('shopGoldenRoastedGeeseCount');
+      if (cEl) cEl.textContent = grgCount.toLocaleString('ru-RU');
+      const b1 = document.getElementById('sellGoldenRoastedGoose1Btn');
+      const bAll = document.getElementById('sellGoldenRoastedGooseAllBtn');
+      if (b1) b1.disabled = grgCount < 1;
+      if (bAll) {
+        bAll.disabled = grgCount < 1;
+        bAll.textContent = `Продать всё (+${(grgCount * 650000).toLocaleString('ru-RU')} 🦆)`;
+      }
     }
   }
 
@@ -5504,6 +6885,20 @@
         returnPropToStorage(itemId);
       }
 
+      if (itemId === 'incubator' && isIncubating) {
+        if (incubatingType === 'golden') goldenEggs += incubatingCount;
+        else normalEggs += incubatingCount;
+        updateEggsDisplay();
+        isIncubating = false;
+        try {
+          localStorage.removeItem(IS_INCUBATING_KEY);
+          localStorage.removeItem(INCUBATING_REMAINING_KEY);
+          localStorage.removeItem(INCUBATING_COUNT_KEY);
+          localStorage.removeItem(INCUBATING_TYPE_KEY);
+        } catch (e) {}
+        updateIncubatorUI();
+      }
+
       const pIdx = ownedProps.indexOf(itemId);
       if (pIdx !== -1) ownedProps.splice(pIdx, 1);
       window.ownedProps = ownedProps;
@@ -5772,6 +7167,7 @@
       return { width: el.offsetWidth, height: el.offsetHeight };
     }
     if (propId === 'trashcan') return { width: 234, height: 234 };
+    if (propId === 'incubator') return { width: 92, height: 92 };
     if (propId === 'plita') return { width: 96, height: 96 };
     if (propId === 'fridge') return { width: 88, height: 96 };
     if (propId === 'clock') return { width: 82, height: 82 };
@@ -5794,7 +7190,8 @@
     const propHeight = dims.height;
 
     if (!placedProps[propId] || !placedProps[propId].left) {
-      const offset = (propId === 'plita') ? 60 : 
+      const offset = (propId === 'incubator') ? -140 :
+                     (propId === 'plita') ? 60 : 
                      (propId === 'skovoroda' ? -60 : 
                      (propId === 'lamp' ? -180 : 
                      (propId === 'fridge' ? -120 : 
@@ -5833,6 +7230,7 @@
       updateEggSpoilTimerDisplay();
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
       if (typeof updateDeflationUI === 'function') updateDeflationUI();
+      if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
     }
 
     if (propId === 'skovoroda' || propId === 'plita') {
@@ -5865,6 +7263,7 @@
       updateEggSpoilTimerDisplay();
       if (typeof updateStinkDebuffUI === 'function') updateStinkDebuffUI();
       if (typeof updateDeflationUI === 'function') updateDeflationUI();
+      if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
     }
   }
   window.returnPropToStorage = returnPropToStorage;
@@ -7769,6 +9168,26 @@
         }
       }
 
+      // Инкубация яиц: 2 минуты (120 сек)
+      if (isIncubating) {
+        incubatingRemaining = Math.max(0, incubatingRemaining - 1);
+        try { localStorage.setItem(INCUBATING_REMAINING_KEY, String(incubatingRemaining)); } catch (e) {}
+        updateIncubatorUI();
+        if (incubatingRemaining <= 0) {
+          finishIncubation();
+        }
+      }
+
+      // Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
+      if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
+        ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - 1);
+        try { localStorage.setItem(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
+        updateDeskCreatureUI();
+        if (ducklingGrowRemaining <= 0) {
+          growDucklingToGoose();
+        }
+      }
+
       // Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
       if (isDuckDeflating) {
         deflationRemaining = Math.max(0, deflationRemaining - 1);
@@ -8268,14 +9687,47 @@
   initDraggableProp(document.getElementById('prop-clock'), 'clock');
   initDraggableProp(document.getElementById('prop-knife'), 'knife');
   initDraggableProp(document.getElementById('prop-tape'), 'tape');
+  initDraggableProp(document.getElementById('prop-incubator'), 'incubator');
+  initDraggableCreature(document.getElementById('deskCreature'));
   applySkin(currentSkin);
   restorePropsOnScreen();
   clampAllPlacedPropsToScreen();
   updateLampGlowUI();
   updateFridgeUI();
   updateDeflationUI();
+  updateIncubatorUI();
+  updateDeskCreatureUI();
+  startDeskCreatureWander();
   updateBadgesPosition();
-  window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); });
+  function clampDeskCreatureToScreen() {
+
+    const el = document.getElementById('deskCreature');
+
+    if (!el || el.style.display === 'none' || !creatureOnDesk) return;
+
+    const curLeft = parseFloat(el.style.left);
+
+    const curTop = parseFloat(el.style.top);
+
+    if (!isNaN(curLeft)) {
+
+      const maxL = Math.max(10, window.innerWidth - (el.offsetWidth || 60) - 10);
+
+      el.style.left = Math.max(10, Math.min(maxL, curLeft)) + 'px';
+
+    }
+
+    if (!isNaN(curTop)) {
+
+      const maxT = Math.max(60, window.innerHeight - (el.offsetHeight || 60) - 20);
+
+      el.style.top = Math.max(60, Math.min(maxT, curTop)) + 'px';
+
+    }
+
+  }
+
+  window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); clampDeskCreatureToScreen(); });
   startEggSpoilTicker();
 
   if (localStorage.getItem('duck-rotten-egg-active') === '1') {
