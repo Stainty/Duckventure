@@ -294,7 +294,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       cost: 50000,
       icon: 'https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7',
       fallbackEmoji: '🐣',
-      desc: 'Автоматический инкубатор для яиц. За 2 минуты с шансом 90% выводит маленького утенка.'
+      desc: 'Автоматический инкубатор для яиц. Почти всегда превращает яйца в живой желток'
     },
     skovoroda: {
       id: 'skovoroda',
@@ -357,7 +357,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       cost: 1000,
       icon: 'https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI',
       fallbackEmoji: '🗑️',
-      desc: 'Позволяет выбрасывать протухшие яйца со стола.'
+      desc: 'Позволяет выбрасывать всякий мусор.'
     },
     clock: {
       id: 'clock',

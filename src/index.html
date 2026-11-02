@@ -482,62 +482,62 @@
   </button>
 
   <!-- Перетаскиваемые яйца на экране -->
-  <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
-  <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
-  <div id="friedEgg" class="draggable-egg fried-egg" title="Жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">🍳</div>
-  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" title="Золотое жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">✨🍳</div>
-  <div id="rottenEgg" class="draggable-egg rotten-egg" title="Тухлое яйцо (Кликни, чтобы выбросить!)" style="display: none;">🤢</div>
+  <div id="normalEgg" class="draggable-egg normal-egg">🥚</div>
+  <div id="goldenEgg" class="draggable-egg golden-egg">🥚</div>
+  <div id="friedEgg" class="draggable-egg fried-egg" style="display: none;">🍳</div>
+  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" style="display: none;">✨🍳</div>
+  <div id="rottenEgg" class="draggable-egg rotten-egg" style="display: none;">🤢</div>
 
   <!-- Перетаскиваемые бытовые предметы на экране -->
-  <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-skovoroda" class="draggable-prop" style="display: none;">
     <img src="https://pngicon.net/file/uploads/skovoroda-243x256.png" alt="Сковорода" draggable="false" referrerpolicy="no-referrer">
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-plita" class="draggable-prop" title="Плита (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-plita" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe" alt="Плита" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🎛️</span>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-fridge" class="draggable-prop" title="Вонючий старый холодильник (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-fridge" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧊</span>
     <button class="fridge-toggle-btn" id="fridgeToggleBtn" title="Включить / Выключить холодильник" onclick="toggleFridge(event)">❄️</button>
   </div>
-  <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-dichlofos" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧴</span>
   </div>
-  <div id="prop-key" class="draggable-prop" title="Ключ (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-key" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔑</span>
   </div>
-  <div id="prop-lamp" class="draggable-prop" title="Напольная лампа (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-lamp" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">💡</span>
     <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
   </div>
-  <div id="prop-trashcan" class="draggable-prop" title="Мусорное ведро (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-trashcan" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI" alt="Мусорное ведро" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 156px;">🗑️</span>
   </div>
-  <div id="prop-clock" class="draggable-prop" title="Напольные часы (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-clock" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1LBfmZcEwiCMYQRDy-GKlgAnQZBJYesag" alt="Напольные часы" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🕰️</span>
   </div>
-  <div id="prop-knife" class="draggable-prop" title="Кухонный нож (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-knife" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1V2Yi1ljXGKo-8FUbYne42jgeSJY2I8gY" alt="Кухонный нож" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔪</span>
   </div>
   
-  <div id="prop-incubator" class="draggable-prop" title="Инкубатор (перетаскивай! Нажми, чтобы загрузить яйца)" style="display: none;" onclick="handleIncubatorClick(event)">
+  <div id="prop-incubator" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7" alt="Инкубатор" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🐣</span>
@@ -547,14 +547,14 @@
     </div>
   </div>
 
-  <div id="deskCreature" class="draggable-prop desk-creature" title="Питомец (перетаскивай! Перетащи в магазин, чтобы продать)" style="display: none;">
+  <div id="deskCreature" class="draggable-prop desk-creature" style="display: none;">
     <div id="deskCreatureVisual" class="creature-visual">🐣</div>
     <div id="deskCreatureAgeBadge" class="creature-age-badge" style="display: none;">
       <span id="deskCreatureAgeText">10:00</span>
     </div>
   </div>
 
-  <div id="prop-tape" class="draggable-prop" title="Изолента (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+  <div id="prop-tape" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a" alt="Изолента" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🩹</span>

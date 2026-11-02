@@ -484,27 +484,21 @@
     vis.className = 'creature-visual';
     if (type === 'duckling') {
       vis.textContent = '🐥';
-      el.title = 'Маленький утёнок (перетаскивай! Продай в магазине или подожди, пока вырастет)';
     } else if (type === 'goldenDuckling') {
       vis.textContent = '✨🐥';
       vis.classList.add('golden-creature');
-      el.title = 'Золотой утёнок (перетаскивай! Дорогая птица)';
     } else if (type === 'goose') {
       vis.textContent = '🪿';
       vis.classList.add('goose-sprite');
-      el.title = 'Большой гусь (перетаскивай! Продай в магазине или зажарь)';
     } else if (type === 'goldenGoose') {
       vis.textContent = '✨🪿';
       vis.classList.add('goose-sprite', 'golden-creature');
-      el.title = 'Золотой большой гусь (перетаскивай! Легендарная птица)';
     } else if (type === 'roastedGoose') {
       vis.textContent = '🍗🪿';
       vis.classList.add('roasted-goose-sprite');
-      el.title = 'Жареный гусь (перетаскивай! Продай в магазине)';
     } else if (type === 'goldenRoastedGoose') {
       vis.textContent = '✨🍗';
       vis.classList.add('roasted-goose-sprite', 'golden-creature');
-      el.title = 'Золотой жареный гусь (перетаскивай! Царское блюдо)';
     }
 
     // Таймер роста отображается только для утят и только если на столе есть Часы

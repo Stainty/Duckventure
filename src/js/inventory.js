@@ -956,8 +956,6 @@
     plitaEl.classList.add('is-combined');
     skovEl.classList.add('is-combined');
 
-    plitaEl.title = 'Плита со сковородой (🔥 перетащи сюда яйцо для жарки!)';
-    skovEl.title = 'Сковорода на плите (🔥 перетащи сюда яйцо для жарки!)';
 
     if (withEffects) {
       clinkSound();
@@ -984,11 +982,9 @@
 
     if (plitaEl) {
       plitaEl.classList.remove('is-combined');
-      plitaEl.title = 'Плита (перетаскивай! Кликни ✕ чтобы убрать на склад)';
     }
     if (skovEl) {
       skovEl.classList.remove('is-combined');
-      skovEl.title = 'Сковорода (перетаскивай! Кликни ✕ чтобы убрать на склад)';
 
       if (withEffects && plitaEl) {
         const pX = parseFloat(plitaEl.style.left) || plitaEl.offsetLeft;
@@ -1224,12 +1220,20 @@
     let startY = 0;
     let lastClientX = 0;
     let currentTilt = 0;
+    let dragDistance = 0;
+    let downX = 0;
+    let downY = 0;
+    let isDragAction = false;
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
       if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
       hidePropContextMenu();
       isDragging = true;
+      isDragAction = false;
+      dragDistance = 0;
+      downX = e.clientX;
+      downY = e.clientY;
       el.classList.add('is-dragging');
       el.classList.remove('is-wobbling');
       try { el.setPointerCapture(e.pointerId); } catch (err) {}
@@ -1243,6 +1247,10 @@
 
     el.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
+      dragDistance = Math.hypot(e.clientX - downX, e.clientY - downY);
+      if (dragDistance > 5) {
+        isDragAction = true;
+      }
       const dims = getPropDimensions(propId);
       const propW = Math.max(el.offsetWidth || 0, dims.width || 0);
       const propH = Math.max(el.offsetHeight || 0, dims.height || 0);
@@ -1409,6 +1417,25 @@
 
     el.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
+
+    // Клик по предмету (для инкубатора): открывать меню только если предмет НЕ перетаскивали
+    el.addEventListener('click', (e) => {
+      if (isDragAction || dragDistance > 5) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        isDragAction = false;
+        dragDistance = 0;
+        return;
+      }
+      if (propId === 'incubator') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof openIncubatorModal === 'function') {
+          openIncubatorModal();
+        }
+      }
+    }, true);
 
     // ПКМ по предмету: открытие контекстного меню
     el.addEventListener('contextmenu', (e) => {
