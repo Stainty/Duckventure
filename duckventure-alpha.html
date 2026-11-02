@@ -3228,55 +3228,126 @@
   const LAMP_ON_KEY = 'duck-lamp-on';
   const FRIDGE_ON_KEY = 'duck-fridge-on';
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
+  const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
 
-  let quackCount = parseInt(localStorage.getItem(QUACK_KEY) || '0', 10) || 0;
-  let duckles = parseInt(localStorage.getItem(DUCKLES_KEY) ?? quackCount, 10) || 0;
-  window.setDuckles = (v) => { duckles = v; updateDuckles(); };
+  /* ==========================================================================
+     Устойчивое хранилище (Safe LocalStorage Layer)
+     ========================================================================== */
+  const Storage = {
+    get(key, defaultValue = null) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : defaultValue;
+      } catch (err) {
+        console.warn(`[Duckventure Storage] Failed to read key "${key}":`, err);
+        return defaultValue;
+      }
+    },
+    getNumber(key, defaultValue = 0, min = 0, max = Infinity) {
+      try {
+        const val = localStorage.getItem(key);
+        if (val === null || val === undefined || val === '') return defaultValue;
+        const num = parseInt(val, 10);
+        if (Number.isNaN(num) || !Number.isFinite(num)) return defaultValue;
+        return Math.min(max, Math.max(min, num));
+      } catch (err) {
+        console.warn(`[Duckventure Storage] Failed to read number key "${key}":`, err);
+        return defaultValue;
+      }
+    },
+    getBoolean(key, defaultValue = false) {
+      try {
+        const val = localStorage.getItem(key);
+        if (val === null) return defaultValue;
+        return val === '1' || val === 'true';
+      } catch (err) {
+        console.warn(`[Duckventure Storage] Failed to read boolean key "${key}":`, err);
+        return defaultValue;
+      }
+    },
+    getJSON(key, defaultValue = null, validator = null) {
+      try {
+        const val = localStorage.getItem(key);
+        if (val === null || val === undefined || val === '') return defaultValue;
+        const parsed = JSON.parse(val);
+        if (validator && typeof validator === 'function') {
+          return validator(parsed) ? parsed : defaultValue;
+        }
+        return (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
+      } catch (err) {
+        console.warn(`[Duckventure Storage] Failed to parse JSON key "${key}":`, err);
+        return defaultValue;
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, String(value));
+        return true;
+      } catch (err) {
+        console.error(`[Duckventure Storage] Failed to write key "${key}":`, err);
+        return false;
+      }
+    },
+    setJSON(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (err) {
+        console.error(`[Duckventure Storage] Failed to write JSON key "${key}":`, err);
+        return false;
+      }
+    },
+    remove(key) {
+      try {
+        localStorage.removeItem(key);
+        return true;
+      } catch (err) {
+        console.warn(`[Duckventure Storage] Failed to remove key "${key}":`, err);
+        return false;
+      }
+    }
+  };
+  window.DuckStorage = Storage;
+
+  let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
+  let duckles = Storage.getNumber(DUCKLES_KEY, quackCount, 0);
+  window.setDuckles = (v) => { if (typeof setDuckles === 'function') setDuckles(v); else { duckles = Math.max(0, parseInt(v, 10) || 0); Storage.set(DUCKLES_KEY, String(duckles)); if (typeof updateDuckles === 'function') updateDuckles(); } };
   window.getDuckles = () => duckles;
-  let hintCount = parseInt(localStorage.getItem(HINT_KEY) || '0', 10) || 0;
-  let keyPressed = localStorage.getItem(KEY_PRESSED_KEY) === '1';
-  let duckSeqDone = localStorage.getItem(SEQ_DONE_KEY) === '1';
-  let lockedCardClicked = localStorage.getItem(LOCKED_CLICKED_KEY) === '1';
-  let devToolsOpened = localStorage.getItem(DEVTOOLS_KEY) === '1';
-  let badWordsTyped = localStorage.getItem(BAD_WORDS_KEY) === '1';
-  let gtaCheatTyped = localStorage.getItem(GTA_CHEAT_KEY) === '1';
-  let beastNumberTyped = localStorage.getItem(BEAST_NUMBER_KEY) === '1';
-  let hoverWaitDone = localStorage.getItem(HOVER_WAIT_KEY) === '1';
+  let hintCount = Storage.getNumber(HINT_KEY, 0, 0);
+  let keyPressed = Storage.getBoolean(KEY_PRESSED_KEY, false);
+  let duckSeqDone = Storage.getBoolean(SEQ_DONE_KEY, false);
+  let lockedCardClicked = Storage.getBoolean(LOCKED_CLICKED_KEY, false);
+  let devToolsOpened = Storage.getBoolean(DEVTOOLS_KEY, false);
+  let badWordsTyped = Storage.getBoolean(BAD_WORDS_KEY, false);
+  let gtaCheatTyped = Storage.getBoolean(GTA_CHEAT_KEY, false);
+  let beastNumberTyped = Storage.getBoolean(BEAST_NUMBER_KEY, false);
+  let hoverWaitDone = Storage.getBoolean(HOVER_WAIT_KEY, false);
 
-  let playerLevel = parseInt(localStorage.getItem(LEVEL_KEY) || '1', 10) || 1;
-  let playerExp = parseInt(localStorage.getItem(EXP_KEY) || '0', 10) || 0;
+  let playerLevel = Storage.getNumber(LEVEL_KEY, 1, 1, 20);
+  let playerExp = Storage.getNumber(EXP_KEY, 0, 0);
 
-  let normalEggs = parseInt(localStorage.getItem(EGGS_NORMAL_KEY) || '0', 10) || 0;
-  let goldenEggs = parseInt(localStorage.getItem(EGGS_GOLDEN_KEY) || '0', 10) || 0;
-  let friedEggs = parseInt(localStorage.getItem(FRIED_EGGS_KEY) || '0', 10) || 0;
-  let goldenFriedEggs = parseInt(localStorage.getItem(GOLDEN_FRIED_EGGS_KEY) || '0', 10) || 0;
-  let hasUnlockedFriedEggs = localStorage.getItem(HAS_FRIED_KEY) === '1' || friedEggs > 0 || goldenFriedEggs > 0;
-  let hasCookedEgg = localStorage.getItem(COOKED_EGG_KEY) === '1' || hasUnlockedFriedEggs;
-  let isStoveCombined = localStorage.getItem(STOVE_COMBINED_KEY) === '1';
-  let hasPlacedFridge = localStorage.getItem(PLACED_FRIDGE_KEY) === '1';
-  let isRoachesActive = localStorage.getItem(ROACHES_ACTIVE_KEY) === '1';
-  let hasUsedDichlofos = localStorage.getItem(USED_DICHLOFOS_KEY) === '1';
-  let hasClearedRoaches = localStorage.getItem(CLEARED_ROACHES_KEY) === '1';
-  let hasMovedDuck = localStorage.getItem(MOVED_DUCK_KEY) === '1';
-  let hasSpawnedKey = localStorage.getItem(SPAWNED_KEY_KEY) === '1';
-  let isClothingCollapsed = localStorage.getItem(SHOP_CLOTHING_COLLAPSED_KEY) === '1';
-  let isHouseholdCollapsed = localStorage.getItem(SHOP_HOUSEHOLD_COLLAPSED_KEY) === '1';
-  let hasSmashedEggs = localStorage.getItem(HAS_SMASHED_EGGS_KEY) === '1';
-  let hasFriedDuck = false;
-  try {
-    hasFriedDuck = localStorage.getItem(HAS_FRIED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'monster') === '1';
-  } catch (e) {}
-  let hasStabbedDuck = false;
-  try {
-    hasStabbedDuck = localStorage.getItem(HAS_STABBED_DUCK_KEY) === '1' || localStorage.getItem(STORAGE_PREFIX + 'accident') === '1';
-  } catch (e) {}
-  let hasPatchedDuck = false;
-  try {
-    hasPatchedDuck = localStorage.getItem(HAS_PATCHED_DUCK_KEY) === '1';
-  } catch (e) {}
+  let normalEggs = Storage.getNumber(EGGS_NORMAL_KEY, 0, 0);
+  let goldenEggs = Storage.getNumber(EGGS_GOLDEN_KEY, 0, 0);
+  let friedEggs = Storage.getNumber(FRIED_EGGS_KEY, 0, 0);
+  let goldenFriedEggs = Storage.getNumber(GOLDEN_FRIED_EGGS_KEY, 0, 0);
+  let hasUnlockedFriedEggs = Storage.getBoolean(HAS_FRIED_KEY, false) || friedEggs > 0 || goldenFriedEggs > 0;
+  let hasCookedEgg = Storage.getBoolean(COOKED_EGG_KEY, false) || hasUnlockedFriedEggs;
+  let isStoveCombined = Storage.getBoolean(STOVE_COMBINED_KEY, false);
+  let hasPlacedFridge = Storage.getBoolean(PLACED_FRIDGE_KEY, false);
+  let isRoachesActive = Storage.getBoolean(ROACHES_ACTIVE_KEY, false);
+  let hasUsedDichlofos = Storage.getBoolean(USED_DICHLOFOS_KEY, false);
+  let hasClearedRoaches = Storage.getBoolean(CLEARED_ROACHES_KEY, false);
+  let hasMovedDuck = Storage.getBoolean(MOVED_DUCK_KEY, false);
+  let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
+  let isClothingCollapsed = Storage.getBoolean(SHOP_CLOTHING_COLLAPSED_KEY, false);
+  let isHouseholdCollapsed = Storage.getBoolean(SHOP_HOUSEHOLD_COLLAPSED_KEY, false);
+  let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
+  let hasFriedDuck = Storage.getBoolean(HAS_FRIED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'monster', false);
+  let hasStabbedDuck = Storage.getBoolean(HAS_STABBED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'accident', false);
+  let hasPatchedDuck = Storage.getBoolean(HAS_PATCHED_DUCK_KEY, false);
   let isCookedDuckActive = false;
-  let isDuckDeflating = localStorage.getItem(DUCK_IS_DEFLATING_KEY) === '1';
-  let deflationRemaining = parseInt(localStorage.getItem(DUCK_DEFLATING_REMAINING_KEY) || '300', 10);
+  let isDuckDeflating = Storage.getBoolean(DUCK_IS_DEFLATING_KEY, false);
+  let deflationRemaining = Storage.getNumber(DUCK_DEFLATING_REMAINING_KEY, 300, 0);
   let isDeflatedDuckActive = false;
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
@@ -3295,45 +3366,45 @@
   const ROASTED_GEESE_NORMAL_KEY = 'duck-roasted-geese-normal';
   const ROASTED_GEESE_GOLDEN_KEY = 'duck-roasted-geese-golden';
 
-  let hasHatchedDuckling = localStorage.getItem(HAS_HATCHED_DUCKLING_KEY) === '1';
-  let hasFriedDuckling = localStorage.getItem(HAS_FRIED_DUCKLING_KEY) === '1';
-  let hasCookedGoose = localStorage.getItem(HAS_COOKED_GOOSE_KEY) === '1';
+  let hasHatchedDuckling = Storage.getBoolean(HAS_HATCHED_DUCKLING_KEY, false);
+  let hasFriedDuckling = Storage.getBoolean(HAS_FRIED_DUCKLING_KEY, false);
+  let hasCookedGoose = Storage.getBoolean(HAS_COOKED_GOOSE_KEY, false);
 
-  let isIncubating = localStorage.getItem(IS_INCUBATING_KEY) === '1';
-  let incubatingType = localStorage.getItem(INCUBATING_TYPE_KEY) || 'normal';
-  let incubatingCount = parseInt(localStorage.getItem(INCUBATING_COUNT_KEY) || '1', 10);
-  let incubatingRemaining = parseInt(localStorage.getItem(INCUBATING_REMAINING_KEY) || '120', 10);
+  let isIncubating = Storage.getBoolean(IS_INCUBATING_KEY, false);
+  let incubatingType = Storage.get(INCUBATING_TYPE_KEY, 'normal') === 'golden' ? 'golden' : 'normal';
+  let incubatingCount = Storage.getNumber(INCUBATING_COUNT_KEY, 1, 1);
+  let incubatingRemaining = Storage.getNumber(INCUBATING_REMAINING_KEY, 120, 0);
 
-  let creatureOnDesk = null;
-  try {
-    creatureOnDesk = JSON.parse(localStorage.getItem(CREATURE_ON_DESK_KEY) || 'null');
-  } catch (e) { creatureOnDesk = null; }
-  let ducklingGrowRemaining = parseInt(localStorage.getItem(DUCKLING_GROW_REMAINING_KEY) || '600', 10);
+  let creatureOnDesk = Storage.getJSON(CREATURE_ON_DESK_KEY, null, (data) => {
+    return data && typeof data === 'object' && typeof data.type === 'string' &&
+      ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(data.type);
+  });
+  let ducklingGrowRemaining = Storage.getNumber(DUCKLING_GROW_REMAINING_KEY, 600, 0);
 
-  let normalDucklings = parseInt(localStorage.getItem(DUCKLINGS_NORMAL_KEY) || '0', 10);
-  let goldenDucklings = parseInt(localStorage.getItem(DUCKLINGS_GOLDEN_KEY) || '0', 10);
-  let normalGeese = parseInt(localStorage.getItem(GEESE_NORMAL_KEY) || '0', 10);
-  let goldenGeese = parseInt(localStorage.getItem(GEESE_GOLDEN_KEY) || '0', 10);
-  let normalRoastedGeese = parseInt(localStorage.getItem(ROASTED_GEESE_NORMAL_KEY) || '0', 10);
-  let goldenRoastedGeese = parseInt(localStorage.getItem(ROASTED_GEESE_GOLDEN_KEY) || '0', 10);
+  let normalDucklings = Storage.getNumber(DUCKLINGS_NORMAL_KEY, 0, 0);
+  let goldenDucklings = Storage.getNumber(DUCKLINGS_GOLDEN_KEY, 0, 0);
+  let normalGeese = Storage.getNumber(GEESE_NORMAL_KEY, 0, 0);
+  let goldenGeese = Storage.getNumber(GEESE_GOLDEN_KEY, 0, 0);
+  let normalRoastedGeese = Storage.getNumber(ROASTED_GEESE_NORMAL_KEY, 0, 0);
+  let goldenRoastedGeese = Storage.getNumber(ROASTED_GEESE_GOLDEN_KEY, 0, 0);
 
-  let isLampOn = localStorage.getItem(LAMP_ON_KEY) === '1';
-  let isFridgeOn = localStorage.getItem(FRIDGE_ON_KEY) === '1';
-  let eggSpoilRemaining = parseInt(localStorage.getItem(EGG_SPOIL_TIMER_KEY) || '30', 10);
+  let isLampOn = Storage.getBoolean(LAMP_ON_KEY, false);
+  let isFridgeOn = Storage.getBoolean(FRIDGE_ON_KEY, false);
+  let eggSpoilRemaining = Storage.getNumber(EGG_SPOIL_TIMER_KEY, 30, 0);
   let activeContextEggType = null;
   let eggSpoilInterval = null;
   let eggSpoilAlertTimeout = null;
 
-  let ownedSkins = ['default'];
-  try {
-    ownedSkins = JSON.parse(localStorage.getItem(OWNED_SKINS_KEY) || '["default"]');
-    if (!Array.isArray(ownedSkins) || !ownedSkins.includes('default')) {
-      ownedSkins = ['default'];
-    }
-  } catch (e) { ownedSkins = ['default']; }
+  let ownedSkins = Storage.getJSON(OWNED_SKINS_KEY, ['default'], (data) => Array.isArray(data));
+  if (!Array.isArray(ownedSkins) || !ownedSkins.includes('default')) {
+    ownedSkins = ['default'];
+  }
+  ownedSkins = ownedSkins.filter(id => typeof id === 'string');
+  if (!ownedSkins.includes('default')) ownedSkins.unshift('default');
   window.ownedSkins = ownedSkins;
 
-  let currentSkin = localStorage.getItem(CURRENT_SKIN_KEY) || 'default';
+  let currentSkin = Storage.get(CURRENT_SKIN_KEY, 'default');
+  if (!ownedSkins.includes(currentSkin)) currentSkin = 'default';
   window.getCurrentSkin = () => currentSkin;
   window.getCreatureOnDesk = () => creatureOnDesk;
   window.setCreatureOnDesk = (v) => { creatureOnDesk = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
@@ -3343,19 +3414,14 @@
   window.getDucklingGrowRemaining = () => ducklingGrowRemaining;
   window.setDucklingGrowRemaining = (v) => { ducklingGrowRemaining = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
 
-  let ownedProps = [];
-  try {
-    ownedProps = JSON.parse(localStorage.getItem(OWNED_PROPS_KEY) || '[]');
-    if (!Array.isArray(ownedProps)) ownedProps = [];
-  } catch (e) { ownedProps = []; }
+  let ownedProps = Storage.getJSON(OWNED_PROPS_KEY, [], (data) => Array.isArray(data));
+  if (!Array.isArray(ownedProps)) ownedProps = [];
+  ownedProps = ownedProps.filter(id => typeof id === 'string');
   Object.defineProperty(window, 'ownedProps', { get: () => ownedProps, set: (v) => { ownedProps = v; }, configurable: true });
 
-  let placedProps = {};
-  try {
-    placedProps = JSON.parse(localStorage.getItem(PLACED_PROPS_KEY) || '{}');
-    if (typeof placedProps !== 'object' || placedProps === null) placedProps = {};
-  } catch (e) { placedProps = {}; }
-  Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true });
+  let placedProps = Storage.getJSON(PLACED_PROPS_KEY, {}, (data) => data && typeof data === 'object' && !Array.isArray(data));
+  if (!placedProps || typeof placedProps !== 'object' || Array.isArray(placedProps)) placedProps = {};
+  Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true }); }, configurable: true });
 
   const SKINS_DATA = {
     default: {
@@ -3524,11 +3590,8 @@
   };
   window.BUSINESSES_DATA = BUSINESSES_DATA;
   const BUSINESSES_STATE_KEY = 'duck-businesses-state';
-  let businessesState = {};
-  try {
-    businessesState = JSON.parse(localStorage.getItem(BUSINESSES_STATE_KEY) || '{}');
-    if (typeof businessesState !== 'object' || businessesState === null) businessesState = {};
-  } catch (e) { businessesState = {}; }
+  let businessesState = Storage.getJSON(BUSINESSES_STATE_KEY, {}, (data) => data && typeof data === 'object' && !Array.isArray(data));
+  if (!businessesState || typeof businessesState !== 'object' || Array.isArray(businessesState)) businessesState = {};
   Object.defineProperty(window, 'businessesState', { get: () => businessesState, set: (v) => { businessesState = v; }, configurable: true });
 
   const PROPS_DATA = {
@@ -3635,11 +3698,11 @@
   window.PROPS_DATA = PROPS_DATA;
 
   let upgradeLevels = {
-    autoquack: parseInt(localStorage.getItem('duck-upg-autoquack') || '0', 10) || 0,
-    speed: parseInt(localStorage.getItem('duck-upg-speed') || '0', 10) || 0,
-    crit: parseInt(localStorage.getItem('duck-upg-crit') || '0', 10) || 0,
-    strength: parseInt(localStorage.getItem('duck-upg-strength') || '0', 10) || 0,
-    features: parseInt(localStorage.getItem('duck-upg-features') || '0', 10) || 0,
+    autoquack: Storage.getNumber('duck-upg-autoquack', 0, 0, 5),
+    speed: Storage.getNumber('duck-upg-speed', 0, 0, 5),
+    crit: Storage.getNumber('duck-upg-crit', 0, 0, 5),
+    strength: Storage.getNumber('duck-upg-strength', 0, 0, 5),
+    features: Storage.getNumber('duck-upg-features', 0, 0, 5),
   };
   window.upgradeLevels = upgradeLevels;
 
@@ -3934,15 +3997,28 @@
     updateUpgradesButtonHighlight();
   }
 
-  function addDuckles(amount) {
-    if (amount <= 0) return;
-    duckles += amount;
-    try { localStorage.setItem(DUCKLES_KEY, String(duckles)); } catch (e) {}
-    updateDuckles(true);
+  /* ==========================================================================
+     Единая система управления валютой (Unified Currency Management)
+     ========================================================================== */
+  function setDuckles(amount, skipUI = false) {
+    const safeAmount = Math.max(0, Math.floor(Number(amount) || 0));
+    duckles = safeAmount;
+    Storage.set(DUCKLES_KEY, String(duckles));
+    if (!skipUI) updateDuckles(false);
+    return duckles;
+  }
+  window.setDuckles = setDuckles;
+  window.getDuckles = () => duckles;
 
-    // Опыт и уровни (максимум 20). При наличии тараканов опыт не накапливается!
-    if (playerLevel < MAX_LEVEL && !isRoachesActive) {
-      playerExp += amount;
+  function earnDuckles(amount, givesExp = false, bump = true) {
+    const safeAmount = Math.floor(Number(amount) || 0);
+    if (safeAmount <= 0) return false;
+    duckles += safeAmount;
+    Storage.set(DUCKLES_KEY, String(duckles));
+    updateDuckles(bump);
+
+    if (givesExp && playerLevel < MAX_LEVEL && !isRoachesActive) {
+      playerExp += safeAmount;
       let expForNext = getExpForLevel(playerLevel);
       let leveledUp = false;
 
@@ -3960,17 +4036,74 @@
           spawnLvlUp(r.left + r.width / 2, r.top);
         }
         xpSound();
-        try { localStorage.setItem(LEVEL_KEY, String(playerLevel)); } catch (e) {}
+        Storage.set(LEVEL_KEY, String(playerLevel));
       }
-      try { localStorage.setItem(EXP_KEY, String(playerExp)); } catch (e) {}
+      Storage.set(EXP_KEY, String(playerExp));
       updateLevelDisplay(leveledUp);
     }
+
     const upgModal = document.getElementById('upgradesModal');
     if (upgModal && upgModal.classList.contains('open')) {
       renderUpgrades(true);
     }
+    const shopModal = document.getElementById('shopModal');
+    if (shopModal && shopModal.classList.contains('open')) {
+      renderShopBuyTab();
+    }
+    const branchesModal = document.getElementById('branchesModal');
+    if (branchesModal && branchesModal.classList.contains('open')) {
+      renderBranchesModal();
+    }
     tryUnlock();
+    return true;
   }
+  window.earnDuckles = earnDuckles;
+
+  function addDuckles(amount) {
+    return earnDuckles(amount, true, true);
+  }
+  window.addDuckles = addDuckles;
+
+  function spendDuckles(amount) {
+    const safeAmount = Math.floor(Number(amount) || 0);
+    if (safeAmount <= 0) return false;
+    if (duckles < safeAmount) return false;
+
+    duckles -= safeAmount;
+    Storage.set(DUCKLES_KEY, String(duckles));
+    updateDuckles(true);
+
+    const upgModal = document.getElementById('upgradesModal');
+    if (upgModal && upgModal.classList.contains('open')) {
+      renderUpgrades(true);
+    }
+    const shopModal = document.getElementById('shopModal');
+    if (shopModal && shopModal.classList.contains('open')) {
+      renderShopBuyTab();
+    }
+    const branchesModal = document.getElementById('branchesModal');
+    if (branchesModal && branchesModal.classList.contains('open')) {
+      renderBranchesModal();
+    }
+    return true;
+  }
+  window.spendDuckles = spendDuckles;
+
+  function penalizeDuckles(amount) {
+    const safeAmount = Math.floor(Number(amount) || 0);
+    if (safeAmount <= 0) return 0;
+    const actualDeduction = Math.min(duckles, safeAmount);
+    duckles -= actualDeduction;
+    Storage.set(DUCKLES_KEY, String(duckles));
+    updateDuckles(true);
+
+    const branchesModal = document.getElementById('branchesModal');
+    if (branchesModal && branchesModal.classList.contains('open')) {
+      renderBranchesModal();
+    }
+    return actualDeduction;
+  }
+  window.penalizeDuckles = penalizeDuckles;
 
   function spawnLvlUp(x, y) {
     if (!isWindowFocused()) return;
@@ -4197,7 +4330,7 @@
         } else if (a.id === 'accident' && hasStabbedDuck) {
           a.done = true;
         } else {
-          a.done = localStorage.getItem(STORAGE_PREFIX + a.id) === '1';
+          a.done = Storage.getBoolean(STORAGE_PREFIX + a.id, false);
         }
       } catch (e) {
         a.done = (a.id === 'monster' && hasFriedDuck) || (a.id === 'accident' && hasStabbedDuck);
@@ -4227,7 +4360,7 @@
     const toastContainer = document.getElementById('achvToastContainer');
     if (toastContainer) toastContainer.innerHTML = '';
     quackCount = 0;
-    duckles = 0;
+    setDuckles(0, true);
     hintCount = 0;
     playerLevel = 1;
     playerExp = 0;
@@ -4259,10 +4392,10 @@
     ducklingGrowRemaining = 600;
     const cheatPanelEl = document.getElementById('cheatPanel');
     if (cheatPanelEl) cheatPanelEl.classList.remove('visible');
-    try { localStorage.removeItem(CHEAT_PANEL_KEY); } catch (e) {}
+    try { Storage.remove(CHEAT_PANEL_KEY); } catch (e) {}
     businessesState = {};
     window.businessesState = businessesState;
-    try { localStorage.removeItem(BUSINESSES_STATE_KEY); } catch (e) {}
+    try { Storage.remove(BUSINESSES_STATE_KEY); } catch (e) {}
     updateBranchesButtonUI();
     normalDucklings = 0;
     goldenDucklings = 0;
@@ -4289,69 +4422,69 @@
     charBuffer = '';
     codeBuffer = '';
     try {
-      localStorage.removeItem(QUACK_KEY);
-      localStorage.removeItem(DUCKLES_KEY);
-      localStorage.removeItem(HINT_KEY);
-      localStorage.removeItem(KEY_PRESSED_KEY);
-      localStorage.removeItem(SEQ_DONE_KEY);
-      localStorage.removeItem(LOCKED_CLICKED_KEY);
-      localStorage.removeItem(DEVTOOLS_KEY);
-      localStorage.removeItem(BAD_WORDS_KEY);
-      localStorage.removeItem(GTA_CHEAT_KEY);
-      localStorage.removeItem(BEAST_NUMBER_KEY);
-      localStorage.removeItem(HOVER_WAIT_KEY);
-      localStorage.removeItem(LEVEL_KEY);
-      localStorage.removeItem(EXP_KEY);
-      localStorage.removeItem(EGGS_NORMAL_KEY);
-      localStorage.removeItem(EGGS_GOLDEN_KEY);
-      localStorage.removeItem(FRIED_EGGS_KEY);
-      localStorage.removeItem(GOLDEN_FRIED_EGGS_KEY);
-      localStorage.removeItem(HAS_FRIED_KEY);
-      localStorage.removeItem(COOKED_EGG_KEY);
-      localStorage.removeItem(STOVE_COMBINED_KEY);
-      localStorage.removeItem(PLACED_FRIDGE_KEY);
-      localStorage.removeItem(ROACHES_ACTIVE_KEY);
-      localStorage.removeItem(USED_DICHLOFOS_KEY);
-      localStorage.removeItem(CLEARED_ROACHES_KEY);
-      localStorage.removeItem(MOVED_DUCK_KEY);
-      localStorage.removeItem(SPAWNED_KEY_KEY);
-      localStorage.removeItem(DUCK_POS_KEY);
-      localStorage.removeItem(OWNED_SKINS_KEY);
-      localStorage.removeItem(CURRENT_SKIN_KEY);
-      localStorage.removeItem(HAS_PATCHED_DUCK_KEY);
-      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
-      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
-      localStorage.removeItem(HAS_HATCHED_DUCKLING_KEY);
-      localStorage.removeItem(HAS_FRIED_DUCKLING_KEY);
-      localStorage.removeItem(HAS_COOKED_GOOSE_KEY);
-      localStorage.removeItem(IS_INCUBATING_KEY);
-      localStorage.removeItem(INCUBATING_REMAINING_KEY);
-      localStorage.removeItem(INCUBATING_COUNT_KEY);
-      localStorage.removeItem(INCUBATING_TYPE_KEY);
-      localStorage.removeItem(CREATURE_ON_DESK_KEY);
-      localStorage.removeItem(DUCKLING_GROW_REMAINING_KEY);
-      localStorage.removeItem(DUCKLINGS_NORMAL_KEY);
-      localStorage.removeItem(DUCKLINGS_GOLDEN_KEY);
-      localStorage.removeItem(GEESE_NORMAL_KEY);
-      localStorage.removeItem(GEESE_GOLDEN_KEY);
-      localStorage.removeItem(ROASTED_GEESE_NORMAL_KEY);
-      localStorage.removeItem(ROASTED_GEESE_GOLDEN_KEY);
-      localStorage.removeItem(OWNED_PROPS_KEY);
-      localStorage.removeItem(PLACED_PROPS_KEY);
-      localStorage.removeItem(SHOP_CLOTHING_COLLAPSED_KEY);
-      localStorage.removeItem(SHOP_HOUSEHOLD_COLLAPSED_KEY);
-      localStorage.removeItem(HAS_SMASHED_EGGS_KEY);
-      localStorage.removeItem(LAMP_ON_KEY);
-      localStorage.removeItem(FRIDGE_ON_KEY);
-      localStorage.removeItem(EGG_SPOIL_TIMER_KEY);
-      localStorage.removeItem('duck-rotten-egg-active');
-      localStorage.removeItem('duck-rotten-rot-remaining');
-      localStorage.removeItem('duck-stink-debuff-remaining');
-      localStorage.removeItem('duck-upg-autoquack');
-      localStorage.removeItem('duck-upg-speed');
-      localStorage.removeItem('duck-upg-crit');
-      localStorage.removeItem('duck-upg-strength');
-      localStorage.removeItem('duck-upg-features');
+      Storage.remove(QUACK_KEY);
+      Storage.remove(DUCKLES_KEY);
+      Storage.remove(HINT_KEY);
+      Storage.remove(KEY_PRESSED_KEY);
+      Storage.remove(SEQ_DONE_KEY);
+      Storage.remove(LOCKED_CLICKED_KEY);
+      Storage.remove(DEVTOOLS_KEY);
+      Storage.remove(BAD_WORDS_KEY);
+      Storage.remove(GTA_CHEAT_KEY);
+      Storage.remove(BEAST_NUMBER_KEY);
+      Storage.remove(HOVER_WAIT_KEY);
+      Storage.remove(LEVEL_KEY);
+      Storage.remove(EXP_KEY);
+      Storage.remove(EGGS_NORMAL_KEY);
+      Storage.remove(EGGS_GOLDEN_KEY);
+      Storage.remove(FRIED_EGGS_KEY);
+      Storage.remove(GOLDEN_FRIED_EGGS_KEY);
+      Storage.remove(HAS_FRIED_KEY);
+      Storage.remove(COOKED_EGG_KEY);
+      Storage.remove(STOVE_COMBINED_KEY);
+      Storage.remove(PLACED_FRIDGE_KEY);
+      Storage.remove(ROACHES_ACTIVE_KEY);
+      Storage.remove(USED_DICHLOFOS_KEY);
+      Storage.remove(CLEARED_ROACHES_KEY);
+      Storage.remove(MOVED_DUCK_KEY);
+      Storage.remove(SPAWNED_KEY_KEY);
+      Storage.remove(DUCK_POS_KEY);
+      Storage.remove(OWNED_SKINS_KEY);
+      Storage.remove(CURRENT_SKIN_KEY);
+      Storage.remove(HAS_PATCHED_DUCK_KEY);
+      Storage.remove(DUCK_IS_DEFLATING_KEY);
+      Storage.remove(DUCK_DEFLATING_REMAINING_KEY);
+      Storage.remove(HAS_HATCHED_DUCKLING_KEY);
+      Storage.remove(HAS_FRIED_DUCKLING_KEY);
+      Storage.remove(HAS_COOKED_GOOSE_KEY);
+      Storage.remove(IS_INCUBATING_KEY);
+      Storage.remove(INCUBATING_REMAINING_KEY);
+      Storage.remove(INCUBATING_COUNT_KEY);
+      Storage.remove(INCUBATING_TYPE_KEY);
+      Storage.remove(CREATURE_ON_DESK_KEY);
+      Storage.remove(DUCKLING_GROW_REMAINING_KEY);
+      Storage.remove(DUCKLINGS_NORMAL_KEY);
+      Storage.remove(DUCKLINGS_GOLDEN_KEY);
+      Storage.remove(GEESE_NORMAL_KEY);
+      Storage.remove(GEESE_GOLDEN_KEY);
+      Storage.remove(ROASTED_GEESE_NORMAL_KEY);
+      Storage.remove(ROASTED_GEESE_GOLDEN_KEY);
+      Storage.remove(OWNED_PROPS_KEY);
+      Storage.remove(PLACED_PROPS_KEY);
+      Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
+      Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
+      Storage.remove(HAS_SMASHED_EGGS_KEY);
+      Storage.remove(LAMP_ON_KEY);
+      Storage.remove(FRIDGE_ON_KEY);
+      Storage.remove(EGG_SPOIL_TIMER_KEY);
+      Storage.remove('duck-rotten-egg-active');
+      Storage.remove('duck-rotten-rot-remaining');
+      Storage.remove('duck-stink-debuff-remaining');
+      Storage.remove('duck-upg-autoquack');
+      Storage.remove('duck-upg-speed');
+      Storage.remove('duck-upg-crit');
+      Storage.remove('duck-upg-strength');
+      Storage.remove('duck-upg-features');
     } catch (e) {}
     if (!preserveAchievements) {
       ACHIEVEMENTS.forEach((a) => {
@@ -4364,9 +4497,9 @@
           return;
         }
         a.done = false;
-        try { localStorage.removeItem(STORAGE_PREFIX + a.id); } catch (e) {}
+        try { Storage.remove(STORAGE_PREFIX + a.id); } catch (e) {}
       });
-      try { localStorage.removeItem(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
+      try { Storage.remove(STORAGE_PREFIX + 'hundred-quacks'); } catch (e) {}
     }
     const normalEggEl = document.getElementById('normalEgg');
     const goldenEggEl = document.getElementById('goldenEgg');
@@ -4470,9 +4603,9 @@
     deflationRemaining = 0;
     isDeflatedDuckActive = false;
     try {
-      localStorage.removeItem(HAS_PATCHED_DUCK_KEY);
-      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
-      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+      Storage.remove(HAS_PATCHED_DUCK_KEY);
+      Storage.remove(DUCK_IS_DEFLATING_KEY);
+      Storage.remove(DUCK_DEFLATING_REMAINING_KEY);
     } catch (e) {}
     updateDeflationUI();
     if (typeof updateDeflationUI === 'function') updateDeflationUI();
@@ -4525,7 +4658,7 @@
     if (a.done) return;
     a.done = true;
     try {
-      localStorage.setItem(STORAGE_PREFIX + a.id, '1');
+      Storage.set(STORAGE_PREFIX + a.id, '1');
     } catch (e) { /* без сохранения тоже ок */ }
 
     // Если ачивка была получена вне основного окна, принудительно возвращаем игрока на основное окно
@@ -5088,7 +5221,7 @@
     // С шансом 0.5% золотое яйцо
     if (roll < 0.005) {
       goldenEggs++;
-      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
       xpSound();
       updateEggsDisplay(true, 'golden');
       return;
@@ -5096,7 +5229,7 @@
     // С шансом 10% обычное яйцо (0.005 + 0.10 = 0.105)
     if (roll < 0.105) {
       normalEggs++;
-      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
       corkPopSound();
       updateEggsDisplay(true, 'normal');
     }
@@ -5243,10 +5376,10 @@
       hasCookedEgg = true;
 
       try {
-        localStorage.setItem(EGGS_NORMAL_KEY, '0');
-        localStorage.setItem(FRIED_EGGS_KEY, String(friedEggs));
-        localStorage.setItem(HAS_FRIED_KEY, '1');
-        localStorage.setItem(COOKED_EGG_KEY, '1');
+        Storage.set(EGGS_NORMAL_KEY, '0');
+        Storage.set(FRIED_EGGS_KEY, String(friedEggs));
+        Storage.set(HAS_FRIED_KEY, '1');
+        Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
 
       sizzleSound(false);
@@ -5304,10 +5437,10 @@
       hasCookedEgg = true;
 
       try {
-        localStorage.setItem(EGGS_GOLDEN_KEY, '0');
-        localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
-        localStorage.setItem(HAS_FRIED_KEY, '1');
-        localStorage.setItem(COOKED_EGG_KEY, '1');
+        Storage.set(EGGS_GOLDEN_KEY, '0');
+        Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
+        Storage.set(HAS_FRIED_KEY, '1');
+        Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
 
       sizzleSound(true);
@@ -5379,14 +5512,14 @@
 
     if (eggType === 'golden') {
       goldenEggs = 0;
-      try { localStorage.setItem(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
+      try { Storage.set(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
     } else {
       normalEggs = 0;
-      try { localStorage.setItem(EGGS_NORMAL_KEY, '0'); } catch (e) {}
+      try { Storage.set(EGGS_NORMAL_KEY, '0'); } catch (e) {}
     }
 
     hasSmashedEggs = true;
-    try { localStorage.setItem(HAS_SMASHED_EGGS_KEY, '1'); } catch (e) {}
+    try { Storage.set(HAS_SMASHED_EGGS_KEY, '1'); } catch (e) {}
 
     splatSound();
     updateEggsDisplay();
@@ -5508,8 +5641,8 @@
     const wasMonsterDone = hasFriedDuck;
     hasFriedDuck = true;
     try {
-      localStorage.setItem(HAS_FRIED_DUCK_KEY, '1');
-      localStorage.setItem(STORAGE_PREFIX + 'monster', '1');
+      Storage.set(HAS_FRIED_DUCK_KEY, '1');
+      Storage.set(STORAGE_PREFIX + 'monster', '1');
     } catch (e) {}
 
     // Сброс игрового процесса с сохранением всех открытых ачивок
@@ -5708,10 +5841,10 @@
 
     if (type === 'golden') {
       goldenEggs -= count;
-      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
     } else {
       normalEggs -= count;
-      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
     }
     updateEggsDisplay();
 
@@ -5720,10 +5853,10 @@
     incubatingCount = count;
     incubatingRemaining = 120; // 2 минуты (120 сек)
     try {
-      localStorage.setItem(IS_INCUBATING_KEY, '1');
-      localStorage.setItem(INCUBATING_TYPE_KEY, type);
-      localStorage.setItem(INCUBATING_COUNT_KEY, String(count));
-      localStorage.setItem(INCUBATING_REMAINING_KEY, String(incubatingRemaining));
+      Storage.set(IS_INCUBATING_KEY, '1');
+      Storage.set(INCUBATING_TYPE_KEY, type);
+      Storage.set(INCUBATING_COUNT_KEY, String(count));
+      Storage.set(INCUBATING_REMAINING_KEY, String(incubatingRemaining));
     } catch (e) {}
 
     corkPopSound();
@@ -5771,10 +5904,10 @@
   function finishIncubation() {
     isIncubating = false;
     try {
-      localStorage.removeItem(IS_INCUBATING_KEY);
-      localStorage.removeItem(INCUBATING_REMAINING_KEY);
-      localStorage.removeItem(INCUBATING_COUNT_KEY);
-      localStorage.removeItem(INCUBATING_TYPE_KEY);
+      Storage.remove(IS_INCUBATING_KEY);
+      Storage.remove(INCUBATING_REMAINING_KEY);
+      Storage.remove(INCUBATING_COUNT_KEY);
+      Storage.remove(INCUBATING_TYPE_KEY);
     } catch (e) {}
 
     let hatched = 0;
@@ -5790,18 +5923,18 @@
       eggHatchSound();
       hasHatchedDuckling = true;
       try {
-        localStorage.setItem(HAS_HATCHED_DUCKLING_KEY, '1');
-        localStorage.setItem(STORAGE_PREFIX + 'new-generation', '1');
+        Storage.set(HAS_HATCHED_DUCKLING_KEY, '1');
+        Storage.set(STORAGE_PREFIX + 'new-generation', '1');
       } catch (e) {}
       tryUnlock();
 
       const isGold = (incubatingType === 'golden');
       if (isGold) {
         goldenDucklings += hatched;
-        try { localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+        try { Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
       } else {
         normalDucklings += hatched;
-        try { localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+        try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
       }
 
       particles.push({
@@ -5842,22 +5975,22 @@
   function spawnCreatureOnDesk(type) {
     if (type === 'duckling' && normalDucklings > 0) {
       normalDucklings--;
-      try { localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+      try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
     } else if (type === 'goldenDuckling' && goldenDucklings > 0) {
       goldenDucklings--;
-      try { localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+      try { Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
     } else if (type === 'goose' && normalGeese > 0) {
       normalGeese--;
-      try { localStorage.setItem(GEESE_NORMAL_KEY, String(normalGeese)); } catch (e) {}
+      try { Storage.set(GEESE_NORMAL_KEY, String(normalGeese)); } catch (e) {}
     } else if (type === 'goldenGoose' && goldenGeese > 0) {
       goldenGeese--;
-      try { localStorage.setItem(GEESE_GOLDEN_KEY, String(goldenGeese)); } catch (e) {}
+      try { Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese)); } catch (e) {}
     } else if (type === 'roastedGoose' && normalRoastedGeese > 0) {
       normalRoastedGeese--;
-      try { localStorage.setItem(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese)); } catch (e) {}
+      try { Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese)); } catch (e) {}
     } else if (type === 'goldenRoastedGoose' && goldenRoastedGeese > 0) {
       goldenRoastedGeese--;
-      try { localStorage.setItem(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese)); } catch (e) {}
+      try { Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese)); } catch (e) {}
     }
 
     creatureOnDesk = { type: type };
@@ -5865,8 +5998,8 @@
       ducklingGrowRemaining = 600; // 10 минут (600 сек)
     }
     try {
-      localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk));
-      localStorage.setItem(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining));
+      Storage.setJSON(CREATURE_ON_DESK_KEY, creatureOnDesk);
+      Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining));
     } catch (e) {}
 
     const el = document.getElementById('deskCreature');
@@ -5885,7 +6018,7 @@
       if (creatureOnDesk) {
         creatureOnDesk.left = el.style.left;
         creatureOnDesk.top = el.style.top;
-        try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+        try { Storage.setJSON(CREATURE_ON_DESK_KEY, creatureOnDesk); } catch (e) {}
       }
     }
 
@@ -5960,7 +6093,7 @@
     if (!creatureOnDesk) return;
     const isGold = (creatureOnDesk.type === 'goldenDuckling');
     creatureOnDesk.type = isGold ? 'goldenGoose' : 'goose';
-    try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+    try { Storage.setJSON(CREATURE_ON_DESK_KEY, creatureOnDesk); } catch (e) {}
 
     gooseHonkSound();
     const el = document.getElementById('deskCreature');
@@ -6001,12 +6134,12 @@
     });
 
     creatureOnDesk = null;
-    try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+    try { Storage.remove(CREATURE_ON_DESK_KEY); } catch (e) {}
 
     hasFriedDuckling = true;
     try {
-      localStorage.setItem(HAS_FRIED_DUCKLING_KEY, '1');
-      localStorage.setItem(STORAGE_PREFIX + 'crispy-duckling', '1');
+      Storage.set(HAS_FRIED_DUCKLING_KEY, '1');
+      Storage.set(STORAGE_PREFIX + 'crispy-duckling', '1');
     } catch (e) {}
     tryUnlock();
 
@@ -6022,12 +6155,12 @@
 
     const isGold = (creatureOnDesk.type === 'goldenGoose');
     creatureOnDesk.type = isGold ? 'goldenRoastedGoose' : 'roastedGoose';
-    try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (e) {}
+    try { Storage.setJSON(CREATURE_ON_DESK_KEY, creatureOnDesk); } catch (e) {}
 
     hasCookedGoose = true;
     try {
-      localStorage.setItem(HAS_COOKED_GOOSE_KEY, '1');
-      localStorage.setItem(STORAGE_PREFIX + 'roasted-goose', '1');
+      Storage.set(HAS_COOKED_GOOSE_KEY, '1');
+      Storage.set(STORAGE_PREFIX + 'roasted-goose', '1');
     } catch (e) {}
     tryUnlock();
 
@@ -6076,8 +6209,7 @@
     const price = getCreaturePrice(type);
     const name = getCreatureName(type);
 
-    duckles += price;
-    updateDuckles(true);
+    earnDuckles(price, false, true);
     xpSound();
 
     const shopBtn = document.getElementById('shopBtn');
@@ -6094,7 +6226,7 @@
     });
 
     creatureOnDesk = null;
-    try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+    try { Storage.remove(CREATURE_ON_DESK_KEY); } catch (e) {}
 
     updateDeskCreatureUI();
     updateShopSellTab();
@@ -6136,20 +6268,19 @@
     // Если нужно, продаем и питомца со стола
     if (remainingToSell > 0 && onDesk > 0) {
       creatureOnDesk = null;
-      try { localStorage.removeItem(CREATURE_ON_DESK_KEY); } catch (e) {}
+      try { Storage.remove(CREATURE_ON_DESK_KEY); } catch (e) {}
     }
 
     try {
-      localStorage.setItem(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
-      localStorage.setItem(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
-      localStorage.setItem(GEESE_NORMAL_KEY, String(normalGeese));
-      localStorage.setItem(GEESE_GOLDEN_KEY, String(goldenGeese));
-      localStorage.setItem(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
-      localStorage.setItem(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+      Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+      Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+      Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
+      Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
+      Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+      Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
     } catch (e) {}
 
-    duckles += totalEarned;
-    updateDuckles(true);
+    earnDuckles(totalEarned, false, true);
     xpSound();
 
     particles.push({
@@ -6256,7 +6387,7 @@
       if (creatureOnDesk) {
         creatureOnDesk.left = el.style.left;
         creatureOnDesk.top = el.style.top;
-        try { localStorage.setItem(CREATURE_ON_DESK_KEY, JSON.stringify(creatureOnDesk)); } catch (err) {}
+        try { Storage.setJSON(CREATURE_ON_DESK_KEY, creatureOnDesk); } catch (err) {}
       }
     };
 
@@ -6339,8 +6470,8 @@
     const isVis = (typeof force === 'boolean') ? force : !panel.classList.contains('visible');
     panel.classList.toggle('visible', isVis);
     try {
-      if (isVis) localStorage.setItem(CHEAT_PANEL_KEY, '1');
-      else localStorage.removeItem(CHEAT_PANEL_KEY);
+      if (isVis) Storage.set(CHEAT_PANEL_KEY, '1');
+      else Storage.remove(CHEAT_PANEL_KEY);
     } catch (e) {}
     if (isVis) {
       corkPopSound();
@@ -6599,7 +6730,7 @@
 
   /* ---------- Механика филиалов бизнеса ---------- */
   function saveBusinessesState() {
-    try { localStorage.setItem(BUSINESSES_STATE_KEY, JSON.stringify(businessesState)); } catch (e) {}
+    try { Storage.setJSON(BUSINESSES_STATE_KEY, businessesState); } catch (e) {}
   }
   window.saveBusinessesState = saveBusinessesState;
 
@@ -6696,9 +6827,8 @@
 
   function buyBusiness(id) {
     const b = BUSINESSES_DATA[id];
-    if (!b || businessesState[id] || duckles < b.cost) return;
-    duckles -= b.cost;
-    updateDuckles(true);
+    if (!b || businessesState[id]) return;
+    if (!spendDuckles(b.cost)) return;
     corkPopSound();
     businessesState[id] = {
       status: 'working',
@@ -6725,8 +6855,7 @@
     const b = BUSINESSES_DATA[id];
     const state = businessesState[id];
     if (!b || !state || state.status !== 'attention') return;
-    duckles += b.income;
-    updateDuckles(true);
+    earnDuckles(b.income, false, true);
     xpSound();
     particles.push({
       x: window.innerWidth / 2,
@@ -6777,8 +6906,7 @@
         changed = true;
         if (state.attentionRemaining <= 0) {
           // Пропуск внимания в течение 1 минуты -> штраф и сброс цикла
-          duckles = Math.max(0, duckles - b.penalty);
-          updateDuckles(true);
+          penalizeDuckles(b.penalty);
           rottenEggSound();
           particles.push({
             x: window.innerWidth / 2,
@@ -7025,25 +7153,25 @@
       if (qty <= 0) return;
       normalEggs -= qty;
       earned = qty * 200;
-      try { localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
     } else if (type === 'golden') {
       const qty = (amount === 'all') ? goldenEggs : Math.min(amount, goldenEggs);
       if (qty <= 0) return;
       goldenEggs -= qty;
       earned = qty * 5000;
-      try { localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
     } else if (type === 'fried') {
       const qty = (amount === 'all') ? friedEggs : Math.min(amount, friedEggs);
       if (qty <= 0) return;
       friedEggs -= qty;
       earned = qty * 1600;
-      try { localStorage.setItem(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
+      try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
     } else if (type === 'goldenFried') {
       const qty = (amount === 'all') ? goldenFriedEggs : Math.min(amount, goldenFriedEggs);
       if (qty <= 0) return;
       goldenFriedEggs -= qty;
       earned = qty * 15000;
-      try { localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
+      try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
     }
 
     if (earned > 0) {
@@ -7060,8 +7188,8 @@
     normalEggs += 10;
     goldenEggs += 2;
     try {
-      localStorage.setItem(EGGS_NORMAL_KEY, String(normalEggs));
-      localStorage.setItem(EGGS_GOLDEN_KEY, String(goldenEggs));
+      Storage.set(EGGS_NORMAL_KEY, String(normalEggs));
+      Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs));
     } catch (e) {}
     corkPopSound();
     updateEggsDisplay();
@@ -7079,15 +7207,11 @@
     const lvlData = upg.levels[targetLvl - 1];
     if (!lvlData) return;
 
-    if (playerLevel < lvlData.reqLvl || duckles < lvlData.cost) return;
+    if (playerLevel < lvlData.reqLvl) return;
+    if (!spendDuckles(lvlData.cost)) return;
 
-    duckles -= lvlData.cost;
     upgradeLevels[upgradeId] = targetLvl;
-
-    try {
-      localStorage.setItem(DUCKLES_KEY, String(duckles));
-      localStorage.setItem('duck-upg-' + upgradeId, String(targetLvl));
-    } catch (e) {}
+    Storage.set('duck-upg-' + upgradeId, String(targetLvl));
 
     xpSound();
     updateDuckles(true);
@@ -7307,14 +7431,10 @@
     if (category === 'clothing') {
       const skin = SKINS_DATA[itemId];
       if (!skin || ownedSkins.includes(itemId)) return;
-      if (duckles < skin.cost) return;
+      if (!spendDuckles(skin.cost)) return;
 
-      duckles -= skin.cost;
       ownedSkins.push(itemId);
-      try {
-        localStorage.setItem(DUCKLES_KEY, String(duckles));
-        localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(ownedSkins));
-      } catch (e) {}
+      Storage.setJSON(OWNED_SKINS_KEY, ownedSkins);
 
       // Автоматически надеваем скин при покупке
       applySkin(itemId);
@@ -7332,14 +7452,10 @@
     } else if (category === 'household') {
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
-      if (duckles < prop.cost) return;
+      if (!spendDuckles(prop.cost)) return;
 
-      duckles -= prop.cost;
       ownedProps.push(itemId);
-      try {
-        localStorage.setItem(DUCKLES_KEY, String(duckles));
-        localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
-      } catch (e) {}
+      Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
 
       // Купленные вещи в магазине сразу выкладывать на стол
       placePropOnScreen(itemId);
@@ -7379,14 +7495,9 @@
       const sIdx = ownedSkins.indexOf(itemId);
       if (sIdx !== -1) ownedSkins.splice(sIdx, 1);
       window.ownedSkins = ownedSkins;
-      try {
-        localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(ownedSkins));
-      } catch (e) {}
+      Storage.setJSON(OWNED_SKINS_KEY, ownedSkins);
 
-      duckles += refundAmount;
-      try {
-        localStorage.setItem(DUCKLES_KEY, String(duckles));
-      } catch (e) {}
+      earnDuckles(refundAmount, false, true);
 
       particles.push({
         x: innerWidth / 2,
@@ -7414,10 +7525,10 @@
         updateEggsDisplay();
         isIncubating = false;
         try {
-          localStorage.removeItem(IS_INCUBATING_KEY);
-          localStorage.removeItem(INCUBATING_REMAINING_KEY);
-          localStorage.removeItem(INCUBATING_COUNT_KEY);
-          localStorage.removeItem(INCUBATING_TYPE_KEY);
+          Storage.remove(IS_INCUBATING_KEY);
+          Storage.remove(INCUBATING_REMAINING_KEY);
+          Storage.remove(INCUBATING_COUNT_KEY);
+          Storage.remove(INCUBATING_TYPE_KEY);
         } catch (e) {}
         updateIncubatorUI();
       }
@@ -7425,14 +7536,9 @@
       const pIdx = ownedProps.indexOf(itemId);
       if (pIdx !== -1) ownedProps.splice(pIdx, 1);
       window.ownedProps = ownedProps;
-      try {
-        localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
-      } catch (e) {}
+      Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
 
-      duckles += refundAmount;
-      try {
-        localStorage.setItem(DUCKLES_KEY, String(duckles));
-      } catch (e) {}
+      earnDuckles(refundAmount, false, true);
 
       particles.push({
         x: innerWidth / 2,
@@ -7574,12 +7680,12 @@
     if (sectionKey === 'clothing') {
       isClothingCollapsed = !isClothingCollapsed;
       try {
-        localStorage.setItem(SHOP_CLOTHING_COLLAPSED_KEY, isClothingCollapsed ? '1' : '0');
+        Storage.set(SHOP_CLOTHING_COLLAPSED_KEY, isClothingCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'household') {
       isHouseholdCollapsed = !isHouseholdCollapsed;
       try {
-        localStorage.setItem(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+        Storage.set(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
       } catch (e) {}
     }
     updateShopSectionCollapsedUI();
@@ -7591,7 +7697,7 @@
   function applySkin(skinId) {
     if (!SKINS_DATA[skinId]) return;
     currentSkin = skinId;
-    try { localStorage.setItem(CURRENT_SKIN_KEY, skinId); } catch (e) {}
+    try { Storage.set(CURRENT_SKIN_KEY, skinId); } catch (e) {}
 
     const duckImg = document.getElementById('duckImg');
     if (duckImg) {
@@ -7741,7 +7847,7 @@
     el.style.top = placedProps[propId].top;
     el.style.display = 'block';
 
-    try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+    try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
     corkPopSound();
     renderStorage();
 
@@ -7781,10 +7887,10 @@
       isIncubating = false;
       incubatingRemaining = 0;
       try {
-        localStorage.removeItem(IS_INCUBATING_KEY);
-        localStorage.removeItem(INCUBATING_REMAINING_KEY);
-        localStorage.removeItem(INCUBATING_COUNT_KEY);
-        localStorage.removeItem(INCUBATING_TYPE_KEY);
+        Storage.remove(IS_INCUBATING_KEY);
+        Storage.remove(INCUBATING_REMAINING_KEY);
+        Storage.remove(INCUBATING_COUNT_KEY);
+        Storage.remove(INCUBATING_TYPE_KEY);
       } catch (e) {}
       updateIncubatorUI();
       particles.push({
@@ -7800,7 +7906,7 @@
     }
 
     delete placedProps[propId];
-    try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+    try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
     corkPopSound();
     renderStorage();
 
@@ -7825,7 +7931,7 @@
     if (plitaEl.style.display === 'none' || skovEl.style.display === 'none') return;
 
     isStoveCombined = true;
-    try { localStorage.setItem(STOVE_COMBINED_KEY, '1'); } catch (e) {}
+    try { Storage.set(STOVE_COMBINED_KEY, '1'); } catch (e) {}
 
     const pX = parseFloat(plitaEl.style.left) || plitaEl.offsetLeft;
     const pY = parseFloat(plitaEl.style.top) || plitaEl.offsetTop;
@@ -7839,7 +7945,7 @@
     if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
     placedProps.skovoroda.left = panLeft;
     placedProps.skovoroda.top = panTop;
-    try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+    try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
 
     plitaEl.classList.add('is-combined');
     skovEl.classList.add('is-combined');
@@ -7865,7 +7971,7 @@
 
   function separateStoveAndPan(withEffects = true) {
     isStoveCombined = false;
-    try { localStorage.removeItem(STOVE_COMBINED_KEY); } catch (e) {}
+    try { Storage.remove(STOVE_COMBINED_KEY); } catch (e) {}
 
     const plitaEl = document.getElementById('prop-plita');
     const skovEl = document.getElementById('prop-skovoroda');
@@ -7884,7 +7990,7 @@
         skovEl.style.left = newLeft;
         if (!placedProps.skovoroda) placedProps.skovoroda = { placed: true };
         placedProps.skovoroda.left = newLeft;
-        try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
       }
     }
 
@@ -8236,7 +8342,7 @@
           if (wasOverFridge && !hasClearedRoaches) {
             hasUsedDichlofos = true;
             try {
-              localStorage.setItem(USED_DICHLOFOS_KEY, '1');
+              Storage.set(USED_DICHLOFOS_KEY, '1');
             } catch (err) {}
             applyDichlofos();
             tryUnlock();
@@ -8288,7 +8394,7 @@
       if (!placedProps[propId]) placedProps[propId] = { placed: true };
       placedProps[propId].left = el.style.left;
       placedProps[propId].top = el.style.top;
-      try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (err) {}
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (err) {}
 
       if (!isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         checkStovePanCombine();
@@ -8340,7 +8446,7 @@
       }
     });
     if (changed) {
-      try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
     }
 
     if (isStoveCombined) {
@@ -8350,7 +8456,7 @@
         combineStoveAndPan(false);
       } else {
         isStoveCombined = false;
-        try { localStorage.removeItem(STOVE_COMBINED_KEY); } catch (e) {}
+        try { Storage.remove(STOVE_COMBINED_KEY); } catch (e) {}
       }
     }
 
@@ -8395,7 +8501,7 @@
       }
     });
     if (changed) {
-      try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (e) {}
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
     }
   }
   window.clampAllPlacedPropsToScreen = clampAllPlacedPropsToScreen;
@@ -8456,7 +8562,7 @@
   function setLampState(active) {
     isLampOn = Boolean(active);
     try {
-      localStorage.setItem(LAMP_ON_KEY, isLampOn ? '1' : '0');
+      Storage.set(LAMP_ON_KEY, isLampOn ? '1' : '0');
     } catch (e) {}
 
     updateLampGlowUI();
@@ -8538,7 +8644,7 @@
     const wasActive = isFridgeOn;
     isFridgeOn = Boolean(active);
     try {
-      localStorage.setItem(FRIDGE_ON_KEY, isFridgeOn ? '1' : '0');
+      Storage.set(FRIDGE_ON_KEY, isFridgeOn ? '1' : '0');
     } catch (e) {}
 
     updateFridgeUI();
@@ -8547,15 +8653,15 @@
       if (!wasActive) {
         // При включении добавляет +1 мин (60 сек) к таймеру
         eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
-        try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
       // Тараканы появляются при включении холодильника (если еще не пройден квест)
       if (!hasClearedRoaches && !isRoachesActive) {
         hasPlacedFridge = true;
         isRoachesActive = true;
         try {
-          localStorage.setItem(PLACED_FRIDGE_KEY, '1');
-          localStorage.setItem(ROACHES_ACTIVE_KEY, '1');
+          Storage.set(PLACED_FRIDGE_KEY, '1');
+          Storage.set(ROACHES_ACTIVE_KEY, '1');
         } catch (e) {}
         startRoaches();
         updateLevelDisplay();
@@ -8566,7 +8672,7 @@
       if (wasActive) {
         // При выключении отнимает 1 мин (60 сек) от текущего таймера
         eggSpoilRemaining = eggSpoilRemaining - 30;
-        try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
         if (eggSpoilRemaining <= 0) {
           spoilEggs();
           return;
@@ -8721,11 +8827,11 @@
   function toggleCheatRoaches() {
     if (isRoachesActive) {
       isRoachesActive = false;
-      try { localStorage.setItem(ROACHES_ACTIVE_KEY, '0'); } catch (e) {}
+      try { Storage.set(ROACHES_ACTIVE_KEY, '0'); } catch (e) {}
       stopRoaches();
     } else {
       isRoachesActive = true;
-      try { localStorage.setItem(ROACHES_ACTIVE_KEY, '1'); } catch (e) {}
+      try { Storage.set(ROACHES_ACTIVE_KEY, '1'); } catch (e) {}
       startRoaches();
     }
     updateLevelDisplay();
@@ -8779,8 +8885,8 @@
       isRoachesActive = false;
       hasClearedRoaches = true;
       try {
-        localStorage.setItem(ROACHES_ACTIVE_KEY, '0');
-        localStorage.setItem(CLEARED_ROACHES_KEY, '1');
+        Storage.set(ROACHES_ACTIVE_KEY, '0');
+        Storage.set(CLEARED_ROACHES_KEY, '1');
       } catch (e) {}
 
       stopRoaches();
@@ -8789,8 +8895,8 @@
       ownedProps = ownedProps.filter(id => id !== 'dichlofos');
       delete placedProps['dichlofos'];
       try {
-        localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps));
-        localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps));
+        Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
+        Storage.setJSON(PLACED_PROPS_KEY, placedProps);
       } catch (e) {}
 
       const dEl = document.getElementById('prop-dichlofos');
@@ -8992,18 +9098,18 @@
     // 1. Ачивка "Переезд"
     if (!hasMovedDuck) {
       hasMovedDuck = true;
-      try { localStorage.setItem(MOVED_DUCK_KEY, '1'); } catch (err) {}
+      try { Storage.set(MOVED_DUCK_KEY, '1'); } catch (err) {}
       tryUnlock();
     }
 
     // 2. Спавн предмета "Ключ" под уткой (на месте, где стояла утка)
     if (!hasSpawnedKey) {
       hasSpawnedKey = true;
-      try { localStorage.setItem(SPAWNED_KEY_KEY, '1'); } catch (err) {}
+      try { Storage.set(SPAWNED_KEY_KEY, '1'); } catch (err) {}
 
       if (!ownedProps.includes('key')) {
         ownedProps.push('key');
-        try { localStorage.setItem(OWNED_PROPS_KEY, JSON.stringify(ownedProps)); } catch (err) {}
+        try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (err) {}
       }
 
       const keyEl = document.getElementById('prop-key');
@@ -9016,7 +9122,7 @@
         keyEl.style.top = kTop;
         keyEl.style.display = 'block';
         placedProps.key = { placed: true, left: kLeft, top: kTop };
-        try { localStorage.setItem(PLACED_PROPS_KEY, JSON.stringify(placedProps)); } catch (err) {}
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (err) {}
       }
 
       xpSound();
@@ -9105,10 +9211,10 @@
       setTimeout(() => { suppressNextDuckClick = false; }, 120);
 
       try {
-        localStorage.setItem(DUCK_POS_KEY, JSON.stringify({
+        Storage.setJSON(DUCK_POS_KEY, {
           left: duck.style.left,
           top: duck.style.top
-        }));
+        });
       } catch (err) {}
 
       checkDuckStoveCombine();
@@ -9189,7 +9295,7 @@
 
     addDuckles(gain);
     try {
-      localStorage.setItem(QUACK_KEY, String(quackCount));
+      Storage.set(QUACK_KEY, String(quackCount));
     } catch (e) {}
 
     // Нажатие сбрасывает таймер ожидания (нужно навестись и не нажимать 10 сек)
@@ -9208,7 +9314,7 @@
   const hint = document.querySelector('.hint');
   hint.addEventListener('click', () => {
     hintCount++;
-    try { localStorage.setItem(HINT_KEY, String(hintCount)); } catch (e) {}
+    try { Storage.set(HINT_KEY, String(hintCount)); } catch (e) {}
     tryUnlock();
   });
 
@@ -9217,7 +9323,7 @@
     const card = e.target.closest('.achv-card');
     if (card && !card.classList.contains('unlocked')) {
       lockedCardClicked = true;
-      try { localStorage.setItem(LOCKED_CLICKED_KEY, '1'); } catch (err) {}
+      try { Storage.set(LOCKED_CLICKED_KEY, '1'); } catch (err) {}
       tryUnlock();
     }
   });
@@ -9229,7 +9335,7 @@
     hoverTimer = setTimeout(() => {
       if (isAnyModalOpen()) return;
       hoverWaitDone = true;
-      try { localStorage.setItem(HOVER_WAIT_KEY, '1'); } catch (e) {}
+      try { Storage.set(HOVER_WAIT_KEY, '1'); } catch (e) {}
       tryUnlock();
     }, 10000);
   }
@@ -9260,7 +9366,7 @@
   function triggerDevTools() {
     if (!devToolsOpened) {
       devToolsOpened = true;
-      try { localStorage.setItem(DEVTOOLS_KEY, '1'); } catch (e) {}
+      try { Storage.set(DEVTOOLS_KEY, '1'); } catch (e) {}
       tryUnlock();
     }
   }
@@ -9336,7 +9442,7 @@
     if (!isFunctionalKey(e)) {
       if (!keyPressed) {
         keyPressed = true;
-        try { localStorage.setItem(KEY_PRESSED_KEY, '1'); } catch (err) {}
+        try { Storage.set(KEY_PRESSED_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
     }
@@ -9349,7 +9455,7 @@
       if (duckSeqIndex === DUCK_SEQUENCE.length) {
         duckSeqDone = true;
         duckSeqIndex = 0;
-        try { localStorage.setItem(SEQ_DONE_KEY, '1'); } catch (err) {}
+        try { Storage.set(SEQ_DONE_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
     } else {
@@ -9381,7 +9487,7 @@
       if (!badWordsTyped && (badPatterns.some(p => charBuffer.includes(p)) ||
                              codePatterns.some(p => codeBuffer.includes(p)))) {
         badWordsTyped = true;
-        try { localStorage.setItem(BAD_WORDS_KEY, '1'); } catch (err) {}
+        try { Storage.set(BAD_WORDS_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
 
@@ -9398,7 +9504,7 @@
       if (!gtaCheatTyped && (gtaPatterns.some(p => charBuffer.includes(p)) ||
                              gtaCodePatterns.some(p => codeBuffer.includes(p)))) {
         gtaCheatTyped = true;
-        try { localStorage.setItem(GTA_CHEAT_KEY, '1'); } catch (err) {}
+        try { Storage.set(GTA_CHEAT_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
 
@@ -9411,7 +9517,7 @@
       if (!beastNumberTyped && (charBuffer.includes('665') ||
                                 beastCodePatterns.some(p => codeBuffer.includes(p)))) {
         beastNumberTyped = true;
-        try { localStorage.setItem(BEAST_NUMBER_KEY, '1'); } catch (err) {}
+        try { Storage.set(BEAST_NUMBER_KEY, '1'); } catch (err) {}
         tryUnlock();
       }
 
@@ -9492,7 +9598,7 @@
 
   function applyStinkDebuff(durationSec = 120) {
     stinkDebuffRemaining = durationSec;
-    try { localStorage.setItem('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
+    try { Storage.set('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
     rottenEggSound();
     updateStinkDebuffUI();
     updateAutoQuackTimer();
@@ -9513,7 +9619,7 @@
   function clearStinkDebuff() {
     if (stinkDebuffRemaining > 0) {
       stinkDebuffRemaining = 0;
-      try { localStorage.removeItem('duck-stink-debuff-remaining'); } catch (e) {}
+      try { Storage.remove('duck-stink-debuff-remaining'); } catch (e) {}
       updateStinkDebuffUI();
       updateAutoQuackTimer();
       particles.push({
@@ -9600,7 +9706,7 @@
 
   function resetEggSpoilTimer() {
     eggSpoilRemaining = isFridgeOn ? 60 : 30;
-    try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+    try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     updateEggSpoilTimerDisplay();
   }
   window.resetEggSpoilTimer = resetEggSpoilTimer;
@@ -9615,11 +9721,11 @@
     goldenFriedEggs = 0;
     eggSpoilRemaining = isFridgeOn ? 60 : 30;
     try {
-      localStorage.setItem(EGGS_NORMAL_KEY, '0');
-      localStorage.setItem(EGGS_GOLDEN_KEY, '0');
-      localStorage.setItem(FRIED_EGGS_KEY, '0');
-      localStorage.setItem(GOLDEN_FRIED_EGGS_KEY, '0');
-      localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining));
+      Storage.set(EGGS_NORMAL_KEY, '0');
+      Storage.set(EGGS_GOLDEN_KEY, '0');
+      Storage.set(FRIED_EGGS_KEY, '0');
+      Storage.set(GOLDEN_FRIED_EGGS_KEY, '0');
+      Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining));
     } catch (e) {}
 
     updateEggsDisplay();
@@ -9629,8 +9735,8 @@
     isRottenEggActive = true;
     rottenEggRotRemaining = 120;
     try {
-      localStorage.setItem('duck-rotten-egg-active', '1');
-      localStorage.setItem('duck-rotten-rot-remaining', '120');
+      Storage.set('duck-rotten-egg-active', '1');
+      Storage.set('duck-rotten-rot-remaining', '120');
     } catch (e) {}
 
     const rottenEggEl = document.getElementById('rottenEgg');
@@ -9691,7 +9797,7 @@
       const hasEggs = hasAnyEggsOnPlayer();
       if (hasEggs) {
         eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 1);
-        try { localStorage.setItem(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
         updateEggSpoilTimerDisplay();
 
         if (eggSpoilRemaining <= 0) {
@@ -9705,7 +9811,7 @@
       const rottenEggEl = document.getElementById('rottenEgg');
       if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
         rottenEggRotRemaining = Math.max(0, rottenEggRotRemaining - 1);
-        try { localStorage.setItem('duck-rotten-rot-remaining', String(rottenEggRotRemaining)); } catch (e) {}
+        try { Storage.set('duck-rotten-rot-remaining', String(rottenEggRotRemaining)); } catch (e) {}
         if (rottenEggRotRemaining <= 0) {
           rottenEggRotRemaining = 120;
           applyStinkDebuff(120);
@@ -9715,7 +9821,7 @@
       // Отсчет времени дебаффа (-50% на 2 минуты = 120 сек)
       if (stinkDebuffRemaining > 0) {
         stinkDebuffRemaining = Math.max(0, stinkDebuffRemaining - 1);
-        try { localStorage.setItem('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
+        try { Storage.set('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
         updateStinkDebuffUI();
         if (stinkDebuffRemaining <= 0) {
           clearStinkDebuff();
@@ -9725,7 +9831,7 @@
       // Инкубация яиц: 2 минуты (120 сек)
       if (isIncubating) {
         incubatingRemaining = Math.max(0, incubatingRemaining - 1);
-        try { localStorage.setItem(INCUBATING_REMAINING_KEY, String(incubatingRemaining)); } catch (e) {}
+        try { Storage.set(INCUBATING_REMAINING_KEY, String(incubatingRemaining)); } catch (e) {}
         updateIncubatorUI();
         if (incubatingRemaining <= 0) {
           finishIncubation();
@@ -9738,7 +9844,7 @@
       // Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
       if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
         ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - 1);
-        try { localStorage.setItem(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
+        try { Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
         updateDeskCreatureUI();
         if (ducklingGrowRemaining <= 0) {
           growDucklingToGoose();
@@ -9748,7 +9854,7 @@
       // Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
       if (isDuckDeflating) {
         deflationRemaining = Math.max(0, deflationRemaining - 1);
-        try { localStorage.setItem(DUCK_DEFLATING_REMAINING_KEY, String(deflationRemaining)); } catch (e) {}
+        try { Storage.set(DUCK_DEFLATING_REMAINING_KEY, String(deflationRemaining)); } catch (e) {}
         updateDeflationUI();
 
         // Периодические частицы выходящего воздуха
@@ -9857,8 +9963,8 @@
       isDuckDeflating = true;
       deflationRemaining = 300; // 5 минут
       try {
-        localStorage.setItem(DUCK_IS_DEFLATING_KEY, '1');
-        localStorage.setItem(DUCK_DEFLATING_REMAINING_KEY, '300');
+        Storage.set(DUCK_IS_DEFLATING_KEY, '1');
+        Storage.set(DUCK_DEFLATING_REMAINING_KEY, '300');
       } catch (e) {}
     }
 
@@ -9876,8 +9982,8 @@
       isDuckDeflating = false;
       deflationRemaining = 0;
       try {
-        localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
-        localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+        Storage.remove(DUCK_IS_DEFLATING_KEY);
+        Storage.remove(DUCK_DEFLATING_REMAINING_KEY);
       } catch (e) {}
       updateDeflationUI();
 
@@ -9916,14 +10022,14 @@
       // Открываем и применяем скин с изолентой
       if (!ownedSkins.includes('patched')) {
         ownedSkins.push('patched');
-        try { localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(ownedSkins)); } catch (e) {}
+        try { Storage.setJSON(OWNED_SKINS_KEY, ownedSkins); } catch (e) {}
       }
       applySkin('patched');
 
       hasPatchedDuck = true;
       try {
-        localStorage.setItem(HAS_PATCHED_DUCK_KEY, '1');
-        localStorage.setItem(STORAGE_PREFIX + 'emergency-surgery', '1');
+        Storage.set(HAS_PATCHED_DUCK_KEY, '1');
+        Storage.set(STORAGE_PREFIX + 'emergency-surgery', '1');
       } catch (e) {}
 
       tryUnlock();
@@ -9965,8 +10071,8 @@
     deflationRemaining = 0;
     isDeflatedDuckActive = true;
     try {
-      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
-      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+      Storage.remove(DUCK_IS_DEFLATING_KEY);
+      Storage.remove(DUCK_DEFLATING_REMAINING_KEY);
     } catch (e) {}
 
     updateDeflationUI();
@@ -9985,8 +10091,8 @@
   function restartFromDeflatedDuck() {
     hasStabbedDuck = true;
     try {
-      localStorage.setItem(HAS_STABBED_DUCK_KEY, '1');
-      localStorage.setItem(STORAGE_PREFIX + 'accident', '1');
+      Storage.set(HAS_STABBED_DUCK_KEY, '1');
+      Storage.set(STORAGE_PREFIX + 'accident', '1');
     } catch (e) {}
 
     // Сброс игры с сохранением уже открытых ачивок
@@ -9999,8 +10105,8 @@
     isDuckDeflating = false;
     deflationRemaining = 0;
     try {
-      localStorage.removeItem(DUCK_IS_DEFLATING_KEY);
-      localStorage.removeItem(DUCK_DEFLATING_REMAINING_KEY);
+      Storage.remove(DUCK_IS_DEFLATING_KEY);
+      Storage.remove(DUCK_DEFLATING_REMAINING_KEY);
     } catch (e) {}
 
     const duckImg = document.getElementById('duckImg');
@@ -10015,7 +10121,7 @@
     if (accIdx !== -1) {
       if (!ACHIEVEMENTS[accIdx].done) {
         ACHIEVEMENTS[accIdx].done = true;
-        try { localStorage.setItem(STORAGE_PREFIX + 'accident', '1'); } catch (e) {}
+        try { Storage.set(STORAGE_PREFIX + 'accident', '1'); } catch (e) {}
         showAchvToast(ACHIEVEMENTS[accIdx]);
         updateAchvCounter();
       } else {
@@ -10088,8 +10194,8 @@
     isRottenEggActive = false;
     rottenEggRotRemaining = 0;
     try {
-      localStorage.removeItem('duck-rotten-egg-active');
-      localStorage.removeItem('duck-rotten-rot-remaining');
+      Storage.remove('duck-rotten-egg-active');
+      Storage.remove('duck-rotten-rot-remaining');
     } catch (e) {}
 
     splatSound();
@@ -10286,35 +10392,33 @@
 
   window.addEventListener('resize', () => { updateBadgesPosition(); clampAllPlacedPropsToScreen(); clampDeskCreatureToScreen(); });
   updateBranchesButtonUI();
-  if (localStorage.getItem(CHEAT_PANEL_KEY) === '1') {
+  if (Storage.getBoolean(CHEAT_PANEL_KEY, false)) {
     const cp = document.getElementById('cheatPanel');
     if (cp) cp.classList.add('visible');
   }
   startEggSpoilTicker();
 
-  if (localStorage.getItem('duck-rotten-egg-active') === '1') {
+  if (Storage.getBoolean('duck-rotten-egg-active', false)) {
     isRottenEggActive = true;
-    rottenEggRotRemaining = parseInt(localStorage.getItem('duck-rotten-rot-remaining') || '120', 10);
+    rottenEggRotRemaining = Storage.getNumber('duck-rotten-rot-remaining', 120, 0);
     const rEgg = document.getElementById('rottenEgg');
     if (rEgg) rEgg.style.display = 'block';
   }
-  const savedDebuff = parseInt(localStorage.getItem('duck-stink-debuff-remaining') || '0', 10);
+  const savedDebuff = Storage.getNumber('duck-stink-debuff-remaining', 0, 0);
   if (savedDebuff > 0) {
     stinkDebuffRemaining = savedDebuff;
     updateStinkDebuffUI();
   }
 
   if (upgradeLevels.features >= 4) {
-    try {
-      const savedDuckPos = JSON.parse(localStorage.getItem(DUCK_POS_KEY) || 'null');
-      if (savedDuckPos && savedDuckPos.left && savedDuckPos.top) {
-        duck.style.position = 'fixed';
-        duck.style.left = savedDuckPos.left;
-        duck.style.top = savedDuckPos.top;
-        duck.style.margin = '0';
-        duck.style.zIndex = '50';
-      }
-    } catch (e) {}
+    const savedDuckPos = Storage.getJSON(DUCK_POS_KEY, null, (data) => data && typeof data === 'object' && typeof data.left === 'string' && typeof data.top === 'string');
+    if (savedDuckPos && savedDuckPos.left && savedDuckPos.top) {
+      duck.style.position = 'fixed';
+      duck.style.left = savedDuckPos.left;
+      duck.style.top = savedDuckPos.top;
+      duck.style.margin = '0';
+      duck.style.zIndex = '50';
+    }
   }
   updateDuckDragCursor();
 
