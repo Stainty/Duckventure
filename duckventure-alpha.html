@@ -2577,7 +2577,7 @@
         <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
         <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
         <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
-          <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">05:00</span>
+          <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">00:30</span>
         </span>
       </div>
     </div>
@@ -3141,7 +3141,7 @@
     <div class="egg-spoil-alert-icon">🤢</div>
     <div class="egg-spoil-alert-body">
       <div class="egg-spoil-alert-title">О нет! Яйца испортились и протухли!</div>
-      <div class="egg-spoil-alert-desc">Они пролежали на столе более 5 минут. Пора задуматься о покупке холодильника в магазине! ❄️</div>
+      <div class="egg-spoil-alert-desc">Они пролежали на столе слишком долго. Включённый холодильник продлевает свежесть яиц до 60 секунд! ❄️</div>
     </div>
     <button class="egg-spoil-alert-close" id="eggSpoilAlertClose" aria-label="Закрыть">✕</button>
   </div>
@@ -3390,7 +3390,11 @@
 
   let isLampOn = Storage.getBoolean(LAMP_ON_KEY, false);
   let isFridgeOn = Storage.getBoolean(FRIDGE_ON_KEY, false);
-  let eggSpoilRemaining = Storage.getNumber(EGG_SPOIL_TIMER_KEY, 30, 0);
+  const maxInitialSpoil = isFridgeOn ? 60 : 30;
+  let eggSpoilRemaining = Storage.getNumber(EGG_SPOIL_TIMER_KEY, maxInitialSpoil, 0, maxInitialSpoil);
+  if (eggSpoilRemaining > maxInitialSpoil) {
+    eggSpoilRemaining = maxInitialSpoil;
+  }
   let activeContextEggType = null;
   let eggSpoilInterval = null;
   let eggSpoilAlertTimeout = null;
@@ -4507,7 +4511,8 @@
     const goldenFriedEggEl = document.getElementById('goldenFriedEgg');
     const rottenEggEl = document.getElementById('rottenEgg');
     const eggSpoilAlert = document.getElementById('eggSpoilAlert');
-    eggSpoilRemaining = 30;
+    eggSpoilRemaining = isFridgeOn ? 60 : 30;
+    try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     if (eggSpoilAlert) eggSpoilAlert.style.display = 'none';
     if (normalEggEl) {
       normalEggEl.style.display = 'none';
@@ -5217,11 +5222,13 @@
     // Гусыня открывается на «Возможности» LVL 3
     if (upgradeLevels.features < 3) return;
 
+    const hadNoEggs = !hasAnyEggsOnPlayer();
     const roll = Math.random();
     // С шансом 0.5% золотое яйцо
     if (roll < 0.005) {
       goldenEggs++;
       try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+      if (hadNoEggs) resetEggSpoilTimer();
       xpSound();
       updateEggsDisplay(true, 'golden');
       return;
@@ -5230,6 +5237,7 @@
     if (roll < 0.105) {
       normalEggs++;
       try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+      if (hadNoEggs) resetEggSpoilTimer();
       corkPopSound();
       updateEggsDisplay(true, 'normal');
     }
@@ -5521,6 +5529,9 @@
     hasSmashedEggs = true;
     try { Storage.set(HAS_SMASHED_EGGS_KEY, '1'); } catch (e) {}
 
+    if (!hasAnyEggsOnPlayer()) {
+      resetEggSpoilTimer();
+    }
     splatSound();
     updateEggsDisplay();
     updateShopSellTab();
@@ -6875,54 +6886,92 @@
   }
   window.payBusinessAttention = payBusinessAttention;
 
-  function tickBusinesses() {
+  function tickBusinesses(deltaSec = 1) {
+    if (deltaSec <= 0) return;
     let changed = false;
+    let totalPenalties = 0;
+    let anyAttentionTriggered = false;
+
     Object.keys(businessesState).forEach(id => {
       const b = BUSINESSES_DATA[id];
       const state = businessesState[id];
       if (!b || !state) return;
 
-      if (state.status === 'working') {
-        state.remaining = Math.max(0, (state.remaining ?? b.workDuration) - 1);
-        changed = true;
-        if (state.remaining <= 0) {
-          state.status = 'attention';
-          state.attentionRemaining = b.attentionDuration;
-          corkPopSound();
-          particles.push({
-            x: window.innerWidth / 2,
-            y: 80,
-            vx: 0,
-            vy: -80,
-            size: 20,
-            alpha: 1.6,
-            text: `🚨 ${b.name} требует внимания в Филиалах!`,
-            color: '#facc15'
-          });
-        }
-      } else if (state.status === 'attention') {
-        state.attentionRemaining = Math.max(0, (state.attentionRemaining ?? b.attentionDuration) - 1);
-        changed = true;
-        if (state.attentionRemaining <= 0) {
-          // Пропуск внимания в течение 1 минуты -> штраф и сброс цикла
-          penalizeDuckles(b.penalty);
-          rottenEggSound();
-          particles.push({
-            x: window.innerWidth / 2,
-            y: 90,
-            vx: 0,
-            vy: -80,
-            size: 20,
-            alpha: 1.6,
-            text: `⚠️ Штраф за простой (${b.name}): -${b.penalty.toLocaleString('ru-RU')} 🦆! Доход упущен.`,
-            color: '#ef4444'
-          });
-          state.status = 'working';
-          state.remaining = b.workDuration;
-          state.attentionRemaining = b.attentionDuration;
+      let remSec = deltaSec;
+      let branchPenalties = 0;
+
+      while (remSec > 0) {
+        if (state.status === 'working') {
+          const needed = (state.remaining !== undefined && state.remaining !== null) ? state.remaining : b.workDuration;
+          if (remSec < needed) {
+            state.remaining = needed - remSec;
+            remSec = 0;
+            changed = true;
+          } else {
+            remSec -= needed;
+            state.status = 'attention';
+            state.attentionRemaining = b.attentionDuration;
+            state.remaining = 0;
+            changed = true;
+            anyAttentionTriggered = true;
+          }
+        } else if (state.status === 'attention') {
+          const needed = (state.attentionRemaining !== undefined && state.attentionRemaining !== null) ? state.attentionRemaining : b.attentionDuration;
+          if (remSec < needed) {
+            state.attentionRemaining = needed - remSec;
+            remSec = 0;
+            changed = true;
+          } else {
+            remSec -= needed;
+            branchPenalties++;
+            // Пропуск внимания в течение 1 минуты -> штраф и перезапуск рабочего цикла
+            state.status = 'working';
+            state.remaining = b.workDuration;
+            state.attentionRemaining = b.attentionDuration;
+            changed = true;
+          }
+        } else {
+          break;
         }
       }
+
+      if (branchPenalties > 0) {
+        const totalBranchPenalty = b.penalty * branchPenalties;
+        penalizeDuckles(totalBranchPenalty);
+        totalPenalties += totalBranchPenalty;
+
+        particles.push({
+          x: window.innerWidth / 2,
+          y: 90,
+          vx: 0,
+          vy: -80,
+          size: 20,
+          alpha: 1.6,
+          text: (branchPenalties === 1)
+            ? `⚠️ Штраф за простой (${b.name}): -${b.penalty.toLocaleString('ru-RU')} 🦆! Доход упущен.`
+            : `⚠️ Штраф за простой x${branchPenalties} (${b.name}): -${totalBranchPenalty.toLocaleString('ru-RU')} 🦆!`,
+          color: '#ef4444'
+        });
+      }
     });
+
+    if (totalPenalties > 0) {
+      rottenEggSound();
+    }
+
+    if (anyAttentionTriggered) {
+      corkPopSound();
+      particles.push({
+        x: window.innerWidth / 2,
+        y: 80,
+        vx: 0,
+        vy: -80,
+        size: 20,
+        alpha: 1.6,
+        text: `🚨 Филиал требует внимания в Филиалах!`,
+        color: '#facc15'
+      });
+    }
 
     if (changed) {
       saveBusinessesState();
@@ -7174,7 +7223,9 @@
     }
 
     if (earned > 0) {
-      resetEggSpoilTimer();
+      if (!hasAnyEggsOnPlayer()) {
+        resetEggSpoilTimer();
+      }
       xpSound();
       addDuckles(earned);
       updateEggsDisplay();
@@ -7184,12 +7235,14 @@
   window.sellEgg = sellEgg;
 
   function cheatAddEggs() {
+    const hadNoEggs = !hasAnyEggsOnPlayer();
     normalEggs += 10;
     goldenEggs += 2;
     try {
       Storage.set(EGGS_NORMAL_KEY, String(normalEggs));
       Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs));
     } catch (e) {}
+    if (hadNoEggs) resetEggSpoilTimer();
     corkPopSound();
     updateEggsDisplay();
   }
@@ -8650,8 +8703,12 @@
 
     if (isFridgeOn) {
       if (!wasActive) {
-        // При включении добавляет +1 мин (60 сек) к таймеру
-        eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
+        // При включении добавляет +30 сек свежести (до 60 сек макс)
+        if (hasAnyEggsOnPlayer()) {
+          eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
+        } else {
+          eggSpoilRemaining = 60;
+        }
         try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
       // Тараканы появляются при включении холодильника (если еще не пройден квест)
@@ -8669,12 +8726,17 @@
       }
     } else {
       if (wasActive) {
-        // При выключении отнимает 1 мин (60 сек) от текущего таймера
-        eggSpoilRemaining = eggSpoilRemaining - 30;
-        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-        if (eggSpoilRemaining <= 0) {
-          spoilEggs();
-          return;
+        // При выключении отнимает бонус 30 сек свежести
+        if (hasAnyEggsOnPlayer()) {
+          eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 30);
+          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+          if (eggSpoilRemaining <= 0) {
+            spoilEggs();
+            return;
+          }
+        } else {
+          eggSpoilRemaining = 30;
+          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
         }
       }
     }
@@ -9575,7 +9637,7 @@
     });
   }
 
-  /* ---------- Механика свежести и порчи яиц (Таймер 5 мин и холодильник) ---------- */
+  /* ---------- Механика свежести и порчи яиц (30 сек база, 60 сек с холодильником) ---------- */
   function isClockOnTable() {
     return ownedProps.includes('clock') && !!placedProps['clock'] && document.getElementById('prop-clock')?.style.display !== 'none';
   }
@@ -9689,11 +9751,11 @@
       timerItem.classList.add('fridge');
       timerItem.classList.remove('warning');
       timerIcon.textContent = '❄️';
-      timerItem.title = 'Холодильник включён (+30 сек свежести)';
+      timerItem.title = 'Холодильник включён (+30 сек свежести, до 60 сек)';
     } else {
       timerItem.classList.remove('fridge');
       timerIcon.textContent = '⏱️';
-      timerItem.title = 'Время до порчи яиц на столе';
+      timerItem.title = 'Время до порчи яиц на столе (30 сек)';
       if (eggSpoilRemaining <= 10) {
         timerItem.classList.add('warning');
       } else {
@@ -9790,93 +9852,135 @@
   }
   window.showEggSpoilAlert = showEggSpoilAlert;
 
-  function startEggSpoilTicker() {
-    if (eggSpoilInterval) clearInterval(eggSpoilInterval);
-    eggSpoilInterval = setInterval(() => {
-      const hasEggs = hasAnyEggsOnPlayer();
-      if (hasEggs) {
-        eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 1);
-        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-        updateEggSpoilTimerDisplay();
+  /* ==========================================================================
+     Единый игровой мастер-таймер реального времени (Date.now + Фоновая вкладка)
+     ========================================================================== */
+  let lastGameTickTime = Date.now();
 
-        if (eggSpoilRemaining <= 0) {
-          spoilEggs();
-        }
-      } else {
-        updateEggSpoilTimerDisplay();
+  function advanceGameTime(deltaSec) {
+    if (deltaSec <= 0) return;
+
+    // 1. Свежесть и порча яиц (30 сек без холодильника, 60 сек с холодильником)
+    const hasEggs = hasAnyEggsOnPlayer();
+    if (hasEggs) {
+      eggSpoilRemaining = Math.max(0, eggSpoilRemaining - deltaSec);
+      try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+      if (eggSpoilRemaining <= 0) {
+        spoilEggs();
       }
+    }
+    updateEggSpoilTimerDisplay();
 
-      // Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты
-      const rottenEggEl = document.getElementById('rottenEgg');
-      if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
-        rottenEggRotRemaining = Math.max(0, rottenEggRotRemaining - 1);
-        try { Storage.set('duck-rotten-rot-remaining', String(rottenEggRotRemaining)); } catch (e) {}
-        if (rottenEggRotRemaining <= 0) {
+    // 2. Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты
+    const rottenEggEl = document.getElementById('rottenEgg');
+    if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
+      let rDelta = deltaSec;
+      while (rDelta > 0 && isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
+        if (rDelta < rottenEggRotRemaining) {
+          rottenEggRotRemaining -= rDelta;
+          rDelta = 0;
+        } else {
+          rDelta -= rottenEggRotRemaining;
           rottenEggRotRemaining = 120;
           applyStinkDebuff(120);
         }
       }
+      try { Storage.set('duck-rotten-rot-remaining', String(rottenEggRotRemaining)); } catch (e) {}
+    }
 
-      // Отсчет времени дебаффа (-50% на 2 минуты = 120 сек)
-      if (stinkDebuffRemaining > 0) {
-        stinkDebuffRemaining = Math.max(0, stinkDebuffRemaining - 1);
-        try { Storage.set('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
-        updateStinkDebuffUI();
-        if (stinkDebuffRemaining <= 0) {
-          clearStinkDebuff();
-        }
+    // 3. Отсчет времени дебаффа (-50% на 2 минуты = 120 сек)
+    if (stinkDebuffRemaining > 0) {
+      stinkDebuffRemaining = Math.max(0, stinkDebuffRemaining - deltaSec);
+      try { Storage.set('duck-stink-debuff-remaining', String(stinkDebuffRemaining)); } catch (e) {}
+      updateStinkDebuffUI();
+      if (stinkDebuffRemaining <= 0) {
+        clearStinkDebuff();
+      }
+    }
+
+    // 4. Инкубация яиц: 2 минуты (120 сек)
+    if (isIncubating) {
+      incubatingRemaining = Math.max(0, incubatingRemaining - deltaSec);
+      try { Storage.set(INCUBATING_REMAINING_KEY, String(incubatingRemaining)); } catch (e) {}
+      updateIncubatorUI();
+      if (incubatingRemaining <= 0) {
+        finishIncubation();
+      }
+    }
+
+    // 5. Филиалы бизнеса (продвижение циклов и штрафов)
+    tickBusinesses(deltaSec);
+
+    // 6. Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
+    if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
+      ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - deltaSec);
+      try { Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
+      updateDeskCreatureUI();
+      if (ducklingGrowRemaining <= 0) {
+        growDucklingToGoose();
+      }
+    }
+
+    // 7. Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
+    if (isDuckDeflating) {
+      deflationRemaining = Math.max(0, deflationRemaining - deltaSec);
+      try { Storage.set(DUCK_DEFLATING_REMAINING_KEY, String(deflationRemaining)); } catch (e) {}
+      updateDeflationUI();
+
+      // Периодические частицы выходящего воздуха (только при активном показе)
+      if (deflationRemaining > 0 && Math.random() < 0.28 && deltaSec <= 3) {
+        const rD = duck.getBoundingClientRect();
+        particles.push({
+          x: rD.left + rD.width / 2 + (Math.random() - 0.5) * 40,
+          y: rD.top + rD.height / 2,
+          vx: (Math.random() - 0.5) * 40,
+          vy: -50 - Math.random() * 40,
+          size: 14 + Math.random() * 8,
+          alpha: 0.9,
+          text: '💨',
+          color: '#93c5fd'
+        });
       }
 
-      // Инкубация яиц: 2 минуты (120 сек)
-      if (isIncubating) {
-        incubatingRemaining = Math.max(0, incubatingRemaining - 1);
-        try { Storage.set(INCUBATING_REMAINING_KEY, String(incubatingRemaining)); } catch (e) {}
-        updateIncubatorUI();
-        if (incubatingRemaining <= 0) {
-          finishIncubation();
-        }
+      if (deflationRemaining <= 0) {
+        triggerDeflatedDuckGameOver();
       }
-
-      // Тик филиалов бизнеса
-      tickBusinesses();
-
-      // Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
-      if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
-        ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - 1);
-        try { Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
-        updateDeskCreatureUI();
-        if (ducklingGrowRemaining <= 0) {
-          growDucklingToGoose();
-        }
-      }
-
-      // Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
-      if (isDuckDeflating) {
-        deflationRemaining = Math.max(0, deflationRemaining - 1);
-        try { Storage.set(DUCK_DEFLATING_REMAINING_KEY, String(deflationRemaining)); } catch (e) {}
-        updateDeflationUI();
-
-        // Периодические частицы выходящего воздуха
-        if (deflationRemaining > 0 && Math.random() < 0.28) {
-          const rD = duck.getBoundingClientRect();
-          particles.push({
-            x: rD.left + rD.width / 2 + (Math.random() - 0.5) * 40,
-            y: rD.top + rD.height / 2,
-            vx: (Math.random() - 0.5) * 40,
-            vy: -50 - Math.random() * 40,
-            size: 14 + Math.random() * 8,
-            alpha: 0.9,
-            text: '💨',
-            color: '#93c5fd'
-          });
-        }
-
-        if (deflationRemaining <= 0) {
-          triggerDeflatedDuckGameOver();
-        }
-      }
-    }, 1000);
+    }
   }
+
+  function processGameTick() {
+    const now = Date.now();
+    const elapsedSec = Math.floor((now - lastGameTickTime) / 1000);
+    if (elapsedSec >= 1) {
+      lastGameTickTime += elapsedSec * 1000;
+      advanceGameTime(elapsedSec);
+    }
+  }
+
+  function handleTabResume() {
+    processGameTick();
+    updateEggSpoilTimerDisplay();
+    updateStinkDebuffUI();
+    updateIncubatorUI();
+    updateDeskCreatureUI();
+    updateDeflationUI();
+    updateBadgesPosition();
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      handleTabResume();
+    }
+  });
+  window.addEventListener('focus', handleTabResume);
+  window.addEventListener('pageshow', handleTabResume);
+
+  function startEggSpoilTicker() {
+    if (eggSpoilInterval) clearInterval(eggSpoilInterval);
+    lastGameTickTime = Date.now();
+    eggSpoilInterval = setInterval(processGameTick, 500);
+  }
+  window.advanceGameTime = advanceGameTime;
 
   /* ---------- Механика ножа, изоленты и сдувания утки ---------- */
   function updateDeflationUI() {
@@ -10141,6 +10245,7 @@
 
   function cheatFastSpoil() {
     eggSpoilRemaining = 2;
+    try { Storage.set(EGG_SPOIL_TIMER_KEY, '2'); } catch (e) {}
     updateEggSpoilTimerDisplay();
   }
   window.cheatFastSpoil = cheatFastSpoil;
