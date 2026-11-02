@@ -1,0 +1,16 @@
+{
+  "name": "duckventure",
+  "version": "1.0.0",
+  "description": "Duckventure - Резиновая утка",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:py": "python scripts/build.py"
+  },
+  "keywords": [
+    "duckventure",
+    "clicker",
+    "game"
+  ],
+  "license": "MIT"
+}

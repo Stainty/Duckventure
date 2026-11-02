@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duckventure</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div class="top-nav" id="topNav">
+    <button id="wardrobeBtn" class="wardrobe-btn" aria-label="Открыть Гардероб">
+      <span class="wardrobe-icon">👔</span> Гардероб
+    </button>
+    <button id="upgradesBtn" class="upgrades-btn" aria-label="Открыть окно прокачки">
+      <span class="upgrades-icon">⚡</span> Апгрейды
+    </button>
+    <div class="duckles-nav-wrap">
+      <div class="duckles-bar" id="ducklesBar"><span class="duckles-label-full">Даклей заработано:</span><span class="duckles-label-short">Даклей:</span> <span class="duckles-val" id="ducklesVal">0</span></div>
+      <div class="eggs-bar" id="eggsBar">
+        <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
+        <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
+        <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
+        <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
+        <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
+          <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">00:30</span>
+        </span>
+      </div>
+    </div>
+    <button id="shopBtn" class="shop-btn" aria-label="Открыть Магазин">
+      <span class="shop-icon">🛒</span> Магазин
+    </button>
+    <button id="storageBtn" class="storage-btn" aria-label="Открыть Склад">
+      <span class="storage-icon">📦</span> Склад
+    </button>
+    <button id="branchesBtn" class="branches-btn" aria-label="Открыть Филиалы" style="display: none;">
+      <span class="branches-icon">🏢</span> Филиалы
+      <span class="branches-alert-badge" id="branchesAlertBadge" style="display: none;">!</span>
+    </button>
+  </div>
+
+  <div class="lvl-box" id="lvlBox">
+    <div class="lvl-title-row">
+      <span>LVL</span> <span class="lvl-num" id="lvlNum">1</span>
+    </div>
+    <div class="lvl-warning" id="lvlRoachWarning" style="display: none;">
+      <span class="roach-warn-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 29 18 Q 14 7 6 5" stroke="#ff8566" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 35 18 Q 50 7 58 5" stroke="#ff8566" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 26 23 L 16 18 L 10 11" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 38 23 L 48 18 L 54 11" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 23 33 L 12 30 L 6 36" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 41 33 L 52 30 L 58 36" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 24 43 L 11 48 L 7 59" stroke="#ff8566" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 40 43 L 53 48 L 57 59" stroke="#ff8566" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <ellipse cx="32" cy="38" rx="11" ry="16.5" fill="#ff4d4d" stroke="#ffe4e4" stroke-width="1.6"/>
+          <path d="M 32 25 L 32 54" stroke="#ffe4e4" stroke-width="1.4"/>
+          <ellipse cx="32" cy="23.5" rx="9.5" ry="7" fill="#dc2626" stroke="#ffe4e4" stroke-width="1.6"/>
+          <ellipse cx="32" cy="17" rx="4.5" ry="3.5" fill="#991b1b"/>
+        </svg>
+      </span>
+      <span>Тараканы! Опыт не накапливается!</span>
+      <span class="roach-warn-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 29 18 Q 14 7 6 5" stroke="#ff8566" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 35 18 Q 50 7 58 5" stroke="#ff8566" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 26 23 L 16 18 L 10 11" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 38 23 L 48 18 L 54 11" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 23 33 L 12 30 L 6 36" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 41 33 L 52 30 L 58 36" stroke="#ff8566" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 24 43 L 11 48 L 7 59" stroke="#ff8566" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 40 43 L 53 48 L 57 59" stroke="#ff8566" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <ellipse cx="32" cy="38" rx="11" ry="16.5" fill="#ff4d4d" stroke="#ffe4e4" stroke-width="1.6"/>
+          <path d="M 32 25 L 32 54" stroke="#ffe4e4" stroke-width="1.4"/>
+          <ellipse cx="32" cy="23.5" rx="9.5" ry="7" fill="#dc2626" stroke="#ffe4e4" stroke-width="1.6"/>
+          <ellipse cx="32" cy="17" rx="4.5" ry="3.5" fill="#991b1b"/>
+        </svg>
+      </span>
+    </div>
+    <div class="lvl-bar-bg" title="Прогресс до следующего уровня">
+      <div class="lvl-bar-fill" id="lvlBarFill"></div>
+    </div>
+    <div class="lvl-exp-text" id="lvlExpText">0 / 9 🦆</div>
+    <div class="lvl-next-unlock" id="lvlNextUnlock">На LVL 2: Автокрякалка LVL 1</div>
+  </div>
+
+  <!-- Чит-панель для тестирования -->
+  <div class="cheat-panel" id="cheatPanel">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+      <div class="cheat-title">🧪 Тест: +Дакли</div>
+      <button class="cheat-close-btn" onclick="toggleCheatPanel(false)" title="Скрыть панель (вернуть: mousecrown)">✕</button>
+    </div>
+    <div class="cheat-btns-row">
+      <button class="cheat-btn" onclick="addDuckles(1000)">+1k</button>
+      <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
+      <button class="cheat-btn" onclick="addDuckles(1000000)">+1M</button>
+      <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
+      <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
+      <button class="cheat-btn" onclick="cheatFastDebuff()" title="Вызвать дебафф тухлых яиц (таймер 2 сек)">🤢⚡</button>
+            <button class="cheat-btn" onclick="cheatFastIncubate()" title="Ускорить инкубатор / рост утенка (1 сек)">🐣⚡</button>
+      <button class="cheat-btn" onclick="cheatFastDeflate()" title="Ускорить сдувание утки (таймер 2 сек)">🔪💨</button>
+      <button class="cheat-btn" onclick="toggleCheatRoaches()" title="Вкл/выкл тараканов">
+        <span class="cheat-roach-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 29 18 Q 14 7 6 5" stroke="#e0faff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M 35 18 Q 50 7 58 5" stroke="#e0faff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M 26 23 L 16 18 L 10 11" stroke="#e0faff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 38 23 L 48 18 L 54 11" stroke="#e0faff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 23 33 L 12 30 L 6 36" stroke="#e0faff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 41 33 L 52 30 L 58 36" stroke="#e0faff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 24 43 L 11 48 L 7 59" stroke="#e0faff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 40 43 L 53 48 L 57 59" stroke="#e0faff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="38" rx="11" ry="16.5" fill="#40e0d0" stroke="#fff" stroke-width="1.6"/>
+            <path d="M 32 25 L 32 54" stroke="#fff" stroke-width="1.4"/>
+            <ellipse cx="32" cy="23.5" rx="9.5" ry="7" fill="#0891b2" stroke="#fff" stroke-width="1.6"/>
+            <ellipse cx="32" cy="17" rx="4.5" ry="3.5" fill="#164e63"/>
+          </svg>
+        </span>
+        Тараканы
+      </button>
+    </div>
+  </div>
+
+  <!-- Модальное окно прокачки -->
+  <div class="upgrades-modal" id="upgradesModal">
+    <div class="upgrades-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="upgrades-title-icon">⚡</span>
+          <span>Прокачка утки</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="modalDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeUpgradesBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="upgrades-body" id="upgradesList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Магазина -->
+  <div class="upgrades-modal" id="shopModal">
+    <div class="upgrades-dialog shop-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="shop-title-icon">🛒</span>
+          <span>Магазин утки</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="shopDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeShopBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="shop-tabs-bar">
+        <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
+        <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
+      </div>
+      <div class="duckberries-header" id="duckberriesHeader">
+        <div class="duckberries-logo">Duckberries</div>
+        <div class="duckberries-tagline">Маркетплейс утиного стиля и уюта</div>
+      </div>
+      <div class="shop-body" id="shopBodyBuy" style="align-items: stretch; justify-content: flex-start;">
+        <div class="shop-sections-wrap">
+          <!-- Секция: Одежда&Аксессуары -->
+          <div class="shop-section" id="clothingShopSection">
+            <div class="shop-section-title" id="clothingSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('clothing')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('clothing');}">
+              <div class="shop-section-title-left">
+                <span>👚</span> <span>Одежда&Аксессуары</span>
+              </div>
+              <span class="shop-collapse-arrow" id="clothingSectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="clothingBuyList"></div>
+          </div>
+
+          <!-- Секция: Быт -->
+          <div class="shop-section" id="householdShopSection">
+            <div class="shop-section-title" id="householdSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('household')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('household');}">
+              <div class="shop-section-title-left">
+                <span>🍳</span> <span>Быт</span>
+              </div>
+              <span class="shop-collapse-arrow" id="householdSectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="householdBuyList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
+        <div class="sell-list">
+          <div class="sell-card">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🥚</div>
+              <div>
+                <div class="sell-item-title">Обычное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">200 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopNormalEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellNormal1Btn" onclick="sellEgg('normal', 1)">Продать 1 (+200 🦆)</button>
+              <button class="sell-btn sell-all" id="sellNormalAllBtn" onclick="sellEgg('normal', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🥚</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотое яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">5 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGolden1Btn" onclick="sellEgg('golden', 1)">Продать 1 (+5k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenAllBtn" onclick="sellEgg('golden', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card fried-card" id="sellFriedCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🍳</div>
+              <div>
+                <div class="sell-item-title">Жареное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">1 600 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopFriedEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellFried1Btn" onclick="sellEgg('fried', 1)">Продать 1 (+1.6k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellFriedAllBtn" onclick="sellEgg('fried', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          
+          <!-- Карточки продажи питомцев из инкубатора -->
+          <div class="sell-card" id="sellDucklingCard" style="border-color: rgba(251, 191, 36, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🐥</div>
+              <div>
+                <div class="sell-item-title" style="color: #fbbf24;">Утёнок</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">10 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopDucklingsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellDuckling1Btn" onclick="sellCreature('duckling', 1)">Продать 1 (+10k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellDucklingAllBtn" onclick="sellCreature('duckling', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenDucklingCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🐥</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой утёнок</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">50 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenDucklingsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenDuckling1Btn" onclick="sellCreature('goldenDuckling', 1)">Продать 1 (+50k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenDucklingAllBtn" onclick="sellCreature('goldenDuckling', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🪿</div>
+              <div>
+                <div class="sell-item-title" style="color: #67e8f9;">Большой гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+150k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenGooseCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🪿</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой большой гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+500k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card" id="sellRoastedGooseCard" style="border-color: rgba(249, 115, 22, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🍗🪿</div>
+              <div>
+                <div class="sell-item-title" style="color: #fb923c;">Жареный гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+180k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🍗</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотой жареный гусь</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">650 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+650k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">✨🍳</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Гардероба -->
+  <div class="upgrades-modal" id="wardrobeModal">
+    <div class="upgrades-dialog wardrobe-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="wardrobe-title-icon">👔</span>
+          <span>Гардероб утки</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeWardrobeBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="wardrobe-body" id="wardrobeList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Склада -->
+  <div class="upgrades-modal" id="storageModal">
+    <div class="upgrades-dialog storage-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="storage-title-icon">📦</span>
+          <span>Склад предметов</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeStorageBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="storage-intro">
+        Предметы со склада можно выкладывать на экран и передвигать в любое место, а также убирать обратно на склад.
+      </div>
+      <div class="storage-body" id="storageList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно Филиалов -->
+  <div class="upgrades-modal" id="branchesModal">
+    <div class="upgrades-dialog branches-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="branches-title-icon">🏢</span>
+          <span>Филиалы бизнеса</span>
+        </div>
+        <div class="upgrades-modal-balance">
+          Баланс: <span id="branchesDucklesVal">0</span> 🦆
+        </div>
+        <button class="upgrades-close-btn" id="closeBranchesBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="branches-body" id="branchesList">
+        <div class="branches-placeholder">
+          <div class="branches-placeholder-icon">🏢</div>
+          <div class="branches-placeholder-title">Бизнес-империя на стадии запуска</div>
+          <div class="branches-placeholder-desc">
+            Скоро здесь появится возможность открывать филиалы и расширять деловую паутину утиного бизнеса.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно ачивок -->
+  <div class="upgrades-modal" id="achievementsModal">
+    <div class="upgrades-dialog achv-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="achv-title-icon">🏆</span>
+          <span>Ачивки</span>
+          <span class="achv-counter-badge" id="achvModalCounter">(0/26)</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="achv-body" id="achvModalBody">
+        <div class="achv-grid" id="achvList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно зажаренной утки (Game Over) -->
+  <div class="upgrades-modal" id="cookedDuckModal">
+    <div class="upgrades-dialog cooked-duck-dialog">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true">🍗</div>
+        <div class="cooked-duck-title">О нет! Кажется эта утка больше не крякает</div>
+        <div class="cooked-duck-desc">Мама утка превратилась в аппетитное хрустящее блюдо прямо на плите...</div>
+        <button id="cookedDuckRestartBtn" class="cooked-duck-restart-btn">
+          <span>🔄</span> Начать игру заново
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно инцидента с ножом -->
+  
+  <!-- Модальное окно инкубатора -->
+  <div class="upgrades-modal" id="incubatorModal">
+    <div class="upgrades-dialog incubator-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="shop-title-icon">🐣</span>
+          <span>Инкубатор яиц</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeIncubatorBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="incubator-modal-body" id="incubatorModalBody"></div>
+    </div>
+  </div>
+
+  <div class="upgrades-modal" id="knifeAccidentModal">
+    <div class="upgrades-dialog cooked-duck-dialog" style="max-width: 440px;">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true" style="font-size: 64px; filter: drop-shadow(0 8px 20px rgba(239, 68, 68, 0.6));">😱🔪</div>
+        <div class="cooked-duck-title" style="color: #f87171;">Ой, я случайно!</div>
+        <div class="cooked-duck-desc" style="color: #cbd5e1; font-size: 15px;">
+          Кажется эта утка скоро сдуется...<br>
+          <span style="font-size: 13px; color: #94a3b8; margin-top: 6px; display: inline-block;">У вас есть 5 минут, чтобы найти способ её починить!</span>
+        </div>
+        <button id="knifeAccidentCloseBtn" class="cooked-duck-restart-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #fca5a5; box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);">
+          <span>🩹</span> Я всё исправлю!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно сдувшейся утки (Game Over) -->
+  <div class="upgrades-modal" id="deflatedDuckModal">
+    <div class="upgrades-dialog cooked-duck-dialog">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" aria-hidden="true" style="font-size: 78px; filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.55));">🎈💨</div>
+        <div class="cooked-duck-title" style="color: #67e8f9;">В вашей утке не осталось воздуха</div>
+        <div class="cooked-duck-desc">Резиновая утка полностью сдулась и превратилась в тонкую тряпочку... Без изоленты не обойтись!</div>
+        <button id="deflatedDuckRestartBtn" class="cooked-duck-restart-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);">
+          <span>🔄</span> Начать игру заново
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Кнопка Ачивок (слева вверху) -->
+  <button id="achvBtn" class="achv-btn" aria-label="Открыть окно ачивок">
+    <span>🏆</span> Ачивки
+  </button>
+
+  <!-- Перетаскиваемые яйца на экране -->
+  <div id="normalEgg" class="draggable-egg normal-egg" title="Обычное яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
+  <div id="goldenEgg" class="draggable-egg golden-egg" title="Золотое яйцо (перетаскивай в магазин или на сковороду!)">🥚</div>
+  <div id="friedEgg" class="draggable-egg fried-egg" title="Жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">🍳</div>
+  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" title="Золотое жареное яйцо (перетаскивай в магазин или ПКМ!)" style="display: none;">✨🍳</div>
+  <div id="rottenEgg" class="draggable-egg rotten-egg" title="Тухлое яйцо (Кликни, чтобы выбросить!)" style="display: none;">🤢</div>
+
+  <!-- Перетаскиваемые бытовые предметы на экране -->
+  <div id="prop-skovoroda" class="draggable-prop" title="Сковорода (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://pngicon.net/file/uploads/skovoroda-243x256.png" alt="Сковорода" draggable="false" referrerpolicy="no-referrer">
+    <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
+  </div>
+  <div id="prop-plita" class="draggable-prop" title="Плита (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe" alt="Плита" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🎛️</span>
+    <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
+  </div>
+  <div id="prop-fridge" class="draggable-prop" title="Вонючий старый холодильник (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🧊</span>
+    <button class="fridge-toggle-btn" id="fridgeToggleBtn" title="Включить / Выключить холодильник" onclick="toggleFridge(event)">❄️</button>
+  </div>
+  <div id="prop-dichlofos" class="draggable-prop" title="Дихлофос (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🧴</span>
+  </div>
+  <div id="prop-key" class="draggable-prop" title="Ключ (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🔑</span>
+  </div>
+  <div id="prop-lamp" class="draggable-prop" title="Напольная лампа (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">💡</span>
+    <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
+  </div>
+  <div id="prop-trashcan" class="draggable-prop" title="Мусорное ведро (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI" alt="Мусорное ведро" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 156px;">🗑️</span>
+  </div>
+  <div id="prop-clock" class="draggable-prop" title="Напольные часы (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1LBfmZcEwiCMYQRDy-GKlgAnQZBJYesag" alt="Напольные часы" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🕰️</span>
+  </div>
+  <div id="prop-knife" class="draggable-prop" title="Кухонный нож (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1V2Yi1ljXGKo-8FUbYne42jgeSJY2I8gY" alt="Кухонный нож" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🔪</span>
+  </div>
+  
+  <div id="prop-incubator" class="draggable-prop" title="Инкубатор (перетаскивай! Нажми, чтобы загрузить яйца)" style="display: none;" onclick="handleIncubatorClick(event)">
+    <img src="https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7" alt="Инкубатор" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🐣</span>
+    <div id="incubatorProgressBadge" class="incubator-badge" style="display: none;">
+      <span class="incubator-badge-icon">🥚</span>
+      <span id="incubatorBadgeTime">02:00</span>
+    </div>
+  </div>
+
+  <div id="deskCreature" class="draggable-prop desk-creature" title="Питомец (перетаскивай! Перетащи в магазин, чтобы продать)" style="display: none;">
+    <div id="deskCreatureVisual" class="creature-visual">🐣</div>
+    <div id="deskCreatureAgeBadge" class="creature-age-badge" style="display: none;">
+      <span id="deskCreatureAgeText">10:00</span>
+    </div>
+  </div>
+
+  <div id="prop-tape" class="draggable-prop" title="Изолента (перетаскивай! Перетащи на кнопку «Склад» или нажми ПКМ, чтобы убрать)" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a" alt="Изолента" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🩹</span>
+  </div>
+
+  <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
+  <div id="propContextMenu" class="prop-context-menu" style="display: none;">
+    <button class="prop-ctx-btn" id="propCtxReturnBtn">
+      <span class="prop-ctx-icon">📦</span> Убрать на склад
+    </button>
+    <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxRefundBtn" style="color: #fca5a5;">
+      <span class="prop-ctx-icon">💰</span> Вернуть в магазин
+    </button>
+        <button class="prop-ctx-btn" id="propCtxCreatureSellBtn" style="display: none; color: #4ade80;">
+      <span class="prop-ctx-icon">💰</span> Продать питомца
+    </button>
+    <button class="prop-ctx-btn" id="propCtxSell1Btn" style="display: none; color: #4ade80;">
+      <span class="prop-ctx-icon">💰</span> Продать 1
+    </button>
+    <button class="prop-ctx-btn prop-ctx-refund-btn" id="propCtxSellAllBtn" style="display: none; color: #facc15;">
+      <span class="prop-ctx-icon">✨</span> Продать всё
+    </button>
+    <button class="prop-ctx-btn" id="propCtxDiscardBtn" style="display: none; color: #a3e635;">
+      <span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку
+    </button>
+  </div>
+
+  <!-- Явное предупреждение о стухших яйцах -->
+  <div id="eggSpoilAlert" class="egg-spoil-alert" style="display: none;">
+    <div class="egg-spoil-alert-icon">🤢</div>
+    <div class="egg-spoil-alert-body">
+      <div class="egg-spoil-alert-title">О нет! Яйца испортились и протухли!</div>
+      <div class="egg-spoil-alert-desc">Они пролежали на столе слишком долго. Включённый холодильник продлевает свежесть яиц до 60 секунд! ❄️</div>
+    </div>
+    <button class="egg-spoil-alert-close" id="eggSpoilAlertClose" aria-label="Закрыть">✕</button>
+  </div>
+
+  <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
+  <div id="roachesContainer"></div>
+  <div id="greenSmokeContainer"></div>
+
+  <div id="duckDebuffBadge" class="duck-debuff-badge" style="display: none;">
+    <span class="debuff-badge-icon">🤢</span>
+    <span class="debuff-badge-text">Дебафф: -50%</span>
+    <span id="duckDebuffTimer" class="debuff-badge-timer" style="display: none;">02:00</span>
+  </div>
+  <div id="duckDeflateBadge" class="duck-debuff-badge duck-deflate-badge" style="display: none;">
+    <span class="debuff-badge-icon">💨</span>
+    <span class="debuff-badge-text">Сдувается!</span>
+    <span id="duckDeflateTimer" class="debuff-badge-timer deflate-badge-timer" style="display: none;">05:00</span>
+  </div>
+
+  <button id="duck" aria-label="Крякнуть">
+    <span class="duck-fallback">🦆</span>
+    <img class="duck-img" id="duckImg" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png" alt="Резиновая утка"
+         onload="document.querySelector('.duck-fallback').style.display='none'"
+         onerror="this.style.display='none'; document.querySelector('.duck-fallback').style.display='grid'">
+    <span id="cookedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🍗</span>
+    <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
+  </button>
+
+  <div id="achvToastContainer" class="achv-toast-container"></div>
+
+  <canvas id="particles"></canvas>
+  <div class="hint">Жмякни крякалку</div>
+  <button id="resetBtn" class="reset-btn" aria-label="Начать заново">Начать заново</button>
+
+<script src="js/main.js"></script>
+</body>
+</html>
