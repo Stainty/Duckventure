@@ -80,10 +80,14 @@
         bAll.disabled = dCount < 1;
         bAll.textContent = `Продать всё (+${(dCount * 10000).toLocaleString('ru-RU')} 🦆)`;
       }
+      const deskBtn = document.getElementById('spawnDucklingDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (normalDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'duckling')) ? 'inline-block' : 'none';
+      }
     }
 
     if (sGDCard) {
-      sGDCard.style.display = (gdCount > 0 || (hasHatchedDuckling && goldenEggs > 0)) ? 'flex' : 'none';
+      sGDCard.style.display = (gdCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenDucklingsCount');
       if (cEl) cEl.textContent = gdCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenDuckling1Btn');
@@ -92,6 +96,10 @@
       if (bAll) {
         bAll.disabled = gdCount < 1;
         bAll.textContent = `Продать всё (+${(gdCount * 50000).toLocaleString('ru-RU')} 🦆)`;
+      }
+      const deskBtn = document.getElementById('spawnGoldenDucklingDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (goldenDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenDuckling')) ? 'inline-block' : 'none';
       }
     }
 
@@ -106,6 +114,10 @@
         bAll.disabled = gCount < 1;
         bAll.textContent = `Продать всё (+${(gCount * 150000).toLocaleString('ru-RU')} 🦆)`;
       }
+      const deskBtn = document.getElementById('spawnGooseDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (normalGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goose')) ? 'inline-block' : 'none';
+      }
     }
 
     if (sGGCard) {
@@ -118,6 +130,10 @@
       if (bAll) {
         bAll.disabled = ggCount < 1;
         bAll.textContent = `Продать всё (+${(ggCount * 500000).toLocaleString('ru-RU')} 🦆)`;
+      }
+      const deskBtn = document.getElementById('spawnGoldenGooseDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (goldenGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenGoose')) ? 'inline-block' : 'none';
       }
     }
 

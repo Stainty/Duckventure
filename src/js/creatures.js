@@ -363,7 +363,11 @@
       const isGold = (incubatingType === 'golden');
       if (isGold) {
         goldenDucklings += hatched;
-        try { Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+        hasHatchedGoldenDuckling = true;
+        try {
+          Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+          Storage.set(HAS_HATCHED_GOLDEN_DUCKLING_KEY, '1');
+        } catch (e) {}
       } else {
         normalDucklings += hatched;
         try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
@@ -380,9 +384,15 @@
         color: isGold ? '#facc15' : '#4ade80'
       });
 
-      // Если на столе нет питомца, спавним одного утёнка на стол
+      // Если на столе нет питомца, спавним утёнка на стол.
+      // Если вылупился золотой утёнок, а на столе обычный — заменяем его золотым (обычного возвращаем в инвентарь)
       if (!creatureOnDesk) {
         spawnCreatureOnDesk(isGold ? 'goldenDuckling' : 'duckling');
+      } else if (isGold && creatureOnDesk.type === 'duckling') {
+        normalDucklings++;
+        try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+        creatureOnDesk = null;
+        spawnCreatureOnDesk('goldenDuckling');
       }
     } else {
       corkPopSound();
@@ -402,6 +412,57 @@
     updateShopSellTab();
   }
   window.finishIncubation = finishIncubation;
+
+  function swapCreatureToDesk(type) {
+    if (creatureOnDesk) {
+      const cur = creatureOnDesk.type;
+      if (cur === 'duckling') normalDucklings++;
+      else if (cur === 'goldenDuckling') goldenDucklings++;
+      else if (cur === 'goose') normalGeese++;
+      else if (cur === 'goldenGoose') goldenGeese++;
+      else if (cur === 'roastedGoose') normalRoastedGeese++;
+      else if (cur === 'goldenRoastedGoose') goldenRoastedGeese++;
+      try {
+        Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+        Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+        Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
+        Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
+        Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+        Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+      } catch (e) {}
+      creatureOnDesk = null;
+    }
+    spawnCreatureOnDesk(type);
+    corkPopSound();
+    updateDeskCreatureUI();
+    updateShopSellTab();
+  }
+  window.swapCreatureToDesk = swapCreatureToDesk;
+
+  function returnDeskCreatureToInventory() {
+    if (!creatureOnDesk) return;
+    const cur = creatureOnDesk.type;
+    if (cur === 'duckling') normalDucklings++;
+    else if (cur === 'goldenDuckling') goldenDucklings++;
+    else if (cur === 'goose') normalGeese++;
+    else if (cur === 'goldenGoose') goldenGeese++;
+    else if (cur === 'roastedGoose') normalRoastedGeese++;
+    else if (cur === 'goldenRoastedGoose') goldenRoastedGeese++;
+    try {
+      Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+      Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+      Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
+      Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
+      Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+      Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+      Storage.remove(CREATURE_ON_DESK_KEY);
+    } catch (e) {}
+    creatureOnDesk = null;
+    updateDeskCreatureUI();
+    updateShopSellTab();
+    hidePropContextMenu();
+  }
+  window.returnDeskCreatureToInventory = returnDeskCreatureToInventory;
 
   /* ---------- Питомец на столе (Утёнок / Гусь / Жареный гусь) ---------- */
   function spawnCreatureOnDesk(type) {
@@ -488,13 +549,13 @@
       vis.textContent = '✨🐥';
       vis.classList.add('golden-creature');
     } else if (type === 'goose') {
-      vis.textContent = '🪿';
+      vis.textContent = '🦢';
       vis.classList.add('goose-sprite');
     } else if (type === 'goldenGoose') {
-      vis.textContent = '✨🪿';
+      vis.textContent = '✨🦢';
       vis.classList.add('goose-sprite', 'golden-creature');
     } else if (type === 'roastedGoose') {
-      vis.textContent = '🍗🪿';
+      vis.textContent = '🍗🦢';
       vis.classList.add('roasted-goose-sprite');
     } else if (type === 'goldenRoastedGoose') {
       vis.textContent = '✨🍗';
@@ -506,7 +567,7 @@
       if ((type === 'duckling' || type === 'goldenDuckling') && isClockOnTable()) {
         const mins = Math.floor(ducklingGrowRemaining / 60);
         const secs = ducklingGrowRemaining % 60;
-        ageText.textContent = `🪿 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        ageText.textContent = `🦢 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         badge.style.display = 'inline-block';
       } else {
         badge.style.display = 'none';
@@ -532,7 +593,7 @@
       vy: -110,
       size: 24,
       alpha: 1.5,
-      text: isGold ? '✨🪿 Утёнок вырос в ЗОЛОТОГО гуся!' : '🪿 Утёнок вырос в большого гуся!',
+      text: isGold ? '✨🦢 Утёнок вырос в ЗОЛОТОГО гуся!' : '🦢 Утёнок вырос в большого гуся!',
       color: isGold ? '#facc15' : '#38bdf8'
     });
 
@@ -834,6 +895,15 @@
       const name = getCreatureName(creatureOnDesk.type);
       const propCtxCreatureSellBtn = document.getElementById('propCtxCreatureSellBtn');
 
+      const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
+      if (propCtxReturnBtn) {
+        propCtxReturnBtn.style.display = 'flex';
+        propCtxReturnBtn.innerHTML = '<span class="prop-ctx-icon">📦</span> Убрать в инвентарь';
+        propCtxReturnBtn.onclick = () => {
+          returnDeskCreatureToInventory();
+        };
+      }
+
       if (propCtxCreatureSellBtn) {
         propCtxCreatureSellBtn.style.display = 'flex';
         propCtxCreatureSellBtn.innerHTML = `<span class="prop-ctx-icon">💰</span> Продать ${name} (+${price.toLocaleString('ru-RU')} 🦆)`;
@@ -876,13 +946,14 @@
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
 
-        const facing = moveX < 0 ? 'scaleX(-1)' : 'scaleX(1)';
-        el.style.transform = `${facing} translateY(-8px)`;
+        el.classList.add('is-walking');
+        el.style.transform = 'translateY(-8px)';
         setTimeout(() => {
           if (!el.classList.contains('is-dragging')) {
-            el.style.transform = facing;
+            el.style.transform = '';
           }
-        }, 400);
+          el.classList.remove('is-walking');
+        }, 450);
       }
     }, 2400);
   }

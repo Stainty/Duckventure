@@ -257,6 +257,8 @@
     deflationRemaining = 0;
     isDeflatedDuckActive = false;
     hasHatchedDuckling = false;
+    hasHatchedGoldenDuckling = false;
+    Storage.remove(HAS_HATCHED_GOLDEN_DUCKLING_KEY);
     hasFriedDuckling = false;
     hasCookedGoose = false;
     isIncubating = false;

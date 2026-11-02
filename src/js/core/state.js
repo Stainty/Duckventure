@@ -39,6 +39,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isDeflatedDuckActive = false;
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
+  const HAS_HATCHED_GOLDEN_DUCKLING_KEY = 'duck-has-hatched-golden-duckling';
+  let hasHatchedGoldenDuckling = Storage.getBoolean(HAS_HATCHED_GOLDEN_DUCKLING_KEY, false);
   const HAS_FRIED_DUCKLING_KEY = 'duck-has-fried-duckling';
   const HAS_COOKED_GOOSE_KEY = 'duck-has-cooked-goose';
   const IS_INCUBATING_KEY = 'duck-is-incubating';

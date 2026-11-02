@@ -1913,8 +1913,19 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     display: inline-block;
   }
   .creature-visual.golden-creature {
-    filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
-    animation: goldPulseGlow 2s infinite alternate;
+    display: inline-block;
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.95)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.8)) saturate(2.5) brightness(1.15);
+    animation: goldenCreatureGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes goldenCreatureGlow {
+    0% {
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)) drop-shadow(0 0 18px rgba(245, 158, 11, 0.6)) saturate(2.2) brightness(1.1);
+      transform: scale(1);
+    }
+    100% {
+      filter: drop-shadow(0 0 16px rgba(254, 240, 138, 1)) drop-shadow(0 0 32px rgba(251, 191, 36, 0.95)) saturate(3.2) brightness(1.25);
+      transform: scale(1.06);
+    }
   }
   .creature-visual.goose-sprite {
     font-size: 72px;
@@ -1927,8 +1938,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     position: absolute;
     top: -10px;
     left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.88);
+    transform: translateX(-50%) !important;
+    background: rgba(15, 23, 42, 0.92);
     border: 1px solid #38bdf8;
     border-radius: 10px;
     padding: 1px 6px;
@@ -1937,6 +1948,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     white-space: nowrap;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    direction: ltr !important;
+    unicode-bidi: normal !important;
   }
   .incubator-dialog {
     max-width: 480px;
@@ -3069,6 +3082,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               </div>
             </div>
             <div class="sell-actions">
+              <button class="sell-btn" id="spawnDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24;" onclick="swapCreatureToDesk('duckling')">Выпустить на стол</button>
               <button class="sell-btn" id="sellDuckling1Btn" onclick="sellCreature('duckling', 1)">Продать 1 (+10k 🦆)</button>
               <button class="sell-btn sell-all" id="sellDucklingAllBtn" onclick="sellCreature('duckling', 'all')">Продать всё</button>
             </div>
@@ -3084,6 +3098,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               </div>
             </div>
             <div class="sell-actions">
+              <button class="sell-btn gold" id="spawnGoldenDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenDuckling')">Выпустить на стол</button>
               <button class="sell-btn gold" id="sellGoldenDuckling1Btn" onclick="sellCreature('goldenDuckling', 1)">Продать 1 (+50k 🦆)</button>
               <button class="sell-btn gold sell-all" id="sellGoldenDucklingAllBtn" onclick="sellCreature('goldenDuckling', 'all')">Продать всё</button>
             </div>
@@ -3091,7 +3106,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
             <div class="sell-item-left">
-              <div class="sell-egg-icon">🪿</div>
+              <div class="sell-egg-icon">🦢</div>
               <div>
                 <div class="sell-item-title" style="color: #67e8f9;">Большой гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
@@ -3099,6 +3114,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               </div>
             </div>
             <div class="sell-actions">
+              <button class="sell-btn" id="spawnGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(56,189,248,0.15); border-color: #38bdf8; color: #38bdf8;" onclick="swapCreatureToDesk('goose')">Выпустить на стол</button>
               <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+150k 🦆)</button>
               <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
             </div>
@@ -3106,7 +3122,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card golden-card" id="sellGoldenGooseCard">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🪿</div>
+              <div class="sell-egg-icon golden">✨🦢</div>
               <div>
                 <div class="sell-item-title gold-title">Золотой большой гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
@@ -3114,6 +3130,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               </div>
             </div>
             <div class="sell-actions">
+              <button class="sell-btn gold" id="spawnGoldenGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenGoose')">Выпустить на стол</button>
               <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+500k 🦆)</button>
               <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
             </div>
@@ -3121,7 +3138,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card" id="sellRoastedGooseCard" style="border-color: rgba(249, 115, 22, 0.35);">
             <div class="sell-item-left">
-              <div class="sell-egg-icon">🍗🪿</div>
+              <div class="sell-egg-icon">🍗🦢</div>
               <div>
                 <div class="sell-item-title" style="color: #fb923c;">Жареный гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
@@ -3626,6 +3643,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isDeflatedDuckActive = false;
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
+  const HAS_HATCHED_GOLDEN_DUCKLING_KEY = 'duck-has-hatched-golden-duckling';
+  let hasHatchedGoldenDuckling = Storage.getBoolean(HAS_HATCHED_GOLDEN_DUCKLING_KEY, false);
   const HAS_FRIED_DUCKLING_KEY = 'duck-has-fried-duckling';
   const HAS_COOKED_GOOSE_KEY = 'duck-has-cooked-goose';
   const IS_INCUBATING_KEY = 'duck-is-incubating';
@@ -4737,6 +4756,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     deflationRemaining = 0;
     isDeflatedDuckActive = false;
     hasHatchedDuckling = false;
+    hasHatchedGoldenDuckling = false;
+    Storage.remove(HAS_HATCHED_GOLDEN_DUCKLING_KEY);
     hasFriedDuckling = false;
     hasCookedGoose = false;
     isIncubating = false;
@@ -6514,7 +6535,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const isGold = (incubatingType === 'golden');
       if (isGold) {
         goldenDucklings += hatched;
-        try { Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+        hasHatchedGoldenDuckling = true;
+        try {
+          Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+          Storage.set(HAS_HATCHED_GOLDEN_DUCKLING_KEY, '1');
+        } catch (e) {}
       } else {
         normalDucklings += hatched;
         try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
@@ -6531,9 +6556,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         color: isGold ? '#facc15' : '#4ade80'
       });
 
-      // Если на столе нет питомца, спавним одного утёнка на стол
+      // Если на столе нет питомца, спавним утёнка на стол.
+      // Если вылупился золотой утёнок, а на столе обычный — заменяем его золотым (обычного возвращаем в инвентарь)
       if (!creatureOnDesk) {
         spawnCreatureOnDesk(isGold ? 'goldenDuckling' : 'duckling');
+      } else if (isGold && creatureOnDesk.type === 'duckling') {
+        normalDucklings++;
+        try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+        creatureOnDesk = null;
+        spawnCreatureOnDesk('goldenDuckling');
       }
     } else {
       corkPopSound();
@@ -6553,6 +6584,57 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     updateShopSellTab();
   }
   window.finishIncubation = finishIncubation;
+
+  function swapCreatureToDesk(type) {
+    if (creatureOnDesk) {
+      const cur = creatureOnDesk.type;
+      if (cur === 'duckling') normalDucklings++;
+      else if (cur === 'goldenDuckling') goldenDucklings++;
+      else if (cur === 'goose') normalGeese++;
+      else if (cur === 'goldenGoose') goldenGeese++;
+      else if (cur === 'roastedGoose') normalRoastedGeese++;
+      else if (cur === 'goldenRoastedGoose') goldenRoastedGeese++;
+      try {
+        Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+        Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+        Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
+        Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
+        Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+        Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+      } catch (e) {}
+      creatureOnDesk = null;
+    }
+    spawnCreatureOnDesk(type);
+    corkPopSound();
+    updateDeskCreatureUI();
+    updateShopSellTab();
+  }
+  window.swapCreatureToDesk = swapCreatureToDesk;
+
+  function returnDeskCreatureToInventory() {
+    if (!creatureOnDesk) return;
+    const cur = creatureOnDesk.type;
+    if (cur === 'duckling') normalDucklings++;
+    else if (cur === 'goldenDuckling') goldenDucklings++;
+    else if (cur === 'goose') normalGeese++;
+    else if (cur === 'goldenGoose') goldenGeese++;
+    else if (cur === 'roastedGoose') normalRoastedGeese++;
+    else if (cur === 'goldenRoastedGoose') goldenRoastedGeese++;
+    try {
+      Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
+      Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
+      Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
+      Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
+      Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese));
+      Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
+      Storage.remove(CREATURE_ON_DESK_KEY);
+    } catch (e) {}
+    creatureOnDesk = null;
+    updateDeskCreatureUI();
+    updateShopSellTab();
+    hidePropContextMenu();
+  }
+  window.returnDeskCreatureToInventory = returnDeskCreatureToInventory;
 
   /* ---------- Питомец на столе (Утёнок / Гусь / Жареный гусь) ---------- */
   function spawnCreatureOnDesk(type) {
@@ -6639,13 +6721,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       vis.textContent = '✨🐥';
       vis.classList.add('golden-creature');
     } else if (type === 'goose') {
-      vis.textContent = '🪿';
+      vis.textContent = '🦢';
       vis.classList.add('goose-sprite');
     } else if (type === 'goldenGoose') {
-      vis.textContent = '✨🪿';
+      vis.textContent = '✨🦢';
       vis.classList.add('goose-sprite', 'golden-creature');
     } else if (type === 'roastedGoose') {
-      vis.textContent = '🍗🪿';
+      vis.textContent = '🍗🦢';
       vis.classList.add('roasted-goose-sprite');
     } else if (type === 'goldenRoastedGoose') {
       vis.textContent = '✨🍗';
@@ -6657,7 +6739,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if ((type === 'duckling' || type === 'goldenDuckling') && isClockOnTable()) {
         const mins = Math.floor(ducklingGrowRemaining / 60);
         const secs = ducklingGrowRemaining % 60;
-        ageText.textContent = `🪿 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        ageText.textContent = `🦢 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         badge.style.display = 'inline-block';
       } else {
         badge.style.display = 'none';
@@ -6683,7 +6765,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       vy: -110,
       size: 24,
       alpha: 1.5,
-      text: isGold ? '✨🪿 Утёнок вырос в ЗОЛОТОГО гуся!' : '🪿 Утёнок вырос в большого гуся!',
+      text: isGold ? '✨🦢 Утёнок вырос в ЗОЛОТОГО гуся!' : '🦢 Утёнок вырос в большого гуся!',
       color: isGold ? '#facc15' : '#38bdf8'
     });
 
@@ -6985,6 +7067,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const name = getCreatureName(creatureOnDesk.type);
       const propCtxCreatureSellBtn = document.getElementById('propCtxCreatureSellBtn');
 
+      const propCtxReturnBtn = document.getElementById('propCtxReturnBtn');
+      if (propCtxReturnBtn) {
+        propCtxReturnBtn.style.display = 'flex';
+        propCtxReturnBtn.innerHTML = '<span class="prop-ctx-icon">📦</span> Убрать в инвентарь';
+        propCtxReturnBtn.onclick = () => {
+          returnDeskCreatureToInventory();
+        };
+      }
+
       if (propCtxCreatureSellBtn) {
         propCtxCreatureSellBtn.style.display = 'flex';
         propCtxCreatureSellBtn.innerHTML = `<span class="prop-ctx-icon">💰</span> Продать ${name} (+${price.toLocaleString('ru-RU')} 🦆)`;
@@ -7027,13 +7118,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
 
-        const facing = moveX < 0 ? 'scaleX(-1)' : 'scaleX(1)';
-        el.style.transform = `${facing} translateY(-8px)`;
+        el.classList.add('is-walking');
+        el.style.transform = 'translateY(-8px)';
         setTimeout(() => {
           if (!el.classList.contains('is-dragging')) {
-            el.style.transform = facing;
+            el.style.transform = '';
           }
-        }, 400);
+          el.classList.remove('is-walking');
+        }, 450);
       }
     }, 2400);
   }
@@ -7696,10 +7788,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         bAll.disabled = dCount < 1;
         bAll.textContent = `Продать всё (+${(dCount * 10000).toLocaleString('ru-RU')} 🦆)`;
       }
+      const deskBtn = document.getElementById('spawnDucklingDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (normalDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'duckling')) ? 'inline-block' : 'none';
+      }
     }
 
     if (sGDCard) {
-      sGDCard.style.display = (gdCount > 0 || (hasHatchedDuckling && goldenEggs > 0)) ? 'flex' : 'none';
+      sGDCard.style.display = (gdCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenDucklingsCount');
       if (cEl) cEl.textContent = gdCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenDuckling1Btn');
@@ -7708,6 +7804,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (bAll) {
         bAll.disabled = gdCount < 1;
         bAll.textContent = `Продать всё (+${(gdCount * 50000).toLocaleString('ru-RU')} 🦆)`;
+      }
+      const deskBtn = document.getElementById('spawnGoldenDucklingDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (goldenDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenDuckling')) ? 'inline-block' : 'none';
       }
     }
 
@@ -7722,6 +7822,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         bAll.disabled = gCount < 1;
         bAll.textContent = `Продать всё (+${(gCount * 150000).toLocaleString('ru-RU')} 🦆)`;
       }
+      const deskBtn = document.getElementById('spawnGooseDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (normalGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goose')) ? 'inline-block' : 'none';
+      }
     }
 
     if (sGGCard) {
@@ -7734,6 +7838,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (bAll) {
         bAll.disabled = ggCount < 1;
         bAll.textContent = `Продать всё (+${(ggCount * 500000).toLocaleString('ru-RU')} 🦆)`;
+      }
+      const deskBtn = document.getElementById('spawnGoldenGooseDeskBtn');
+      if (deskBtn) {
+        deskBtn.style.display = (goldenGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenGoose')) ? 'inline-block' : 'none';
       }
     }
 
