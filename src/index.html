@@ -499,11 +499,11 @@
     <span style="display: none; font-size: 52px;">🎛️</span>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-fridge" class="draggable-prop" style="display: none;">
+  <div id="prop-fridge" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧊</span>
-    <button class="fridge-toggle-btn" id="fridgeToggleBtn" title="Включить / Выключить холодильник" onclick="toggleFridge(event)">❄️</button>
+    <div class="prop-action-badge fridge-badge" aria-hidden="true">❄️</div>
   </div>
   <div id="prop-dichlofos" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
@@ -515,11 +515,11 @@
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔑</span>
   </div>
-  <div id="prop-lamp" class="draggable-prop" style="display: none;">
+  <div id="prop-lamp" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">💡</span>
-    <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
+    <div class="prop-action-badge lamp-badge" aria-hidden="true">💡</div>
   </div>
   <div id="prop-trashcan" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI" alt="Мусорное ведро" draggable="false" referrerpolicy="no-referrer"
@@ -537,10 +537,11 @@
     <span style="display: none; font-size: 52px;">🔪</span>
   </div>
   
-  <div id="prop-incubator" class="draggable-prop" style="display: none;">
+  <div id="prop-incubator" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7" alt="Инкубатор" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🐣</span>
+    <div class="prop-action-badge incubator-badge" aria-hidden="true">🐣</div>
     <div id="incubatorProgressBadge" class="incubator-badge" style="display: none;">
       <span class="incubator-badge-icon">🥚</span>
       <span id="incubatorBadgeTime">02:00</span>

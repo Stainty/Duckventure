@@ -411,6 +411,9 @@
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
+      isClothingCollapsed = true;
+      isHouseholdCollapsed = true;
+      updateShopSectionCollapsedUI();
       updateDuckles();
       updateShopTabsVisibility();
       renderShopBuyTab();
@@ -573,7 +576,12 @@
 
     if (clothingContainer) {
       clothingContainer.innerHTML = '';
-      Object.keys(SKINS_DATA).forEach(id => {
+      const sortedClothingKeys = Object.keys(SKINS_DATA).sort((a, b) => {
+        const aOwned = ownedSkins.includes(a) ? 1 : 0;
+        const bOwned = ownedSkins.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedClothingKeys.forEach(id => {
         if (id === 'default' || id === 'patched') return;
         const item = SKINS_DATA[id];
         if (item.category !== 'clothing') return;
@@ -620,7 +628,12 @@
 
     if (householdContainer) {
       householdContainer.innerHTML = '';
-      Object.keys(PROPS_DATA).forEach(id => {
+      const sortedHouseholdKeys = Object.keys(PROPS_DATA).sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedHouseholdKeys.forEach(id => {
         // Ключ не продаётся в магазине — это секрет при перемещении утки
         if (id === 'key') return;
         // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
@@ -1227,7 +1240,7 @@
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn')) return;
       hidePropContextMenu();
       isDragging = true;
       isDragAction = false;
@@ -1434,12 +1447,24 @@
         if (typeof openIncubatorModal === 'function') {
           openIncubatorModal();
         }
+      } else if (propId === 'lamp') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof toggleLamp === 'function') {
+          toggleLamp(e);
+        }
+      } else if (propId === 'fridge') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof toggleFridge === 'function') {
+          toggleFridge(e);
+        }
       }
     }, true);
 
     // ПКМ по предмету: открытие контекстного меню
     el.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn')) return;
       e.preventDefault();
       e.stopPropagation();
       const rect = el.getBoundingClientRect();
@@ -1610,17 +1635,14 @@
   function updateLampGlowUI() {
     const overlay = document.getElementById('lampWarmGlowOverlay');
     const lampEl = document.getElementById('prop-lamp');
-    const toggleBtn = document.getElementById('lampToggleBtn');
 
     if (overlay) {
       overlay.classList.toggle('active', isLampOn);
     }
     if (lampEl) {
       lampEl.classList.toggle('is-on', isLampOn);
-    }
-    if (toggleBtn) {
-      toggleBtn.classList.toggle('is-on', isLampOn);
-      toggleBtn.title = isLampOn ? 'Выключить лампу' : 'Включить лампу';
+      const badge = lampEl.querySelector('.prop-action-badge');
+      if (badge) badge.classList.toggle('is-on', isLampOn);
     }
   }
   window.updateLampGlowUI = updateLampGlowUI;
@@ -1755,14 +1777,11 @@
 
   function updateFridgeUI() {
     const fridgeEl = document.getElementById('prop-fridge');
-    const toggleBtn = document.getElementById('fridgeToggleBtn');
 
     if (fridgeEl) {
       fridgeEl.classList.toggle('is-on', isFridgeOn);
-    }
-    if (toggleBtn) {
-      toggleBtn.classList.toggle('is-on', isFridgeOn);
-      toggleBtn.title = isFridgeOn ? 'Выключить холодильник' : 'Включить холодильник';
+      const badge = fridgeEl.querySelector('.prop-action-badge');
+      if (badge) badge.classList.toggle('is-on', isFridgeOn);
     }
   }
   window.updateFridgeUI = updateFridgeUI;

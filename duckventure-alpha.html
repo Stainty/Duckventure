@@ -2281,83 +2281,83 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
                   inset 0 0 390px 155px rgba(255, 115, 10, 0.22);
     }
   }
-  .lamp-toggle-btn {
+  /* Унифицированные интерактивные значки активации при наведении */
+  .draggable-prop.is-interactive {
+    cursor: pointer;
+  }
+  .draggable-prop.is-interactive.is-dragging {
+    cursor: grabbing !important;
+  }
+  .prop-action-badge {
     position: absolute;
-    bottom: -8px;
-    right: -8px;
-    width: 26px;
-    height: 26px;
+    top: -6px;
+    right: -6px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: #1e2638;
-    border: 1px solid #ffd24d;
-    color: #ffd24d;
-    font-size: 13px;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    transition: transform .12s, background .15s, box-shadow .15s, border-color .15s;
-    z-index: 48;
-    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.65);
+    transition: opacity 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    z-index: 52;
+    user-select: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
-  .lamp-toggle-btn:hover {
-    transform: scale(1.18);
-    background: #2a354c;
-    box-shadow: 0 0 12px rgba(255, 210, 77, 0.6);
+  .draggable-prop:hover .prop-action-badge {
+    opacity: 1;
+    transform: scale(1);
   }
-  .lamp-toggle-btn:active {
-    transform: scale(0.92);
+  .draggable-prop.is-dragging .prop-action-badge {
+    opacity: 0 !important;
+    transform: scale(0.65) !important;
   }
-  .lamp-toggle-btn.is-on {
+
+  /* Специфическое оформление значков */
+  #prop-lamp .prop-action-badge {
+    border-color: rgba(251, 191, 36, 0.85);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  }
+  #prop-lamp.is-on .prop-action-badge {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     border-color: #fef08a;
-    color: #fff;
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.8), 0 0 24px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.9), 0 0 24px rgba(251, 191, 36, 0.55);
     animation: lampBtnGlow 2s ease-in-out infinite alternate;
   }
   @keyframes lampBtnGlow {
     0%   { box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
     100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.95), 0 0 30px rgba(245, 158, 11, 0.5); }
   }
-  .fridge-toggle-btn {
-    position: absolute;
-    bottom: -8px;
-    right: -8px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: #1e2638;
-    border: 1px solid #38bdf8;
-    color: #38bdf8;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    transition: transform .12s, background .15s, box-shadow .15s, border-color .15s;
-    z-index: 48;
-    padding: 0;
+
+  #prop-fridge .prop-action-badge {
+    border-color: rgba(56, 189, 248, 0.85);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
   }
-  .fridge-toggle-btn:hover {
-    transform: scale(1.18);
-    background: #20334d;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
-  }
-  .fridge-toggle-btn:active {
-    transform: scale(0.92);
-  }
-  .fridge-toggle-btn.is-on {
+  #prop-fridge.is-on .prop-action-badge {
     background: linear-gradient(135deg, #0ea5e9, #0284c7);
     border-color: #bae6fd;
-    color: #fff;
-    box-shadow: 0 0 14px rgba(14, 165, 233, 0.8), 0 0 24px rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 14px rgba(14, 165, 233, 0.9), 0 0 24px rgba(56, 189, 248, 0.55);
     animation: fridgeBtnGlow 2s ease-in-out infinite alternate;
   }
   @keyframes fridgeBtnGlow {
     0%   { box-shadow: 0 0 10px rgba(14, 165, 233, 0.6); }
     100% { box-shadow: 0 0 20px rgba(56, 189, 248, 0.95), 0 0 30px rgba(14, 165, 233, 0.5); }
+  }
+
+  #prop-incubator .prop-action-badge {
+    border-color: rgba(251, 191, 36, 0.85);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  }
+  #prop-incubator.is-incubating .prop-action-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #fef08a;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.9);
   }
   .upgrades-modal-balance {
     font: 700 14px system-ui, sans-serif;
@@ -3324,11 +3324,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     <span style="display: none; font-size: 52px;">🎛️</span>
     <button class="stove-separate-btn" title="Разъединить плиту и сковороду" onclick="separateStoveAndPan(true)">⎌</button>
   </div>
-  <div id="prop-fridge" class="draggable-prop" style="display: none;">
+  <div id="prop-fridge" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN" alt="Вонючий старый холодильник" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🧊</span>
-    <button class="fridge-toggle-btn" id="fridgeToggleBtn" title="Включить / Выключить холодильник" onclick="toggleFridge(event)">❄️</button>
+    <div class="prop-action-badge fridge-badge" aria-hidden="true">❄️</div>
   </div>
   <div id="prop-dichlofos" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B" alt="Дихлофос" draggable="false" referrerpolicy="no-referrer"
@@ -3340,11 +3340,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🔑</span>
   </div>
-  <div id="prop-lamp" class="draggable-prop" style="display: none;">
+  <div id="prop-lamp" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru" alt="Напольная лампа" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">💡</span>
-    <button class="lamp-toggle-btn" id="lampToggleBtn" title="Включить / Выключить лампу" onclick="toggleLamp(event)">💡</button>
+    <div class="prop-action-badge lamp-badge" aria-hidden="true">💡</div>
   </div>
   <div id="prop-trashcan" class="draggable-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI" alt="Мусорное ведро" draggable="false" referrerpolicy="no-referrer"
@@ -3362,10 +3362,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     <span style="display: none; font-size: 52px;">🔪</span>
   </div>
   
-  <div id="prop-incubator" class="draggable-prop" style="display: none;">
+  <div id="prop-incubator" class="draggable-prop is-interactive" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7" alt="Инкубатор" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🐣</span>
+    <div class="prop-action-badge incubator-badge" aria-hidden="true">🐣</div>
     <div id="incubatorProgressBadge" class="incubator-badge" style="display: none;">
       <span class="incubator-badge-icon">🥚</span>
       <span id="incubatorBadgeTime">02:00</span>
@@ -3613,8 +3614,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasClearedRoaches = Storage.getBoolean(CLEARED_ROACHES_KEY, false);
   let hasMovedDuck = Storage.getBoolean(MOVED_DUCK_KEY, false);
   let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
-  let isClothingCollapsed = Storage.getBoolean(SHOP_CLOTHING_COLLAPSED_KEY, false);
-  let isHouseholdCollapsed = Storage.getBoolean(SHOP_HOUSEHOLD_COLLAPSED_KEY, false);
+  let isClothingCollapsed = true;
+  let isHouseholdCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
   let hasFriedDuck = Storage.getBoolean(HAS_FRIED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'monster', false);
   let hasStabbedDuck = Storage.getBoolean(HAS_STABBED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'accident', false);
@@ -8026,6 +8027,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
+      isClothingCollapsed = true;
+      isHouseholdCollapsed = true;
+      updateShopSectionCollapsedUI();
       updateDuckles();
       updateShopTabsVisibility();
       renderShopBuyTab();
@@ -8188,7 +8192,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     if (clothingContainer) {
       clothingContainer.innerHTML = '';
-      Object.keys(SKINS_DATA).forEach(id => {
+      const sortedClothingKeys = Object.keys(SKINS_DATA).sort((a, b) => {
+        const aOwned = ownedSkins.includes(a) ? 1 : 0;
+        const bOwned = ownedSkins.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedClothingKeys.forEach(id => {
         if (id === 'default' || id === 'patched') return;
         const item = SKINS_DATA[id];
         if (item.category !== 'clothing') return;
@@ -8235,7 +8244,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     if (householdContainer) {
       householdContainer.innerHTML = '';
-      Object.keys(PROPS_DATA).forEach(id => {
+      const sortedHouseholdKeys = Object.keys(PROPS_DATA).sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedHouseholdKeys.forEach(id => {
         // Ключ не продаётся в магазине — это секрет при перемещении утки
         if (id === 'key') return;
         // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
@@ -8842,7 +8856,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn')) return;
       hidePropContextMenu();
       isDragging = true;
       isDragAction = false;
@@ -9049,12 +9063,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         if (typeof openIncubatorModal === 'function') {
           openIncubatorModal();
         }
+      } else if (propId === 'lamp') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof toggleLamp === 'function') {
+          toggleLamp(e);
+        }
+      } else if (propId === 'fridge') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof toggleFridge === 'function') {
+          toggleFridge(e);
+        }
       }
     }, true);
 
     // ПКМ по предмету: открытие контекстного меню
     el.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.stove-separate-btn') || e.target.closest('.lamp-toggle-btn') || e.target.closest('.fridge-toggle-btn')) return;
+      if (e.target.closest('.stove-separate-btn')) return;
       e.preventDefault();
       e.stopPropagation();
       const rect = el.getBoundingClientRect();
@@ -9225,17 +9251,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function updateLampGlowUI() {
     const overlay = document.getElementById('lampWarmGlowOverlay');
     const lampEl = document.getElementById('prop-lamp');
-    const toggleBtn = document.getElementById('lampToggleBtn');
 
     if (overlay) {
       overlay.classList.toggle('active', isLampOn);
     }
     if (lampEl) {
       lampEl.classList.toggle('is-on', isLampOn);
-    }
-    if (toggleBtn) {
-      toggleBtn.classList.toggle('is-on', isLampOn);
-      toggleBtn.title = isLampOn ? 'Выключить лампу' : 'Включить лампу';
+      const badge = lampEl.querySelector('.prop-action-badge');
+      if (badge) badge.classList.toggle('is-on', isLampOn);
     }
   }
   window.updateLampGlowUI = updateLampGlowUI;
@@ -9370,14 +9393,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function updateFridgeUI() {
     const fridgeEl = document.getElementById('prop-fridge');
-    const toggleBtn = document.getElementById('fridgeToggleBtn');
 
     if (fridgeEl) {
       fridgeEl.classList.toggle('is-on', isFridgeOn);
-    }
-    if (toggleBtn) {
-      toggleBtn.classList.toggle('is-on', isFridgeOn);
-      toggleBtn.title = isFridgeOn ? 'Выключить холодильник' : 'Включить холодильник';
+      const badge = fridgeEl.querySelector('.prop-action-badge');
+      if (badge) badge.classList.toggle('is-on', isFridgeOn);
     }
   }
   window.updateFridgeUI = updateFridgeUI;
