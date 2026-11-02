@@ -3421,7 +3421,7 @@
 
   let placedProps = Storage.getJSON(PLACED_PROPS_KEY, {}, (data) => data && typeof data === 'object' && !Array.isArray(data));
   if (!placedProps || typeof placedProps !== 'object' || Array.isArray(placedProps)) placedProps = {};
-  Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true }); }, configurable: true });
+  Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true });
 
   const SKINS_DATA = {
     default: {
@@ -6463,7 +6463,6 @@
   window.startDeskCreatureWander = startDeskCreatureWander;
 
 
-  const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
   function toggleCheatPanel(force) {
     const panel = document.getElementById('cheatPanel');
     if (!panel) return;
