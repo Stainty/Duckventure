@@ -402,40 +402,32 @@
   const shopModal = document.getElementById('shopModal');
   const closeShopBtn = document.getElementById('closeShopBtn');
   const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-  const shopTabFoodBtn = document.getElementById('shopTabFoodBtn');
-  const shopTabAnimalsBtn = document.getElementById('shopTabAnimalsBtn');
+  const shopTabSellBtn = document.getElementById('shopTabSellBtn');
   const shopBodyBuy = document.getElementById('shopBodyBuy');
-  const shopBodyFood = document.getElementById('shopBodyFood');
-  const shopBodyAnimals = document.getElementById('shopBodyAnimals');
+  const shopBodySell = document.getElementById('shopBodySell');
 
   const duckberriesHdr = document.getElementById('duckberriesHeader');
 
   function switchShopTab(tab) {
     const buyBtn = document.getElementById('shopTabBuyBtn');
-    const foodBtn = document.getElementById('shopTabFoodBtn');
-    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const sellBtn = document.getElementById('shopTabSellBtn');
     const buyBody = document.getElementById('shopBodyBuy');
-    const foodBody = document.getElementById('shopBodyFood');
-    const animalsBody = document.getElementById('shopBodyAnimals');
+    const sellBody = document.getElementById('shopBodySell');
     const duckHdr = document.getElementById('duckberriesHeader');
 
-    [buyBtn, foodBtn, animalsBtn].forEach(b => { if (b) b.classList.remove('active'); });
-    [buyBody, foodBody, animalsBody].forEach(b => { if (b) b.style.display = 'none'; });
-
-    if (tab === 'food' && foodBtn && foodBody) {
-      foodBtn.classList.add('active');
-      foodBody.style.display = 'flex';
+    if (tab === 'sell') {
+      if (sellBtn && (sellBtn.disabled || sellBtn.classList.contains('disabled'))) return;
+      if (buyBtn) buyBtn.classList.remove('active');
+      if (sellBtn) sellBtn.classList.add('active');
+      if (buyBody) buyBody.style.display = 'none';
+      if (sellBody) sellBody.style.display = 'flex';
       if (duckHdr) duckHdr.style.display = 'none';
       updateShopSellTab();
-      foodBody.scrollTop = 0;
-    } else if (tab === 'animals' && animalsBtn && animalsBody) {
-      animalsBtn.classList.add('active');
-      animalsBody.style.display = 'flex';
-      if (duckHdr) duckHdr.style.display = 'none';
-      updateShopSellTab();
-      animalsBody.scrollTop = 0;
+      if (sellBody) sellBody.scrollTop = 0;
     } else {
+      if (sellBtn) sellBtn.classList.remove('active');
       if (buyBtn) buyBtn.classList.add('active');
+      if (sellBody) sellBody.style.display = 'none';
       if (buyBody) buyBody.style.display = 'flex';
       if (duckHdr) duckHdr.style.display = 'block';
       if (buyBody) buyBody.scrollTop = 0;
@@ -444,13 +436,14 @@
   window.switchShopTab = switchShopTab;
 
   if (shopTabBuyBtn) shopTabBuyBtn.addEventListener('click', () => switchShopTab('buy'));
-  if (shopTabFoodBtn) shopTabFoodBtn.addEventListener('click', () => switchShopTab('food'));
-  if (shopTabAnimalsBtn) shopTabAnimalsBtn.addEventListener('click', () => switchShopTab('animals'));
+  if (shopTabSellBtn) shopTabSellBtn.addEventListener('click', () => switchShopTab('sell'));
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
+      isFoodCollapsed = true;
+      isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
       updateDuckles();
       updateShopTabsVisibility();
@@ -458,8 +451,7 @@
       updateShopSellTab();
       if (duckberriesHdr) duckberriesHdr.style.display = (shopTabBuyBtn && shopTabBuyBtn.classList.contains('active')) ? 'block' : 'none';
       if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-      if (shopBodyFood) shopBodyFood.scrollTop = 0;
-      if (shopBodyAnimals) shopBodyAnimals.scrollTop = 0;
+      if (shopBodySell) shopBodySell.scrollTop = 0;
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {
@@ -726,11 +718,19 @@
   function updateShopSectionCollapsedUI() {
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
+    const foodSection = document.getElementById('foodShopSection');
+    const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
       clothingSection.classList.toggle('collapsed', isClothingCollapsed);
     }
     if (householdSection) {
       householdSection.classList.toggle('collapsed', isHouseholdCollapsed);
+    }
+    if (foodSection) {
+      foodSection.classList.toggle('collapsed', isFoodCollapsed);
+    }
+    if (animalsSection) {
+      animalsSection.classList.toggle('collapsed', isAnimalsCollapsed);
     }
   }
 
@@ -744,6 +744,16 @@
       isHouseholdCollapsed = !isHouseholdCollapsed;
       try {
         Storage.set(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'food') {
+      isFoodCollapsed = !isFoodCollapsed;
+      try {
+        Storage.set(SHOP_FOOD_COLLAPSED_KEY, isFoodCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'animals') {
+      isAnimalsCollapsed = !isAnimalsCollapsed;
+      try {
+        Storage.set(SHOP_ANIMALS_COLLAPSED_KEY, isAnimalsCollapsed ? '1' : '0');
       } catch (e) {}
     }
     updateShopSectionCollapsedUI();

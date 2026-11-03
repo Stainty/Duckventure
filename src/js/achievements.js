@@ -510,6 +510,8 @@
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
+    isFoodCollapsed = false;
+    isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();
     applySkin('default');
     buildAchievementCards();

@@ -29,6 +29,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
+  let isFoodCollapsed = true;
+  let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
   let hasFriedDuck = Storage.getBoolean(HAS_FRIED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'monster', false);
   let hasStabbedDuck = Storage.getBoolean(HAS_STABBED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'accident', false);
@@ -651,8 +653,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function updateShopTabsVisibility() {
     const buyBtn = document.getElementById('shopTabBuyBtn');
-    const foodBtn = document.getElementById('shopTabFoodBtn');
-    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const sellBtn = document.getElementById('shopTabSellBtn');
+    const buyBody = document.getElementById('shopBodyBuy');
+    const sellBody = document.getElementById('shopBodySell');
+    const foodSection = document.getElementById('foodShopSection');
+    const animalsSection = document.getElementById('animalsShopSection');
 
     const hasFoodUnlocked = Boolean(
       (typeof upgradeLevels !== 'undefined' && upgradeLevels.features >= 3) ||
@@ -679,14 +684,32 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       (typeof incubatingEggs !== 'undefined' && Array.isArray(incubatingEggs) && incubatingEggs.length > 0)
     );
 
-    if (foodBtn) foodBtn.style.display = hasFoodUnlocked ? 'block' : 'none';
-    if (animalsBtn) animalsBtn.style.display = hasAnimalsUnlocked ? 'block' : 'none';
+    if (foodSection) foodSection.style.display = hasFoodUnlocked ? 'block' : 'none';
+    if (animalsSection) animalsSection.style.display = hasAnimalsUnlocked ? 'block' : 'none';
 
-    if (foodBtn && !hasFoodUnlocked && foodBtn.classList.contains('active')) {
-      if (typeof switchShopTab === 'function') switchShopTab('buy');
-    }
-    if (animalsBtn && !hasAnimalsUnlocked && animalsBtn.classList.contains('active')) {
-      if (typeof switchShopTab === 'function') switchShopTab('buy');
+    const canSell = hasFoodUnlocked || hasAnimalsUnlocked;
+    if (sellBtn) {
+      if (!canSell) {
+        sellBtn.disabled = true;
+        sellBtn.classList.add('disabled');
+        sellBtn.innerHTML = '🔒 Продажа';
+        sellBtn.title = 'Требуется открыть еду или животных для продажи';
+        if (sellBtn.classList.contains('active')) {
+          if (typeof switchShopTab === 'function') {
+            switchShopTab('buy');
+          } else {
+            if (buyBtn) buyBtn.classList.add('active');
+            sellBtn.classList.remove('active');
+            if (buyBody) buyBody.style.display = 'flex';
+            if (sellBody) sellBody.style.display = 'none';
+          }
+        }
+      } else {
+        sellBtn.disabled = false;
+        sellBtn.classList.remove('disabled');
+        sellBtn.innerHTML = '💰 Продажа';
+        sellBtn.title = '';
+      }
     }
   }
   window.updateShopTabsVisibility = updateShopTabsVisibility;

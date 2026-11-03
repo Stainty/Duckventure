@@ -1204,7 +1204,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   .shop-section.collapsed .shop-collapse-arrow {
     transform: rotate(-90deg);
   }
-  .shop-section.collapsed .buy-items-grid {
+  .shop-section.collapsed .buy-items-grid,
+  .shop-section.collapsed .sell-list {
     display: none;
   }
   .shop-section.collapsed .shop-section-title {
@@ -3018,8 +3019,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       </div>
       <div class="shop-tabs-bar">
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
-        <button class="shop-tab-btn" id="shopTabFoodBtn" style="display: none;">🍳 Еда</button>
-        <button class="shop-tab-btn" id="shopTabAnimalsBtn" style="display: none;">🐥 Животные</button>
+        <button class="shop-tab-btn disabled" id="shopTabSellBtn" disabled>🔒 Продажа</button>
       </div>
       <div class="duckberries-header" id="duckberriesHeader">
         <div class="duckberries-logo">Duckberries</div>
@@ -3050,164 +3050,181 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
           </div>
         </div>
       </div>
-      <div class="shop-body" id="shopBodyFood" style="display: none; align-items: stretch; justify-content: flex-start;">
-        <div class="sell-list" id="sellFoodList">
-          <div class="sell-card" id="sellNormalCard">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🥚</div>
-              <div>
-                <div class="sell-item-title">Обычное яйцо</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">200 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopNormalEggsCount">0</span> шт.</div>
+      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
+        <div class="shop-sections-wrap">
+          <!-- Секция: Еда -->
+          <div class="shop-section" id="foodShopSection" style="display: none;">
+            <div class="shop-section-title" id="foodSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('food')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('food');}">
+              <div class="shop-section-title-left">
+                <span>🍳</span> <span>Еда</span>
               </div>
+              <span class="shop-collapse-arrow" id="foodSectionArrow">▼</span>
             </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="sellNormal1Btn" onclick="sellEgg('normal', 1)">Продать 1 (+200 🦆)</button>
-              <button class="sell-btn sell-all" id="sellNormalAllBtn" onclick="sellEgg('normal', 'all')">Продать всё</button>
+            <div class="sell-list" id="foodSellList">
+              <div class="sell-card" id="sellNormalCard">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon">🥚</div>
+                  <div>
+                    <div class="sell-item-title">Обычное яйцо</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">200 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopNormalEggsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn" id="sellNormal1Btn" onclick="sellEgg('normal', 1)">Продать 1 (+200 🦆)</button>
+                  <button class="sell-btn sell-all" id="sellNormalAllBtn" onclick="sellEgg('normal', 'all')">Продать всё</button>
+                </div>
+              </div>
+
+              <div class="sell-card golden-card" id="sellGoldenCard">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon golden">🥚</div>
+                  <div>
+                    <div class="sell-item-title gold-title">Золотое яйцо</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">5 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGoldenEggsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="sellGolden1Btn" onclick="sellEgg('golden', 1)">Продать 1 (+5k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellGoldenAllBtn" onclick="sellEgg('golden', 'all')">Продать всё</button>
+                </div>
+              </div>
+
+              <div class="sell-card fried-card" id="sellFriedCard" style="display: none;">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon">🍳</div>
+                  <div>
+                    <div class="sell-item-title">Жареное яйцо</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">1 600 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopFriedEggsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn" id="sellFried1Btn" onclick="sellEgg('fried', 1)">Продать 1 (+1.6k 🦆)</button>
+                  <button class="sell-btn sell-all" id="sellFriedAllBtn" onclick="sellEgg('fried', 'all')">Продать всё</button>
+                </div>
+              </div>
+
+              <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon golden">🍳</div>
+                  <div>
+                    <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
+                </div>
+              </div>
+
+              <div class="sell-card" id="sellRoastedGooseCard" style="display: none; border-color: rgba(249, 115, 22, 0.35);">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon">🍗</div>
+                  <div>
+                    <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">90 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+90k 🦆)</button>
+                  <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
+                </div>
+              </div>
+
+              <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard" style="display: none;">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon golden">🍗</div>
+                  <div>
+                    <div class="sell-item-title gold-title">Золотая жареная утка</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">325 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+325k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="sell-card golden-card" id="sellGoldenCard">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🥚</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотое яйцо</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">5 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenEggsCount">0</span> шт.</div>
+          <!-- Секция: Животные -->
+          <div class="shop-section" id="animalsShopSection" style="display: none;">
+            <div class="shop-section-title" id="animalsSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('animals')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('animals');}">
+              <div class="shop-section-title-left">
+                <span>🐥</span> <span>Животные</span>
               </div>
+              <span class="shop-collapse-arrow" id="animalsSectionArrow">▼</span>
             </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGolden1Btn" onclick="sellEgg('golden', 1)">Продать 1 (+5k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenAllBtn" onclick="sellEgg('golden', 'all')">Продать всё</button>
-            </div>
-          </div>
+            <div class="sell-list" id="animalsSellList">
+              <div class="sell-card" id="sellDucklingCard" style="border-color: rgba(251, 191, 36, 0.35);">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon">🐥</div>
+                  <div>
+                    <div class="sell-item-title" style="color: #fbbf24;">Утёнок</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">10 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopDucklingsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn" id="spawnDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24;" onclick="swapCreatureToDesk('duckling')">Выпустить на стол</button>
+                  <button class="sell-btn" id="sellDuckling1Btn" onclick="sellCreature('duckling', 1)">Продать 1 (+10k 🦆)</button>
+                  <button class="sell-btn sell-all" id="sellDucklingAllBtn" onclick="sellCreature('duckling', 'all')">Продать всё</button>
+                </div>
+              </div>
 
-          <div class="sell-card fried-card" id="sellFriedCard" style="display: none;">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🍳</div>
-              <div>
-                <div class="sell-item-title">Жареное яйцо</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">1 600 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopFriedEggsCount">0</span> шт.</div>
+              <div class="sell-card golden-card" id="sellGoldenDucklingCard">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon golden">🐥</div>
+                  <div>
+                    <div class="sell-item-title gold-title">Золотой утёнок</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">50 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGoldenDucklingsCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="spawnGoldenDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenDuckling')">Выпустить на стол</button>
+                  <button class="sell-btn gold" id="sellGoldenDuckling1Btn" onclick="sellCreature('goldenDuckling', 1)">Продать 1 (+50k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellGoldenDucklingAllBtn" onclick="sellCreature('goldenDuckling', 'all')">Продать всё</button>
+                </div>
               </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="sellFried1Btn" onclick="sellEgg('fried', 1)">Продать 1 (+1.6k 🦆)</button>
-              <button class="sell-btn sell-all" id="sellFriedAllBtn" onclick="sellEgg('fried', 'all')">Продать всё</button>
-            </div>
-          </div>
 
-          <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🍳</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
+              <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon">🦆</div>
+                  <div>
+                    <div class="sell-item-title" style="color: #67e8f9;">Большая Утка</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">75 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn" id="spawnGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(56,189,248,0.15); border-color: #38bdf8; color: #38bdf8;" onclick="swapCreatureToDesk('goose')">Выпустить на стол</button>
+                  <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+75k 🦆)</button>
+                  <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
+                </div>
               </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
-            </div>
-          </div>
 
-          <div class="sell-card" id="sellRoastedGooseCard" style="display: none; border-color: rgba(249, 115, 22, 0.35);">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🍗</div>
-              <div>
-                <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">90 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
+              <div class="sell-card golden-card" id="sellGoldenGooseCard">
+                <div class="sell-item-left">
+                  <div class="sell-egg-icon golden">🦆</div>
+                  <div>
+                    <div class="sell-item-title gold-title">Золотая Большая Утка</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">250 000 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="spawnGoldenGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenGoose')">Выпустить на стол</button>
+                  <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+250k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
+                </div>
               </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+90k 🦆)</button>
-              <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard" style="display: none;">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🍗</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотая жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">325 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+325k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Вкладка: Животные -->
-      <div class="shop-body" id="shopBodyAnimals" style="display: none; align-items: stretch; justify-content: flex-start;">
-        <div class="sell-list" id="sellAnimalsList">
-          <div class="sell-card" id="sellDucklingCard" style="border-color: rgba(251, 191, 36, 0.35);">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🐥</div>
-              <div>
-                <div class="sell-item-title" style="color: #fbbf24;">Утёнок</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">10 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopDucklingsCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="spawnDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24;" onclick="swapCreatureToDesk('duckling')">Выпустить на стол</button>
-              <button class="sell-btn" id="sellDuckling1Btn" onclick="sellCreature('duckling', 1)">Продать 1 (+10k 🦆)</button>
-              <button class="sell-btn sell-all" id="sellDucklingAllBtn" onclick="sellCreature('duckling', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card golden-card" id="sellGoldenDucklingCard">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🐥</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотой утёнок</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">50 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenDucklingsCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="spawnGoldenDucklingDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenDuckling')">Выпустить на стол</button>
-              <button class="sell-btn gold" id="sellGoldenDuckling1Btn" onclick="sellCreature('goldenDuckling', 1)">Продать 1 (+50k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenDucklingAllBtn" onclick="sellCreature('goldenDuckling', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🦆</div>
-              <div>
-                <div class="sell-item-title" style="color: #67e8f9;">Большая Утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">75 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="spawnGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(56,189,248,0.15); border-color: #38bdf8; color: #38bdf8;" onclick="swapCreatureToDesk('goose')">Выпустить на стол</button>
-              <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+75k 🦆)</button>
-              <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card golden-card" id="sellGoldenGooseCard">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🦆</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотая Большая Утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">250 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="spawnGoldenGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenGoose')">Выпустить на стол</button>
-              <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+250k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
             </div>
           </div>
         </div>
@@ -3570,6 +3587,8 @@ const GRAVITY = 1000;      // px/s²
   const PLACED_PROPS_KEY = 'duck-placed-props';
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
+  const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
+  const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
   const HAS_STABBED_DUCK_KEY = 'duck-has-stabbed-duck';
@@ -3693,6 +3712,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
+  let isFoodCollapsed = true;
+  let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
   let hasFriedDuck = Storage.getBoolean(HAS_FRIED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'monster', false);
   let hasStabbedDuck = Storage.getBoolean(HAS_STABBED_DUCK_KEY, false) || Storage.getBoolean(STORAGE_PREFIX + 'accident', false);
@@ -4315,8 +4336,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function updateShopTabsVisibility() {
     const buyBtn = document.getElementById('shopTabBuyBtn');
-    const foodBtn = document.getElementById('shopTabFoodBtn');
-    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const sellBtn = document.getElementById('shopTabSellBtn');
+    const buyBody = document.getElementById('shopBodyBuy');
+    const sellBody = document.getElementById('shopBodySell');
+    const foodSection = document.getElementById('foodShopSection');
+    const animalsSection = document.getElementById('animalsShopSection');
 
     const hasFoodUnlocked = Boolean(
       (typeof upgradeLevels !== 'undefined' && upgradeLevels.features >= 3) ||
@@ -4343,14 +4367,32 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       (typeof incubatingEggs !== 'undefined' && Array.isArray(incubatingEggs) && incubatingEggs.length > 0)
     );
 
-    if (foodBtn) foodBtn.style.display = hasFoodUnlocked ? 'block' : 'none';
-    if (animalsBtn) animalsBtn.style.display = hasAnimalsUnlocked ? 'block' : 'none';
+    if (foodSection) foodSection.style.display = hasFoodUnlocked ? 'block' : 'none';
+    if (animalsSection) animalsSection.style.display = hasAnimalsUnlocked ? 'block' : 'none';
 
-    if (foodBtn && !hasFoodUnlocked && foodBtn.classList.contains('active')) {
-      if (typeof switchShopTab === 'function') switchShopTab('buy');
-    }
-    if (animalsBtn && !hasAnimalsUnlocked && animalsBtn.classList.contains('active')) {
-      if (typeof switchShopTab === 'function') switchShopTab('buy');
+    const canSell = hasFoodUnlocked || hasAnimalsUnlocked;
+    if (sellBtn) {
+      if (!canSell) {
+        sellBtn.disabled = true;
+        sellBtn.classList.add('disabled');
+        sellBtn.innerHTML = '🔒 Продажа';
+        sellBtn.title = 'Требуется открыть еду или животных для продажи';
+        if (sellBtn.classList.contains('active')) {
+          if (typeof switchShopTab === 'function') {
+            switchShopTab('buy');
+          } else {
+            if (buyBtn) buyBtn.classList.add('active');
+            sellBtn.classList.remove('active');
+            if (buyBody) buyBody.style.display = 'flex';
+            if (sellBody) sellBody.style.display = 'none';
+          }
+        }
+      } else {
+        sellBtn.disabled = false;
+        sellBtn.classList.remove('disabled');
+        sellBtn.innerHTML = '💰 Продажа';
+        sellBtn.title = '';
+      }
     }
   }
   window.updateShopTabsVisibility = updateShopTabsVisibility;
@@ -5107,6 +5149,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
+    isFoodCollapsed = false;
+    isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();
     applySkin('default');
     buildAchievementCards();
@@ -8409,40 +8453,32 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   const shopModal = document.getElementById('shopModal');
   const closeShopBtn = document.getElementById('closeShopBtn');
   const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-  const shopTabFoodBtn = document.getElementById('shopTabFoodBtn');
-  const shopTabAnimalsBtn = document.getElementById('shopTabAnimalsBtn');
+  const shopTabSellBtn = document.getElementById('shopTabSellBtn');
   const shopBodyBuy = document.getElementById('shopBodyBuy');
-  const shopBodyFood = document.getElementById('shopBodyFood');
-  const shopBodyAnimals = document.getElementById('shopBodyAnimals');
+  const shopBodySell = document.getElementById('shopBodySell');
 
   const duckberriesHdr = document.getElementById('duckberriesHeader');
 
   function switchShopTab(tab) {
     const buyBtn = document.getElementById('shopTabBuyBtn');
-    const foodBtn = document.getElementById('shopTabFoodBtn');
-    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const sellBtn = document.getElementById('shopTabSellBtn');
     const buyBody = document.getElementById('shopBodyBuy');
-    const foodBody = document.getElementById('shopBodyFood');
-    const animalsBody = document.getElementById('shopBodyAnimals');
+    const sellBody = document.getElementById('shopBodySell');
     const duckHdr = document.getElementById('duckberriesHeader');
 
-    [buyBtn, foodBtn, animalsBtn].forEach(b => { if (b) b.classList.remove('active'); });
-    [buyBody, foodBody, animalsBody].forEach(b => { if (b) b.style.display = 'none'; });
-
-    if (tab === 'food' && foodBtn && foodBody) {
-      foodBtn.classList.add('active');
-      foodBody.style.display = 'flex';
+    if (tab === 'sell') {
+      if (sellBtn && (sellBtn.disabled || sellBtn.classList.contains('disabled'))) return;
+      if (buyBtn) buyBtn.classList.remove('active');
+      if (sellBtn) sellBtn.classList.add('active');
+      if (buyBody) buyBody.style.display = 'none';
+      if (sellBody) sellBody.style.display = 'flex';
       if (duckHdr) duckHdr.style.display = 'none';
       updateShopSellTab();
-      foodBody.scrollTop = 0;
-    } else if (tab === 'animals' && animalsBtn && animalsBody) {
-      animalsBtn.classList.add('active');
-      animalsBody.style.display = 'flex';
-      if (duckHdr) duckHdr.style.display = 'none';
-      updateShopSellTab();
-      animalsBody.scrollTop = 0;
+      if (sellBody) sellBody.scrollTop = 0;
     } else {
+      if (sellBtn) sellBtn.classList.remove('active');
       if (buyBtn) buyBtn.classList.add('active');
+      if (sellBody) sellBody.style.display = 'none';
       if (buyBody) buyBody.style.display = 'flex';
       if (duckHdr) duckHdr.style.display = 'block';
       if (buyBody) buyBody.scrollTop = 0;
@@ -8451,13 +8487,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.switchShopTab = switchShopTab;
 
   if (shopTabBuyBtn) shopTabBuyBtn.addEventListener('click', () => switchShopTab('buy'));
-  if (shopTabFoodBtn) shopTabFoodBtn.addEventListener('click', () => switchShopTab('food'));
-  if (shopTabAnimalsBtn) shopTabAnimalsBtn.addEventListener('click', () => switchShopTab('animals'));
+  if (shopTabSellBtn) shopTabSellBtn.addEventListener('click', () => switchShopTab('sell'));
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
+      isFoodCollapsed = true;
+      isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
       updateDuckles();
       updateShopTabsVisibility();
@@ -8465,8 +8502,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       updateShopSellTab();
       if (duckberriesHdr) duckberriesHdr.style.display = (shopTabBuyBtn && shopTabBuyBtn.classList.contains('active')) ? 'block' : 'none';
       if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-      if (shopBodyFood) shopBodyFood.scrollTop = 0;
-      if (shopBodyAnimals) shopBodyAnimals.scrollTop = 0;
+      if (shopBodySell) shopBodySell.scrollTop = 0;
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {
@@ -8733,11 +8769,19 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function updateShopSectionCollapsedUI() {
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
+    const foodSection = document.getElementById('foodShopSection');
+    const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
       clothingSection.classList.toggle('collapsed', isClothingCollapsed);
     }
     if (householdSection) {
       householdSection.classList.toggle('collapsed', isHouseholdCollapsed);
+    }
+    if (foodSection) {
+      foodSection.classList.toggle('collapsed', isFoodCollapsed);
+    }
+    if (animalsSection) {
+      animalsSection.classList.toggle('collapsed', isAnimalsCollapsed);
     }
   }
 
@@ -8751,6 +8795,16 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isHouseholdCollapsed = !isHouseholdCollapsed;
       try {
         Storage.set(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'food') {
+      isFoodCollapsed = !isFoodCollapsed;
+      try {
+        Storage.set(SHOP_FOOD_COLLAPSED_KEY, isFoodCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'animals') {
+      isAnimalsCollapsed = !isAnimalsCollapsed;
+      try {
+        Storage.set(SHOP_ANIMALS_COLLAPSED_KEY, isAnimalsCollapsed ? '1' : '0');
       } catch (e) {}
     }
     updateShopSectionCollapsedUI();

@@ -1197,7 +1197,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   .shop-section.collapsed .shop-collapse-arrow {
     transform: rotate(-90deg);
   }
-  .shop-section.collapsed .buy-items-grid {
+  .shop-section.collapsed .buy-items-grid,
+  .shop-section.collapsed .sell-list {
     display: none;
   }
   .shop-section.collapsed .shop-section-title {
