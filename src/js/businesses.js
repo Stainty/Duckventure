@@ -276,6 +276,8 @@
     else if (eggType === 'golden') { count = goldenEggs; price = 5000; }
     else if (eggType === 'fried') { count = friedEggs; price = 1600; }
     else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
+    else if (eggType === 'roastedGoose') { count = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0); price = 180000; }
+    else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 650000; }
 
     if (count <= 0) return;
 

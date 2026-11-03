@@ -31,9 +31,12 @@
     const normalEggEl = document.getElementById('normalEgg');
     const goldenEggEl = document.getElementById('goldenEgg');
 
-    // Бар яиц под даклями (скрыт до Возможности LVL 3)
+    // Бар яиц под даклями (скрыт до Возможности LVL 3, либо при наличии жареных уток/яиц)
     if (eggsBar) {
-      if (upgradeLevels.features >= 3) {
+      const hasAnyRoast = (typeof hasCookedGoose !== 'undefined' && hasCookedGoose) ||
+                          (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+                          (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0);
+      if (upgradeLevels.features >= 3 || hasAnyRoast) {
         eggsBar.style.display = 'inline-flex';
       } else {
         eggsBar.style.display = 'none';
@@ -93,6 +96,30 @@
       if (goldenFriedItem) goldenFriedItem.style.display = 'none';
     }
 
+    // Отображение жареной и золотой жареной утки в баре (механика идентична жареным яйцам)
+    const roastedDucksVal = document.getElementById('roastedDucksVal');
+    const goldenRoastedDucksVal = document.getElementById('goldenRoastedDucksVal');
+    const roastedDucksItem = document.getElementById('roastedDucksBarItem');
+    const goldenRoastedDucksItem = document.getElementById('goldenRoastedDucksBarItem');
+
+    const showRoasted = (typeof hasCookedGoose !== 'undefined' && hasCookedGoose) ||
+                        (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+                        (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0);
+
+    if (showRoasted) {
+      if (roastedDucksItem) {
+        roastedDucksItem.style.display = 'inline-flex';
+        if (roastedDucksVal) roastedDucksVal.textContent = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0).toLocaleString('ru-RU');
+      }
+      if (goldenRoastedDucksItem) {
+        goldenRoastedDucksItem.style.display = 'inline-flex';
+        if (goldenRoastedDucksVal) goldenRoastedDucksVal.textContent = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0).toLocaleString('ru-RU');
+      }
+    } else {
+      if (roastedDucksItem) roastedDucksItem.style.display = 'none';
+      if (goldenRoastedDucksItem) goldenRoastedDucksItem.style.display = 'none';
+    }
+
     // Одно эмодзи жареного яйца на столе
     if (friedEggEl) {
       if (friedEggs > 0) {
@@ -136,6 +163,23 @@
       } else {
         goldenFriedEggEl.style.display = 'none';
         delete goldenFriedEggEl.dataset.placed;
+      }
+    }
+
+    if (bump && which) {
+      let bEl = null;
+      if (which === 'normal') bEl = document.getElementById('normalEggsBarItem');
+      else if (which === 'golden') bEl = document.getElementById('goldenEggsBarItem');
+      else if (which === 'fried') bEl = friedItem;
+      else if (which === 'goldenFried') bEl = goldenFriedItem;
+      else if (which === 'roastedDuck' || which === 'roastedGoose') bEl = roastedDucksItem;
+      else if (which === 'goldenRoastedDuck' || which === 'goldenRoastedGoose') bEl = goldenRoastedDucksItem;
+
+      if (bEl) {
+        bEl.classList.remove('pop');
+        void bEl.offsetWidth;
+        bEl.classList.add('pop');
+        setTimeout(() => bEl.classList.remove('pop'), 200);
       }
     }
 

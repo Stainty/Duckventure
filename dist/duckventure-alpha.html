@@ -589,6 +589,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     color: #fde047;
     text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
   }
+  .egg-count-item.roasted-duck {
+    color: #fb923c;
+    text-shadow: 0 0 8px rgba(251, 146, 60, 0.45);
+  }
+  .egg-count-item.golden-roasted-duck {
+    color: #fde047;
+    text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
+  }
   .egg-count-item.egg-spoil-timer-item {
     background: rgba(30, 41, 59, 0.85);
     border: 1px solid rgba(148, 163, 184, 0.35);
@@ -2876,6 +2884,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
         <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">🥚 <span id="goldenEggsVal">0</span></span>
         <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
         <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">🍳 <span id="goldenFriedEggsVal">0</span></span>
+        <span class="egg-count-item roasted-duck" id="roastedDucksBarItem" style="display: none;" title="Жареная утка">🍗 <span id="roastedDucksVal">0</span></span>
+        <span class="egg-count-item golden-roasted-duck" id="goldenRoastedDucksBarItem" style="display: none;" title="Золотая жареная утка">🍗 <span id="goldenRoastedDucksVal">0</span></span>
         <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
           <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">00:30</span>
         </span>
@@ -3152,7 +3162,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
           </div>
 
-          <div class="sell-card" id="sellRoastedGooseCard" style="border-color: rgba(249, 115, 22, 0.35);">
+          <div class="sell-card" id="sellRoastedGooseCard" style="display: none; border-color: rgba(249, 115, 22, 0.35);">
             <div class="sell-item-left">
               <div class="sell-egg-icon">🍗</div>
               <div>
@@ -3167,7 +3177,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
           </div>
 
-          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard">
+          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard" style="display: none;">
             <div class="sell-item-left">
               <div class="sell-egg-icon golden">🍗</div>
               <div>
@@ -5696,9 +5706,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const normalEggEl = document.getElementById('normalEgg');
     const goldenEggEl = document.getElementById('goldenEgg');
 
-    // Бар яиц под даклями (скрыт до Возможности LVL 3)
+    // Бар яиц под даклями (скрыт до Возможности LVL 3, либо при наличии жареных уток/яиц)
     if (eggsBar) {
-      if (upgradeLevels.features >= 3) {
+      const hasAnyRoast = (typeof hasCookedGoose !== 'undefined' && hasCookedGoose) ||
+                          (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+                          (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0);
+      if (upgradeLevels.features >= 3 || hasAnyRoast) {
         eggsBar.style.display = 'inline-flex';
       } else {
         eggsBar.style.display = 'none';
@@ -5758,6 +5771,30 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (goldenFriedItem) goldenFriedItem.style.display = 'none';
     }
 
+    // Отображение жареной и золотой жареной утки в баре (механика идентична жареным яйцам)
+    const roastedDucksVal = document.getElementById('roastedDucksVal');
+    const goldenRoastedDucksVal = document.getElementById('goldenRoastedDucksVal');
+    const roastedDucksItem = document.getElementById('roastedDucksBarItem');
+    const goldenRoastedDucksItem = document.getElementById('goldenRoastedDucksBarItem');
+
+    const showRoasted = (typeof hasCookedGoose !== 'undefined' && hasCookedGoose) ||
+                        (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+                        (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0);
+
+    if (showRoasted) {
+      if (roastedDucksItem) {
+        roastedDucksItem.style.display = 'inline-flex';
+        if (roastedDucksVal) roastedDucksVal.textContent = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0).toLocaleString('ru-RU');
+      }
+      if (goldenRoastedDucksItem) {
+        goldenRoastedDucksItem.style.display = 'inline-flex';
+        if (goldenRoastedDucksVal) goldenRoastedDucksVal.textContent = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0).toLocaleString('ru-RU');
+      }
+    } else {
+      if (roastedDucksItem) roastedDucksItem.style.display = 'none';
+      if (goldenRoastedDucksItem) goldenRoastedDucksItem.style.display = 'none';
+    }
+
     // Одно эмодзи жареного яйца на столе
     if (friedEggEl) {
       if (friedEggs > 0) {
@@ -5801,6 +5838,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       } else {
         goldenFriedEggEl.style.display = 'none';
         delete goldenFriedEggEl.dataset.placed;
+      }
+    }
+
+    if (bump && which) {
+      let bEl = null;
+      if (which === 'normal') bEl = document.getElementById('normalEggsBarItem');
+      else if (which === 'golden') bEl = document.getElementById('goldenEggsBarItem');
+      else if (which === 'fried') bEl = friedItem;
+      else if (which === 'goldenFried') bEl = goldenFriedItem;
+      else if (which === 'roastedDuck' || which === 'roastedGoose') bEl = roastedDucksItem;
+      else if (which === 'goldenRoastedDuck' || which === 'goldenRoastedGoose') bEl = goldenRoastedDucksItem;
+
+      if (bEl) {
+        bEl.classList.remove('pop');
+        void bEl.offsetWidth;
+        bEl.classList.add('pop');
+        setTimeout(() => bEl.classList.remove('pop'), 200);
       }
     }
 
@@ -6771,6 +6825,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const count = cfg.getCount();
       if (count <= 0) {
         el.style.display = 'none';
+        delete el.dataset.placed;
         return;
       }
 
@@ -6782,12 +6837,20 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           el.style.left = deskCreaturesPos[cfg.type].left;
           el.style.top = deskCreaturesPos[cfg.type].top;
         } else {
-          const incEl = document.getElementById('prop-incubator');
-          const baseR = (incEl && incEl.style.display !== 'none') ? incEl.getBoundingClientRect() : duck.getBoundingClientRect();
-          const offsetX = (idx % 2) * 65 + 25;
-          const offsetY = Math.floor(idx / 2) * 65 + 10;
-          el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, (baseR.right || 300) + offsetX))}px`;
-          el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, (baseR.top || 150) + offsetY))}px`;
+          const isRoasted = (cfg.type === 'roastedGoose' || cfg.type === 'goldenRoastedGoose');
+          const plitaEl = document.getElementById('prop-plita');
+          if (isRoasted && plitaEl && plitaEl.style.display !== 'none') {
+            const pRect = plitaEl.getBoundingClientRect();
+            el.style.left = `${Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12))}px`;
+            el.style.top = `${Math.min(window.innerHeight - 75, Math.max(10, cfg.type === 'goldenRoastedGoose' ? pRect.top + 55 : pRect.top + 8))}px`;
+          } else {
+            const incEl = document.getElementById('prop-incubator');
+            const baseR = (incEl && incEl.style.display !== 'none') ? incEl.getBoundingClientRect() : duck.getBoundingClientRect();
+            const offsetX = (idx % 2) * 65 + 25;
+            const offsetY = Math.floor(idx / 2) * 65 + 10;
+            el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, (baseR.right || 300) + offsetX))}px`;
+            el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, (baseR.top || 150) + offsetY))}px`;
+          }
           if (!deskCreaturesPos) deskCreaturesPos = {};
           deskCreaturesPos[cfg.type] = { left: el.style.left, top: el.style.top };
           try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
@@ -6958,6 +7021,45 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     const plitaEl = document.getElementById('prop-plita') || duck;
     const r = plitaEl.getBoundingClientRect();
+    const centerX = r.left + r.width / 2;
+    const centerY = r.top + r.height / 2 - 20;
+
+    // Спавним эмодзи жареной утки возле плиты со сковородой (как и при жарке яиц)
+    const targetType = isGold ? 'goldenRoastedGoose' : 'roastedGoose';
+    const targetEl = document.getElementById(`deskCreature-${targetType}`);
+    if (targetEl && plitaEl) {
+      const isAlreadyOnDesk = targetEl.dataset.placed && targetEl.style.display !== 'none';
+      if (!isAlreadyOnDesk) {
+        const pRect = plitaEl.getBoundingClientRect();
+        const posX = Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12));
+        const posY = Math.min(window.innerHeight - 75, Math.max(10, isGold ? pRect.top + 55 : pRect.top + 8));
+        targetEl.style.left = `${posX}px`;
+        targetEl.style.top = `${posY}px`;
+        targetEl.dataset.placed = '1';
+        if (!deskCreaturesPos) deskCreaturesPos = {};
+        deskCreaturesPos[targetType] = { left: targetEl.style.left, top: targetEl.style.top };
+        try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+      }
+      targetEl.style.display = 'block';
+    }
+
+    // Частицы шипения и жарки возле сковороды
+    for (let i = 0; i < 14; i++) {
+      const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
+      const spd = 30 + Math.random() * 110;
+      particles.push({
+        x: centerX + (Math.random() * 40 - 20),
+        y: centerY + (Math.random() * 20 - 10),
+        vx: Math.cos(angle) * spd * (Math.random() < 0.5 ? 1 : -1),
+        vy: -Math.sin(angle) * spd,
+        size: 16 + Math.random() * 10,
+        alpha: 1.0,
+        text: (Math.random() < 0.6) ? '🔥' : '💨',
+        rot: Math.random() * Math.PI,
+        rotSpeed: (Math.random() - 0.5) * 4
+      });
+    }
+
     particles.push({
       x: r.left + 35,
       y: r.top - 20,
@@ -6970,6 +7072,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     });
 
     updateDeskCreatureUI();
+    if (typeof updateEggsDisplay === 'function') {
+      updateEggsDisplay(true, isGold ? 'goldenRoastedDuck' : 'roastedDuck');
+    }
     updateShopSellTab();
   }
   window.roastDeskCreature = roastDeskCreature;
@@ -7048,6 +7153,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     });
 
     updateDeskCreatureUI();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
     updateShopSellTab();
   }
   window.sellCreature = sellCreature;
@@ -7116,7 +7222,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
       // 1. Проверка продажи на кнопку Магазин
       if (cx !== undefined && cy !== undefined && isCursorNearShop(cx, cy, el)) {
-        sellCreature(t, 1);
+        if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
+          sellCreature(t, 'all');
+        } else {
+          sellCreature(t, 1);
+        }
         return;
       }
 
@@ -7154,6 +7264,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       e.preventDefault();
       e.stopPropagation();
       const t = getCreatureType();
+
+      if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
+        if (typeof showEggContextMenu === 'function') {
+          showEggContextMenu(t, e.clientX, e.clientY);
+          return;
+        }
+      }
 
       activeContextPropId = null;
       activeContextEggType = null;
@@ -7769,6 +7886,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     else if (eggType === 'golden') { count = goldenEggs; price = 5000; }
     else if (eggType === 'fried') { count = friedEggs; price = 1600; }
     else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
+    else if (eggType === 'roastedGoose') { count = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0); price = 180000; }
+    else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 650000; }
 
     if (count <= 0) return;
 
@@ -9005,7 +9124,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     propCtxSell1Btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        sellEgg(activeContextEggType, 1);
+        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+          sellCreature(activeContextEggType, 1);
+        } else {
+          sellEgg(activeContextEggType, 1);
+        }
         hidePropContextMenu();
       }
     });
@@ -9016,7 +9139,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     propCtxSellAllBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        sellEgg(activeContextEggType, 'all');
+        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+          sellCreature(activeContextEggType, 'all');
+        } else {
+          sellEgg(activeContextEggType, 'all');
+        }
         hidePropContextMenu();
       }
     });

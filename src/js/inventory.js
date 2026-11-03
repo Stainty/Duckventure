@@ -1204,7 +1204,11 @@
     propCtxSell1Btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        sellEgg(activeContextEggType, 1);
+        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+          sellCreature(activeContextEggType, 1);
+        } else {
+          sellEgg(activeContextEggType, 1);
+        }
         hidePropContextMenu();
       }
     });
@@ -1215,7 +1219,11 @@
     propCtxSellAllBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        sellEgg(activeContextEggType, 'all');
+        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+          sellCreature(activeContextEggType, 'all');
+        } else {
+          sellEgg(activeContextEggType, 'all');
+        }
         hidePropContextMenu();
       }
     });

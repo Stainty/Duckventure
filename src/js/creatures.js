@@ -529,6 +529,7 @@
       const count = cfg.getCount();
       if (count <= 0) {
         el.style.display = 'none';
+        delete el.dataset.placed;
         return;
       }
 
@@ -540,12 +541,20 @@
           el.style.left = deskCreaturesPos[cfg.type].left;
           el.style.top = deskCreaturesPos[cfg.type].top;
         } else {
-          const incEl = document.getElementById('prop-incubator');
-          const baseR = (incEl && incEl.style.display !== 'none') ? incEl.getBoundingClientRect() : duck.getBoundingClientRect();
-          const offsetX = (idx % 2) * 65 + 25;
-          const offsetY = Math.floor(idx / 2) * 65 + 10;
-          el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, (baseR.right || 300) + offsetX))}px`;
-          el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, (baseR.top || 150) + offsetY))}px`;
+          const isRoasted = (cfg.type === 'roastedGoose' || cfg.type === 'goldenRoastedGoose');
+          const plitaEl = document.getElementById('prop-plita');
+          if (isRoasted && plitaEl && plitaEl.style.display !== 'none') {
+            const pRect = plitaEl.getBoundingClientRect();
+            el.style.left = `${Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12))}px`;
+            el.style.top = `${Math.min(window.innerHeight - 75, Math.max(10, cfg.type === 'goldenRoastedGoose' ? pRect.top + 55 : pRect.top + 8))}px`;
+          } else {
+            const incEl = document.getElementById('prop-incubator');
+            const baseR = (incEl && incEl.style.display !== 'none') ? incEl.getBoundingClientRect() : duck.getBoundingClientRect();
+            const offsetX = (idx % 2) * 65 + 25;
+            const offsetY = Math.floor(idx / 2) * 65 + 10;
+            el.style.left = `${Math.min(window.innerWidth - 80, Math.max(20, (baseR.right || 300) + offsetX))}px`;
+            el.style.top = `${Math.min(window.innerHeight - 80, Math.max(70, (baseR.top || 150) + offsetY))}px`;
+          }
           if (!deskCreaturesPos) deskCreaturesPos = {};
           deskCreaturesPos[cfg.type] = { left: el.style.left, top: el.style.top };
           try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
@@ -716,6 +725,45 @@
 
     const plitaEl = document.getElementById('prop-plita') || duck;
     const r = plitaEl.getBoundingClientRect();
+    const centerX = r.left + r.width / 2;
+    const centerY = r.top + r.height / 2 - 20;
+
+    // Спавним эмодзи жареной утки возле плиты со сковородой (как и при жарке яиц)
+    const targetType = isGold ? 'goldenRoastedGoose' : 'roastedGoose';
+    const targetEl = document.getElementById(`deskCreature-${targetType}`);
+    if (targetEl && plitaEl) {
+      const isAlreadyOnDesk = targetEl.dataset.placed && targetEl.style.display !== 'none';
+      if (!isAlreadyOnDesk) {
+        const pRect = plitaEl.getBoundingClientRect();
+        const posX = Math.min(window.innerWidth - 75, Math.max(10, pRect.right + 12));
+        const posY = Math.min(window.innerHeight - 75, Math.max(10, isGold ? pRect.top + 55 : pRect.top + 8));
+        targetEl.style.left = `${posX}px`;
+        targetEl.style.top = `${posY}px`;
+        targetEl.dataset.placed = '1';
+        if (!deskCreaturesPos) deskCreaturesPos = {};
+        deskCreaturesPos[targetType] = { left: targetEl.style.left, top: targetEl.style.top };
+        try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+      }
+      targetEl.style.display = 'block';
+    }
+
+    // Частицы шипения и жарки возле сковороды
+    for (let i = 0; i < 14; i++) {
+      const angle = (Math.PI * 0.15) + Math.random() * (Math.PI * 0.7);
+      const spd = 30 + Math.random() * 110;
+      particles.push({
+        x: centerX + (Math.random() * 40 - 20),
+        y: centerY + (Math.random() * 20 - 10),
+        vx: Math.cos(angle) * spd * (Math.random() < 0.5 ? 1 : -1),
+        vy: -Math.sin(angle) * spd,
+        size: 16 + Math.random() * 10,
+        alpha: 1.0,
+        text: (Math.random() < 0.6) ? '🔥' : '💨',
+        rot: Math.random() * Math.PI,
+        rotSpeed: (Math.random() - 0.5) * 4
+      });
+    }
+
     particles.push({
       x: r.left + 35,
       y: r.top - 20,
@@ -728,6 +776,9 @@
     });
 
     updateDeskCreatureUI();
+    if (typeof updateEggsDisplay === 'function') {
+      updateEggsDisplay(true, isGold ? 'goldenRoastedDuck' : 'roastedDuck');
+    }
     updateShopSellTab();
   }
   window.roastDeskCreature = roastDeskCreature;
@@ -806,6 +857,7 @@
     });
 
     updateDeskCreatureUI();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
     updateShopSellTab();
   }
   window.sellCreature = sellCreature;
@@ -874,7 +926,11 @@
 
       // 1. Проверка продажи на кнопку Магазин
       if (cx !== undefined && cy !== undefined && isCursorNearShop(cx, cy, el)) {
-        sellCreature(t, 1);
+        if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
+          sellCreature(t, 'all');
+        } else {
+          sellCreature(t, 1);
+        }
         return;
       }
 
@@ -912,6 +968,13 @@
       e.preventDefault();
       e.stopPropagation();
       const t = getCreatureType();
+
+      if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
+        if (typeof showEggContextMenu === 'function') {
+          showEggContextMenu(t, e.clientX, e.clientY);
+          return;
+        }
+      }
 
       activeContextPropId = null;
       activeContextEggType = null;
