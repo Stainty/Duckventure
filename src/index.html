@@ -502,6 +502,29 @@
     </div>
   </div>
 
+  <!-- Модальное окно подтверждения выброса в мусорку -->
+  <div class="upgrades-modal" id="discardConfirmModal">
+    <div class="upgrades-dialog cooked-duck-dialog" style="max-width: 440px; padding: 28px 24px;">
+      <div class="cooked-duck-content">
+        <div class="cooked-duck-emoji" id="discardConfirmEmoji" aria-hidden="true" style="font-size: 60px; filter: drop-shadow(0 6px 18px rgba(239, 68, 68, 0.5));">🗑️</div>
+        <div class="cooked-duck-title" id="discardConfirmTitle" style="color: #f87171; font-size: 19px; line-height: 1.35;">
+          Вы точно хотите выбросить <span id="discardConfirmItemName" style="color: #fef08a;">Предмет</span>?
+        </div>
+        <div class="cooked-duck-desc" style="color: #cbd5e1; font-size: 14px; margin-top: 4px;">
+          Это действие нельзя отменить, а предмет пропадёт со стола и его придётся добыть заново.
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 14px; width: 100%; justify-content: center;">
+          <button id="discardCancelBtn" class="cooked-duck-restart-btn" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); box-shadow: none; color: #e2e8f0; padding: 10px 22px; font-size: 15px;">
+            Отмена
+          </button>
+          <button id="discardConfirmBtn" class="cooked-duck-restart-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #fca5a5; box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); padding: 10px 22px; font-size: 15px;">
+            <span>🗑️</span> Выбросить
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Кнопка Ачивок (слева вверху) -->
   <button id="achvBtn" class="achv-btn" aria-label="Открыть окно ачивок">
     <span>🏆</span> Ачивки

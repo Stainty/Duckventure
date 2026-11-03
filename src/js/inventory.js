@@ -1190,10 +1190,23 @@
       }
     }
 
+    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
+    if (propCtxDiscardBtn) {
+      if (typeof isTrashcanOnTable === 'function' && isTrashcanOnTable() && propId !== 'trashcan') {
+        propCtxDiscardBtn.style.display = 'flex';
+        propCtxDiscardBtn.innerHTML = '<span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку';
+      } else {
+        propCtxDiscardBtn.style.display = 'none';
+      }
+    }
+
     propContextMenu.style.display = 'block';
 
+    let btnCount = 1;
+    if (propCtxRefundBtn && propCtxRefundBtn.style.display !== 'none') btnCount++;
+    if (propCtxDiscardBtn && propCtxDiscardBtn.style.display !== 'none') btnCount++;
     const menuW = 200;
-    const menuH = (propCtxRefundBtn && propCtxRefundBtn.style.display !== 'none') ? 85 : 46;
+    const menuH = btnCount * 38 + 12;
     const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
     const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
 
@@ -1264,12 +1277,289 @@
     });
   }
 
+  function isCursorNearTrashcan(clientX, clientY, itemEl) {
+    const trashEl = document.getElementById('prop-trashcan');
+    if (!trashEl || trashEl.offsetParent === null || window.getComputedStyle(trashEl).display === 'none') return false;
+    let px = clientX;
+    let py = clientY;
+    if (px === undefined || py === undefined) {
+      if (!itemEl) return false;
+      const ir = itemEl.getBoundingClientRect();
+      px = ir.left + ir.width / 2;
+      py = ir.top + ir.height / 2;
+    }
+    const tr = trashEl.getBoundingClientRect();
+    const inBox = (px >= tr.left - 15 && px <= tr.right + 15 && py >= tr.top - 15 && py <= tr.bottom + 25);
+    const cx = tr.left + tr.width / 2;
+    const cy = tr.top + tr.height / 2;
+    const dist = Math.hypot(px - cx, py - cy);
+    return inBox || dist < 75;
+  }
+  window.isCursorNearTrashcan = isCursorNearTrashcan;
+
+  function getItemDiscardInfo(type, id) {
+    if (type === 'prop') {
+      const prop = PROPS_DATA[id];
+      const name = prop ? prop.name : (id === 'key' ? 'Ключ' : id);
+      const emojiMap = {
+        skovoroda: '🍳', plita: '🔥', fridge: '❄️', knife: '🔪',
+        tape: '🩹', lamp: '💡', clock: '⏰', dichlofos: '💨',
+        incubator: '🐣', key: '🗝️'
+      };
+      return { name, emoji: emojiMap[id] || '📦' };
+    }
+    if (type === 'creature') {
+      const map = {
+        duckling: { name: 'Утёнок', emoji: '🐥' },
+        goldenDuckling: { name: 'Золотой утёнок', emoji: '🐥' },
+        goose: { name: 'Большая Утка', emoji: '🦆' },
+        goldenGoose: { name: 'Золотая Большая Утка', emoji: '🦆' },
+        roastedGoose: { name: 'Жареная утка', emoji: '🍗' },
+        goldenRoastedGoose: { name: 'Золотая жареная утка', emoji: '🍗' }
+      };
+      return map[id] || { name: 'Питомец', emoji: '🐥' };
+    }
+    if (type === 'egg') {
+      const map = {
+        normal: { name: 'Обычное яйцо', emoji: '🥚' },
+        golden: { name: 'Золотое яйцо', emoji: '🥚' },
+        fried: { name: 'Жареное яйцо', emoji: '🍳' },
+        goldenFried: { name: 'Золотое жареное яйцо', emoji: '🍳' }
+      };
+      return map[id] || { name: 'Яйцо', emoji: '🥚' };
+    }
+    return { name: id, emoji: '🗑️' };
+  }
+  window.getItemDiscardInfo = getItemDiscardInfo;
+
+  let pendingDiscardAction = null;
+
+  function requestDiscardConfirmation(itemName, emoji, onConfirm) {
+    const modal = document.getElementById('discardConfirmModal');
+    const nameEl = document.getElementById('discardConfirmItemName');
+    const emojiEl = document.getElementById('discardConfirmEmoji');
+
+    if (!modal) {
+      if (confirm(`Вы точно хотите выбросить ${itemName}? Это действие нельзя отменить, а предмет пропадёт со стола и его придётся добыть заново.`)) {
+        onConfirm();
+      }
+      return;
+    }
+
+    if (nameEl) nameEl.textContent = `«${itemName}»`;
+    if (emojiEl && emoji) emojiEl.textContent = emoji;
+    pendingDiscardAction = onConfirm;
+    modal.classList.add('open');
+  }
+  window.requestDiscardConfirmation = requestDiscardConfirmation;
+
+  const discardConfirmModal = document.getElementById('discardConfirmModal');
+  const discardCancelBtn = document.getElementById('discardCancelBtn');
+  const discardConfirmBtn = document.getElementById('discardConfirmBtn');
+
+  if (discardCancelBtn && discardConfirmModal) {
+    discardCancelBtn.addEventListener('click', () => {
+      discardConfirmModal.classList.remove('open');
+      pendingDiscardAction = null;
+    });
+  }
+  if (discardConfirmBtn && discardConfirmModal) {
+    discardConfirmBtn.addEventListener('click', () => {
+      discardConfirmModal.classList.remove('open');
+      if (typeof pendingDiscardAction === 'function') {
+        const action = pendingDiscardAction;
+        pendingDiscardAction = null;
+        action();
+      }
+    });
+  }
+  if (discardConfirmModal) {
+    discardConfirmModal.addEventListener('click', (e) => {
+      if (e.target === discardConfirmModal) {
+        discardConfirmModal.classList.remove('open');
+        pendingDiscardAction = null;
+      }
+    });
+  }
+
+  function performItemDiscard(type, id, spawnX, spawnY) {
+    let itemName = '';
+
+    if (type === 'prop') {
+      const propId = id;
+      if (propId === 'trashcan') return;
+      const prop = PROPS_DATA[propId];
+      itemName = prop ? prop.name : (propId === 'key' ? 'Ключ' : propId);
+
+      const el = document.getElementById('prop-' + propId);
+      if (el) {
+        el.style.display = 'none';
+        delete el.dataset.placed;
+      }
+      delete placedProps[propId];
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+
+      const idx = ownedProps.indexOf(propId);
+      if (idx !== -1) {
+        ownedProps.splice(idx, 1);
+        window.ownedProps = ownedProps;
+        Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
+      }
+
+      if (propId === 'incubator' && isIncubating) {
+        isIncubating = false;
+        try {
+          Storage.remove(IS_INCUBATING_KEY);
+          Storage.remove(INCUBATING_REMAINING_KEY);
+          Storage.remove(INCUBATING_COUNT_KEY);
+          Storage.remove(INCUBATING_TYPE_KEY);
+        } catch (e) {}
+        if (typeof updateIncubatorUI === 'function') updateIncubatorUI();
+      }
+
+      if (propId === 'lamp') {
+        isLampOn = false;
+        try { Storage.set(LAMP_ON_KEY, '0'); } catch (e) {}
+        if (typeof updateLampGlowUI === 'function') updateLampGlowUI();
+      }
+
+      if (propId === 'fridge') {
+        isFridgeOn = false;
+        try { Storage.set(FRIDGE_ON_KEY, '0'); } catch (e) {}
+        if (typeof updateFridgeUI === 'function') updateFridgeUI();
+      }
+
+      if (propId === 'skovoroda' || propId === 'plita') {
+        if (typeof separateStoveAndPan === 'function' && isStoveCombined) {
+          separateStoveAndPan(false);
+        }
+      }
+
+      if (propId === 'key') {
+        hasSpawnedKey = false;
+        try { Storage.remove(SPAWNED_KEY_KEY); } catch (e) {}
+      }
+
+      renderShopBuyTab();
+      renderStorage();
+      updateShopButtonVisibility();
+    } else if (type === 'creature') {
+      const t = id;
+      if (t === 'duckling') {
+        normalDucklings = Math.max(0, normalDucklings - 1);
+        try { Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings)); } catch (e) {}
+        itemName = 'Утёнок';
+      } else if (t === 'goldenDuckling') {
+        goldenDucklings = Math.max(0, goldenDucklings - 1);
+        try { Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings)); } catch (e) {}
+        itemName = 'Золотой утёнок';
+      } else if (t === 'goose') {
+        normalGeese = Math.max(0, normalGeese - 1);
+        try { Storage.set(GEESE_NORMAL_KEY, String(normalGeese)); } catch (e) {}
+        itemName = 'Большая Утка';
+      } else if (t === 'goldenGoose') {
+        goldenGeese = Math.max(0, goldenGeese - 1);
+        try { Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese)); } catch (e) {}
+        itemName = 'Золотая Большая Утка';
+      } else if (t === 'roastedGoose') {
+        normalRoastedGeese = Math.max(0, normalRoastedGeese - 1);
+        try { Storage.set(ROASTED_GEESE_NORMAL_KEY, String(normalRoastedGeese)); } catch (e) {}
+        itemName = 'Жареная утка';
+      } else if (t === 'goldenRoastedGoose') {
+        goldenRoastedGeese = Math.max(0, goldenRoastedGeese - 1);
+        try { Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese)); } catch (e) {}
+        itemName = 'Золотая жареная утка';
+      }
+      if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
+      if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+      if (typeof updateShopSellTab === 'function') updateShopSellTab();
+    } else if (type === 'egg') {
+      const eggType = id;
+      if (eggType === 'normal') {
+        normalEggs = Math.max(0, normalEggs - 1);
+        try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
+        itemName = 'Обычное яйцо';
+      } else if (eggType === 'golden') {
+        goldenEggs = Math.max(0, goldenEggs - 1);
+        try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
+        itemName = 'Золотое яйцо';
+      } else if (eggType === 'fried') {
+        friedEggs = Math.max(0, friedEggs - 1);
+        try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
+        itemName = 'Жареное яйцо';
+      } else if (eggType === 'goldenFried') {
+        goldenFriedEggs = Math.max(0, goldenFriedEggs - 1);
+        try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
+        itemName = 'Золотое жареное яйцо';
+      }
+      if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+      if (typeof updateShopSellTab === 'function') updateShopSellTab();
+    }
+
+    splatSound();
+    const trashEl = document.getElementById('prop-trashcan');
+    const tr = trashEl ? trashEl.getBoundingClientRect() : null;
+    const px = spawnX || (tr ? tr.left + tr.width / 2 : window.innerWidth / 2);
+    const py = spawnY || (tr ? tr.top + 20 : window.innerHeight / 2);
+
+    particles.push({
+      x: px,
+      y: py - 15,
+      vx: 0,
+      vy: -95,
+      size: 19,
+      alpha: 1.4,
+      text: `🗑️ ${itemName} выброшен(о) в мусорку!`,
+      color: '#a3e635'
+    });
+
+    const cleanItems = ['🗑️', '💨', '🟢', '✨'];
+    for (let i = 0; i < 8; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 40 + Math.random() * 90;
+      particles.push({
+        x: px + (Math.random() - 0.5) * 20,
+        y: py + (Math.random() - 0.5) * 20,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 40,
+        size: 14 + Math.random() * 6,
+        alpha: 1.1,
+        text: cleanItems[Math.floor(Math.random() * cleanItems.length)],
+        color: '#86efac'
+      });
+    }
+  }
+  window.performItemDiscard = performItemDiscard;
+
   const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
   if (propCtxDiscardBtn) {
     propCtxDiscardBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      const eggType = activeContextEggType;
+      const propId = activeContextPropId;
       hidePropContextMenu();
-      discardRottenEgg();
+
+      if (eggType === 'rotten') {
+        discardRottenEgg();
+        return;
+      }
+
+      if (eggType) {
+        const isCreature = ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(eggType);
+        const info = getItemDiscardInfo(isCreature ? 'creature' : 'egg', eggType);
+        requestDiscardConfirmation(info.name, info.emoji, () => {
+          performItemDiscard(isCreature ? 'creature' : 'egg', eggType);
+        });
+        return;
+      }
+
+      if (propId && propId !== 'trashcan') {
+        const info = getItemDiscardInfo('prop', propId);
+        requestDiscardConfirmation(info.name, info.emoji, () => {
+          performItemDiscard('prop', propId);
+        });
+        return;
+      }
     });
   }
 
@@ -1338,8 +1628,16 @@
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
 
+      // Подсветка мусорки при наведении предмета (кроме самого мусорного ведра)
+      let isNearTrash = false;
+      const trashEl = document.getElementById('prop-trashcan');
+      if (propId !== 'trashcan') {
+        isNearTrash = isCursorNearTrashcan(e.clientX, e.clientY, el);
+        if (trashEl) trashEl.classList.toggle('drag-target-hover', isNearTrash);
+      }
+
       // Проверка наведения на кнопку «Склад» или «Магазин» (строго раздельный фокус)
-      const activeTarget = getActiveDragTarget(el, e.clientX, e.clientY, propId);
+      const activeTarget = isNearTrash ? null : getActiveDragTarget(el, e.clientX, e.clientY, propId);
       const storageBtn = document.getElementById('storageBtn');
       const shopBtn = document.getElementById('shopBtn');
       if (storageBtn) storageBtn.classList.toggle('drag-target-hover', activeTarget === 'storage');
@@ -1382,6 +1680,18 @@
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
       el.style.transform = '';
+
+      const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) trashEl.classList.remove('drag-target-hover');
+
+      // Проверка сброса в мусорку (кроме самого мусорного ведра)
+      if (propId !== 'trashcan' && isCursorNearTrashcan(e.clientX, e.clientY, el)) {
+        const info = getItemDiscardInfo('prop', propId);
+        requestDiscardConfirmation(info.name, info.emoji, () => {
+          performItemDiscard('prop', propId, e.clientX, e.clientY);
+        });
+        return;
+      }
 
       const activeTarget = getActiveDragTarget(el, e.clientX, e.clientY, propId);
       const storageBtn = document.getElementById('storageBtn');

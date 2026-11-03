@@ -967,6 +967,13 @@
         const isNear = isCursorNearShop(e.clientX, e.clientY, el);
         shopBtn.classList.toggle('drag-target-hover', isNear);
       }
+
+      // Проверка наведения на мусорное ведро
+      if (typeof isCursorNearTrashcan === 'function') {
+        const isNearTrash = isCursorNearTrashcan(e.clientX, e.clientY, el);
+        const trashEl = document.getElementById('prop-trashcan');
+        if (trashEl) trashEl.classList.toggle('drag-target-hover', isNearTrash);
+      }
     });
 
     const endDrag = (e) => {
@@ -980,10 +987,23 @@
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+      const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) trashEl.classList.remove('drag-target-hover');
 
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : undefined;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
       const t = getCreatureType();
+
+      // 0. Проверка сброса питомца в мусорное ведро
+      if (cx !== undefined && cy !== undefined && typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cx, cy, el)) {
+        if (typeof getItemDiscardInfo === 'function' && typeof requestDiscardConfirmation === 'function') {
+          const info = getItemDiscardInfo('creature', t);
+          requestDiscardConfirmation(info.name, info.emoji, () => {
+            if (typeof performItemDiscard === 'function') performItemDiscard('creature', t, cx, cy);
+          });
+        }
+        return;
+      }
 
       // 1. Проверка продажи на кнопку Магазин (всегда продаются ВСЕ питомцы этого типа партиями)
       if (cx !== undefined && cy !== undefined && isCursorNearShop(cx, cy, el)) {
@@ -1232,6 +1252,13 @@
         shopBtn.classList.toggle('drag-target-hover', isNear);
       }
 
+      // Подсветка мусорного ведра при наведении яйца
+      if (typeof isCursorNearTrashcan === 'function') {
+        const isNearTrash = isCursorNearTrashcan(e.clientX, e.clientY, el);
+        const trashEl = document.getElementById('prop-trashcan');
+        if (trashEl) trashEl.classList.toggle('drag-target-hover', isNearTrash);
+      }
+
       // Расчет скорости перемещения для определения резкого броска
       const now = performance.now();
       const dt = (now - lastMoveTime) / 1000;
@@ -1255,6 +1282,8 @@
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
+      const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) trashEl.classList.remove('drag-target-hover');
 
       const now = performance.now();
       // Если перед отпусканием движение прекратилось, сбрасываем скорость броска
@@ -1268,6 +1297,17 @@
 
       const cursorX = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastMoveX;
       const cursorY = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastMoveY;
+
+      // Проверка сброса яйца в мусорку
+      if (count > 0 && typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cursorX, cursorY, el)) {
+        if (typeof getItemDiscardInfo === 'function' && typeof requestDiscardConfirmation === 'function') {
+          const info = getItemDiscardInfo('egg', eggType);
+          requestDiscardConfirmation(info.name, info.emoji, () => {
+            if (typeof performItemDiscard === 'function') performItemDiscard('egg', eggType, cursorX, cursorY);
+          });
+        }
+        return;
+      }
 
       // Продажа перетаскиванием на кнопку «Магазин» (всегда продаются ВСЕ яйца перетаскиваемого типа)
       const isOverShop = isCursorNearShop(cursorX, cursorY, el);

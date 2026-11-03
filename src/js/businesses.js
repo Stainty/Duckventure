@@ -268,8 +268,6 @@
       return;
     }
 
-    if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'none';
-
     let count = 0;
     let price = 0;
     if (eggType === 'normal') { count = normalEggs; price = 200; }
@@ -284,6 +282,15 @@
     else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 325000; }
 
     if (count <= 0) return;
+
+    if (propCtxDiscardBtn) {
+      if (typeof isTrashcanOnTable === 'function' && isTrashcanOnTable()) {
+        propCtxDiscardBtn.style.display = 'flex';
+        propCtxDiscardBtn.innerHTML = '<span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку';
+      } else {
+        propCtxDiscardBtn.style.display = 'none';
+      }
+    }
 
     if (propCtxSell1Btn) {
       propCtxSell1Btn.style.display = 'flex';
@@ -300,8 +307,11 @@
 
     propContextMenu.style.display = 'block';
 
+    let btnCount = 1; // Sell1
+    if (count > 1) btnCount++;
+    if (propCtxDiscardBtn && propCtxDiscardBtn.style.display !== 'none') btnCount++;
     const menuW = 210;
-    const menuH = (count > 1) ? 85 : 46;
+    const menuH = btnCount * 38 + 12;
     const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
     const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
 
