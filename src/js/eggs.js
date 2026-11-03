@@ -1,6 +1,6 @@
-/* ---------- Система яиц (Гусыня) ---------- */
+/* ---------- Система яиц (Мама Утка) ---------- */
   function checkEggRoll(fromClick = false) {
-    // Гусыня открывается на «Возможности» LVL 3
+    // «Мама Утка» открывается на «Возможности» LVL 3
     if (upgradeLevels.features < 3) return;
 
     const hadNoEggs = !hasAnyEggsOnPlayer();
@@ -259,7 +259,7 @@
           vy: -Math.sin(angle) * spd,
           size: 16 + Math.random() * 12,
           alpha: 1.1,
-          text: Math.random() < 0.3 ? '✨' : (Math.random() < 0.6 ? '🔥' : '✨🍳'),
+          text: Math.random() < 0.4 ? '🔥' : '🍳',
           color: '#fde047'
         });
       }
@@ -271,7 +271,7 @@
         vy: -80,
         size: 26,
         alpha: 1.4,
-        text: `✨🍳 ЗОЛОТАЯ ПРОЖАРКА: +${count} шт.!`,
+        text: `🍳 ЗОЛОТАЯ ПРОЖАРКА: +${count} шт.!`,
         color: '#ffd700'
       });
 

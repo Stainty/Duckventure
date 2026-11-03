@@ -431,7 +431,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     5: 'Автокрякалка LVL 2 / Скорость LVL 2',
     6: 'Крит LVL 2 (10%, x4)',
     7: 'Сила LVL 3 (40 🦆/кл)',
-    8: 'Возможности LVL 3 (Гусыня — яйца)',
+    8: 'Возможности LVL 3 (Мама Утка — яйца)',
     9: 'Автокрякалка LVL 3 / Скорость LVL 3',
     10: 'Крит LVL 3 (18%, x5)',
     11: 'Новые рубежи опыта',
@@ -454,7 +454,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       levels: [
         { lvl: 1, text: 'Открывает автокрякалку и прокачку скорости', short: 'Автокряк', cost: 60, reqLvl: 1 },
         { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 600, reqLvl: 4 },
-        { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 9000, reqLvl: 8 },
+        { lvl: 3, text: 'Мама Утка (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Мама Утка', cost: 9000, reqLvl: 8 },
         { lvl: 4, text: 'Открывает возможность перемещать утку', short: 'Переезд', cost: 90000, reqLvl: 13 },
         { lvl: 5, text: 'Бизнес (открывает возможность вести бизнес)', short: 'Бизнес', cost: 1250000, reqLvl: 18 },
       ]
@@ -638,7 +638,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       shopTabSellBtn.disabled = true;
       shopTabSellBtn.classList.add('disabled');
       shopTabSellBtn.innerHTML = '🔒 Продажа яиц';
-      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Гусыня»)';
+      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Мама Утка»)';
       if (shopTabSellBtn.classList.contains('active')) {
         if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
         shopTabSellBtn.classList.remove('active');

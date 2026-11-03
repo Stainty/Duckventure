@@ -520,6 +520,9 @@
   }
   window.spawnCreatureOnDesk = spawnCreatureOnDesk;
 
+  const GOOSE_SVG_HTML = '<svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg>';
+  window.GOOSE_SVG_HTML = GOOSE_SVG_HTML;
+
   function updateDeskCreatureUI() {
     const el = document.getElementById('deskCreature');
     const vis = document.getElementById('deskCreatureVisual');
@@ -546,19 +549,19 @@
     if (type === 'duckling') {
       vis.textContent = '🐥';
     } else if (type === 'goldenDuckling') {
-      vis.textContent = '✨🐥';
+      vis.textContent = '🐥';
       vis.classList.add('golden-creature');
     } else if (type === 'goose') {
-      vis.textContent = '🦢';
+      vis.innerHTML = GOOSE_SVG_HTML;
       vis.classList.add('goose-sprite');
     } else if (type === 'goldenGoose') {
-      vis.textContent = '✨🦢';
+      vis.innerHTML = GOOSE_SVG_HTML;
       vis.classList.add('goose-sprite', 'golden-creature');
     } else if (type === 'roastedGoose') {
-      vis.textContent = '🍗🦢';
+      vis.textContent = '🍗';
       vis.classList.add('roasted-goose-sprite');
     } else if (type === 'goldenRoastedGoose') {
-      vis.textContent = '✨🍗';
+      vis.textContent = '🍗';
       vis.classList.add('roasted-goose-sprite', 'golden-creature');
     }
 
@@ -567,7 +570,7 @@
       if ((type === 'duckling' || type === 'goldenDuckling') && isClockOnTable()) {
         const mins = Math.floor(ducklingGrowRemaining / 60);
         const secs = ducklingGrowRemaining % 60;
-        ageText.textContent = `🦢 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        ageText.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         badge.style.display = 'inline-block';
       } else {
         badge.style.display = 'none';
@@ -593,7 +596,7 @@
       vy: -110,
       size: 24,
       alpha: 1.5,
-      text: isGold ? '✨🦢 Утёнок вырос в ЗОЛОТОГО гуся!' : '🦢 Утёнок вырос в большого гуся!',
+      text: isGold ? 'Золотой утёнок вырос в Золотого Большого Гуся!' : 'Утёнок вырос в Большого Гуся!',
       color: isGold ? '#facc15' : '#38bdf8'
     });
 
@@ -661,7 +664,7 @@
       vy: -110,
       size: 22,
       alpha: 1.5,
-      text: isGold ? '✨🍗 Золотой гусь аппетитно зажарен!' : '🍗🔥 Ароматный жареный гусь готов!',
+      text: isGold ? 'Золотой Гусь аппетитно зажарен!' : '🍗🔥 Ароматный жареный гусь готов!',
       color: isGold ? '#facc15' : '#ea580c'
     });
 
@@ -683,8 +686,8 @@
   function getCreatureName(type) {
     if (type === 'duckling') return 'Утёнок';
     if (type === 'goldenDuckling') return 'Золотой утёнок';
-    if (type === 'goose') return 'Большой гусь';
-    if (type === 'goldenGoose') return 'Золотой большой гусь';
+    if (type === 'goose') return 'Большой Гусь';
+    if (type === 'goldenGoose') return 'Золотой Большой Гусь';
     if (type === 'roastedGoose') return 'Жареный гусь';
     if (type === 'goldenRoastedGoose') return 'Золотой жареный гусь';
     return 'Питомец';
@@ -802,6 +805,8 @@
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let lastClientX = 0;
+    let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
@@ -813,6 +818,9 @@
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      lastClientX = e.clientX;
+      currentTilt = 0;
+      el.classList.remove('is-wobbling');
       e.stopPropagation();
     });
 
@@ -822,6 +830,11 @@
       const y = Math.max(60, Math.min(window.innerHeight - el.offsetHeight - 20, e.clientY - startY));
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+
+      const dx = e.clientX - lastClientX;
+      lastClientX = e.clientX;
+      currentTilt = Math.max(-26, Math.min(26, dx * 2.4));
+      el.style.transform = `scale(1.12) rotate(${currentTilt}deg)`;
 
       // Проверка наведения на кнопку Магазин
       const shopBtn = document.getElementById('shopBtn');
@@ -836,6 +849,9 @@
       isDragging = false;
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
+      el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
@@ -1046,6 +1062,7 @@
       startY = e.clientY - rect.top;
       lastClientX = e.clientX;
       currentTilt = 0;
+      el.classList.remove('is-wobbling');
 
       lastMoveTime = performance.now();
       lastMoveX = e.clientX;
@@ -1102,6 +1119,8 @@
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
       el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');

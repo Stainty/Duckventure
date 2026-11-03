@@ -1930,6 +1930,20 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   .creature-visual.goose-sprite {
     font-size: 72px;
   }
+  .goose-svg {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    overflow: visible;
+  }
+  .sell-egg-icon .goose-svg {
+    font-size: 38px;
+  }
+  .sell-egg-icon.golden .goose-svg {
+    font-size: 42px;
+  }
   .creature-visual.roasted-goose-sprite {
     font-size: 64px;
     filter: drop-shadow(0 0 16px rgba(234, 88, 12, 0.7));
@@ -2123,6 +2137,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   .draggable-egg.is-dragging,
   .draggable-prop.is-dragging,
+  .desk-creature.is-dragging,
   #duck.is-dragging {
     cursor: grabbing !important;
     animation: none !important;
@@ -2130,6 +2145,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   .draggable-egg.is-wobbling,
   .draggable-prop.is-wobbling,
+  .desk-creature.is-wobbling,
   #duck.is-wobbling {
     animation: physicsWobble 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
   }
@@ -2859,7 +2875,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
         <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
         <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
         <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
-        <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">✨🍳 <span id="goldenFriedEggsVal">0</span></span>
+        <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">🍳 <span id="goldenFriedEggsVal">0</span></span>
         <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
           <span id="eggSpoilTimerIcon">⏱️</span> <span id="eggSpoilTimerText">00:30</span>
         </span>
@@ -3090,7 +3106,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card golden-card" id="sellGoldenDucklingCard">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🐥</div>
+              <div class="sell-egg-icon golden">🐥</div>
               <div>
                 <div class="sell-item-title gold-title">Золотой утёнок</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">50 000 🦆</span> / шт.</div>
@@ -3106,9 +3122,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
             <div class="sell-item-left">
-              <div class="sell-egg-icon">🦢</div>
+              <div class="sell-egg-icon"><svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg></div>
               <div>
-                <div class="sell-item-title" style="color: #67e8f9;">Большой гусь</div>
+                <div class="sell-item-title" style="color: #67e8f9;">Большой Гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
               </div>
@@ -3122,9 +3138,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card golden-card" id="sellGoldenGooseCard">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🦢</div>
+              <div class="sell-egg-icon golden"><svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg></div>
               <div>
-                <div class="sell-item-title gold-title">Золотой большой гусь</div>
+                <div class="sell-item-title gold-title">Золотой Большой Гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
               </div>
@@ -3138,7 +3154,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card" id="sellRoastedGooseCard" style="border-color: rgba(249, 115, 22, 0.35);">
             <div class="sell-item-left">
-              <div class="sell-egg-icon">🍗🦢</div>
+              <div class="sell-egg-icon">🍗</div>
               <div>
                 <div class="sell-item-title" style="color: #fb923c;">Жареный гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
@@ -3153,7 +3169,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🍗</div>
+              <div class="sell-egg-icon golden">🍗</div>
               <div>
                 <div class="sell-item-title gold-title">Золотой жареный гусь</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">650 000 🦆</span> / шт.</div>
@@ -3168,7 +3184,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
           <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🍳</div>
+              <div class="sell-egg-icon golden">🍳</div>
               <div>
                 <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
@@ -3327,7 +3343,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   <div id="normalEgg" class="draggable-egg normal-egg">🥚</div>
   <div id="goldenEgg" class="draggable-egg golden-egg">🥚</div>
   <div id="friedEgg" class="draggable-egg fried-egg" style="display: none;">🍳</div>
-  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" style="display: none;">✨🍳</div>
+  <div id="goldenFriedEgg" class="draggable-egg golden-fried-egg" style="display: none;">🍳</div>
   <div id="rottenEgg" class="draggable-egg rotten-egg" style="display: none;">🤢</div>
 
   <!-- Перетаскиваемые бытовые предметы на экране -->
@@ -3393,7 +3409,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   <div id="deskCreature" class="draggable-prop desk-creature" style="display: none;">
     <div id="deskCreatureVisual" class="creature-visual">🐣</div>
     <div id="deskCreatureAgeBadge" class="creature-age-badge" style="display: none;">
-      <span id="deskCreatureAgeText">10:00</span>
+      <span class="creature-age-icon">⏳</span> <span id="deskCreatureAgeText">10:00</span>
     </div>
   </div>
 
@@ -4035,7 +4051,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     5: 'Автокрякалка LVL 2 / Скорость LVL 2',
     6: 'Крит LVL 2 (10%, x4)',
     7: 'Сила LVL 3 (40 🦆/кл)',
-    8: 'Возможности LVL 3 (Гусыня — яйца)',
+    8: 'Возможности LVL 3 (Мама Утка — яйца)',
     9: 'Автокрякалка LVL 3 / Скорость LVL 3',
     10: 'Крит LVL 3 (18%, x5)',
     11: 'Новые рубежи опыта',
@@ -4058,7 +4074,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       levels: [
         { lvl: 1, text: 'Открывает автокрякалку и прокачку скорости', short: 'Автокряк', cost: 60, reqLvl: 1 },
         { lvl: 2, text: 'Открывает доступ к Магазину утки', short: 'Магазин', cost: 600, reqLvl: 4 },
-        { lvl: 3, text: 'Гусыня (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Гусыня', cost: 9000, reqLvl: 8 },
+        { lvl: 3, text: 'Мама Утка (теперь несет яйца: 10% обычное, 0.5% золотое)', short: 'Мама Утка', cost: 9000, reqLvl: 8 },
         { lvl: 4, text: 'Открывает возможность перемещать утку', short: 'Переезд', cost: 90000, reqLvl: 13 },
         { lvl: 5, text: 'Бизнес (открывает возможность вести бизнес)', short: 'Бизнес', cost: 1250000, reqLvl: 18 },
       ]
@@ -4242,7 +4258,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       shopTabSellBtn.disabled = true;
       shopTabSellBtn.classList.add('disabled');
       shopTabSellBtn.innerHTML = '🔒 Продажа яиц';
-      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Гусыня»)';
+      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Мама Утка»)';
       if (shopTabSellBtn.classList.contains('active')) {
         if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
         shopTabSellBtn.classList.remove('active');
@@ -5593,9 +5609,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
 
   /* ===== Module: src/js/eggs.js ===== */
-/* ---------- Система яиц (Гусыня) ---------- */
+/* ---------- Система яиц (Мама Утка) ---------- */
   function checkEggRoll(fromClick = false) {
-    // Гусыня открывается на «Возможности» LVL 3
+    // «Мама Утка» открывается на «Возможности» LVL 3
     if (upgradeLevels.features < 3) return;
 
     const hadNoEggs = !hasAnyEggsOnPlayer();
@@ -5854,7 +5870,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           vy: -Math.sin(angle) * spd,
           size: 16 + Math.random() * 12,
           alpha: 1.1,
-          text: Math.random() < 0.3 ? '✨' : (Math.random() < 0.6 ? '🔥' : '✨🍳'),
+          text: Math.random() < 0.4 ? '🔥' : '🍳',
           color: '#fde047'
         });
       }
@@ -5866,7 +5882,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         vy: -80,
         size: 26,
         alpha: 1.4,
-        text: `✨🍳 ЗОЛОТАЯ ПРОЖАРКА: +${count} шт.!`,
+        text: `🍳 ЗОЛОТАЯ ПРОЖАРКА: +${count} шт.!`,
         color: '#ffd700'
       });
 
@@ -6692,6 +6708,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
   window.spawnCreatureOnDesk = spawnCreatureOnDesk;
 
+  const GOOSE_SVG_HTML = '<svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg>';
+  window.GOOSE_SVG_HTML = GOOSE_SVG_HTML;
+
   function updateDeskCreatureUI() {
     const el = document.getElementById('deskCreature');
     const vis = document.getElementById('deskCreatureVisual');
@@ -6718,19 +6737,19 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (type === 'duckling') {
       vis.textContent = '🐥';
     } else if (type === 'goldenDuckling') {
-      vis.textContent = '✨🐥';
+      vis.textContent = '🐥';
       vis.classList.add('golden-creature');
     } else if (type === 'goose') {
-      vis.textContent = '🦢';
+      vis.innerHTML = GOOSE_SVG_HTML;
       vis.classList.add('goose-sprite');
     } else if (type === 'goldenGoose') {
-      vis.textContent = '✨🦢';
+      vis.innerHTML = GOOSE_SVG_HTML;
       vis.classList.add('goose-sprite', 'golden-creature');
     } else if (type === 'roastedGoose') {
-      vis.textContent = '🍗🦢';
+      vis.textContent = '🍗';
       vis.classList.add('roasted-goose-sprite');
     } else if (type === 'goldenRoastedGoose') {
-      vis.textContent = '✨🍗';
+      vis.textContent = '🍗';
       vis.classList.add('roasted-goose-sprite', 'golden-creature');
     }
 
@@ -6739,7 +6758,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if ((type === 'duckling' || type === 'goldenDuckling') && isClockOnTable()) {
         const mins = Math.floor(ducklingGrowRemaining / 60);
         const secs = ducklingGrowRemaining % 60;
-        ageText.textContent = `🦢 ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        ageText.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         badge.style.display = 'inline-block';
       } else {
         badge.style.display = 'none';
@@ -6765,7 +6784,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       vy: -110,
       size: 24,
       alpha: 1.5,
-      text: isGold ? '✨🦢 Утёнок вырос в ЗОЛОТОГО гуся!' : '🦢 Утёнок вырос в большого гуся!',
+      text: isGold ? 'Золотой утёнок вырос в Золотого Большого Гуся!' : 'Утёнок вырос в Большого Гуся!',
       color: isGold ? '#facc15' : '#38bdf8'
     });
 
@@ -6833,7 +6852,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       vy: -110,
       size: 22,
       alpha: 1.5,
-      text: isGold ? '✨🍗 Золотой гусь аппетитно зажарен!' : '🍗🔥 Ароматный жареный гусь готов!',
+      text: isGold ? 'Золотой Гусь аппетитно зажарен!' : '🍗🔥 Ароматный жареный гусь готов!',
       color: isGold ? '#facc15' : '#ea580c'
     });
 
@@ -6855,8 +6874,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function getCreatureName(type) {
     if (type === 'duckling') return 'Утёнок';
     if (type === 'goldenDuckling') return 'Золотой утёнок';
-    if (type === 'goose') return 'Большой гусь';
-    if (type === 'goldenGoose') return 'Золотой большой гусь';
+    if (type === 'goose') return 'Большой Гусь';
+    if (type === 'goldenGoose') return 'Золотой Большой Гусь';
     if (type === 'roastedGoose') return 'Жареный гусь';
     if (type === 'goldenRoastedGoose') return 'Золотой жареный гусь';
     return 'Питомец';
@@ -6974,6 +6993,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let lastClientX = 0;
+    let currentTilt = 0;
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
@@ -6985,6 +7006,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      lastClientX = e.clientX;
+      currentTilt = 0;
+      el.classList.remove('is-wobbling');
       e.stopPropagation();
     });
 
@@ -6994,6 +7018,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const y = Math.max(60, Math.min(window.innerHeight - el.offsetHeight - 20, e.clientY - startY));
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+
+      const dx = e.clientX - lastClientX;
+      lastClientX = e.clientX;
+      currentTilt = Math.max(-26, Math.min(26, dx * 2.4));
+      el.style.transform = `scale(1.12) rotate(${currentTilt}deg)`;
 
       // Проверка наведения на кнопку Магазин
       const shopBtn = document.getElementById('shopBtn');
@@ -7008,6 +7037,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isDragging = false;
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
+      el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
@@ -7218,6 +7250,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       startY = e.clientY - rect.top;
       lastClientX = e.clientX;
       currentTilt = 0;
+      el.classList.remove('is-wobbling');
 
       lastMoveTime = performance.now();
       lastMoveX = e.clientX;
@@ -7274,6 +7307,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       try { el.releasePointerCapture(e.pointerId); } catch (err) {}
       el.classList.remove('is-dragging');
       el.style.transform = '';
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 650);
 
       const shopBtn = document.getElementById('shopBtn');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');

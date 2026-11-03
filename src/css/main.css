@@ -1923,6 +1923,20 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   .creature-visual.goose-sprite {
     font-size: 72px;
   }
+  .goose-svg {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: middle;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    overflow: visible;
+  }
+  .sell-egg-icon .goose-svg {
+    font-size: 38px;
+  }
+  .sell-egg-icon.golden .goose-svg {
+    font-size: 42px;
+  }
   .creature-visual.roasted-goose-sprite {
     font-size: 64px;
     filter: drop-shadow(0 0 16px rgba(234, 88, 12, 0.7));
@@ -2116,6 +2130,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   .draggable-egg.is-dragging,
   .draggable-prop.is-dragging,
+  .desk-creature.is-dragging,
   #duck.is-dragging {
     cursor: grabbing !important;
     animation: none !important;
@@ -2123,6 +2138,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   .draggable-egg.is-wobbling,
   .draggable-prop.is-wobbling,
+  .desk-creature.is-wobbling,
   #duck.is-wobbling {
     animation: physicsWobble 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards !important;
   }
