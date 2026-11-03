@@ -14,7 +14,7 @@
   initDraggableProp(document.getElementById('prop-knife'), 'knife');
   initDraggableProp(document.getElementById('prop-tape'), 'tape');
   initDraggableProp(document.getElementById('prop-incubator'), 'incubator');
-  initDraggableCreature(document.getElementById('deskCreature'));
+  document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();
   clampAllPlacedPropsToScreen();
@@ -26,31 +26,19 @@
   startDeskCreatureWander();
   updateBadgesPosition();
   function clampDeskCreatureToScreen() {
-
-    const el = document.getElementById('deskCreature');
-
-    if (!el || el.style.display === 'none' || !creatureOnDesk) return;
-
-    const curLeft = parseFloat(el.style.left);
-
-    const curTop = parseFloat(el.style.top);
-
-    if (!isNaN(curLeft)) {
-
-      const maxL = Math.max(10, window.innerWidth - (el.offsetWidth || 60) - 10);
-
-      el.style.left = Math.max(10, Math.min(maxL, curLeft)) + 'px';
-
-    }
-
-    if (!isNaN(curTop)) {
-
-      const maxT = Math.max(60, window.innerHeight - (el.offsetHeight || 60) - 20);
-
-      el.style.top = Math.max(60, Math.min(maxT, curTop)) + 'px';
-
-    }
-
+    document.querySelectorAll('.desk-creature').forEach(el => {
+      if (!el || el.style.display === 'none') return;
+      const curLeft = parseFloat(el.style.left);
+      const curTop = parseFloat(el.style.top);
+      if (!isNaN(curLeft)) {
+        const maxL = Math.max(10, window.innerWidth - (el.offsetWidth || 60) - 10);
+        el.style.left = Math.max(10, Math.min(maxL, curLeft)) + 'px';
+      }
+      if (!isNaN(curTop)) {
+        const maxT = Math.max(60, window.innerHeight - (el.offsetHeight || 60) - 20);
+        el.style.top = Math.max(60, Math.min(maxT, curTop)) + 'px';
+      }
+    });
   }
 
     function clampDuckToScreen() {

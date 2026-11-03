@@ -170,8 +170,8 @@
     },
     {
       id: 'roasted-goose',
-      name: 'Рождественский гусь',
-      desc: 'Зажарьте взрослого гуся',
+      name: 'Рождественская утка',
+      desc: 'Зажарьте большую утку',
       done: false,
       check: () => hasCookedGoose,
     },
@@ -466,6 +466,7 @@
     const deskCreatureEl = document.getElementById('deskCreature');
     if (deskCreatureEl) {
       deskCreatureEl.style.display = 'none';
+      document.querySelectorAll('.desk-creature').forEach(el => el.style.display = 'none');
     }
     isLampOn = false;
     updateLampGlowUI();

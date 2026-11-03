@@ -19,7 +19,7 @@
       <div class="duckles-bar" id="ducklesBar"><span class="duckles-label-full">Даклей заработано:</span><span class="duckles-label-short">Даклей:</span> <span class="duckles-val" id="ducklesVal">0</span></div>
       <div class="eggs-bar" id="eggsBar">
         <span class="egg-count-item" id="normalEggsBarItem" title="Обычные яйца">🥚 <span id="normalEggsVal">0</span></span>
-        <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">✨🥚 <span id="goldenEggsVal">0</span></span>
+        <span class="egg-count-item golden" id="goldenEggsBarItem" title="Золотые яйца">🥚 <span id="goldenEggsVal">0</span></span>
         <span class="egg-count-item fried" id="friedEggsBarItem" style="display: none;" title="Жареные яйца">🍳 <span id="friedEggsVal">0</span></span>
         <span class="egg-count-item golden-fried" id="goldenFriedEggsBarItem" style="display: none;" title="Золотые жареные яйца">🍳 <span id="goldenFriedEggsVal">0</span></span>
         <span class="egg-count-item egg-spoil-timer-item" id="eggSpoilTimerItem" title="Таймер свежести сырых яиц" style="display: none;">
@@ -154,7 +154,7 @@
       </div>
       <div class="shop-tabs-bar">
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
-        <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа яиц</button>
+        <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа</button>
       </div>
       <div class="duckberries-header" id="duckberriesHeader">
         <div class="duckberries-logo">Duckberries</div>
@@ -204,7 +204,7 @@
 
           <div class="sell-card golden-card">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden">✨🥚</div>
+              <div class="sell-egg-icon golden">🥚</div>
               <div>
                 <div class="sell-item-title gold-title">Золотое яйцо</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">5 000 🦆</span> / шт.</div>
@@ -268,9 +268,9 @@
 
           <div class="sell-card" id="sellGooseCard" style="border-color: rgba(56, 189, 248, 0.35);">
             <div class="sell-item-left">
-              <div class="sell-egg-icon"><svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg></div>
+              <div class="sell-egg-icon">🦆</div>
               <div>
-                <div class="sell-item-title" style="color: #67e8f9;">Большой Гусь</div>
+                <div class="sell-item-title" style="color: #67e8f9;">Большая Утка</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
               </div>
@@ -284,9 +284,9 @@
 
           <div class="sell-card golden-card" id="sellGoldenGooseCard">
             <div class="sell-item-left">
-              <div class="sell-egg-icon golden"><svg class="goose-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 51 L24 58 M24 58 L20 60 M24 58 L27 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 51 L38 58 M38 58 L34 60 M38 58 L41 60" stroke="#f97316" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M43 16 C43 10 38 7 33 7 C28 7 24 11 25 18 C26 25 28 31 23 37 C17 41 13 45 13 49 C13 54 19 56 32 56 C46 56 53 50 53 43 C53 37 49 33 41 32 C37 31 36 26 36 20 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 41 C27 37 34 36 41 38 C45 40 46 44 43 48 C38 52 29 52 24 41 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/><path d="M26 15 L15 17.5 C14 18 14 19 15 19.5 L26 21 Z" fill="#f97316" stroke="#ea580c" stroke-width="1.2"/><circle cx="30" cy="13.5" r="2" fill="#0f172a"/><circle cx="30.6" cy="12.9" r="0.7" fill="#ffffff"/></svg></div>
+              <div class="sell-egg-icon golden">🦆</div>
               <div>
-                <div class="sell-item-title gold-title">Золотой Большой Гусь</div>
+                <div class="sell-item-title gold-title">Золотая Большая Утка</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
               </div>
@@ -302,7 +302,7 @@
             <div class="sell-item-left">
               <div class="sell-egg-icon">🍗</div>
               <div>
-                <div class="sell-item-title" style="color: #fb923c;">Жареный гусь</div>
+                <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
               </div>
@@ -317,7 +317,7 @@
             <div class="sell-item-left">
               <div class="sell-egg-icon golden">🍗</div>
               <div>
-                <div class="sell-item-title gold-title">Золотой жареный гусь</div>
+                <div class="sell-item-title gold-title">Золотая жареная утка</div>
                 <div class="sell-item-price">Цена: <span class="duckles-accent">650 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
               </div>
@@ -552,11 +552,41 @@
     </div>
   </div>
 
-  <div id="deskCreature" class="draggable-prop desk-creature" style="display: none;">
+  <div id="deskCreature" class="draggable-prop desk-creature" style="display: none !important;">
     <div id="deskCreatureVisual" class="creature-visual">🐣</div>
     <div id="deskCreatureAgeBadge" class="creature-age-badge" style="display: none;">
       <span class="creature-age-icon">⏳</span> <span id="deskCreatureAgeText">10:00</span>
     </div>
+  </div>
+
+  <div id="deskCreature-duckling" class="draggable-prop desk-creature" data-creature-type="duckling" style="display: none;">
+    <div class="creature-visual">🐥</div>
+    <div class="creature-age-badge" style="display: none;">
+      <span class="creature-age-icon">⏳</span> <span class="creature-age-text">10:00</span>
+    </div>
+  </div>
+
+  <div id="deskCreature-goldenDuckling" class="draggable-prop desk-creature" data-creature-type="goldenDuckling" style="display: none;">
+    <div class="creature-visual golden-creature">🐥</div>
+    <div class="creature-age-badge" style="display: none;">
+      <span class="creature-age-icon">⏳</span> <span class="creature-age-text">10:00</span>
+    </div>
+  </div>
+
+  <div id="deskCreature-goose" class="draggable-prop desk-creature" data-creature-type="goose" style="display: none;">
+    <div class="creature-visual goose-sprite">🦆</div>
+  </div>
+
+  <div id="deskCreature-goldenGoose" class="draggable-prop desk-creature" data-creature-type="goldenGoose" style="display: none;">
+    <div class="creature-visual goose-sprite golden-creature">🦆</div>
+  </div>
+
+  <div id="deskCreature-roastedGoose" class="draggable-prop desk-creature" data-creature-type="roastedGoose" style="display: none;">
+    <div class="creature-visual roasted-goose-sprite">🍗</div>
+  </div>
+
+  <div id="deskCreature-goldenRoastedGoose" class="draggable-prop desk-creature" data-creature-type="goldenRoastedGoose" style="display: none;">
+    <div class="creature-visual roasted-goose-sprite golden-creature">🍗</div>
   </div>
 
   <div id="prop-tape" class="draggable-prop" style="display: none;">

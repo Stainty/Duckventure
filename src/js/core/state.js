@@ -55,6 +55,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   const GEESE_GOLDEN_KEY = 'duck-geese-golden';
   const ROASTED_GEESE_NORMAL_KEY = 'duck-roasted-geese-normal';
   const ROASTED_GEESE_GOLDEN_KEY = 'duck-roasted-geese-golden';
+  const DESK_CREATURES_POS_KEY = 'duck-desk-creatures-pos';
+  const GOLDEN_DUCKLING_GROW_REMAINING_KEY = 'duck-golden-duckling-grow-remaining';
 
   let hasHatchedDuckling = Storage.getBoolean(HAS_HATCHED_DUCKLING_KEY, false);
   let hasFriedDuckling = Storage.getBoolean(HAS_FRIED_DUCKLING_KEY, false);
@@ -77,6 +79,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let goldenGeese = Storage.getNumber(GEESE_GOLDEN_KEY, 0, 0);
   let normalRoastedGeese = Storage.getNumber(ROASTED_GEESE_NORMAL_KEY, 0, 0);
   let goldenRoastedGeese = Storage.getNumber(ROASTED_GEESE_GOLDEN_KEY, 0, 0);
+
+  let deskCreaturesPos = Storage.getJSON(DESK_CREATURES_POS_KEY, {});
+  let goldenDucklingGrowRemaining = Storage.getNumber(GOLDEN_DUCKLING_GROW_REMAINING_KEY, 600, 0);
+
+  // Миграция из одиночного creatureOnDesk в общие счетчики
+  if (creatureOnDesk && creatureOnDesk.type) {
+    if (creatureOnDesk.type === 'duckling' && normalDucklings === 0) normalDucklings = 1;
+    else if (creatureOnDesk.type === 'goldenDuckling' && goldenDucklings === 0) goldenDucklings = 1;
+    else if (creatureOnDesk.type === 'goose' && normalGeese === 0) normalGeese = 1;
+    else if (creatureOnDesk.type === 'goldenGoose' && goldenGeese === 0) goldenGeese = 1;
+    else if (creatureOnDesk.type === 'roastedGoose' && normalRoastedGeese === 0) normalRoastedGeese = 1;
+    else if (creatureOnDesk.type === 'goldenRoastedGoose' && goldenRoastedGeese === 0) goldenRoastedGeese = 1;
+    if (creatureOnDesk.left && creatureOnDesk.top && !deskCreaturesPos[creatureOnDesk.type]) {
+      deskCreaturesPos[creatureOnDesk.type] = { left: creatureOnDesk.left, top: creatureOnDesk.top };
+      try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+    }
+  }
 
   let isLampOn = Storage.getBoolean(LAMP_ON_KEY, false);
   let isFridgeOn = Storage.getBoolean(FRIDGE_ON_KEY, false);
@@ -107,6 +126,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.setIncubatingRemaining = (v) => { incubatingRemaining = v; if (typeof updateIncubatorUI === 'function') updateIncubatorUI(); };
   window.getDucklingGrowRemaining = () => ducklingGrowRemaining;
   window.setDucklingGrowRemaining = (v) => { ducklingGrowRemaining = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
+  window.getGoldenDucklingGrowRemaining = () => goldenDucklingGrowRemaining;
+  window.setGoldenDucklingGrowRemaining = (v) => { goldenDucklingGrowRemaining = v; if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI(); };
+  window.getDeskCreaturesPos = () => deskCreaturesPos;
+  window.setDeskCreaturesPos = (v) => { deskCreaturesPos = v; try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {} };
 
   let ownedProps = Storage.getJSON(OWNED_PROPS_KEY, [], (data) => Array.isArray(data));
   if (!Array.isArray(ownedProps)) ownedProps = [];
@@ -637,7 +660,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (!canSell) {
       shopTabSellBtn.disabled = true;
       shopTabSellBtn.classList.add('disabled');
-      shopTabSellBtn.innerHTML = '🔒 Продажа яиц';
+      shopTabSellBtn.innerHTML = '🔒 Продажа';
       shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Мама Утка»)';
       if (shopTabSellBtn.classList.contains('active')) {
         if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
@@ -648,7 +671,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     } else {
       shopTabSellBtn.disabled = false;
       shopTabSellBtn.classList.remove('disabled');
-      shopTabSellBtn.innerHTML = '💰 Продажа яиц';
+      shopTabSellBtn.innerHTML = '💰 Продажа';
       shopTabSellBtn.title = '';
     }
   }

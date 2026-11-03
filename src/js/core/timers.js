@@ -57,14 +57,9 @@
     // 5. Филиалы бизнеса (продвижение циклов и штрафов)
     tickBusinesses(deltaSec);
 
-    // 6. Рост утёнка на столе: 10 минут (600 сек) -> вырастает в гуся
-    if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
-      ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - deltaSec);
-      try { Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
-      updateDeskCreatureUI();
-      if (ducklingGrowRemaining <= 0) {
-        growDucklingToGoose();
-      }
+    // 6. Рост утят на столе: 10 минут (600 сек) -> вырастают в Большую Утку
+    if (typeof tickDucklingsGrowth === 'function') {
+      tickDucklingsGrowth(deltaSec);
     }
 
     // 7. Сдувание утки от ножа: 5 минут (300 сек) -> Game Over

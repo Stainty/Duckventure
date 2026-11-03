@@ -54,13 +54,13 @@
       if (sellGoldenFriedCard) sellGoldenFriedCard.style.display = 'none';
     }
 
-    // Обновление карточек продажи питомцев
-    const dCount = normalDucklings + ((creatureOnDesk && creatureOnDesk.type === 'duckling') ? 1 : 0);
-    const gdCount = goldenDucklings + ((creatureOnDesk && creatureOnDesk.type === 'goldenDuckling') ? 1 : 0);
-    const gCount = normalGeese + ((creatureOnDesk && creatureOnDesk.type === 'goose') ? 1 : 0);
-    const ggCount = goldenGeese + ((creatureOnDesk && creatureOnDesk.type === 'goldenGoose') ? 1 : 0);
-    const rgCount = normalRoastedGeese + ((creatureOnDesk && creatureOnDesk.type === 'roastedGoose') ? 1 : 0);
-    const grgCount = goldenRoastedGeese + ((creatureOnDesk && creatureOnDesk.type === 'goldenRoastedGoose') ? 1 : 0);
+    // Обновление карточек продажи питомцев (по одному эмодзи каждого типа на столе)
+    const dCount = normalDucklings;
+    const gdCount = goldenDucklings;
+    const gCount = normalGeese;
+    const ggCount = goldenGeese;
+    const rgCount = normalRoastedGeese;
+    const grgCount = goldenRoastedGeese;
 
     const sDCard = document.getElementById('sellDucklingCard');
     const sGDCard = document.getElementById('sellGoldenDucklingCard');
@@ -82,7 +82,7 @@
       }
       const deskBtn = document.getElementById('spawnDucklingDeskBtn');
       if (deskBtn) {
-        deskBtn.style.display = (normalDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'duckling')) ? 'inline-block' : 'none';
+        deskBtn.style.display = 'none';
       }
     }
 
@@ -99,7 +99,7 @@
       }
       const deskBtn = document.getElementById('spawnGoldenDucklingDeskBtn');
       if (deskBtn) {
-        deskBtn.style.display = (goldenDucklings > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenDuckling')) ? 'inline-block' : 'none';
+        deskBtn.style.display = 'none';
       }
     }
 
@@ -116,7 +116,7 @@
       }
       const deskBtn = document.getElementById('spawnGooseDeskBtn');
       if (deskBtn) {
-        deskBtn.style.display = (normalGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goose')) ? 'inline-block' : 'none';
+        deskBtn.style.display = 'none';
       }
     }
 
@@ -133,7 +133,7 @@
       }
       const deskBtn = document.getElementById('spawnGoldenGooseDeskBtn');
       if (deskBtn) {
-        deskBtn.style.display = (goldenGeese > 0 && (!creatureOnDesk || creatureOnDesk.type !== 'goldenGoose')) ? 'inline-block' : 'none';
+        deskBtn.style.display = 'none';
       }
     }
 
