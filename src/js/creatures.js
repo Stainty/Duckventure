@@ -838,10 +838,10 @@
   function getCreaturePrice(type) {
     if (type === 'duckling') return 10000;
     if (type === 'goldenDuckling') return 50000;
-    if (type === 'goose') return 150000;
-    if (type === 'goldenGoose') return 500000;
-    if (type === 'roastedGoose') return 180000;
-    if (type === 'goldenRoastedGoose') return 650000;
+    if (type === 'goose') return 75000;
+    if (type === 'goldenGoose') return 250000;
+    if (type === 'roastedGoose') return 90000;
+    if (type === 'goldenRoastedGoose') return 325000;
     return 0;
   }
 

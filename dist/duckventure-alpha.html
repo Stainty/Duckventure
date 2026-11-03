@@ -3135,13 +3135,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               <div class="sell-egg-icon">🦆</div>
               <div>
                 <div class="sell-item-title" style="color: #67e8f9;">Большая Утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">150 000 🦆</span> / шт.</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">75 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGeeseCount">0</span> шт.</div>
               </div>
             </div>
             <div class="sell-actions">
               <button class="sell-btn" id="spawnGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px; background: rgba(56,189,248,0.15); border-color: #38bdf8; color: #38bdf8;" onclick="swapCreatureToDesk('goose')">Выпустить на стол</button>
-              <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+150k 🦆)</button>
+              <button class="sell-btn" id="sellGoose1Btn" onclick="sellCreature('goose', 1)">Продать 1 (+75k 🦆)</button>
               <button class="sell-btn sell-all" id="sellGooseAllBtn" onclick="sellCreature('goose', 'all')">Продать всё</button>
             </div>
           </div>
@@ -3151,13 +3151,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               <div class="sell-egg-icon golden">🦆</div>
               <div>
                 <div class="sell-item-title gold-title">Золотая Большая Утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">500 000 🦆</span> / шт.</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">250 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGoldenGeeseCount">0</span> шт.</div>
               </div>
             </div>
             <div class="sell-actions">
               <button class="sell-btn gold" id="spawnGoldenGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenGoose')">Выпустить на стол</button>
-              <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+500k 🦆)</button>
+              <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+250k 🦆)</button>
               <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
             </div>
           </div>
@@ -3167,12 +3167,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               <div class="sell-egg-icon">🍗</div>
               <div>
                 <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">180 000 🦆</span> / шт.</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">90 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
               </div>
             </div>
             <div class="sell-actions">
-              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+180k 🦆)</button>
+              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+90k 🦆)</button>
               <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
             </div>
           </div>
@@ -3182,12 +3182,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               <div class="sell-egg-icon golden">🍗</div>
               <div>
                 <div class="sell-item-title gold-title">Золотая жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">650 000 🦆</span> / шт.</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">325 000 🦆</span> / шт.</div>
                 <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
               </div>
             </div>
             <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+650k 🦆)</button>
+              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+325k 🦆)</button>
               <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
             </div>
           </div>
@@ -3935,9 +3935,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       id: 'carwash',
       name: 'Автомойка',
       desc: 'Бесконтактная мойка для водоплавающего транспорта. Перья блестят, дакли капают!',
-      cost: 100000,
-      income: 200000,
-      penalty: 150000,
+      cost: 300000,
+      income: 50000,
+      penalty: 37500,
       icon: '🚗🧼',
       workDuration: 300,
       attentionDuration: 60
@@ -3946,9 +3946,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       id: 'utilnya',
       name: 'Утильня',
       desc: 'Лучше вам не знать какие услуги они оказывают',
-      cost: 500000,
-      income: 1000000,
-      penalty: 800000,
+      cost: 1500000,
+      income: 250000,
+      penalty: 200000,
       icon: '🏢🕶️',
       workDuration: 300,
       attentionDuration: 60
@@ -3957,9 +3957,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       id: 'factory',
       name: 'Завод резиновых уточек',
       desc: 'Высокотехнологичный конвейер по производству лучших резиновых крякалок в мире!',
-      cost: 1000000,
-      income: 3000000,
-      penalty: 2800000,
+      cost: 3000000,
+      income: 750000,
+      penalty: 700000,
       icon: '🏭🦆',
       workDuration: 300,
       attentionDuration: 60
@@ -7134,10 +7134,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function getCreaturePrice(type) {
     if (type === 'duckling') return 10000;
     if (type === 'goldenDuckling') return 50000;
-    if (type === 'goose') return 150000;
-    if (type === 'goldenGoose') return 500000;
-    if (type === 'roastedGoose') return 180000;
-    if (type === 'goldenRoastedGoose') return 650000;
+    if (type === 'goose') return 75000;
+    if (type === 'goldenGoose') return 250000;
+    if (type === 'roastedGoose') return 90000;
+    if (type === 'goldenRoastedGoose') return 325000;
     return 0;
   }
 
@@ -7952,10 +7952,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
     else if (eggType === 'duckling') { count = (typeof normalDucklings !== 'undefined' ? normalDucklings : 0); price = 10000; }
     else if (eggType === 'goldenDuckling') { count = (typeof goldenDucklings !== 'undefined' ? goldenDucklings : 0); price = 50000; }
-    else if (eggType === 'goose') { count = (typeof normalGeese !== 'undefined' ? normalGeese : 0); price = 150000; }
-    else if (eggType === 'goldenGoose') { count = (typeof goldenGeese !== 'undefined' ? goldenGeese : 0); price = 500000; }
-    else if (eggType === 'roastedGoose') { count = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0); price = 180000; }
-    else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 650000; }
+    else if (eggType === 'goose') { count = (typeof normalGeese !== 'undefined' ? normalGeese : 0); price = 75000; }
+    else if (eggType === 'goldenGoose') { count = (typeof goldenGeese !== 'undefined' ? goldenGeese : 0); price = 250000; }
+    else if (eggType === 'roastedGoose') { count = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0); price = 90000; }
+    else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 325000; }
 
     if (count <= 0) return;
 
@@ -8092,7 +8092,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
 
     if (sGCard) {
-      sGCard.style.display = (gCount > 0) ? 'flex' : 'none';
+      sGCard.style.display = (gCount > 0 || hasHatchedDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGeeseCount');
       if (cEl) cEl.textContent = gCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoose1Btn');
@@ -8100,7 +8100,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (b1) b1.disabled = gCount < 1;
       if (bAll) {
         bAll.disabled = gCount < 1;
-        bAll.textContent = `Продать всё (+${(gCount * 150000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(gCount * 75000).toLocaleString('ru-RU')} 🦆)`;
       }
       const deskBtn = document.getElementById('spawnGooseDeskBtn');
       if (deskBtn) {
@@ -8109,7 +8109,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
 
     if (sGGCard) {
-      sGGCard.style.display = (ggCount > 0) ? 'flex' : 'none';
+      sGGCard.style.display = (ggCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenGeeseCount');
       if (cEl) cEl.textContent = ggCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenGoose1Btn');
@@ -8117,7 +8117,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (b1) b1.disabled = ggCount < 1;
       if (bAll) {
         bAll.disabled = ggCount < 1;
-        bAll.textContent = `Продать всё (+${(ggCount * 500000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(ggCount * 250000).toLocaleString('ru-RU')} 🦆)`;
       }
       const deskBtn = document.getElementById('spawnGoldenGooseDeskBtn');
       if (deskBtn) {
@@ -8134,7 +8134,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (b1) b1.disabled = rgCount < 1;
       if (bAll) {
         bAll.disabled = rgCount < 1;
-        bAll.textContent = `Продать всё (+${(rgCount * 180000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(rgCount * 90000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
 
@@ -8147,7 +8147,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (b1) b1.disabled = grgCount < 1;
       if (bAll) {
         bAll.disabled = grgCount < 1;
-        bAll.textContent = `Продать всё (+${(grgCount * 650000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(grgCount * 325000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
   }

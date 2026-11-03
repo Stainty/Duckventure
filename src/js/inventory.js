@@ -104,7 +104,7 @@
     }
 
     if (sGCard) {
-      sGCard.style.display = (gCount > 0) ? 'flex' : 'none';
+      sGCard.style.display = (gCount > 0 || hasHatchedDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGeeseCount');
       if (cEl) cEl.textContent = gCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoose1Btn');
@@ -112,7 +112,7 @@
       if (b1) b1.disabled = gCount < 1;
       if (bAll) {
         bAll.disabled = gCount < 1;
-        bAll.textContent = `Продать всё (+${(gCount * 150000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(gCount * 75000).toLocaleString('ru-RU')} 🦆)`;
       }
       const deskBtn = document.getElementById('spawnGooseDeskBtn');
       if (deskBtn) {
@@ -121,7 +121,7 @@
     }
 
     if (sGGCard) {
-      sGGCard.style.display = (ggCount > 0) ? 'flex' : 'none';
+      sGGCard.style.display = (ggCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenGeeseCount');
       if (cEl) cEl.textContent = ggCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenGoose1Btn');
@@ -129,7 +129,7 @@
       if (b1) b1.disabled = ggCount < 1;
       if (bAll) {
         bAll.disabled = ggCount < 1;
-        bAll.textContent = `Продать всё (+${(ggCount * 500000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(ggCount * 250000).toLocaleString('ru-RU')} 🦆)`;
       }
       const deskBtn = document.getElementById('spawnGoldenGooseDeskBtn');
       if (deskBtn) {
@@ -146,7 +146,7 @@
       if (b1) b1.disabled = rgCount < 1;
       if (bAll) {
         bAll.disabled = rgCount < 1;
-        bAll.textContent = `Продать всё (+${(rgCount * 180000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(rgCount * 90000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
 
@@ -159,7 +159,7 @@
       if (b1) b1.disabled = grgCount < 1;
       if (bAll) {
         bAll.disabled = grgCount < 1;
-        bAll.textContent = `Продать всё (+${(grgCount * 650000).toLocaleString('ru-RU')} 🦆)`;
+        bAll.textContent = `Продать всё (+${(grgCount * 325000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
   }
