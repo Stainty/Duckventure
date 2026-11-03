@@ -3018,7 +3018,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       </div>
       <div class="shop-tabs-bar">
         <button class="shop-tab-btn active" id="shopTabBuyBtn">🛒 Покупка</button>
-        <button class="shop-tab-btn" id="shopTabSellBtn">💰 Продажа</button>
+        <button class="shop-tab-btn" id="shopTabFoodBtn" style="display: none;">🍳 Еда</button>
+        <button class="shop-tab-btn" id="shopTabAnimalsBtn" style="display: none;">🐥 Животные</button>
       </div>
       <div class="duckberries-header" id="duckberriesHeader">
         <div class="duckberries-logo">Duckberries</div>
@@ -3049,9 +3050,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
           </div>
         </div>
       </div>
-      <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
-        <div class="sell-list">
-          <div class="sell-card">
+      <div class="shop-body" id="shopBodyFood" style="display: none; align-items: stretch; justify-content: flex-start;">
+        <div class="sell-list" id="sellFoodList">
+          <div class="sell-card" id="sellNormalCard">
             <div class="sell-item-left">
               <div class="sell-egg-icon">🥚</div>
               <div>
@@ -3066,7 +3067,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
           </div>
 
-          <div class="sell-card golden-card">
+          <div class="sell-card golden-card" id="sellGoldenCard">
             <div class="sell-item-left">
               <div class="sell-egg-icon golden">🥚</div>
               <div>
@@ -3096,8 +3097,56 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
           </div>
 
-          
-          <!-- Карточки продажи питомцев из инкубатора -->
+          <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">🍳</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card" id="sellRoastedGooseCard" style="display: none; border-color: rgba(249, 115, 22, 0.35);">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon">🍗</div>
+              <div>
+                <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">90 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+90k 🦆)</button>
+              <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+
+          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard" style="display: none;">
+            <div class="sell-item-left">
+              <div class="sell-egg-icon golden">🍗</div>
+              <div>
+                <div class="sell-item-title gold-title">Золотая жареная утка</div>
+                <div class="sell-item-price">Цена: <span class="duckles-accent">325 000 🦆</span> / шт.</div>
+                <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
+              </div>
+            </div>
+            <div class="sell-actions">
+              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+325k 🦆)</button>
+              <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Вкладка: Животные -->
+      <div class="shop-body" id="shopBodyAnimals" style="display: none; align-items: stretch; justify-content: flex-start;">
+        <div class="sell-list" id="sellAnimalsList">
           <div class="sell-card" id="sellDucklingCard" style="border-color: rgba(251, 191, 36, 0.35);">
             <div class="sell-item-left">
               <div class="sell-egg-icon">🐥</div>
@@ -3159,51 +3208,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
               <button class="sell-btn gold" id="spawnGoldenGooseDeskBtn" style="display: none; padding: 4px 8px; font-size: 11px;" onclick="swapCreatureToDesk('goldenGoose')">Выпустить на стол</button>
               <button class="sell-btn gold" id="sellGoldenGoose1Btn" onclick="sellCreature('goldenGoose', 1)">Продать 1 (+250k 🦆)</button>
               <button class="sell-btn gold sell-all" id="sellGoldenGooseAllBtn" onclick="sellCreature('goldenGoose', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card" id="sellRoastedGooseCard" style="display: none; border-color: rgba(249, 115, 22, 0.35);">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon">🍗</div>
-              <div>
-                <div class="sell-item-title" style="color: #fb923c;">Жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">90 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopRoastedGeeseCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn" id="sellRoastedGoose1Btn" onclick="sellCreature('roastedGoose', 1)">Продать 1 (+90k 🦆)</button>
-              <button class="sell-btn sell-all" id="sellRoastedGooseAllBtn" onclick="sellCreature('roastedGoose', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card golden-card" id="sellGoldenRoastedGooseCard" style="display: none;">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🍗</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотая жареная утка</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">325 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenRoastedGeeseCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGoldenRoastedGoose1Btn" onclick="sellCreature('goldenRoastedGoose', 1)">Продать 1 (+325k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenRoastedGooseAllBtn" onclick="sellCreature('goldenRoastedGoose', 'all')">Продать всё</button>
-            </div>
-          </div>
-
-          <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
-            <div class="sell-item-left">
-              <div class="sell-egg-icon golden">🍳</div>
-              <div>
-                <div class="sell-item-title gold-title">Золотое жареное яйцо</div>
-                <div class="sell-item-price">Цена: <span class="duckles-accent">15 000 🦆</span> / шт.</div>
-                <div class="sell-item-count">В наличии: <span id="shopGoldenFriedEggsCount">0</span> шт.</div>
-              </div>
-            </div>
-            <div class="sell-actions">
-              <button class="sell-btn gold" id="sellGoldenFried1Btn" onclick="sellEgg('goldenFried', 1)">Продать 1 (+15k 🦆)</button>
-              <button class="sell-btn gold sell-all" id="sellGoldenFriedAllBtn" onclick="sellEgg('goldenFried', 'all')">Продать всё</button>
             </div>
           </div>
         </div>
@@ -4310,31 +4314,46 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
   function updateShopTabsVisibility() {
-    const shopTabSellBtn = document.getElementById('shopTabSellBtn');
-    const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-    const shopBodyBuy = document.getElementById('shopBodyBuy');
-    const shopBodySell = document.getElementById('shopBodySell');
-    if (!shopTabSellBtn) return;
+    const buyBtn = document.getElementById('shopTabBuyBtn');
+    const foodBtn = document.getElementById('shopTabFoodBtn');
+    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
 
-    const canSell = upgradeLevels.features >= 3;
-    if (!canSell) {
-      shopTabSellBtn.disabled = true;
-      shopTabSellBtn.classList.add('disabled');
-      shopTabSellBtn.innerHTML = '🔒 Продажа';
-      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Мама Утка»)';
-      if (shopTabSellBtn.classList.contains('active')) {
-        if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
-        shopTabSellBtn.classList.remove('active');
-        if (shopBodyBuy) shopBodyBuy.style.display = 'flex';
-        if (shopBodySell) shopBodySell.style.display = 'none';
-      }
-    } else {
-      shopTabSellBtn.disabled = false;
-      shopTabSellBtn.classList.remove('disabled');
-      shopTabSellBtn.innerHTML = '💰 Продажа';
-      shopTabSellBtn.title = '';
+    const hasFoodUnlocked = Boolean(
+      (typeof upgradeLevels !== 'undefined' && upgradeLevels.features >= 3) ||
+      (typeof normalEggs !== 'undefined' && normalEggs > 0) ||
+      (typeof goldenEggs !== 'undefined' && goldenEggs > 0) ||
+      (typeof friedEggs !== 'undefined' && friedEggs > 0) ||
+      (typeof goldenFriedEggs !== 'undefined' && goldenFriedEggs > 0) ||
+      (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+      (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0) ||
+      (typeof hasUnlockedFriedEggs !== 'undefined' && hasUnlockedFriedEggs) ||
+      (typeof hasCookedGoose !== 'undefined' && hasCookedGoose)
+    );
+
+    const hasAnimalsUnlocked = Boolean(
+      (typeof hasHatchedDuckling !== 'undefined' && hasHatchedDuckling) ||
+      (typeof hasHatchedGoldenDuckling !== 'undefined' && hasHatchedGoldenDuckling) ||
+      (typeof ownedProps !== 'undefined' && Array.isArray(ownedProps) && ownedProps.includes('incubator')) ||
+      (typeof placedProps !== 'undefined' && Array.isArray(placedProps) && placedProps.some(p => p && p.id === 'incubator')) ||
+      (typeof normalDucklings !== 'undefined' && normalDucklings > 0) ||
+      (typeof goldenDucklings !== 'undefined' && goldenDucklings > 0) ||
+      (typeof normalGeese !== 'undefined' && normalGeese > 0) ||
+      (typeof goldenGeese !== 'undefined' && goldenGeese > 0) ||
+      (typeof deskCreatures !== 'undefined' && Array.isArray(deskCreatures) && deskCreatures.length > 0) ||
+      (typeof incubatingEggs !== 'undefined' && Array.isArray(incubatingEggs) && incubatingEggs.length > 0)
+    );
+
+    if (foodBtn) foodBtn.style.display = hasFoodUnlocked ? 'block' : 'none';
+    if (animalsBtn) animalsBtn.style.display = hasAnimalsUnlocked ? 'block' : 'none';
+
+    if (foodBtn && !hasFoodUnlocked && foodBtn.classList.contains('active')) {
+      if (typeof switchShopTab === 'function') switchShopTab('buy');
+    }
+    if (animalsBtn && !hasAnimalsUnlocked && animalsBtn.classList.contains('active')) {
+      if (typeof switchShopTab === 'function') switchShopTab('buy');
     }
   }
+  window.updateShopTabsVisibility = updateShopTabsVisibility;
 
   function updateLevelDisplay(bump = false) {
     const lvlNumEl = document.getElementById('lvlNum');
@@ -8150,6 +8169,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         bAll.textContent = `Продать всё (+${(grgCount * 325000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
+
+    if (typeof updateShopTabsVisibility === 'function') {
+      updateShopTabsVisibility();
+    }
   }
 
   function sellEgg(type, amount) {
@@ -8386,32 +8409,50 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   const shopModal = document.getElementById('shopModal');
   const closeShopBtn = document.getElementById('closeShopBtn');
   const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-  const shopTabSellBtn = document.getElementById('shopTabSellBtn');
+  const shopTabFoodBtn = document.getElementById('shopTabFoodBtn');
+  const shopTabAnimalsBtn = document.getElementById('shopTabAnimalsBtn');
   const shopBodyBuy = document.getElementById('shopBodyBuy');
-  const shopBodySell = document.getElementById('shopBodySell');
+  const shopBodyFood = document.getElementById('shopBodyFood');
+  const shopBodyAnimals = document.getElementById('shopBodyAnimals');
 
   const duckberriesHdr = document.getElementById('duckberriesHeader');
 
-  if (shopTabBuyBtn && shopTabSellBtn && shopBodyBuy && shopBodySell) {
-    shopTabBuyBtn.addEventListener('click', () => {
-      shopTabBuyBtn.classList.add('active');
-      shopTabSellBtn.classList.remove('active');
-      if (duckberriesHdr) duckberriesHdr.style.display = 'block';
-      shopBodyBuy.style.display = 'flex';
-      shopBodySell.style.display = 'none';
-      if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-    });
-    shopTabSellBtn.addEventListener('click', () => {
-      if (upgradeLevels.features < 3) return;
-      shopTabSellBtn.classList.add('active');
-      shopTabBuyBtn.classList.remove('active');
-      if (duckberriesHdr) duckberriesHdr.style.display = 'none';
-      shopBodySell.style.display = 'flex';
-      shopBodyBuy.style.display = 'none';
+  function switchShopTab(tab) {
+    const buyBtn = document.getElementById('shopTabBuyBtn');
+    const foodBtn = document.getElementById('shopTabFoodBtn');
+    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const buyBody = document.getElementById('shopBodyBuy');
+    const foodBody = document.getElementById('shopBodyFood');
+    const animalsBody = document.getElementById('shopBodyAnimals');
+    const duckHdr = document.getElementById('duckberriesHeader');
+
+    [buyBtn, foodBtn, animalsBtn].forEach(b => { if (b) b.classList.remove('active'); });
+    [buyBody, foodBody, animalsBody].forEach(b => { if (b) b.style.display = 'none'; });
+
+    if (tab === 'food' && foodBtn && foodBody) {
+      foodBtn.classList.add('active');
+      foodBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'none';
       updateShopSellTab();
-      if (shopBodySell) shopBodySell.scrollTop = 0;
-    });
+      foodBody.scrollTop = 0;
+    } else if (tab === 'animals' && animalsBtn && animalsBody) {
+      animalsBtn.classList.add('active');
+      animalsBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'none';
+      updateShopSellTab();
+      animalsBody.scrollTop = 0;
+    } else {
+      if (buyBtn) buyBtn.classList.add('active');
+      if (buyBody) buyBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'block';
+      if (buyBody) buyBody.scrollTop = 0;
+    }
   }
+  window.switchShopTab = switchShopTab;
+
+  if (shopTabBuyBtn) shopTabBuyBtn.addEventListener('click', () => switchShopTab('buy'));
+  if (shopTabFoodBtn) shopTabFoodBtn.addEventListener('click', () => switchShopTab('food'));
+  if (shopTabAnimalsBtn) shopTabAnimalsBtn.addEventListener('click', () => switchShopTab('animals'));
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
@@ -8422,9 +8463,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       updateShopTabsVisibility();
       renderShopBuyTab();
       updateShopSellTab();
-      if (duckberriesHdr) duckberriesHdr.style.display = shopTabBuyBtn.classList.contains('active') ? 'block' : 'none';
+      if (duckberriesHdr) duckberriesHdr.style.display = (shopTabBuyBtn && shopTabBuyBtn.classList.contains('active')) ? 'block' : 'none';
       if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-      if (shopBodySell) shopBodySell.scrollTop = 0;
+      if (shopBodyFood) shopBodyFood.scrollTop = 0;
+      if (shopBodyAnimals) shopBodyAnimals.scrollTop = 0;
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {

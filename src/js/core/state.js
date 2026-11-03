@@ -650,31 +650,46 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
   function updateShopTabsVisibility() {
-    const shopTabSellBtn = document.getElementById('shopTabSellBtn');
-    const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-    const shopBodyBuy = document.getElementById('shopBodyBuy');
-    const shopBodySell = document.getElementById('shopBodySell');
-    if (!shopTabSellBtn) return;
+    const buyBtn = document.getElementById('shopTabBuyBtn');
+    const foodBtn = document.getElementById('shopTabFoodBtn');
+    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
 
-    const canSell = upgradeLevels.features >= 3;
-    if (!canSell) {
-      shopTabSellBtn.disabled = true;
-      shopTabSellBtn.classList.add('disabled');
-      shopTabSellBtn.innerHTML = '🔒 Продажа';
-      shopTabSellBtn.title = 'Требуется прокачка «Возможности» LVL 3 («Мама Утка»)';
-      if (shopTabSellBtn.classList.contains('active')) {
-        if (shopTabBuyBtn) shopTabBuyBtn.classList.add('active');
-        shopTabSellBtn.classList.remove('active');
-        if (shopBodyBuy) shopBodyBuy.style.display = 'flex';
-        if (shopBodySell) shopBodySell.style.display = 'none';
-      }
-    } else {
-      shopTabSellBtn.disabled = false;
-      shopTabSellBtn.classList.remove('disabled');
-      shopTabSellBtn.innerHTML = '💰 Продажа';
-      shopTabSellBtn.title = '';
+    const hasFoodUnlocked = Boolean(
+      (typeof upgradeLevels !== 'undefined' && upgradeLevels.features >= 3) ||
+      (typeof normalEggs !== 'undefined' && normalEggs > 0) ||
+      (typeof goldenEggs !== 'undefined' && goldenEggs > 0) ||
+      (typeof friedEggs !== 'undefined' && friedEggs > 0) ||
+      (typeof goldenFriedEggs !== 'undefined' && goldenFriedEggs > 0) ||
+      (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
+      (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0) ||
+      (typeof hasUnlockedFriedEggs !== 'undefined' && hasUnlockedFriedEggs) ||
+      (typeof hasCookedGoose !== 'undefined' && hasCookedGoose)
+    );
+
+    const hasAnimalsUnlocked = Boolean(
+      (typeof hasHatchedDuckling !== 'undefined' && hasHatchedDuckling) ||
+      (typeof hasHatchedGoldenDuckling !== 'undefined' && hasHatchedGoldenDuckling) ||
+      (typeof ownedProps !== 'undefined' && Array.isArray(ownedProps) && ownedProps.includes('incubator')) ||
+      (typeof placedProps !== 'undefined' && Array.isArray(placedProps) && placedProps.some(p => p && p.id === 'incubator')) ||
+      (typeof normalDucklings !== 'undefined' && normalDucklings > 0) ||
+      (typeof goldenDucklings !== 'undefined' && goldenDucklings > 0) ||
+      (typeof normalGeese !== 'undefined' && normalGeese > 0) ||
+      (typeof goldenGeese !== 'undefined' && goldenGeese > 0) ||
+      (typeof deskCreatures !== 'undefined' && Array.isArray(deskCreatures) && deskCreatures.length > 0) ||
+      (typeof incubatingEggs !== 'undefined' && Array.isArray(incubatingEggs) && incubatingEggs.length > 0)
+    );
+
+    if (foodBtn) foodBtn.style.display = hasFoodUnlocked ? 'block' : 'none';
+    if (animalsBtn) animalsBtn.style.display = hasAnimalsUnlocked ? 'block' : 'none';
+
+    if (foodBtn && !hasFoodUnlocked && foodBtn.classList.contains('active')) {
+      if (typeof switchShopTab === 'function') switchShopTab('buy');
+    }
+    if (animalsBtn && !hasAnimalsUnlocked && animalsBtn.classList.contains('active')) {
+      if (typeof switchShopTab === 'function') switchShopTab('buy');
     }
   }
+  window.updateShopTabsVisibility = updateShopTabsVisibility;
 
   function updateLevelDisplay(bump = false) {
     const lvlNumEl = document.getElementById('lvlNum');

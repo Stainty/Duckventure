@@ -162,6 +162,10 @@
         bAll.textContent = `Продать всё (+${(grgCount * 325000).toLocaleString('ru-RU')} 🦆)`;
       }
     }
+
+    if (typeof updateShopTabsVisibility === 'function') {
+      updateShopTabsVisibility();
+    }
   }
 
   function sellEgg(type, amount) {
@@ -398,32 +402,50 @@
   const shopModal = document.getElementById('shopModal');
   const closeShopBtn = document.getElementById('closeShopBtn');
   const shopTabBuyBtn = document.getElementById('shopTabBuyBtn');
-  const shopTabSellBtn = document.getElementById('shopTabSellBtn');
+  const shopTabFoodBtn = document.getElementById('shopTabFoodBtn');
+  const shopTabAnimalsBtn = document.getElementById('shopTabAnimalsBtn');
   const shopBodyBuy = document.getElementById('shopBodyBuy');
-  const shopBodySell = document.getElementById('shopBodySell');
+  const shopBodyFood = document.getElementById('shopBodyFood');
+  const shopBodyAnimals = document.getElementById('shopBodyAnimals');
 
   const duckberriesHdr = document.getElementById('duckberriesHeader');
 
-  if (shopTabBuyBtn && shopTabSellBtn && shopBodyBuy && shopBodySell) {
-    shopTabBuyBtn.addEventListener('click', () => {
-      shopTabBuyBtn.classList.add('active');
-      shopTabSellBtn.classList.remove('active');
-      if (duckberriesHdr) duckberriesHdr.style.display = 'block';
-      shopBodyBuy.style.display = 'flex';
-      shopBodySell.style.display = 'none';
-      if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-    });
-    shopTabSellBtn.addEventListener('click', () => {
-      if (upgradeLevels.features < 3) return;
-      shopTabSellBtn.classList.add('active');
-      shopTabBuyBtn.classList.remove('active');
-      if (duckberriesHdr) duckberriesHdr.style.display = 'none';
-      shopBodySell.style.display = 'flex';
-      shopBodyBuy.style.display = 'none';
+  function switchShopTab(tab) {
+    const buyBtn = document.getElementById('shopTabBuyBtn');
+    const foodBtn = document.getElementById('shopTabFoodBtn');
+    const animalsBtn = document.getElementById('shopTabAnimalsBtn');
+    const buyBody = document.getElementById('shopBodyBuy');
+    const foodBody = document.getElementById('shopBodyFood');
+    const animalsBody = document.getElementById('shopBodyAnimals');
+    const duckHdr = document.getElementById('duckberriesHeader');
+
+    [buyBtn, foodBtn, animalsBtn].forEach(b => { if (b) b.classList.remove('active'); });
+    [buyBody, foodBody, animalsBody].forEach(b => { if (b) b.style.display = 'none'; });
+
+    if (tab === 'food' && foodBtn && foodBody) {
+      foodBtn.classList.add('active');
+      foodBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'none';
       updateShopSellTab();
-      if (shopBodySell) shopBodySell.scrollTop = 0;
-    });
+      foodBody.scrollTop = 0;
+    } else if (tab === 'animals' && animalsBtn && animalsBody) {
+      animalsBtn.classList.add('active');
+      animalsBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'none';
+      updateShopSellTab();
+      animalsBody.scrollTop = 0;
+    } else {
+      if (buyBtn) buyBtn.classList.add('active');
+      if (buyBody) buyBody.style.display = 'flex';
+      if (duckHdr) duckHdr.style.display = 'block';
+      if (buyBody) buyBody.scrollTop = 0;
+    }
   }
+  window.switchShopTab = switchShopTab;
+
+  if (shopTabBuyBtn) shopTabBuyBtn.addEventListener('click', () => switchShopTab('buy'));
+  if (shopTabFoodBtn) shopTabFoodBtn.addEventListener('click', () => switchShopTab('food'));
+  if (shopTabAnimalsBtn) shopTabAnimalsBtn.addEventListener('click', () => switchShopTab('animals'));
 
   if (shopBtn && shopModal && closeShopBtn) {
     shopBtn.addEventListener('click', () => {
@@ -434,9 +456,10 @@
       updateShopTabsVisibility();
       renderShopBuyTab();
       updateShopSellTab();
-      if (duckberriesHdr) duckberriesHdr.style.display = shopTabBuyBtn.classList.contains('active') ? 'block' : 'none';
+      if (duckberriesHdr) duckberriesHdr.style.display = (shopTabBuyBtn && shopTabBuyBtn.classList.contains('active')) ? 'block' : 'none';
       if (shopBodyBuy) shopBodyBuy.scrollTop = 0;
-      if (shopBodySell) shopBodySell.scrollTop = 0;
+      if (shopBodyFood) shopBodyFood.scrollTop = 0;
+      if (shopBodyAnimals) shopBodyAnimals.scrollTop = 0;
       shopModal.classList.add('open');
     });
     closeShopBtn.addEventListener('click', () => {
