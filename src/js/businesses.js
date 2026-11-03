@@ -125,7 +125,7 @@
     const b = BUSINESSES_DATA[id];
     const state = businessesState[id];
     if (!b || !state || state.status !== 'attention') return;
-    earnDuckles(b.income, false, true);
+    earnDuckles(b.income, true, true);
     xpSound();
     particles.push({
       x: window.innerWidth / 2,

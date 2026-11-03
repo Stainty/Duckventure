@@ -7197,7 +7197,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
     } catch (e) {}
 
-    earnDuckles(totalEarned, false, true);
+    earnDuckles(totalEarned, true, true);
     xpSound();
 
     const shopBtn = document.getElementById('shopBtn');
@@ -7799,7 +7799,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const b = BUSINESSES_DATA[id];
     const state = businessesState[id];
     if (!b || !state || state.status !== 'attention') return;
-    earnDuckles(b.income, false, true);
+    earnDuckles(b.income, true, true);
     xpSound();
     particles.push({
       x: window.innerWidth / 2,

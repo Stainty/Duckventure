@@ -901,7 +901,7 @@
       Storage.set(ROASTED_GEESE_GOLDEN_KEY, String(goldenRoastedGeese));
     } catch (e) {}
 
-    earnDuckles(totalEarned, false, true);
+    earnDuckles(totalEarned, true, true);
     xpSound();
 
     const shopBtn = document.getElementById('shopBtn');
