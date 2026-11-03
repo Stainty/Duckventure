@@ -529,7 +529,13 @@
       const count = cfg.getCount();
       if (count <= 0) {
         el.style.display = 'none';
+        el.style.left = '';
+        el.style.top = '';
         delete el.dataset.placed;
+        if (deskCreaturesPos && deskCreaturesPos[cfg.type]) {
+          delete deskCreaturesPos[cfg.type];
+          try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+        }
         return;
       }
 
@@ -593,6 +599,12 @@
       ducklingGrowRemaining = Math.max(0, ducklingGrowRemaining - deltaSec);
       try { Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining)); } catch (e) {}
       if (ducklingGrowRemaining <= 0) {
+        const ducklingEl = document.getElementById('deskCreature-duckling');
+        const gooseEl = document.getElementById('deskCreature-goose');
+        const ducklingLeft = (ducklingEl && ducklingEl.style.left) ? ducklingEl.style.left : (deskCreaturesPos && deskCreaturesPos['duckling'] ? deskCreaturesPos['duckling'].left : null);
+        const ducklingTop = (ducklingEl && ducklingEl.style.top) ? ducklingEl.style.top : (deskCreaturesPos && deskCreaturesPos['duckling'] ? deskCreaturesPos['duckling'].top : null);
+        const hadNoGoose = (normalGeese <= 0);
+
         normalDucklings--;
         normalGeese++;
         ducklingGrowRemaining = (normalDucklings > 0) ? 600 : 0;
@@ -601,8 +613,25 @@
           Storage.set(GEESE_NORMAL_KEY, String(normalGeese));
           Storage.set(DUCKLING_GROW_REMAINING_KEY, String(ducklingGrowRemaining));
         } catch (e) {}
+
+        // Если на столе не было Большой Утки, спавним её на месте выросшего утёнка
+        if (hadNoGoose && ducklingLeft) {
+          if (gooseEl) {
+            gooseEl.style.left = ducklingLeft;
+            gooseEl.style.top = ducklingTop;
+            gooseEl.dataset.placed = '1';
+          }
+          if (!deskCreaturesPos) deskCreaturesPos = {};
+          deskCreaturesPos['goose'] = { left: ducklingLeft, top: ducklingTop };
+          if (normalDucklings > 0 && ducklingEl) {
+            ducklingEl.style.left = `${Math.max(20, parseFloat(ducklingLeft) - 50)}px`;
+            deskCreaturesPos['duckling'] = { left: ducklingEl.style.left, top: ducklingEl.style.top };
+          }
+          try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+        }
+
         gooseHonkSound();
-        const el = document.getElementById('deskCreature-goose') || document.getElementById('deskCreature-duckling') || duck;
+        const el = (gooseEl && gooseEl.style.display !== 'none') ? gooseEl : (ducklingEl || duck);
         const r = el.getBoundingClientRect();
         particles.push({
           x: r.left + 35,
@@ -623,6 +652,12 @@
       goldenDucklingGrowRemaining = Math.max(0, goldenDucklingGrowRemaining - deltaSec);
       try { Storage.set(GOLDEN_DUCKLING_GROW_REMAINING_KEY, String(goldenDucklingGrowRemaining)); } catch (e) {}
       if (goldenDucklingGrowRemaining <= 0) {
+        const gDucklingEl = document.getElementById('deskCreature-goldenDuckling');
+        const gGooseEl = document.getElementById('deskCreature-goldenGoose');
+        const gDucklingLeft = (gDucklingEl && gDucklingEl.style.left) ? gDucklingEl.style.left : (deskCreaturesPos && deskCreaturesPos['goldenDuckling'] ? deskCreaturesPos['goldenDuckling'].left : null);
+        const gDucklingTop = (gDucklingEl && gDucklingEl.style.top) ? gDucklingEl.style.top : (deskCreaturesPos && deskCreaturesPos['goldenDuckling'] ? deskCreaturesPos['goldenDuckling'].top : null);
+        const hadNoGoldenGoose = (goldenGeese <= 0);
+
         goldenDucklings--;
         goldenGeese++;
         goldenDucklingGrowRemaining = (goldenDucklings > 0) ? 600 : 0;
@@ -631,8 +666,25 @@
           Storage.set(GEESE_GOLDEN_KEY, String(goldenGeese));
           Storage.set(GOLDEN_DUCKLING_GROW_REMAINING_KEY, String(goldenDucklingGrowRemaining));
         } catch (e) {}
+
+        // Если на столе не было Золотой Большой Утки, спавним её на месте выросшего золотого утёнка
+        if (hadNoGoldenGoose && gDucklingLeft) {
+          if (gGooseEl) {
+            gGooseEl.style.left = gDucklingLeft;
+            gGooseEl.style.top = gDucklingTop;
+            gGooseEl.dataset.placed = '1';
+          }
+          if (!deskCreaturesPos) deskCreaturesPos = {};
+          deskCreaturesPos['goldenGoose'] = { left: gDucklingLeft, top: gDucklingTop };
+          if (goldenDucklings > 0 && gDucklingEl) {
+            gDucklingEl.style.left = `${Math.max(20, parseFloat(gDucklingLeft) - 50)}px`;
+            deskCreaturesPos['goldenDuckling'] = { left: gDucklingEl.style.left, top: gDucklingEl.style.top };
+          }
+          try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {}
+        }
+
         gooseHonkSound();
-        const el = document.getElementById('deskCreature-goldenGoose') || document.getElementById('deskCreature-goldenDuckling') || duck;
+        const el = (gGooseEl && gGooseEl.style.display !== 'none') ? gGooseEl : (gDucklingEl || duck);
         const r = el.getBoundingClientRect();
         particles.push({
           x: r.left + 35,
@@ -831,6 +883,15 @@
     else if (type === 'roastedGoose') normalRoastedGeese -= sellCount;
     else if (type === 'goldenRoastedGoose') goldenRoastedGeese -= sellCount;
 
+    if (type === 'duckling' && normalDucklings <= 0) {
+      ducklingGrowRemaining = 0;
+      try { Storage.set(DUCKLING_GROW_REMAINING_KEY, '0'); } catch (e) {}
+    }
+    if (type === 'goldenDuckling' && goldenDucklings <= 0) {
+      goldenDucklingGrowRemaining = 0;
+      try { Storage.set(GOLDEN_DUCKLING_GROW_REMAINING_KEY, '0'); } catch (e) {}
+    }
+
     try {
       Storage.set(DUCKLINGS_NORMAL_KEY, String(normalDucklings));
       Storage.set(DUCKLINGS_GOLDEN_KEY, String(goldenDucklings));
@@ -924,13 +985,9 @@
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
       const t = getCreatureType();
 
-      // 1. Проверка продажи на кнопку Магазин
+      // 1. Проверка продажи на кнопку Магазин (всегда продаются ВСЕ питомцы этого типа партиями)
       if (cx !== undefined && cy !== undefined && isCursorNearShop(cx, cy, el)) {
-        if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
-          sellCreature(t, 'all');
-        } else {
-          sellCreature(t, 1);
-        }
+        sellCreature(t, 'all');
         return;
       }
 
@@ -963,17 +1020,15 @@
     el.addEventListener('pointerup', endDrag);
     el.addEventListener('pointercancel', endDrag);
 
-    // ПКМ контекстное меню для питомца
+    // ПКМ контекстное меню для питомца (Продать 1 / Продать всё партиями)
     el.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const t = getCreatureType();
 
-      if (t === 'roastedGoose' || t === 'goldenRoastedGoose') {
-        if (typeof showEggContextMenu === 'function') {
-          showEggContextMenu(t, e.clientX, e.clientY);
-          return;
-        }
+      if (typeof showEggContextMenu === 'function') {
+        showEggContextMenu(t, e.clientX, e.clientY);
+        return;
       }
 
       activeContextPropId = null;
@@ -1073,10 +1128,19 @@
       incubatingRemaining = 1;
       updateIncubatorUI();
     }
+    if (normalDucklings > 0) {
+      ducklingGrowRemaining = 1;
+      try { Storage.set(DUCKLING_GROW_REMAINING_KEY, '1'); } catch (e) {}
+    }
+    if (goldenDucklings > 0) {
+      goldenDucklingGrowRemaining = 1;
+      try { Storage.set(GOLDEN_DUCKLING_GROW_REMAINING_KEY, '1'); } catch (e) {}
+    }
     if (creatureOnDesk && (creatureOnDesk.type === 'duckling' || creatureOnDesk.type === 'goldenDuckling')) {
       ducklingGrowRemaining = 1;
-      updateDeskCreatureUI();
+      goldenDucklingGrowRemaining = 1;
     }
+    updateDeskCreatureUI();
   }
   window.cheatFastIncubate = cheatFastIncubate;
 

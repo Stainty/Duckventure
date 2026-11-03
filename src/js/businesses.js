@@ -276,6 +276,10 @@
     else if (eggType === 'golden') { count = goldenEggs; price = 5000; }
     else if (eggType === 'fried') { count = friedEggs; price = 1600; }
     else if (eggType === 'goldenFried') { count = goldenFriedEggs; price = 15000; }
+    else if (eggType === 'duckling') { count = (typeof normalDucklings !== 'undefined' ? normalDucklings : 0); price = 10000; }
+    else if (eggType === 'goldenDuckling') { count = (typeof goldenDucklings !== 'undefined' ? goldenDucklings : 0); price = 50000; }
+    else if (eggType === 'goose') { count = (typeof normalGeese !== 'undefined' ? normalGeese : 0); price = 150000; }
+    else if (eggType === 'goldenGoose') { count = (typeof goldenGeese !== 'undefined' ? goldenGeese : 0); price = 500000; }
     else if (eggType === 'roastedGoose') { count = (typeof normalRoastedGeese !== 'undefined' ? normalRoastedGeese : 0); price = 180000; }
     else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 650000; }
 

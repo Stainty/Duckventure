@@ -1204,7 +1204,8 @@
     propCtxSell1Btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+        const isCreature = ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(activeContextEggType);
+        if (isCreature) {
           sellCreature(activeContextEggType, 1);
         } else {
           sellEgg(activeContextEggType, 1);
@@ -1219,7 +1220,8 @@
     propCtxSellAllBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
-        if (activeContextEggType === 'roastedGoose' || activeContextEggType === 'goldenRoastedGoose') {
+        const isCreature = ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(activeContextEggType);
+        if (isCreature) {
           sellCreature(activeContextEggType, 'all');
         } else {
           sellEgg(activeContextEggType, 'all');
