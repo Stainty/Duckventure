@@ -1671,6 +1671,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     gap: 12px;
     transition: all 0.25s ease;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    box-sizing: border-box;
   }
   .business-card.owned {
     border-color: rgba(56, 189, 248, 0.45);
@@ -1819,18 +1821,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     box-sizing: border-box;
   }
   .branches-title-icon { color: #38bdf8; }
-  .branches-body {
+  .branches-body.empty-state {
     padding: 38px 24px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 240px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
   .branches-placeholder {
     text-align: center;
@@ -2987,6 +2982,221 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     }
   }
 
+  /* ---------- Мини-игры филиалов бизнеса ---------- */
+  .business-minigame-dialog {
+    max-width: 520px;
+    width: min(520px, 94vw);
+    background: linear-gradient(145deg, #182234 0%, #0f172a 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.15);
+  }
+  .business-minigame-body {
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .minigame-instruction {
+    font: 600 13.5px/1.45 system-ui, sans-serif;
+    color: #94a3b8;
+    text-align: center;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .minigame-instruction b {
+    color: #f8fafc;
+  }
+  .minigame-progress-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .minigame-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font: 700 13px system-ui, sans-serif;
+    color: #cbd5e1;
+  }
+  .minigame-progress-bar {
+    width: 100%;
+    height: 14px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .minigame-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #4ade80);
+    border-radius: 999px;
+    transition: width 0.12s ease;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+  }
+
+  /* 1. Автомойка */
+  .carwash-arena {
+    width: 100%;
+    height: 230px;
+    position: relative;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    border: 2px dashed rgba(56, 189, 248, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+    box-sizing: border-box;
+  }
+  .carwash-arena:active {
+    cursor: grabbing;
+  }
+  .carwash-car-wrap {
+    position: relative;
+    width: 220px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .carwash-car-icon {
+    font-size: 110px;
+    line-height: 1;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease;
+  }
+  .carwash-dirt-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .carwash-dirt-spot {
+    position: absolute;
+    font-size: 32px;
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .carwash-sponge {
+    position: absolute;
+    font-size: 52px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+    z-index: 10;
+    transition: transform 0.04s ease-out;
+  }
+  .carwash-sponge.wiping {
+    animation: spongeWipe 0.2s infinite alternate ease-in-out;
+  }
+  @keyframes spongeWipe {
+    0%   { transform: translate(-50%, -50%) rotate(-12deg) scale(0.95); }
+    100% { transform: translate(-50%, -50%) rotate(12deg) scale(1.05); }
+  }
+
+  /* 2. Утильня 3x3 */
+  .salvage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: min(290px, 100%);
+    aspect-ratio: 1 / 1;
+    margin: 4px auto;
+  }
+  .salvage-tile {
+    background: rgba(30, 41, 59, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    aspect-ratio: 1 / 1;
+    outline: none;
+  }
+  .salvage-tile:hover:not(.removed) {
+    background: rgba(51, 65, 85, 0.95);
+    transform: translateY(-2px) scale(1.06);
+    border-color: #f59e0b;
+  }
+  .salvage-tile:active:not(.removed) {
+    transform: scale(0.92);
+  }
+  .salvage-tile.removed {
+    opacity: 0.12;
+    transform: scale(0.65);
+    cursor: default;
+    border-color: transparent;
+    background: rgba(15, 23, 42, 0.3);
+  }
+  .salvage-tile.won {
+    animation: heartPulse 0.8s infinite alternate ease-in-out;
+    border-color: #4ade80;
+    box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+  }
+  @keyframes heartPulse {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.15); }
+  }
+
+  /* 3. Завод уточек */
+  .factory-arena {
+    width: 100%;
+    height: 240px;
+    position: relative;
+    background: radial-gradient(circle at center, #1e293b 0%, #0b1120 100%);
+    border: 2px solid rgba(250, 204, 21, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+  }
+  .factory-duck-target {
+    position: absolute;
+    font-size: 56px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: left 0.14s ease-out, top 0.14s ease-out, transform 0.14s ease-out;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+    outline: none;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .factory-duck-target:hover {
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+  .factory-duck-target:active {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  .factory-duck-target.hit {
+    animation: duckHitPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes duckHitPop {
+    0%   { transform: translate(-50%, -50%) scale(0.8) rotate(-15deg); }
+    50%  { transform: translate(-50%, -50%) scale(1.3) rotate(15deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -3404,6 +3614,22 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             Скоро здесь появится возможность открывать филиалы и расширять деловую паутину утиного бизнеса.
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно мини-игры филиала -->
+  <div class="upgrades-modal" id="businessMinigameModal">
+    <div class="upgrades-dialog business-minigame-dialog">
+      <div class="upgrades-header">
+        <div class="upgrades-title">
+          <span class="branches-title-icon" id="businessMinigameIcon">🎮</span>
+          <span id="businessMinigameTitleText">Мини-игра</span>
+        </div>
+        <button class="upgrades-close-btn" id="closeBusinessMinigameBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="business-minigame-body" id="businessMinigameContainer">
+        <!-- Контент мини-игры генерируется динамически -->
       </div>
     </div>
   </div>
@@ -4135,7 +4361,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       cost: 1500000,
       income: 250000,
       penalty: 200000,
-      icon: '🏢🕶️',
+      icon: '🧡🖤',
       workDuration: 300,
       attentionDuration: 60
     },
@@ -8150,7 +8376,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
   window.buyBusiness = buyBusiness;
 
-  function payBusinessAttention(id) {
+  function completeBusinessAttention(id) {
     const b = BUSINESSES_DATA[id];
     const state = businessesState[id];
     if (!b || !state || state.status !== 'attention') return;
@@ -8170,10 +8396,358 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     state.remaining = b.workDuration;
     state.attentionRemaining = b.attentionDuration;
     saveBusinessesState();
+    closeBusinessMinigame();
     renderBranchesModal();
     updateBranchesButtonUI();
   }
+  window.completeBusinessAttention = completeBusinessAttention;
+
+  function payBusinessAttention(id, bypassMinigame = false) {
+    const b = BUSINESSES_DATA[id];
+    const state = businessesState[id];
+    if (!b || !state || state.status !== 'attention') return;
+    if (bypassMinigame) {
+      completeBusinessAttention(id);
+    } else {
+      openBusinessMinigame(id);
+    }
+  }
   window.payBusinessAttention = payBusinessAttention;
+
+  /* ---------- Мини-игры для филиалов ---------- */
+  let currentMinigameBusinessId = null;
+
+  function closeBusinessMinigame() {
+    const modal = document.getElementById('businessMinigameModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
+    }
+    const container = document.getElementById('businessMinigameContainer');
+    if (container) container.innerHTML = '';
+    currentMinigameBusinessId = null;
+  }
+  window.closeBusinessMinigame = closeBusinessMinigame;
+
+  function openBusinessMinigame(id) {
+    const b = BUSINESSES_DATA[id];
+    const state = businessesState[id];
+    if (!b || !state || state.status !== 'attention') return;
+
+    currentMinigameBusinessId = id;
+    const modal = document.getElementById('businessMinigameModal');
+    const iconEl = document.getElementById('businessMinigameIcon');
+    const titleEl = document.getElementById('businessMinigameTitleText');
+    const container = document.getElementById('businessMinigameContainer');
+
+    if (!modal || !container) return;
+
+    if (iconEl) iconEl.textContent = b.icon || '🎮';
+    if (titleEl) titleEl.textContent = `${b.name}: Уделить внимание`;
+
+    container.innerHTML = '';
+
+    if (id === 'carwash') {
+      initCarwashMinigame(container, b);
+    } else if (id === 'utilnya') {
+      initUtilnyaMinigame(container, b);
+    } else if (id === 'factory') {
+      initFactoryMinigame(container, b);
+    }
+
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+  }
+  window.openBusinessMinigame = openBusinessMinigame;
+
+  /* 1. Автомойка: водить губкой по машине */
+  function initCarwashMinigame(container, b) {
+    let washProgress = 0;
+    let isWiping = false;
+    let lastX = 0, lastY = 0;
+    let isWon = false;
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        🧽 Зажмите губку и <b>водите по машине</b>, чтобы отмыть грязь!
+      </div>
+      <div class="minigame-progress-wrap" style="margin: 12px 0 8px 0;">
+        <div class="minigame-progress-header">
+          <span>Промыто:</span>
+          <span id="carwashProgressText">0%</span>
+        </div>
+        <div class="minigame-progress-bar">
+          <div class="minigame-progress-fill" id="carwashProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="carwash-arena" id="carwashArena">
+        <div class="carwash-car-wrap">
+          <div class="carwash-car-icon" id="carwashCarIcon">🚗</div>
+          <div class="carwash-dirt-overlay" id="carwashDirtOverlay">
+            <span class="carwash-dirt-spot" style="top: 20%; left: 30%;">💩</span>
+            <span class="carwash-dirt-spot" style="top: 45%; left: 55%;">🟫</span>
+            <span class="carwash-dirt-spot" style="top: 60%; left: 35%;">💩</span>
+            <span class="carwash-dirt-spot" style="top: 30%; left: 65%;">🟫</span>
+            <span class="carwash-dirt-spot" style="top: 50%; left: 20%;">💩</span>
+          </div>
+        </div>
+        <div class="carwash-sponge" id="carwashSponge" style="left: 50%; top: 50%;">🧽</div>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    const arena = document.getElementById('carwashArena');
+    const sponge = document.getElementById('carwashSponge');
+    const dirtOverlay = document.getElementById('carwashDirtOverlay');
+    const carIcon = document.getElementById('carwashCarIcon');
+    const pText = document.getElementById('carwashProgressText');
+    const pBar = document.getElementById('carwashProgressBar');
+
+    function updatePos(clientX, clientY) {
+      if (!arena || !sponge) return;
+      const rect = arena.getBoundingClientRect();
+      const x = Math.max(20, Math.min(rect.width - 20, clientX - rect.left));
+      const y = Math.max(20, Math.min(rect.height - 20, clientY - rect.top));
+      sponge.style.left = `${x}px`;
+      sponge.style.top = `${y}px`;
+    }
+
+    function onPointerMove(e) {
+      if (isWon) return;
+      updatePos(e.clientX, e.clientY);
+      if (!isWiping) return;
+
+      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+      if (dist > 10) {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        washProgress = Math.min(100, washProgress + 3.4);
+        if (pBar) pBar.style.width = `${washProgress}%`;
+        if (pText) pText.textContent = `${Math.round(washProgress)}%`;
+        if (dirtOverlay) dirtOverlay.style.opacity = String(Math.max(0, 1 - washProgress / 90));
+
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -60 - Math.random() * 50,
+          size: 14 + Math.random() * 8,
+          alpha: 1.2,
+          text: Math.random() > 0.4 ? '🫧' : '💦'
+        });
+
+        if (washProgress >= 100) {
+          isWon = true;
+          isWiping = false;
+          if (sponge) sponge.classList.remove('wiping');
+          if (carIcon) {
+            carIcon.textContent = '✨🚗✨';
+            carIcon.style.transform = 'scale(1.15)';
+          }
+          if (dirtOverlay) dirtOverlay.style.display = 'none';
+          if (pText) pText.textContent = '100% (Отмыто!)';
+          corkPopSound();
+          setTimeout(() => {
+            completeBusinessAttention('carwash');
+          }, 650);
+        }
+      }
+    }
+
+    if (arena) {
+      arena.addEventListener('pointerdown', (e) => {
+        if (isWon) return;
+        isWiping = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        updatePos(e.clientX, e.clientY);
+        if (sponge) sponge.classList.add('wiping');
+      });
+      arena.addEventListener('pointermove', onPointerMove);
+      arena.addEventListener('pointerup', () => {
+        isWiping = false;
+        if (sponge) sponge.classList.remove('wiping');
+      });
+      arena.addEventListener('pointerleave', () => {
+        isWiping = false;
+        if (sponge) sponge.classList.remove('wiping');
+      });
+    }
+  }
+
+  /* 2. Утильня: поле 3x3 с сердцами */
+  function initUtilnyaMinigame(container, b) {
+    let isWon = false;
+
+    let orangeCount = 0;
+    let blackCount = 0;
+    let gridData = [];
+    while (orangeCount < 2 || blackCount < 2) {
+      gridData = [];
+      orangeCount = 0;
+      blackCount = 0;
+      for (let i = 0; i < 9; i++) {
+        const isOrange = Math.random() > 0.5;
+        if (isOrange) {
+          gridData.push('orange');
+          orangeCount++;
+        } else {
+          gridData.push('black');
+          blackCount++;
+        }
+      }
+    }
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        Утилизируйте сердца (нажимайте на них), чтобы на поле 3×3 остались <b>только 🧡 оранжевые</b> или <b>только 🖤 чёрные</b>!
+      </div>
+      <div style="display: flex; justify-content: space-around; font: 700 13px system-ui, sans-serif; color: #cbd5e1; margin: 10px 0 6px 0;">
+        <span>🧡 Осталось: <b id="utilnyaOrangeCount" style="color: #fb923c;">${orangeCount}</b></span>
+        <span>🖤 Осталось: <b id="utilnyaBlackCount" style="color: #94a3b8;">${blackCount}</b></span>
+      </div>
+      <div class="salvage-grid" id="salvageGrid"></div>
+      <div id="utilnyaStatusMsg" style="text-align: center; font: 700 13px system-ui, sans-serif; color: #38bdf8; min-height: 20px;"></div>
+    `;
+    container.appendChild(wrap);
+
+    const gridEl = document.getElementById('salvageGrid');
+    const oCountEl = document.getElementById('utilnyaOrangeCount');
+    const bCountEl = document.getElementById('utilnyaBlackCount');
+    const statusMsg = document.getElementById('utilnyaStatusMsg');
+
+    gridData.forEach((type, idx) => {
+      const tile = document.createElement('button');
+      tile.className = 'salvage-tile';
+      tile.dataset.index = String(idx);
+      tile.dataset.type = type;
+      tile.textContent = type === 'orange' ? '🧡' : '🖤';
+
+      tile.addEventListener('click', () => {
+        if (isWon || tile.classList.contains('removed')) return;
+
+        tile.classList.add('removed');
+        tile.textContent = '💨';
+        corkPopSound();
+
+        const rect = tile.getBoundingClientRect();
+        particles.push({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -80,
+          size: 18,
+          alpha: 1.3,
+          text: '💨'
+        });
+
+        const activeTiles = Array.from(gridEl.querySelectorAll('.salvage-tile:not(.removed)'));
+        const curOrange = activeTiles.filter(t => t.dataset.type === 'orange').length;
+        const curBlack = activeTiles.filter(t => t.dataset.type === 'black').length;
+
+        if (oCountEl) oCountEl.textContent = String(curOrange);
+        if (bCountEl) bCountEl.textContent = String(curBlack);
+
+        if ((curOrange === 0 && curBlack > 0) || (curBlack === 0 && curOrange > 0)) {
+          isWon = true;
+          activeTiles.forEach(t => t.classList.add('won'));
+          const wonType = curOrange > 0 ? '🧡 оранжевые' : '🖤 чёрные';
+          if (statusMsg) statusMsg.textContent = `🎉 Отлично! На поле остались только ${wonType} сердца!`;
+          xpSound();
+          setTimeout(() => {
+            completeBusinessAttention('utilnya');
+          }, 700);
+        } else if (curOrange === 0 && curBlack === 0) {
+          if (statusMsg) statusMsg.textContent = 'Поле опустело! Заполняем заново...';
+          setTimeout(() => initUtilnyaMinigame(container, b), 500);
+        }
+      });
+
+      gridEl.appendChild(tile);
+    });
+  }
+
+  /* 3. Завод уточек: 10 раз поймать утку */
+  function initFactoryMinigame(container, b) {
+    let catches = 0;
+    const maxCatches = 10;
+    let isWon = false;
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        Утка сбежала с конвейера! Нажмите на неё <b>10 раз</b>, чтобы откалибровать завод!
+      </div>
+      <div class="minigame-progress-wrap" style="margin: 12px 0 8px 0;">
+        <div class="minigame-progress-header">
+          <span>Поймано уточек:</span>
+          <span id="factoryProgressText">0 / 10</span>
+        </div>
+        <div class="minigame-progress-bar">
+          <div class="minigame-progress-fill" id="factoryProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="factory-arena" id="factoryArena">
+        <button class="factory-duck-target" id="factoryDuckTarget" aria-label="Утка" style="left: 50%; top: 50%;">🦆</button>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    const duck = document.getElementById('factoryDuckTarget');
+    const pText = document.getElementById('factoryProgressText');
+    const pBar = document.getElementById('factoryProgressBar');
+
+    function jumpDuck() {
+      if (!duck) return;
+      const nextLeft = 15 + Math.random() * 70;
+      const nextTop = 20 + Math.random() * 60;
+      duck.style.left = `${nextLeft}%`;
+      duck.style.top = `${nextTop}%`;
+    }
+
+    if (duck) {
+      duck.addEventListener('click', () => {
+        if (isWon) return;
+        catches++;
+        quack();
+
+        duck.classList.remove('hit');
+        void duck.offsetWidth;
+        duck.classList.add('hit');
+
+        const rect = duck.getBoundingClientRect();
+        particles.push({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          vx: (Math.random() - 0.5) * 50,
+          vy: -100,
+          size: 16,
+          alpha: 1.3,
+          text: Math.random() > 0.5 ? 'Кря!' : '🪶'
+        });
+
+        if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;
+        if (pText) pText.textContent = `${catches} / ${maxCatches}`;
+
+        if (catches < maxCatches) {
+          jumpDuck();
+        } else {
+          isWon = true;
+          duck.style.transform = 'translate(-50%, -50%) scale(1.3) rotate(360deg)';
+          if (pText) pText.textContent = '10 / 10 (Все пойманы!)';
+          xpSound();
+          setTimeout(() => {
+            completeBusinessAttention('factory');
+          }, 700);
+        }
+      });
+    }
+  }
 
   function tickBusinesses(deltaSec = 1) {
     if (deltaSec <= 0) return;
@@ -8324,6 +8898,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     propContextMenu.style.top = `${posY}px`;
   }
   window.showEggContextMenu = showEggContextMenu;
+
+  const minigameModal = document.getElementById('businessMinigameModal');
+  const closeMinigameBtn = document.getElementById('closeBusinessMinigameBtn');
+  if (minigameModal && closeMinigameBtn) {
+    closeMinigameBtn.addEventListener('click', () => closeBusinessMinigame());
+    minigameModal.addEventListener('click', (e) => {
+      if (e.target === minigameModal) closeBusinessMinigame();
+    });
+  }
 
 
   /* ===== Module: src/js/inventory.js ===== */

@@ -121,7 +121,7 @@
   }
   window.buyBusiness = buyBusiness;
 
-  function payBusinessAttention(id) {
+  function completeBusinessAttention(id) {
     const b = BUSINESSES_DATA[id];
     const state = businessesState[id];
     if (!b || !state || state.status !== 'attention') return;
@@ -141,10 +141,358 @@
     state.remaining = b.workDuration;
     state.attentionRemaining = b.attentionDuration;
     saveBusinessesState();
+    closeBusinessMinigame();
     renderBranchesModal();
     updateBranchesButtonUI();
   }
+  window.completeBusinessAttention = completeBusinessAttention;
+
+  function payBusinessAttention(id, bypassMinigame = false) {
+    const b = BUSINESSES_DATA[id];
+    const state = businessesState[id];
+    if (!b || !state || state.status !== 'attention') return;
+    if (bypassMinigame) {
+      completeBusinessAttention(id);
+    } else {
+      openBusinessMinigame(id);
+    }
+  }
   window.payBusinessAttention = payBusinessAttention;
+
+  /* ---------- Мини-игры для филиалов ---------- */
+  let currentMinigameBusinessId = null;
+
+  function closeBusinessMinigame() {
+    const modal = document.getElementById('businessMinigameModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
+    }
+    const container = document.getElementById('businessMinigameContainer');
+    if (container) container.innerHTML = '';
+    currentMinigameBusinessId = null;
+  }
+  window.closeBusinessMinigame = closeBusinessMinigame;
+
+  function openBusinessMinigame(id) {
+    const b = BUSINESSES_DATA[id];
+    const state = businessesState[id];
+    if (!b || !state || state.status !== 'attention') return;
+
+    currentMinigameBusinessId = id;
+    const modal = document.getElementById('businessMinigameModal');
+    const iconEl = document.getElementById('businessMinigameIcon');
+    const titleEl = document.getElementById('businessMinigameTitleText');
+    const container = document.getElementById('businessMinigameContainer');
+
+    if (!modal || !container) return;
+
+    if (iconEl) iconEl.textContent = b.icon || '🎮';
+    if (titleEl) titleEl.textContent = `${b.name}: Уделить внимание`;
+
+    container.innerHTML = '';
+
+    if (id === 'carwash') {
+      initCarwashMinigame(container, b);
+    } else if (id === 'utilnya') {
+      initUtilnyaMinigame(container, b);
+    } else if (id === 'factory') {
+      initFactoryMinigame(container, b);
+    }
+
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+  }
+  window.openBusinessMinigame = openBusinessMinigame;
+
+  /* 1. Автомойка: водить губкой по машине */
+  function initCarwashMinigame(container, b) {
+    let washProgress = 0;
+    let isWiping = false;
+    let lastX = 0, lastY = 0;
+    let isWon = false;
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        🧽 Зажмите губку и <b>водите по машине</b>, чтобы отмыть грязь!
+      </div>
+      <div class="minigame-progress-wrap" style="margin: 12px 0 8px 0;">
+        <div class="minigame-progress-header">
+          <span>Промыто:</span>
+          <span id="carwashProgressText">0%</span>
+        </div>
+        <div class="minigame-progress-bar">
+          <div class="minigame-progress-fill" id="carwashProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="carwash-arena" id="carwashArena">
+        <div class="carwash-car-wrap">
+          <div class="carwash-car-icon" id="carwashCarIcon">🚗</div>
+          <div class="carwash-dirt-overlay" id="carwashDirtOverlay">
+            <span class="carwash-dirt-spot" style="top: 20%; left: 30%;">💩</span>
+            <span class="carwash-dirt-spot" style="top: 45%; left: 55%;">🟫</span>
+            <span class="carwash-dirt-spot" style="top: 60%; left: 35%;">💩</span>
+            <span class="carwash-dirt-spot" style="top: 30%; left: 65%;">🟫</span>
+            <span class="carwash-dirt-spot" style="top: 50%; left: 20%;">💩</span>
+          </div>
+        </div>
+        <div class="carwash-sponge" id="carwashSponge" style="left: 50%; top: 50%;">🧽</div>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    const arena = document.getElementById('carwashArena');
+    const sponge = document.getElementById('carwashSponge');
+    const dirtOverlay = document.getElementById('carwashDirtOverlay');
+    const carIcon = document.getElementById('carwashCarIcon');
+    const pText = document.getElementById('carwashProgressText');
+    const pBar = document.getElementById('carwashProgressBar');
+
+    function updatePos(clientX, clientY) {
+      if (!arena || !sponge) return;
+      const rect = arena.getBoundingClientRect();
+      const x = Math.max(20, Math.min(rect.width - 20, clientX - rect.left));
+      const y = Math.max(20, Math.min(rect.height - 20, clientY - rect.top));
+      sponge.style.left = `${x}px`;
+      sponge.style.top = `${y}px`;
+    }
+
+    function onPointerMove(e) {
+      if (isWon) return;
+      updatePos(e.clientX, e.clientY);
+      if (!isWiping) return;
+
+      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+      if (dist > 10) {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        washProgress = Math.min(100, washProgress + 3.4);
+        if (pBar) pBar.style.width = `${washProgress}%`;
+        if (pText) pText.textContent = `${Math.round(washProgress)}%`;
+        if (dirtOverlay) dirtOverlay.style.opacity = String(Math.max(0, 1 - washProgress / 90));
+
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -60 - Math.random() * 50,
+          size: 14 + Math.random() * 8,
+          alpha: 1.2,
+          text: Math.random() > 0.4 ? '🫧' : '💦'
+        });
+
+        if (washProgress >= 100) {
+          isWon = true;
+          isWiping = false;
+          if (sponge) sponge.classList.remove('wiping');
+          if (carIcon) {
+            carIcon.textContent = '✨🚗✨';
+            carIcon.style.transform = 'scale(1.15)';
+          }
+          if (dirtOverlay) dirtOverlay.style.display = 'none';
+          if (pText) pText.textContent = '100% (Отмыто!)';
+          corkPopSound();
+          setTimeout(() => {
+            completeBusinessAttention('carwash');
+          }, 650);
+        }
+      }
+    }
+
+    if (arena) {
+      arena.addEventListener('pointerdown', (e) => {
+        if (isWon) return;
+        isWiping = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        updatePos(e.clientX, e.clientY);
+        if (sponge) sponge.classList.add('wiping');
+      });
+      arena.addEventListener('pointermove', onPointerMove);
+      arena.addEventListener('pointerup', () => {
+        isWiping = false;
+        if (sponge) sponge.classList.remove('wiping');
+      });
+      arena.addEventListener('pointerleave', () => {
+        isWiping = false;
+        if (sponge) sponge.classList.remove('wiping');
+      });
+    }
+  }
+
+  /* 2. Утильня: поле 3x3 с сердцами */
+  function initUtilnyaMinigame(container, b) {
+    let isWon = false;
+
+    let orangeCount = 0;
+    let blackCount = 0;
+    let gridData = [];
+    while (orangeCount < 2 || blackCount < 2) {
+      gridData = [];
+      orangeCount = 0;
+      blackCount = 0;
+      for (let i = 0; i < 9; i++) {
+        const isOrange = Math.random() > 0.5;
+        if (isOrange) {
+          gridData.push('orange');
+          orangeCount++;
+        } else {
+          gridData.push('black');
+          blackCount++;
+        }
+      }
+    }
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        Утилизируйте сердца (нажимайте на них), чтобы на поле 3×3 остались <b>только 🧡 оранжевые</b> или <b>только 🖤 чёрные</b>!
+      </div>
+      <div style="display: flex; justify-content: space-around; font: 700 13px system-ui, sans-serif; color: #cbd5e1; margin: 10px 0 6px 0;">
+        <span>🧡 Осталось: <b id="utilnyaOrangeCount" style="color: #fb923c;">${orangeCount}</b></span>
+        <span>🖤 Осталось: <b id="utilnyaBlackCount" style="color: #94a3b8;">${blackCount}</b></span>
+      </div>
+      <div class="salvage-grid" id="salvageGrid"></div>
+      <div id="utilnyaStatusMsg" style="text-align: center; font: 700 13px system-ui, sans-serif; color: #38bdf8; min-height: 20px;"></div>
+    `;
+    container.appendChild(wrap);
+
+    const gridEl = document.getElementById('salvageGrid');
+    const oCountEl = document.getElementById('utilnyaOrangeCount');
+    const bCountEl = document.getElementById('utilnyaBlackCount');
+    const statusMsg = document.getElementById('utilnyaStatusMsg');
+
+    gridData.forEach((type, idx) => {
+      const tile = document.createElement('button');
+      tile.className = 'salvage-tile';
+      tile.dataset.index = String(idx);
+      tile.dataset.type = type;
+      tile.textContent = type === 'orange' ? '🧡' : '🖤';
+
+      tile.addEventListener('click', () => {
+        if (isWon || tile.classList.contains('removed')) return;
+
+        tile.classList.add('removed');
+        tile.textContent = '💨';
+        corkPopSound();
+
+        const rect = tile.getBoundingClientRect();
+        particles.push({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          vx: (Math.random() - 0.5) * 60,
+          vy: -80,
+          size: 18,
+          alpha: 1.3,
+          text: '💨'
+        });
+
+        const activeTiles = Array.from(gridEl.querySelectorAll('.salvage-tile:not(.removed)'));
+        const curOrange = activeTiles.filter(t => t.dataset.type === 'orange').length;
+        const curBlack = activeTiles.filter(t => t.dataset.type === 'black').length;
+
+        if (oCountEl) oCountEl.textContent = String(curOrange);
+        if (bCountEl) bCountEl.textContent = String(curBlack);
+
+        if ((curOrange === 0 && curBlack > 0) || (curBlack === 0 && curOrange > 0)) {
+          isWon = true;
+          activeTiles.forEach(t => t.classList.add('won'));
+          const wonType = curOrange > 0 ? '🧡 оранжевые' : '🖤 чёрные';
+          if (statusMsg) statusMsg.textContent = `🎉 Отлично! На поле остались только ${wonType} сердца!`;
+          xpSound();
+          setTimeout(() => {
+            completeBusinessAttention('utilnya');
+          }, 700);
+        } else if (curOrange === 0 && curBlack === 0) {
+          if (statusMsg) statusMsg.textContent = 'Поле опустело! Заполняем заново...';
+          setTimeout(() => initUtilnyaMinigame(container, b), 500);
+        }
+      });
+
+      gridEl.appendChild(tile);
+    });
+  }
+
+  /* 3. Завод уточек: 10 раз поймать утку */
+  function initFactoryMinigame(container, b) {
+    let catches = 0;
+    const maxCatches = 10;
+    let isWon = false;
+
+    const wrap = document.createElement('div');
+    wrap.style.width = '100%';
+    wrap.innerHTML = `
+      <div class="minigame-instruction">
+        Утка сбежала с конвейера! Нажмите на неё <b>10 раз</b>, чтобы откалибровать завод!
+      </div>
+      <div class="minigame-progress-wrap" style="margin: 12px 0 8px 0;">
+        <div class="minigame-progress-header">
+          <span>Поймано уточек:</span>
+          <span id="factoryProgressText">0 / 10</span>
+        </div>
+        <div class="minigame-progress-bar">
+          <div class="minigame-progress-fill" id="factoryProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="factory-arena" id="factoryArena">
+        <button class="factory-duck-target" id="factoryDuckTarget" aria-label="Утка" style="left: 50%; top: 50%;">🦆</button>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    const duck = document.getElementById('factoryDuckTarget');
+    const pText = document.getElementById('factoryProgressText');
+    const pBar = document.getElementById('factoryProgressBar');
+
+    function jumpDuck() {
+      if (!duck) return;
+      const nextLeft = 15 + Math.random() * 70;
+      const nextTop = 20 + Math.random() * 60;
+      duck.style.left = `${nextLeft}%`;
+      duck.style.top = `${nextTop}%`;
+    }
+
+    if (duck) {
+      duck.addEventListener('click', () => {
+        if (isWon) return;
+        catches++;
+        quack();
+
+        duck.classList.remove('hit');
+        void duck.offsetWidth;
+        duck.classList.add('hit');
+
+        const rect = duck.getBoundingClientRect();
+        particles.push({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          vx: (Math.random() - 0.5) * 50,
+          vy: -100,
+          size: 16,
+          alpha: 1.3,
+          text: Math.random() > 0.5 ? 'Кря!' : '🪶'
+        });
+
+        if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;
+        if (pText) pText.textContent = `${catches} / ${maxCatches}`;
+
+        if (catches < maxCatches) {
+          jumpDuck();
+        } else {
+          isWon = true;
+          duck.style.transform = 'translate(-50%, -50%) scale(1.3) rotate(360deg)';
+          if (pText) pText.textContent = '10 / 10 (Все пойманы!)';
+          xpSound();
+          setTimeout(() => {
+            completeBusinessAttention('factory');
+          }, 700);
+        }
+      });
+    }
+  }
 
   function tickBusinesses(deltaSec = 1) {
     if (deltaSec <= 0) return;
@@ -295,3 +643,12 @@
     propContextMenu.style.top = `${posY}px`;
   }
   window.showEggContextMenu = showEggContextMenu;
+
+  const minigameModal = document.getElementById('businessMinigameModal');
+  const closeMinigameBtn = document.getElementById('closeBusinessMinigameBtn');
+  if (minigameModal && closeMinigameBtn) {
+    closeMinigameBtn.addEventListener('click', () => closeBusinessMinigame());
+    minigameModal.addEventListener('click', (e) => {
+      if (e.target === minigameModal) closeBusinessMinigame();
+    });
+  }

@@ -1664,6 +1664,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     gap: 12px;
     transition: all 0.25s ease;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    box-sizing: border-box;
   }
   .business-card.owned {
     border-color: rgba(56, 189, 248, 0.45);
@@ -1812,18 +1814,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     box-sizing: border-box;
   }
   .branches-title-icon { color: #38bdf8; }
-  .branches-body {
+  .branches-body.empty-state {
     padding: 38px 24px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 240px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
   .branches-placeholder {
     text-align: center;
@@ -2978,4 +2973,219 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       left: 6px;
       bottom: 6px;
     }
+  }
+
+  /* ---------- Мини-игры филиалов бизнеса ---------- */
+  .business-minigame-dialog {
+    max-width: 520px;
+    width: min(520px, 94vw);
+    background: linear-gradient(145deg, #182234 0%, #0f172a 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.15);
+  }
+  .business-minigame-body {
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .minigame-instruction {
+    font: 600 13.5px/1.45 system-ui, sans-serif;
+    color: #94a3b8;
+    text-align: center;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .minigame-instruction b {
+    color: #f8fafc;
+  }
+  .minigame-progress-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .minigame-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font: 700 13px system-ui, sans-serif;
+    color: #cbd5e1;
+  }
+  .minigame-progress-bar {
+    width: 100%;
+    height: 14px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .minigame-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #4ade80);
+    border-radius: 999px;
+    transition: width 0.12s ease;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+  }
+
+  /* 1. Автомойка */
+  .carwash-arena {
+    width: 100%;
+    height: 230px;
+    position: relative;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    border: 2px dashed rgba(56, 189, 248, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+    box-sizing: border-box;
+  }
+  .carwash-arena:active {
+    cursor: grabbing;
+  }
+  .carwash-car-wrap {
+    position: relative;
+    width: 220px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .carwash-car-icon {
+    font-size: 110px;
+    line-height: 1;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease;
+  }
+  .carwash-dirt-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .carwash-dirt-spot {
+    position: absolute;
+    font-size: 32px;
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .carwash-sponge {
+    position: absolute;
+    font-size: 52px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+    z-index: 10;
+    transition: transform 0.04s ease-out;
+  }
+  .carwash-sponge.wiping {
+    animation: spongeWipe 0.2s infinite alternate ease-in-out;
+  }
+  @keyframes spongeWipe {
+    0%   { transform: translate(-50%, -50%) rotate(-12deg) scale(0.95); }
+    100% { transform: translate(-50%, -50%) rotate(12deg) scale(1.05); }
+  }
+
+  /* 2. Утильня 3x3 */
+  .salvage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: min(290px, 100%);
+    aspect-ratio: 1 / 1;
+    margin: 4px auto;
+  }
+  .salvage-tile {
+    background: rgba(30, 41, 59, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    aspect-ratio: 1 / 1;
+    outline: none;
+  }
+  .salvage-tile:hover:not(.removed) {
+    background: rgba(51, 65, 85, 0.95);
+    transform: translateY(-2px) scale(1.06);
+    border-color: #f59e0b;
+  }
+  .salvage-tile:active:not(.removed) {
+    transform: scale(0.92);
+  }
+  .salvage-tile.removed {
+    opacity: 0.12;
+    transform: scale(0.65);
+    cursor: default;
+    border-color: transparent;
+    background: rgba(15, 23, 42, 0.3);
+  }
+  .salvage-tile.won {
+    animation: heartPulse 0.8s infinite alternate ease-in-out;
+    border-color: #4ade80;
+    box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+  }
+  @keyframes heartPulse {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.15); }
+  }
+
+  /* 3. Завод уточек */
+  .factory-arena {
+    width: 100%;
+    height: 240px;
+    position: relative;
+    background: radial-gradient(circle at center, #1e293b 0%, #0b1120 100%);
+    border: 2px solid rgba(250, 204, 21, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+  }
+  .factory-duck-target {
+    position: absolute;
+    font-size: 56px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: left 0.14s ease-out, top 0.14s ease-out, transform 0.14s ease-out;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+    outline: none;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .factory-duck-target:hover {
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+  .factory-duck-target:active {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  .factory-duck-target.hit {
+    animation: duckHitPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes duckHitPop {
+    0%   { transform: translate(-50%, -50%) scale(0.8) rotate(-15deg); }
+    50%  { transform: translate(-50%, -50%) scale(1.3) rotate(15deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
   }

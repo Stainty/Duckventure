@@ -298,7 +298,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       cost: 1500000,
       income: 250000,
       penalty: 200000,
-      icon: '🏢🕶️',
+      icon: '🧡🖤',
       workDuration: 300,
       attentionDuration: 60
     },
