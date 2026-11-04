@@ -246,27 +246,13 @@
 
   function showEggContextMenu(eggType, x, y) {
     if (!propContextMenu) return;
+    if (eggType === 'rotten') return; // Тухлое яйцо выбрасывается перетаскиванием в мусорку
     activeContextEggType = eggType;
     activeContextPropId = null;
     resetAllContextMenuButtons();
 
-    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
     const propCtxSell1Btn = document.getElementById('propCtxSell1Btn');
     const propCtxSellAllBtn = document.getElementById('propCtxSellAllBtn');
-
-    if (eggType === 'rotten') {
-      if (propCtxDiscardBtn) propCtxDiscardBtn.style.display = 'flex';
-
-      propContextMenu.style.display = 'block';
-      const menuW = 210;
-      const menuH = 46;
-      const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
-      const posY = Math.max(10, Math.min(window.innerHeight - menuH - 10, y));
-
-      propContextMenu.style.left = `${posX}px`;
-      propContextMenu.style.top = `${posY}px`;
-      return;
-    }
 
     let count = 0;
     let price = 0;
@@ -282,15 +268,6 @@
     else if (eggType === 'goldenRoastedGoose') { count = (typeof goldenRoastedGeese !== 'undefined' ? goldenRoastedGeese : 0); price = 325000; }
 
     if (count <= 0) return;
-
-    if (propCtxDiscardBtn) {
-      if (typeof isTrashcanOnTable === 'function' && isTrashcanOnTable()) {
-        propCtxDiscardBtn.style.display = 'flex';
-        propCtxDiscardBtn.innerHTML = '<span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку';
-      } else {
-        propCtxDiscardBtn.style.display = 'none';
-      }
-    }
 
     if (propCtxSell1Btn) {
       propCtxSell1Btn.style.display = 'flex';
@@ -309,7 +286,6 @@
 
     let btnCount = 1; // Sell1
     if (count > 1) btnCount++;
-    if (propCtxDiscardBtn && propCtxDiscardBtn.style.display !== 'none') btnCount++;
     const menuW = 210;
     const menuH = btnCount * 38 + 12;
     const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));

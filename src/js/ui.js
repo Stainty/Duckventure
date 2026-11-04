@@ -948,7 +948,7 @@
             vy: -80,
             size: 15,
             alpha: 1.5,
-            text: '💡 Перетащи в мусорку или нажми ПКМ!',
+            text: '💡 Перетащи в мусорку!',
             color: '#a3e635'
           });
         }
@@ -965,10 +965,18 @@
     rottenEggEl.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      corkPopSound();
       const rect = rottenEggEl.getBoundingClientRect();
-      const posX = e.clientX || (rect.left + rect.width / 2);
-      const posY = e.clientY || (rect.top + rect.height / 2);
-      showEggContextMenu('rotten', posX, posY);
+      particles.push({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 12,
+        vx: 0,
+        vy: -80,
+        size: 15,
+        alpha: 1.5,
+        text: '💡 Перетащи в мусорку!',
+        color: '#a3e635'
+      });
     });
   }
 

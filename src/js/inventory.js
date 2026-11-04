@@ -1190,21 +1190,10 @@
       }
     }
 
-    const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
-    if (propCtxDiscardBtn) {
-      if (typeof isTrashcanOnTable === 'function' && isTrashcanOnTable() && propId !== 'trashcan') {
-        propCtxDiscardBtn.style.display = 'flex';
-        propCtxDiscardBtn.innerHTML = '<span class="prop-ctx-icon">🗑️</span> Выбросить в мусорку';
-      } else {
-        propCtxDiscardBtn.style.display = 'none';
-      }
-    }
-
     propContextMenu.style.display = 'block';
 
     let btnCount = 1;
     if (propCtxRefundBtn && propCtxRefundBtn.style.display !== 'none') btnCount++;
-    if (propCtxDiscardBtn && propCtxDiscardBtn.style.display !== 'none') btnCount++;
     const menuW = 200;
     const menuH = btnCount * 38 + 12;
     const posX = Math.max(10, Math.min(window.innerWidth - menuW - 10, x));
@@ -1622,37 +1611,7 @@
   }
   window.performItemDiscard = performItemDiscard;
 
-  const propCtxDiscardBtn = document.getElementById('propCtxDiscardBtn');
-  if (propCtxDiscardBtn) {
-    propCtxDiscardBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const eggType = activeContextEggType;
-      const propId = activeContextPropId;
-      hidePropContextMenu();
-
-      if (eggType === 'rotten') {
-        discardRottenEgg();
-        return;
-      }
-
-      if (eggType) {
-        const isCreature = ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(eggType);
-        const info = getItemDiscardInfo(isCreature ? 'creature' : 'egg', eggType);
-        requestDiscardConfirmation(info.name, info.emoji, () => {
-          performItemDiscard(isCreature ? 'creature' : 'egg', eggType);
-        });
-        return;
-      }
-
-      if (propId && propId !== 'trashcan') {
-        const info = getItemDiscardInfo('prop', propId);
-        requestDiscardConfirmation(info.name, info.emoji, () => {
-          performItemDiscard('prop', propId);
-        });
-        return;
-      }
-    });
-  }
+  // Выбрасывание в мусорку через ПКМ убрано (выбрасывание только через перетаскивание)
 
   document.addEventListener('pointerdown', (e) => {
     if (propContextMenu && propContextMenu.style.display === 'block') {
