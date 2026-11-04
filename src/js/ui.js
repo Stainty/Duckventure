@@ -1,3 +1,28 @@
+  let gameHintAlertTimeout = null;
+  function showGameHintAlert(title, desc, icon = '💡', durationMs = 5000) {
+    const alertEl = document.getElementById('gameHintAlert');
+    if (!alertEl) return;
+    const titleEl = document.getElementById('gameHintAlertTitle');
+    const descEl = document.getElementById('gameHintAlertDesc');
+    const iconEl = document.getElementById('gameHintAlertIcon');
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = desc;
+    if (iconEl) iconEl.textContent = icon;
+
+    // Скрываем другие активные алерты, чтобы не наслаивались
+    const spoilEl = document.getElementById('eggSpoilAlert');
+    const diaEl = document.getElementById('diarrheaAlert');
+    if (spoilEl) spoilEl.style.display = 'none';
+    if (diaEl) diaEl.style.display = 'none';
+
+    alertEl.style.display = 'flex';
+    if (gameHintAlertTimeout) clearTimeout(gameHintAlertTimeout);
+    gameHintAlertTimeout = setTimeout(() => {
+      alertEl.style.display = 'none';
+    }, durationMs);
+  }
+  window.showGameHintAlert = showGameHintAlert;
+
 /* ---------- Перемещение утки (Возможности LVL 4) ---------- */
   let isDuckDragging = false;
   let duckDragStartX = 0;
@@ -687,17 +712,7 @@
         });
       } else {
         corkPopSound();
-        const rD = duck.getBoundingClientRect();
-        particles.push({
-          x: rD.left + rD.width / 2,
-          y: rD.top - 20,
-          vx: 0,
-          vy: -90,
-          size: 15,
-          alpha: 1.2,
-          text: '💡 Утка целая, чинить не требуется!',
-          color: '#bae6fd'
-        });
+        showGameHintAlert('Синяя изолента', 'Утка целая и невредимая! Чинить не требуется.', '🩹');
       }
     }
   }
@@ -815,16 +830,7 @@
 
     if (!isTrashcanOnTable()) {
       corkPopSound();
-      particles.push({
-        x: spawnX,
-        y: spawnY - 10,
-        vx: 0,
-        vy: -100,
-        size: 16,
-        alpha: 1.6,
-        text: '⚠️ Нужно мусорное ведро на столе, чтобы выбросить!',
-        color: '#f87171'
-      });
+      showGameHintAlert('Мусорное ведро', 'Нужно выложить мусорное ведро 🗑️ на стол, чтобы выбрасывать предметы!', '🗑️');
       return;
     }
 
@@ -981,6 +987,18 @@
     diarrheaAlertCloseBtn.addEventListener('click', () => {
       const alertEl = document.getElementById('diarrheaAlert');
       if (alertEl) alertEl.style.display = 'none';
+    });
+  }
+
+  const gameHintAlertCloseBtn = document.getElementById('gameHintAlertClose');
+  if (gameHintAlertCloseBtn) {
+    gameHintAlertCloseBtn.addEventListener('click', () => {
+      const alertEl = document.getElementById('gameHintAlert');
+      if (alertEl) alertEl.style.display = 'none';
+      if (typeof gameHintAlertTimeout !== 'undefined' && gameHintAlertTimeout) {
+        clearTimeout(gameHintAlertTimeout);
+        gameHintAlertTimeout = null;
+      }
     });
   }
 

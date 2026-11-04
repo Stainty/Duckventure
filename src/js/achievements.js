@@ -424,6 +424,8 @@
     }
     const dAlert = document.getElementById('diarrheaAlert');
     if (dAlert) dAlert.style.display = 'none';
+    const hAlert = document.getElementById('gameHintAlert');
+    if (hAlert) hAlert.style.display = 'none';
     if (typeof updateFeedBuffsUI === 'function') updateFeedBuffsUI();
     if (typeof window !== 'undefined') window.lastEggSpoilAlertTime = 0;
     if (normalEggEl) {

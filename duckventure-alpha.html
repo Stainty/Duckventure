@@ -806,25 +806,37 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     100% { filter: drop-shadow(0 0 24px #fff176) drop-shadow(0 0 36px #ffb300) saturate(2.6); }
   }
 
-  /* ---------- Баннер уведомления о тухлых яйцах ---------- */
+  /* ---------- Баннер уведомлений (тухлые яйца, диарея, подсказки) ---------- */
   .egg-spoil-alert {
     position: fixed;
-    top: 76px;
+    top: 116px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 120;
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 20px;
+    padding: 12px 18px;
     background: rgba(22, 16, 22, 0.95);
     border: 2px solid #ef4444;
     border-radius: 16px;
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(239, 68, 68, 0.45);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     max-width: 500px;
     width: 90%;
     animation: alertSlideDown 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  .egg-spoil-alert.game-hint-alert {
+    border-color: #f59e0b;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 158, 11, 0.4);
+    background: rgba(26, 22, 16, 0.95);
+  }
+  .egg-spoil-alert.game-hint-alert .egg-spoil-alert-title {
+    color: #fde68a;
+  }
+  .egg-spoil-alert.game-hint-alert .egg-spoil-alert-icon {
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));
   }
   @keyframes alertSlideDown {
     0%   { transform: translate(-50%, -40px); opacity: 0; }
@@ -3031,7 +3043,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       width: calc(100vw - 20px);
       left: 10px;
       right: 10px;
-      top: 90px;
+      top: 114px;
     }
   }
 
@@ -4094,6 +4106,16 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       <div class="egg-spoil-alert-desc">Птичий корм не предназначен для резиновой утки! Срочно выбрасывайте какашки в мусорку 🗑️, пока не начался дебафф!</div>
     </div>
     <button class="egg-spoil-alert-close" id="diarrheaAlertClose" aria-label="Закрыть">✕</button>
+  </div>
+
+  <!-- Всплывающая подсказка / предупреждение для игрока -->
+  <div id="gameHintAlert" class="egg-spoil-alert game-hint-alert" style="display: none;">
+    <div class="egg-spoil-alert-icon" id="gameHintAlertIcon">💡</div>
+    <div class="egg-spoil-alert-body">
+      <div class="egg-spoil-alert-title" id="gameHintAlertTitle">Подсказка</div>
+      <div class="egg-spoil-alert-desc" id="gameHintAlertDesc">Текст подсказки</div>
+    </div>
+    <button class="egg-spoil-alert-close" id="gameHintAlertClose" aria-label="Закрыть">✕</button>
   </div>
 
   <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
@@ -5957,6 +5979,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
     const dAlert = document.getElementById('diarrheaAlert');
     if (dAlert) dAlert.style.display = 'none';
+    const hAlert = document.getElementById('gameHintAlert');
+    if (hAlert) hAlert.style.display = 'none';
     if (typeof updateFeedBuffsUI === 'function') updateFeedBuffsUI();
     if (typeof window !== 'undefined') window.lastEggSpoilAlertTime = 0;
     if (normalEggEl) {
@@ -7331,6 +7355,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     const alertEl = document.getElementById('eggSpoilAlert');
     if (!alertEl) return;
+    const hintEl = document.getElementById('gameHintAlert');
+    if (hintEl) hintEl.style.display = 'none';
     alertEl.style.display = 'flex';
     if (eggSpoilAlertTimeout) clearTimeout(eggSpoilAlertTimeout);
     eggSpoilAlertTimeout = setTimeout(() => {
@@ -8725,16 +8751,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         if (isOverIncubator) {
           if (isIncubating) {
             corkPopSound();
-            particles.push({
-              x: cursorX,
-              y: cursorY - 15,
-              vx: 0,
-              vy: -90,
-              size: 16,
-              alpha: 1.2,
-              text: '🐣 Инкубатор уже занят!',
-              color: '#fbbf24'
-            });
+            if (typeof showGameHintAlert === 'function') {
+              showGameHintAlert('Инкубатор занят', 'В инкубаторе уже высиживаются яйца! Дождитесь окончания процесса.', '🐣');
+            }
           } else {
             openIncubatorModal(eggType);
           }
@@ -12923,6 +12942,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function showDiarrheaAlert() {
     const alertEl = document.getElementById('diarrheaAlert');
     if (!alertEl) return;
+    const hintEl = document.getElementById('gameHintAlert');
+    if (hintEl) hintEl.style.display = 'none';
     alertEl.style.display = 'flex';
     if (diarrheaAlertTimeout) clearTimeout(diarrheaAlertTimeout);
     diarrheaAlertTimeout = setTimeout(() => {
@@ -12955,16 +12976,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
     if (boardIngredients[vegId]) {
       // Этот овощ уже на доске
-      particles.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 30,
-        vx: 0,
-        vy: -110,
-        size: 18,
-        alpha: 1.4,
-        text: '⚠️ Этот овощ уже на доске!',
-        color: '#facc15'
-      });
+      corkPopSound();
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert('Разделочная доска', 'Этот овощ уже выложен на разделочную доску!', '⚠️');
+      }
       returnPropToStorage(vegId);
       return;
     }
@@ -13021,16 +13036,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
       corkPopSound();
       const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
-      particles.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 30,
-        vx: 0,
-        vy: -110,
-        size: 18,
-        alpha: 1.5,
-        text: `⚠️ Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 🥒 🥬)!`,
-        color: '#facc15'
-      });
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert(
+          'Разделочная доска',
+          `Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 Помидор, 🥒 Огурец, 🥬 Лист салата)!`,
+          '🪵'
+        );
+      }
       return;
     }
 
@@ -13118,6 +13130,31 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
 
   /* ===== Module: src/js/ui.js ===== */
+  let gameHintAlertTimeout = null;
+  function showGameHintAlert(title, desc, icon = '💡', durationMs = 5000) {
+    const alertEl = document.getElementById('gameHintAlert');
+    if (!alertEl) return;
+    const titleEl = document.getElementById('gameHintAlertTitle');
+    const descEl = document.getElementById('gameHintAlertDesc');
+    const iconEl = document.getElementById('gameHintAlertIcon');
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = desc;
+    if (iconEl) iconEl.textContent = icon;
+
+    // Скрываем другие активные алерты, чтобы не наслаивались
+    const spoilEl = document.getElementById('eggSpoilAlert');
+    const diaEl = document.getElementById('diarrheaAlert');
+    if (spoilEl) spoilEl.style.display = 'none';
+    if (diaEl) diaEl.style.display = 'none';
+
+    alertEl.style.display = 'flex';
+    if (gameHintAlertTimeout) clearTimeout(gameHintAlertTimeout);
+    gameHintAlertTimeout = setTimeout(() => {
+      alertEl.style.display = 'none';
+    }, durationMs);
+  }
+  window.showGameHintAlert = showGameHintAlert;
+
 /* ---------- Перемещение утки (Возможности LVL 4) ---------- */
   let isDuckDragging = false;
   let duckDragStartX = 0;
@@ -13807,17 +13844,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         });
       } else {
         corkPopSound();
-        const rD = duck.getBoundingClientRect();
-        particles.push({
-          x: rD.left + rD.width / 2,
-          y: rD.top - 20,
-          vx: 0,
-          vy: -90,
-          size: 15,
-          alpha: 1.2,
-          text: '💡 Утка целая, чинить не требуется!',
-          color: '#bae6fd'
-        });
+        showGameHintAlert('Синяя изолента', 'Утка целая и невредимая! Чинить не требуется.', '🩹');
       }
     }
   }
@@ -13935,16 +13962,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     if (!isTrashcanOnTable()) {
       corkPopSound();
-      particles.push({
-        x: spawnX,
-        y: spawnY - 10,
-        vx: 0,
-        vy: -100,
-        size: 16,
-        alpha: 1.6,
-        text: '⚠️ Нужно мусорное ведро на столе, чтобы выбросить!',
-        color: '#f87171'
-      });
+      showGameHintAlert('Мусорное ведро', 'Нужно выложить мусорное ведро 🗑️ на стол, чтобы выбрасывать предметы!', '🗑️');
       return;
     }
 
@@ -14101,6 +14119,18 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     diarrheaAlertCloseBtn.addEventListener('click', () => {
       const alertEl = document.getElementById('diarrheaAlert');
       if (alertEl) alertEl.style.display = 'none';
+    });
+  }
+
+  const gameHintAlertCloseBtn = document.getElementById('gameHintAlertClose');
+  if (gameHintAlertCloseBtn) {
+    gameHintAlertCloseBtn.addEventListener('click', () => {
+      const alertEl = document.getElementById('gameHintAlert');
+      if (alertEl) alertEl.style.display = 'none';
+      if (typeof gameHintAlertTimeout !== 'undefined' && gameHintAlertTimeout) {
+        clearTimeout(gameHintAlertTimeout);
+        gameHintAlertTimeout = null;
+      }
     });
   }
 

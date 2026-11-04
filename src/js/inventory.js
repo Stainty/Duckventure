@@ -3391,6 +3391,8 @@
   function showDiarrheaAlert() {
     const alertEl = document.getElementById('diarrheaAlert');
     if (!alertEl) return;
+    const hintEl = document.getElementById('gameHintAlert');
+    if (hintEl) hintEl.style.display = 'none';
     alertEl.style.display = 'flex';
     if (diarrheaAlertTimeout) clearTimeout(diarrheaAlertTimeout);
     diarrheaAlertTimeout = setTimeout(() => {
@@ -3423,16 +3425,10 @@
     }
     if (boardIngredients[vegId]) {
       // Этот овощ уже на доске
-      particles.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 30,
-        vx: 0,
-        vy: -110,
-        size: 18,
-        alpha: 1.4,
-        text: '⚠️ Этот овощ уже на доске!',
-        color: '#facc15'
-      });
+      corkPopSound();
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert('Разделочная доска', 'Этот овощ уже выложен на разделочную доску!', '⚠️');
+      }
       returnPropToStorage(vegId);
       return;
     }
@@ -3489,16 +3485,13 @@
       if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
       corkPopSound();
       const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
-      particles.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 30,
-        vx: 0,
-        vy: -110,
-        size: 18,
-        alpha: 1.5,
-        text: `⚠️ Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 🥒 🥬)!`,
-        color: '#facc15'
-      });
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert(
+          'Разделочная доска',
+          `Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 Помидор, 🥒 Огурец, 🥬 Лист салата)!`,
+          '🪵'
+        );
+      }
       return;
     }
 

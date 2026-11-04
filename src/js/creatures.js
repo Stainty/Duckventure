@@ -1382,16 +1382,9 @@
         if (isOverIncubator) {
           if (isIncubating) {
             corkPopSound();
-            particles.push({
-              x: cursorX,
-              y: cursorY - 15,
-              vx: 0,
-              vy: -90,
-              size: 16,
-              alpha: 1.2,
-              text: '🐣 Инкубатор уже занят!',
-              color: '#fbbf24'
-            });
+            if (typeof showGameHintAlert === 'function') {
+              showGameHintAlert('Инкубатор занят', 'В инкубаторе уже высиживаются яйца! Дождитесь окончания процесса.', '🐣');
+            }
           } else {
             openIncubatorModal(eggType);
           }

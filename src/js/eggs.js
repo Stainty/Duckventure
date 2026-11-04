@@ -609,6 +609,8 @@
 
     const alertEl = document.getElementById('eggSpoilAlert');
     if (!alertEl) return;
+    const hintEl = document.getElementById('gameHintAlert');
+    if (hintEl) hintEl.style.display = 'none';
     alertEl.style.display = 'flex';
     if (eggSpoilAlertTimeout) clearTimeout(eggSpoilAlertTimeout);
     eggSpoilAlertTimeout = setTimeout(() => {
