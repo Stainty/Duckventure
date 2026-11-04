@@ -516,14 +516,10 @@
       if (badge) {
         badge.style.display = 'flex';
         if (timerSpan) {
-          if (isClockOnTable()) {
-            const m = Math.floor(deflationRemaining / 60);
-            const s = deflationRemaining % 60;
-            timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            timerSpan.style.display = 'inline-block';
-          } else {
-            timerSpan.style.display = 'none';
-          }
+          const m = Math.floor(deflationRemaining / 60);
+          const s = Math.ceil(deflationRemaining % 60);
+          timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          timerSpan.style.display = 'inline-block';
         }
       }
     } else {
@@ -535,20 +531,15 @@
   window.updateDeflationUI = updateDeflationUI;
 
   function updateBadgesPosition() {
-    const rDuck = duck.getBoundingClientRect();
-    const cx = rDuck.left + rDuck.width / 2;
     const badgeStink = document.getElementById('duckDebuffBadge');
     const badgeDeflate = document.getElementById('duckDeflateBadge');
-    let topOffset = 36;
-
-    if (badgeDeflate && badgeDeflate.style.display !== 'none') {
-      badgeDeflate.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
-      badgeDeflate.style.left = `${cx}px`;
-      topOffset += 38;
+    if (badgeDeflate) {
+      badgeDeflate.style.top = '';
+      badgeDeflate.style.left = '';
     }
-    if (badgeStink && badgeStink.style.display !== 'none') {
-      badgeStink.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
-      badgeStink.style.left = `${cx}px`;
+    if (badgeStink) {
+      badgeStink.style.top = '';
+      badgeStink.style.left = '';
     }
   }
   window.updateBadgesPosition = updateBadgesPosition;

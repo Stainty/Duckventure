@@ -487,6 +487,8 @@
         color: '#f0abfc'
       });
     } else if (category === 'household' || category === 'food') {
+      // Предметы, не предназначенные для прямой покупки в магазине
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -547,6 +549,7 @@
         color: '#ffd24d'
       });
     } else if (category === 'household' || category === 'food') {
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -713,7 +716,12 @@
     const foodBuyContainer = document.getElementById('foodBuyList');
     if (foodBuyContainer) {
       foodBuyContainer.innerHTML = '';
-      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => PROPS_DATA[id].category === 'food').sort((a, b) => {
+      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => {
+        // Помидор, огурец, лист салата не продаются в магазине (получаются из овощного набора)
+        // Тарелка салата готовится на разделочной доске и не продаётся в магазине
+        if (id === 'tomato' || id === 'cucumber' || id === 'lettuce' || id === 'saladPlate') return false;
+        return PROPS_DATA[id].category === 'food';
+      }).sort((a, b) => {
         const aOwned = ownedProps.includes(a) ? 1 : 0;
         const bOwned = ownedProps.includes(b) ? 1 : 0;
         return aOwned - bOwned;

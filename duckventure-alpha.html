@@ -2206,8 +2206,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     animation: deflateBadgePulse 1.2s ease-in-out infinite alternate !important;
   }
   @keyframes deflateBadgePulse {
-    0% { transform: translateX(-50%) scale(0.98); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
-    100% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 22px rgba(239, 68, 68, 0.85); }
+    0% { transform: scale(0.98); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+    100% { transform: scale(1.05); box-shadow: 0 0 22px rgba(239, 68, 68, 0.85); }
   }
   .deflate-badge-timer {
     background: rgba(239, 68, 68, 0.22) !important;
@@ -2227,20 +2227,30 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   .duck-status-container {
     position: fixed;
-    top: calc(50% - 170px);
-    left: 50%;
-    transform: translateX(-50%);
+    top: 110px;
+    right: 14px;
+    left: auto;
+    bottom: auto;
+    transform: none;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 7px;
+    align-items: flex-end;
+    gap: 8px;
     z-index: 60;
     pointer-events: none;
+    max-width: 260px;
   }
   .duck-status-container .duck-debuff-badge {
-    position: static;
-    transform: none;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
     margin: 0;
+    white-space: nowrap;
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .duck-buff-badge {
     border-color: #38bdf8 !important;
@@ -2340,10 +2350,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     100% { transform: rotate(6deg) scale(1.04); }
   }
   .duck-debuff-badge {
-    position: fixed;
-    top: calc(50% - 150px);
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     background: rgba(20, 24, 34, 0.94);
     border: 1.5px solid #22c55e;
     box-shadow: 0 0 16px rgba(34, 197, 94, 0.45), 0 4px 12px rgba(0,0,0,0.5);
@@ -2361,8 +2368,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     animation: debuffBadgePulse 1.6s ease-in-out infinite alternate;
   }
   @keyframes debuffBadgePulse {
-    0% { transform: translateX(-50%) scale(0.98); box-shadow: 0 0 12px rgba(34, 197, 94, 0.35); }
-    100% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 22px rgba(34, 197, 94, 0.7); }
+    0% { transform: scale(0.98); box-shadow: 0 0 12px rgba(34, 197, 94, 0.35); }
+    100% { transform: scale(1.03); box-shadow: 0 0 22px rgba(34, 197, 94, 0.7); }
   }
   .debuff-badge-timer {
     background: rgba(34, 197, 94, 0.2);
@@ -2902,6 +2909,21 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       padding: 3px 8px;
       font-size: 11px;
       border-radius: 10px;
+    }
+    .duck-status-container {
+      top: 112px;
+      right: 8px;
+      gap: 6px;
+      max-width: 210px;
+    }
+    .duck-status-container .duck-debuff-badge {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      gap: 6px;
+    }
+    .duck-status-container .debuff-badge-timer {
+      font-size: 11.5px;
+      padding: 1px 5px;
     }
   }
 
@@ -7157,14 +7179,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (badge) {
         badge.style.display = 'flex';
         if (timerSpan) {
-          if (isClockOnTable()) {
-            const m = Math.floor(stinkDebuffRemaining / 60);
-            const s = stinkDebuffRemaining % 60;
-            timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            timerSpan.style.display = 'inline-block';
-          } else {
-            timerSpan.style.display = 'none';
-          }
+          const m = Math.floor(stinkDebuffRemaining / 60);
+          const s = Math.ceil(stinkDebuffRemaining % 60);
+          timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          timerSpan.style.display = 'inline-block';
         }
       }
     } else {
@@ -10001,6 +10019,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         color: '#f0abfc'
       });
     } else if (category === 'household' || category === 'food') {
+      // Предметы, не предназначенные для прямой покупки в магазине
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -10061,6 +10081,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         color: '#ffd24d'
       });
     } else if (category === 'household' || category === 'food') {
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -10227,7 +10248,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const foodBuyContainer = document.getElementById('foodBuyList');
     if (foodBuyContainer) {
       foodBuyContainer.innerHTML = '';
-      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => PROPS_DATA[id].category === 'food').sort((a, b) => {
+      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => {
+        // Помидор, огурец, лист салата не продаются в магазине (получаются из овощного набора)
+        // Тарелка салата готовится на разделочной доске и не продаётся в магазине
+        if (id === 'tomato' || id === 'cucumber' || id === 'lettuce' || id === 'saladPlate') return false;
+        return PROPS_DATA[id].category === 'food';
+      }).sort((a, b) => {
         const aOwned = ownedProps.includes(a) ? 1 : 0;
         const bOwned = ownedProps.includes(b) ? 1 : 0;
         return aOwned - bOwned;
@@ -13610,14 +13636,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (badge) {
         badge.style.display = 'flex';
         if (timerSpan) {
-          if (isClockOnTable()) {
-            const m = Math.floor(deflationRemaining / 60);
-            const s = deflationRemaining % 60;
-            timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            timerSpan.style.display = 'inline-block';
-          } else {
-            timerSpan.style.display = 'none';
-          }
+          const m = Math.floor(deflationRemaining / 60);
+          const s = Math.ceil(deflationRemaining % 60);
+          timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          timerSpan.style.display = 'inline-block';
         }
       }
     } else {
@@ -13629,20 +13651,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.updateDeflationUI = updateDeflationUI;
 
   function updateBadgesPosition() {
-    const rDuck = duck.getBoundingClientRect();
-    const cx = rDuck.left + rDuck.width / 2;
     const badgeStink = document.getElementById('duckDebuffBadge');
     const badgeDeflate = document.getElementById('duckDeflateBadge');
-    let topOffset = 36;
-
-    if (badgeDeflate && badgeDeflate.style.display !== 'none') {
-      badgeDeflate.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
-      badgeDeflate.style.left = `${cx}px`;
-      topOffset += 38;
+    if (badgeDeflate) {
+      badgeDeflate.style.top = '';
+      badgeDeflate.style.left = '';
     }
-    if (badgeStink && badgeStink.style.display !== 'none') {
-      badgeStink.style.top = `${Math.max(10, rDuck.top - topOffset)}px`;
-      badgeStink.style.left = `${cx}px`;
+    if (badgeStink) {
+      badgeStink.style.top = '';
+      badgeStink.style.left = '';
     }
   }
   window.updateBadgesPosition = updateBadgesPosition;

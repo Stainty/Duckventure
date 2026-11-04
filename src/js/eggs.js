@@ -457,14 +457,10 @@
       if (badge) {
         badge.style.display = 'flex';
         if (timerSpan) {
-          if (isClockOnTable()) {
-            const m = Math.floor(stinkDebuffRemaining / 60);
-            const s = stinkDebuffRemaining % 60;
-            timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            timerSpan.style.display = 'inline-block';
-          } else {
-            timerSpan.style.display = 'none';
-          }
+          const m = Math.floor(stinkDebuffRemaining / 60);
+          const s = Math.ceil(stinkDebuffRemaining % 60);
+          timerSpan.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          timerSpan.style.display = 'inline-block';
         }
       }
     } else {
