@@ -134,12 +134,15 @@
       }
 
       if (p.fly) {
-        // замок летит по той же траектории, что и «Кря»
+        // замок летит по той же траектории, что и «Кря», поверх плашек
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
         ctx.font = p.size + 'px "Segoe UI Emoji", "Segoe UI Symbol", system-ui';
         ctx.fillText('🔒', 0, 0);
         ctx.restore();

@@ -615,7 +615,29 @@
     const padlock = document.getElementById('achv-padlock-' + a.id);
     const info = document.getElementById('achv-info-' + a.id);
     if (card) card.classList.add('unlocked');
-    if (padlock) padlock.style.display = 'none';
+    if (padlock) {
+      if (padlock.offsetParent !== null) {
+        const r = padlock.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const ang = 0.2 + Math.random() * Math.PI * 0.6;
+          const speed = 250 + Math.random() * 200;
+          particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(ang) * speed,
+            vy: -Math.sin(ang) * speed,
+            size: 40,
+            alpha: 1,
+            fly: true,
+            rot: 0,
+            rotSpeed: (Math.random() - 0.5) * 14,
+          });
+        }
+      }
+      padlock.style.display = 'none';
+    }
     if (info) info.classList.add('shown');
     updateAchvCounter();
 

@@ -79,7 +79,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 60;
+    z-index: 300;
   }
   .hint {
     position: fixed;
@@ -389,7 +389,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   #particles.over-modal,
   body:has(.upgrades-modal.open) #particles {
-    z-index: 250;
+    z-index: 300;
   }
   .achv-toast-card {
     position: relative;
@@ -2328,7 +2328,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     70% { transform: scale(1.25); opacity: 1; }
     100% { transform: scale(1); }
   }
+  #poopContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 52;
+  }
   .poop-prop {
+    pointer-events: auto;
     position: fixed;
     font-size: 38px;
     line-height: 1;

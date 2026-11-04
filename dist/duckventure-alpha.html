@@ -86,7 +86,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 60;
+    z-index: 300;
   }
   .hint {
     position: fixed;
@@ -396,7 +396,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
   #particles.over-modal,
   body:has(.upgrades-modal.open) #particles {
-    z-index: 250;
+    z-index: 300;
   }
   .achv-toast-card {
     position: relative;
@@ -2335,7 +2335,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     70% { transform: scale(1.25); opacity: 1; }
     100% { transform: scale(1); }
   }
+  #poopContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 52;
+  }
   .poop-prop {
+    pointer-events: auto;
     position: fixed;
     font-size: 38px;
     line-height: 1;
@@ -6170,7 +6177,29 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const padlock = document.getElementById('achv-padlock-' + a.id);
     const info = document.getElementById('achv-info-' + a.id);
     if (card) card.classList.add('unlocked');
-    if (padlock) padlock.style.display = 'none';
+    if (padlock) {
+      if (padlock.offsetParent !== null) {
+        const r = padlock.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const ang = 0.2 + Math.random() * Math.PI * 0.6;
+          const speed = 250 + Math.random() * 200;
+          particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(ang) * speed,
+            vy: -Math.sin(ang) * speed,
+            size: 40,
+            alpha: 1,
+            fly: true,
+            rot: 0,
+            rotSpeed: (Math.random() - 0.5) * 14,
+          });
+        }
+      }
+      padlock.style.display = 'none';
+    }
     if (info) info.classList.add('shown');
     updateAchvCounter();
 
@@ -14505,12 +14534,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
 
       if (p.fly) {
-        // замок летит по той же траектории, что и «Кря»
+        // замок летит по той же траектории, что и «Кря», поверх плашек
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
         ctx.font = p.size + 'px "Segoe UI Emoji", "Segoe UI Symbol", system-ui';
         ctx.fillText('🔒', 0, 0);
         ctx.restore();
