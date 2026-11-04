@@ -9144,6 +9144,29 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     });
   }
 
+  /* ---------- Определение местонахождения предмета ---------- */
+  function getPropLocation(propId) {
+    if (placedProps && placedProps[propId] && placedProps[propId].placed) {
+      return { type: 'desk', label: '🟢 Сейчас выложен на столе' };
+    }
+    if (transferredProps) {
+      for (const screen in transferredProps) {
+        if (screen === 'savedDeskPos') continue;
+        if (Array.isArray(transferredProps[screen]) && transferredProps[screen].includes(propId)) {
+          const screenNames = {
+            achievements: 'в окне «Ачивки»',
+            branches: 'в окне «Филиалы»',
+            shop: 'в окне «Магазин»'
+          };
+          const name = screenNames[screen] || `во вкладке «${screen}»`;
+          return { type: 'screen', screen: screen, label: `🏆 Находится ${name}` };
+        }
+      }
+    }
+    return { type: 'storage', label: '📦 Находится на складе' };
+  }
+  window.getPropLocation = getPropLocation;
+
   /* ---------- Склад предметов (Быт) ---------- */
   function renderStorage() {
     const list = document.getElementById('storageList');
@@ -9159,7 +9182,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const prop = PROPS_DATA[id];
       if (!prop) return;
 
-      const isPlaced = !!placedProps[id];
+      const loc = getPropLocation(id);
+      const isPlaced = loc.type === 'desk';
       const card = document.createElement('div');
       card.className = 'storage-card';
 
@@ -9176,7 +9200,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           </div>
           <div class="buy-item-info">
             <div class="buy-item-name">${prop.name}</div>
-            <div class="buy-item-desc">${isPlaced ? '🟢 Сейчас выложен на столе' : '📦 Находится на складе'}</div>
+            <div class="buy-item-desc">${loc.label}</div>
           </div>
         </div>
         <div class="storage-card-actions">
@@ -9211,11 +9235,35 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const el = document.getElementById('prop-' + propId);
     if (!el) return;
 
+    // Снимаем предмет со всех экранов переноса, если он там был (не дублируем предметы)
+    let wasTransferred = false;
+    if (transferredProps) {
+      for (const screen in transferredProps) {
+        if (screen === 'savedDeskPos') continue;
+        if (Array.isArray(transferredProps[screen])) {
+          const idx = transferredProps[screen].indexOf(propId);
+          if (idx !== -1) {
+            transferredProps[screen].splice(idx, 1);
+            wasTransferred = true;
+            renderTransferredPropsTray(screen);
+          }
+        }
+      }
+      if (wasTransferred) {
+        try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+      }
+    }
+
     const dims = getPropDimensions(propId);
     const propWidth = dims.width;
     const propHeight = dims.height;
 
-    if (!placedProps[propId] || !placedProps[propId].left) {
+    const savedPos = (transferredProps && transferredProps.savedDeskPos && transferredProps.savedDeskPos[propId]) || null;
+    if (savedPos && savedPos.left && savedPos.top) {
+      const sLeft = typeof savedPos.left === 'number' ? savedPos.left + 'px' : savedPos.left;
+      const sTop = typeof savedPos.top === 'number' ? savedPos.top + 'px' : savedPos.top;
+      placedProps[propId] = { placed: true, left: sLeft, top: sTop };
+    } else if (!placedProps[propId] || !placedProps[propId].left) {
       const offset = (propId === 'incubator') ? -140 :
                      (propId === 'plita') ? 60 : 
                      (propId === 'skovoroda' ? -60 : 
@@ -9243,10 +9291,29 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     el.style.left = placedProps[propId].left;
     el.style.top = placedProps[propId].top;
     el.style.display = 'block';
+    el.dataset.placed = '1';
+
+    el.classList.add('is-wobbling');
+    setTimeout(() => el.classList.remove('is-wobbling'), 600);
 
     try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
     corkPopSound();
     renderStorage();
+
+    if (wasTransferred) {
+      const propInfo = PROPS_DATA[propId];
+      const pName = propInfo ? propInfo.name : 'Предмет';
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -90,
+        size: 16,
+        alpha: 1.3,
+        text: `🗝️ ${pName} перенесён на стол!`,
+        color: '#ffd24d'
+      });
+    }
 
     if (propId === 'lamp') {
       updateLampGlowUI();
@@ -9271,10 +9338,29 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (el) {
       el.style.display = 'none';
       el.classList.remove('is-combined');
+      delete el.dataset.placed;
     }
 
     if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
       separateStoveAndPan(false);
+    }
+
+    if (transferredProps) {
+      let changed = false;
+      for (const screen in transferredProps) {
+        if (screen === 'savedDeskPos') continue;
+        if (Array.isArray(transferredProps[screen])) {
+          const idx = transferredProps[screen].indexOf(propId);
+          if (idx !== -1) {
+            transferredProps[screen].splice(idx, 1);
+            changed = true;
+            renderTransferredPropsTray(screen);
+          }
+        }
+      }
+      if (changed) {
+        try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+      }
     }
 
     if (propId === 'incubator' && isIncubating) {
@@ -10920,6 +11006,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
 
     renderTransferredPropsTray(screen);
+    renderStorage();
   }
   window.transferPropToScreen = transferPropToScreen;
 
@@ -10967,6 +11054,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     corkPopSound();
     renderTransferredPropsTray(screen);
+    renderStorage();
   }
   window.returnTransferredPropToDesk = returnTransferredPropToDesk;
 
