@@ -3486,10 +3486,13 @@
       corkPopSound();
       const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
       if (typeof showGameHintAlert === 'function') {
+        const boardIcon = (typeof PROPS_DATA !== 'undefined' && PROPS_DATA.cuttingBoard && PROPS_DATA.cuttingBoard.icon)
+          ? PROPS_DATA.cuttingBoard.icon
+          : '🥗';
         showGameHintAlert(
           'Разделочная доска',
           `Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 Помидор, 🥒 Огурец, 🥬 Лист салата)!`,
-          '🪵'
+          boardIcon
         );
       }
       return;

@@ -7,7 +7,13 @@
     const iconEl = document.getElementById('gameHintAlertIcon');
     if (titleEl) titleEl.textContent = title;
     if (descEl) descEl.textContent = desc;
-    if (iconEl) iconEl.textContent = icon;
+    if (iconEl) {
+      if (icon && typeof icon === 'string' && (icon.startsWith('http://') || icon.startsWith('https://'))) {
+        iconEl.innerHTML = `<img src="${icon}" alt="" style="width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); vertical-align: middle;" onerror="this.outerHTML='🥗'">`;
+      } else {
+        iconEl.textContent = icon || '💡';
+      }
+    }
 
     // Скрываем другие активные алерты, чтобы не наслаивались
     const spoilEl = document.getElementById('eggSpoilAlert');

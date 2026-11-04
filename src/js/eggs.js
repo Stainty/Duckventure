@@ -581,7 +581,7 @@
       color: '#84cc16'
     });
 
-    const stinkItems = ['🤢', '💨', '🟢', '🪰', '💀', '💩', '💨'];
+    const stinkItems = ['🤢', '💨', '🟢', '🐛', '💀', '💩', '💨'];
     for (let i = 0; i < 22; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 60 + Math.random() * 180;

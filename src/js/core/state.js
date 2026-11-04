@@ -593,7 +593,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       category: 'household',
       cost: 2000,
       icon: 'https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx',
-      fallbackEmoji: '🪵',
+      fallbackEmoji: '🥗',
       desc: 'Подходит для нарезки овощей'
     },
     saladPlate: {

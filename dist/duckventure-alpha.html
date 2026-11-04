@@ -4055,7 +4055,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   <div id="prop-cuttingBoard" class="draggable-prop cutting-board-prop" style="display: none;">
     <img src="https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx" alt="Разделочная доска" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 52px;">🪵</span>
+    <span style="display: none; font-size: 52px;">🥗</span>
     <div class="board-ingredients-layer" id="boardIngredientsLayer">
       <span class="board-veg" id="boardVegTomato" style="display: none;">🍅</span>
       <span class="board-veg" id="boardVegCucumber" style="display: none;">🥒</span>
@@ -4914,7 +4914,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       category: 'household',
       cost: 2000,
       icon: 'https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx',
-      fallbackEmoji: '🪵',
+      fallbackEmoji: '🥗',
       desc: 'Подходит для нарезки овощей'
     },
     saladPlate: {
@@ -7327,7 +7327,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       color: '#84cc16'
     });
 
-    const stinkItems = ['🤢', '💨', '🟢', '🪰', '💀', '💩', '💨'];
+    const stinkItems = ['🤢', '💨', '🟢', '🐛', '💀', '💩', '💨'];
     for (let i = 0; i < 22; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 60 + Math.random() * 180;
@@ -13037,10 +13037,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       corkPopSound();
       const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
       if (typeof showGameHintAlert === 'function') {
+        const boardIcon = (typeof PROPS_DATA !== 'undefined' && PROPS_DATA.cuttingBoard && PROPS_DATA.cuttingBoard.icon)
+          ? PROPS_DATA.cuttingBoard.icon
+          : '🥗';
         showGameHintAlert(
           'Разделочная доска',
           `Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 Помидор, 🥒 Огурец, 🥬 Лист салата)!`,
-          '🪵'
+          boardIcon
         );
       }
       return;
@@ -13139,7 +13142,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const iconEl = document.getElementById('gameHintAlertIcon');
     if (titleEl) titleEl.textContent = title;
     if (descEl) descEl.textContent = desc;
-    if (iconEl) iconEl.textContent = icon;
+    if (iconEl) {
+      if (icon && typeof icon === 'string' && (icon.startsWith('http://') || icon.startsWith('https://'))) {
+        iconEl.innerHTML = `<img src="${icon}" alt="" style="width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); vertical-align: middle;" onerror="this.outerHTML='🥗'">`;
+      } else {
+        iconEl.textContent = icon || '💡';
+      }
+    }
 
     // Скрываем другие активные алерты, чтобы не наслаивались
     const spoilEl = document.getElementById('eggSpoilAlert');
