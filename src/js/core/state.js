@@ -171,6 +171,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
+  let isFoodBuyCollapsed = true;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -575,6 +576,42 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       icon: 'https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a',
       fallbackEmoji: '🩹',
       desc: 'Чинит все!'
+    },
+    birdFeed: {
+      id: 'birdFeed',
+      name: 'Корм для птицы',
+      category: 'food',
+      cost: 9000,
+      icon: 'https://lh3.googleusercontent.com/d/1eTMaSApvaSOB870JIHTSPucRsphiZF5v',
+      fallbackEmoji: '🌾',
+      desc: 'Корм. Обычно таким кормят куриц'
+    },
+    duckFeedAlpha: {
+      id: 'duckFeedAlpha',
+      name: 'Корм для утки "Альфа"',
+      category: 'food',
+      cost: 10000,
+      icon: 'https://lh3.googleusercontent.com/d/1WEzE8R6NsZfBeXiz5qCzw4i84FxzWiEz',
+      fallbackEmoji: '🥫',
+      desc: 'Корм. Для здоровья вашей утки'
+    },
+    duckFeedBeta: {
+      id: 'duckFeedBeta',
+      name: 'Корм для утки "Бета"',
+      category: 'food',
+      cost: 10000,
+      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      fallbackEmoji: '🥫',
+      desc: 'Корм. Для активных уток'
+    },
+    veggieSet: {
+      id: 'veggieSet',
+      name: 'Овощной набор',
+      category: 'food',
+      cost: 2000,
+      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      fallbackEmoji: '🥗',
+      desc: 'Помидор, огурец, листья салата - идеальный набор для лёгкой закуски'
     }
   };
   window.PROPS_DATA = PROPS_DATA;

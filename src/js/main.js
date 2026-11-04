@@ -14,6 +14,10 @@
   initDraggableProp(document.getElementById('prop-knife'), 'knife');
   initDraggableProp(document.getElementById('prop-tape'), 'tape');
   initDraggableProp(document.getElementById('prop-incubator'), 'incubator');
+  initDraggableProp(document.getElementById('prop-birdFeed'), 'birdFeed');
+  initDraggableProp(document.getElementById('prop-duckFeedAlpha'), 'duckFeedAlpha');
+  initDraggableProp(document.getElementById('prop-duckFeedBeta'), 'duckFeedBeta');
+  initDraggableProp(document.getElementById('prop-veggieSet'), 'veggieSet');
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();

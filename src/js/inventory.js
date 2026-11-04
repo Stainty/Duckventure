@@ -438,6 +438,7 @@
     shopBtn.addEventListener('click', () => {
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
+      isFoodBuyCollapsed = true;
       isFoodCollapsed = true;
       isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
@@ -485,7 +486,7 @@
         text: '👔 Новый скин надет!',
         color: '#f0abfc'
       });
-    } else if (category === 'household') {
+    } else if (category === 'household' || category === 'food') {
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -503,7 +504,7 @@
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: '🍳 Предмет на столе!',
+        text: category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!',
         color: '#fdba74'
       });
     }
@@ -545,7 +546,7 @@
         text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
         color: '#ffd24d'
       });
-    } else if (category === 'household') {
+    } else if (category === 'household' || category === 'food') {
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -669,6 +670,7 @@
         if (id === 'dichlofos' && hasClearedRoaches) return;
 
         const prop = PROPS_DATA[id];
+        if (prop.category !== 'household') return;
         const isOwned = ownedProps.includes(id);
         const canAfford = duckles >= prop.cost;
 
@@ -708,12 +710,62 @@
         householdContainer.appendChild(card);
       });
     }
+    const foodBuyContainer = document.getElementById('foodBuyList');
+    if (foodBuyContainer) {
+      foodBuyContainer.innerHTML = '';
+      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => PROPS_DATA[id].category === 'food').sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedFoodKeys.forEach(id => {
+        const prop = PROPS_DATA[id];
+        const isOwned = ownedProps.includes(id);
+        const canAfford = duckles >= prop.cost;
+
+        let actionHtml = '';
+        if (isOwned) {
+          const refundPrice = Math.floor(prop.cost / 2);
+          actionHtml = `
+            <div class="buy-owned-wrap">
+              <div class="buy-owned-badge">✓ На складе</div>
+              <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('food', '${id}')">
+                Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+              </button>
+            </div>
+          `;
+        } else {
+          const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
+          actionHtml = `<button class="${btnClass}" onclick="buyShopItem('food', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'buy-card' + (isOwned ? ' owned' : '');
+        card.innerHTML = `
+          <div class="buy-item-left">
+            <div class="buy-item-img-box">
+              <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+              <span style="display: none;">${prop.fallbackEmoji || '🥗'}</span>
+            </div>
+            <div class="buy-item-info">
+              <div class="buy-item-name">${prop.name}</div>
+              <div class="buy-item-desc">${prop.desc}</div>
+              <div class="buy-item-price">${prop.cost.toLocaleString('ru-RU')} 🦆</div>
+            </div>
+          </div>
+          ${actionHtml}
+        `;
+        foodBuyContainer.appendChild(card);
+      });
+    }
     updateShopSectionCollapsedUI();
   }
 
   function updateShopSectionCollapsedUI() {
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
+    const foodBuySection = document.getElementById('foodBuyShopSection');
     const foodSection = document.getElementById('foodShopSection');
     const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
@@ -721,6 +773,9 @@
     }
     if (householdSection) {
       householdSection.classList.toggle('collapsed', isHouseholdCollapsed);
+    }
+    if (foodBuySection) {
+      foodBuySection.classList.toggle('collapsed', isFoodBuyCollapsed);
     }
     if (foodSection) {
       foodSection.classList.toggle('collapsed', isFoodCollapsed);
@@ -740,6 +795,11 @@
       isHouseholdCollapsed = !isHouseholdCollapsed;
       try {
         Storage.set(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'foodBuy') {
+      isFoodBuyCollapsed = !isFoodBuyCollapsed;
+      try {
+        Storage.set(SHOP_FOOD_BUY_COLLAPSED_KEY, isFoodBuyCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'food') {
       isFoodCollapsed = !isFoodCollapsed;

@@ -3373,6 +3373,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
             <div class="buy-items-grid" id="householdBuyList"></div>
           </div>
+
+          <!-- Секция: Еда -->
+          <div class="shop-section" id="foodBuyShopSection">
+            <div class="shop-section-title" id="foodBuySectionTitle" role="button" tabindex="0" onclick="toggleShopSection('foodBuy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('foodBuy');}">
+              <div class="shop-section-title-left">
+                <span>🥗</span> <span>Еда</span>
+              </div>
+              <span class="shop-collapse-arrow" id="foodBuySectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="foodBuyList"></div>
+          </div>
         </div>
       </div>
       <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
@@ -3857,6 +3868,27 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     <span style="display: none; font-size: 52px;">🩹</span>
   </div>
 
+  <div id="prop-birdFeed" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1eTMaSApvaSOB870JIHTSPucRsphiZF5v" alt="Корм для птицы" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🌾</span>
+  </div>
+  <div id="prop-duckFeedAlpha" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1WEzE8R6NsZfBeXiz5qCzw4i84FxzWiEz" alt="Корм для утки &quot;Альфа&quot;" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥫</span>
+  </div>
+  <div id="prop-duckFeedBeta" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW" alt="Корм для утки &quot;Бета&quot;" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥫</span>
+  </div>
+  <div id="prop-veggieSet" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW" alt="Овощной набор" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥗</span>
+  </div>
+
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
@@ -3961,6 +3993,7 @@ const GRAVITY = 1000;      // px/s²
   const PLACED_PROPS_KEY = 'duck-placed-props';
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
+  const SHOP_FOOD_BUY_COLLAPSED_KEY = 'duck-shop-food-buy-collapsed';
   const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
   const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
@@ -4230,6 +4263,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasSpawnedKey = Storage.getBoolean(SPAWNED_KEY_KEY, false);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
+  let isFoodBuyCollapsed = true;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -4634,6 +4668,42 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       icon: 'https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a',
       fallbackEmoji: '🩹',
       desc: 'Чинит все!'
+    },
+    birdFeed: {
+      id: 'birdFeed',
+      name: 'Корм для птицы',
+      category: 'food',
+      cost: 9000,
+      icon: 'https://lh3.googleusercontent.com/d/1eTMaSApvaSOB870JIHTSPucRsphiZF5v',
+      fallbackEmoji: '🌾',
+      desc: 'Корм. Обычно таким кормят куриц'
+    },
+    duckFeedAlpha: {
+      id: 'duckFeedAlpha',
+      name: 'Корм для утки "Альфа"',
+      category: 'food',
+      cost: 10000,
+      icon: 'https://lh3.googleusercontent.com/d/1WEzE8R6NsZfBeXiz5qCzw4i84FxzWiEz',
+      fallbackEmoji: '🥫',
+      desc: 'Корм. Для здоровья вашей утки'
+    },
+    duckFeedBeta: {
+      id: 'duckFeedBeta',
+      name: 'Корм для утки "Бета"',
+      category: 'food',
+      cost: 10000,
+      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      fallbackEmoji: '🥫',
+      desc: 'Корм. Для активных уток'
+    },
+    veggieSet: {
+      id: 'veggieSet',
+      name: 'Овощной набор',
+      category: 'food',
+      cost: 2000,
+      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      fallbackEmoji: '🥗',
+      desc: 'Помидор, огурец, листья салата - идеальный набор для лёгкой закуски'
     }
   };
   window.PROPS_DATA = PROPS_DATA;
@@ -5550,6 +5620,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       Storage.remove(PLACED_PROPS_KEY);
       Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
       Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
+      Storage.remove(SHOP_FOOD_BUY_COLLAPSED_KEY);
       Storage.remove(HAS_SMASHED_EGGS_KEY);
       Storage.remove(LAMP_ON_KEY);
       Storage.remove(FRIDGE_ON_KEY);
@@ -5671,6 +5742,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet'].forEach(id => {
+      const el = document.getElementById('prop-' + id);
+      if (el) {
+        el.style.display = 'none';
+        delete el.dataset.placed;
+      }
+    });
     const propTape = document.getElementById('prop-tape');
     if (propTape) {
       propTape.style.display = 'none';
@@ -5728,6 +5806,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
+    isFoodBuyCollapsed = false;
     isFoodCollapsed = false;
     isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();
@@ -9586,6 +9665,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     shopBtn.addEventListener('click', () => {
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
+      isFoodBuyCollapsed = true;
       isFoodCollapsed = true;
       isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
@@ -9633,7 +9713,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         text: '👔 Новый скин надет!',
         color: '#f0abfc'
       });
-    } else if (category === 'household') {
+    } else if (category === 'household' || category === 'food') {
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -9651,7 +9731,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: '🍳 Предмет на столе!',
+        text: category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!',
         color: '#fdba74'
       });
     }
@@ -9693,7 +9773,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
         color: '#ffd24d'
       });
-    } else if (category === 'household') {
+    } else if (category === 'household' || category === 'food') {
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -9817,6 +9897,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         if (id === 'dichlofos' && hasClearedRoaches) return;
 
         const prop = PROPS_DATA[id];
+        if (prop.category !== 'household') return;
         const isOwned = ownedProps.includes(id);
         const canAfford = duckles >= prop.cost;
 
@@ -9856,12 +9937,62 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         householdContainer.appendChild(card);
       });
     }
+    const foodBuyContainer = document.getElementById('foodBuyList');
+    if (foodBuyContainer) {
+      foodBuyContainer.innerHTML = '';
+      const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => PROPS_DATA[id].category === 'food').sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+      sortedFoodKeys.forEach(id => {
+        const prop = PROPS_DATA[id];
+        const isOwned = ownedProps.includes(id);
+        const canAfford = duckles >= prop.cost;
+
+        let actionHtml = '';
+        if (isOwned) {
+          const refundPrice = Math.floor(prop.cost / 2);
+          actionHtml = `
+            <div class="buy-owned-wrap">
+              <div class="buy-owned-badge">✓ На складе</div>
+              <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('food', '${id}')">
+                Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+              </button>
+            </div>
+          `;
+        } else {
+          const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
+          actionHtml = `<button class="${btnClass}" onclick="buyShopItem('food', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'buy-card' + (isOwned ? ' owned' : '');
+        card.innerHTML = `
+          <div class="buy-item-left">
+            <div class="buy-item-img-box">
+              <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+              <span style="display: none;">${prop.fallbackEmoji || '🥗'}</span>
+            </div>
+            <div class="buy-item-info">
+              <div class="buy-item-name">${prop.name}</div>
+              <div class="buy-item-desc">${prop.desc}</div>
+              <div class="buy-item-price">${prop.cost.toLocaleString('ru-RU')} 🦆</div>
+            </div>
+          </div>
+          ${actionHtml}
+        `;
+        foodBuyContainer.appendChild(card);
+      });
+    }
     updateShopSectionCollapsedUI();
   }
 
   function updateShopSectionCollapsedUI() {
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
+    const foodBuySection = document.getElementById('foodBuyShopSection');
     const foodSection = document.getElementById('foodShopSection');
     const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
@@ -9869,6 +10000,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
     if (householdSection) {
       householdSection.classList.toggle('collapsed', isHouseholdCollapsed);
+    }
+    if (foodBuySection) {
+      foodBuySection.classList.toggle('collapsed', isFoodBuyCollapsed);
     }
     if (foodSection) {
       foodSection.classList.toggle('collapsed', isFoodCollapsed);
@@ -9888,6 +10022,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isHouseholdCollapsed = !isHouseholdCollapsed;
       try {
         Storage.set(SHOP_HOUSEHOLD_COLLAPSED_KEY, isHouseholdCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'foodBuy') {
+      isFoodBuyCollapsed = !isFoodBuyCollapsed;
+      try {
+        Storage.set(SHOP_FOOD_BUY_COLLAPSED_KEY, isFoodBuyCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'food') {
       isFoodCollapsed = !isFoodCollapsed;
@@ -13219,6 +13358,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   initDraggableProp(document.getElementById('prop-knife'), 'knife');
   initDraggableProp(document.getElementById('prop-tape'), 'tape');
   initDraggableProp(document.getElementById('prop-incubator'), 'incubator');
+  initDraggableProp(document.getElementById('prop-birdFeed'), 'birdFeed');
+  initDraggableProp(document.getElementById('prop-duckFeedAlpha'), 'duckFeedAlpha');
+  initDraggableProp(document.getElementById('prop-duckFeedBeta'), 'duckFeedBeta');
+  initDraggableProp(document.getElementById('prop-veggieSet'), 'veggieSet');
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();

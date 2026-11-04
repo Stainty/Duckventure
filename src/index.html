@@ -185,6 +185,17 @@
             </div>
             <div class="buy-items-grid" id="householdBuyList"></div>
           </div>
+
+          <!-- Секция: Еда -->
+          <div class="shop-section" id="foodBuyShopSection">
+            <div class="shop-section-title" id="foodBuySectionTitle" role="button" tabindex="0" onclick="toggleShopSection('foodBuy')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('foodBuy');}">
+              <div class="shop-section-title-left">
+                <span>🥗</span> <span>Еда</span>
+              </div>
+              <span class="shop-collapse-arrow" id="foodBuySectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="foodBuyList"></div>
+          </div>
         </div>
       </div>
       <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
@@ -667,6 +678,27 @@
     <img src="https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a" alt="Изолента" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🩹</span>
+  </div>
+
+  <div id="prop-birdFeed" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1eTMaSApvaSOB870JIHTSPucRsphiZF5v" alt="Корм для птицы" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🌾</span>
+  </div>
+  <div id="prop-duckFeedAlpha" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1WEzE8R6NsZfBeXiz5qCzw4i84FxzWiEz" alt="Корм для утки &quot;Альфа&quot;" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥫</span>
+  </div>
+  <div id="prop-duckFeedBeta" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW" alt="Корм для утки &quot;Бета&quot;" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥫</span>
+  </div>
+  <div id="prop-veggieSet" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW" alt="Овощной набор" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥗</span>
   </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->

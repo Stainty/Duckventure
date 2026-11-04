@@ -363,6 +363,7 @@
       Storage.remove(PLACED_PROPS_KEY);
       Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
       Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
+      Storage.remove(SHOP_FOOD_BUY_COLLAPSED_KEY);
       Storage.remove(HAS_SMASHED_EGGS_KEY);
       Storage.remove(LAMP_ON_KEY);
       Storage.remove(FRIDGE_ON_KEY);
@@ -484,6 +485,13 @@
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet'].forEach(id => {
+      const el = document.getElementById('prop-' + id);
+      if (el) {
+        el.style.display = 'none';
+        delete el.dataset.placed;
+      }
+    });
     const propTape = document.getElementById('prop-tape');
     if (propTape) {
       propTape.style.display = 'none';
@@ -541,6 +549,7 @@
     if (lvlRoachWarn) lvlRoachWarn.style.display = 'none';
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
+    isFoodBuyCollapsed = false;
     isFoodCollapsed = false;
     isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();

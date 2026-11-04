@@ -40,6 +40,7 @@ const GRAVITY = 1000;      // px/s²
   const PLACED_PROPS_KEY = 'duck-placed-props';
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
+  const SHOP_FOOD_BUY_COLLAPSED_KEY = 'duck-shop-food-buy-collapsed';
   const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
   const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
