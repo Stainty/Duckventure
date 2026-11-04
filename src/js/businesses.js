@@ -546,14 +546,15 @@
         duck.classList.add('hit');
 
         const rect = duck.getBoundingClientRect();
+        const emits = ['Кря!', '✨', '🦆', '⭐'];
         particles.push({
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
           vx: (Math.random() - 0.5) * 50,
           vy: -100,
-          size: 16,
+          size: 18,
           alpha: 1.3,
-          text: Math.random() > 0.5 ? 'Кря!' : '✨'
+          text: emits[Math.floor(Math.random() * emits.length)]
         });
 
         if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;

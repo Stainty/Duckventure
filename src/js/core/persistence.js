@@ -58,6 +58,8 @@ const GRAVITY = 1000;      // px/s²
   const DUCK_FEED_ALPHA_REMAINING_KEY = 'duck-feed-alpha-remaining';
   const DUCK_FEED_BETA_REMAINING_KEY = 'duck-feed-beta-remaining';
   const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
+  const SALAD_BUFF_REMAINING_KEY = 'duck-salad-buff-remaining';
+  const CUTTING_BOARD_INGREDIENTS_KEY = 'duck-cutting-board-ingredients';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)

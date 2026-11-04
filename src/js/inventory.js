@@ -1854,8 +1854,19 @@
         }
       }
 
+      // Овощи и Нож: подсветка разделочной доски при наведении
+      if (propId === 'tomato' || propId === 'cucumber' || propId === 'lettuce' || propId === 'knife') {
+        const cbEl = document.getElementById('prop-cuttingBoard');
+        if (cbEl && cbEl.style.display !== 'none') {
+          const cbr = cbEl.getBoundingClientRect();
+          const isOverBoard = (e.clientX >= cbr.left - 15 && e.clientX <= cbr.right + 15 &&
+                               e.clientY >= cbr.top - 15 && e.clientY <= cbr.bottom + 15);
+          cbEl.classList.toggle('drag-target-hover', isOverBoard);
+        }
+      }
+
       // Нож и Изолента: подсветка утки при наведении
-      if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
+      if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta' || propId === 'saladPlate') {
         const rDuck = duck.getBoundingClientRect();
         const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom);
         duck.classList.toggle('prop-target-hover', isOverDuck);
@@ -1886,6 +1897,26 @@
 
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
+
+      const cbEl = document.getElementById('prop-cuttingBoard');
+      if (cbEl) cbEl.classList.remove('drag-target-hover');
+
+      // Проверка взаимодействия с разделочной доской
+      if (cbEl && cbEl.style.display !== 'none') {
+        const cbr = cbEl.getBoundingClientRect();
+        const isOverBoard = (cx >= cbr.left - 15 && cx <= cbr.right + 15 &&
+                             cy >= cbr.top - 15 && cy <= cbr.bottom + 15);
+        if (isOverBoard) {
+          if (propId === 'tomato' || propId === 'cucumber' || propId === 'lettuce') {
+            addVeggieToBoard(propId);
+            return;
+          }
+          if (propId === 'knife') {
+            chopSaladOnBoard(startLeft, startTop);
+            return;
+          }
+        }
+      }
 
       // 1. Проверка сброса в мусорку (кроме самого мусорного ведра)
       if (propId !== 'trashcan' && isCursorNearTrashcan(cx, cy, el)) {
@@ -1920,9 +1951,13 @@
           }
         }
 
-        // Кормление утки
+        // Кормление утки или употребление салата
         if (propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
           feedDuck(propId);
+          return;
+        }
+        if (propId === 'saladPlate') {
+          eatSalad();
           return;
         }
 
@@ -3310,6 +3345,22 @@
       }
     }
 
+    const saladBadge = document.getElementById('duckSaladBadge');
+    const saladTimer = document.getElementById('duckSaladTimer');
+    if (saladBadge) {
+      if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+        saladBadge.style.display = 'flex';
+        if (saladTimer) {
+          const m = Math.floor(saladBuffRemaining / 60);
+          const s = Math.ceil(saladBuffRemaining % 60);
+          saladTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          saladTimer.style.display = 'inline-block';
+        }
+      } else {
+        saladBadge.style.display = 'none';
+      }
+    }
+
     const diaBadge = document.getElementById('duckDiarrheaBadge');
     const diaTimer = document.getElementById('duckDiarrheaTimer');
     if (diaBadge) {
@@ -3339,3 +3390,188 @@
     }, 12000);
   }
   window.showDiarrheaAlert = showDiarrheaAlert;
+
+
+  /* ---------- Разделочная доска и приготовление салата ---------- */
+  function renderCuttingBoardIngredients() {
+    const cbEl = document.getElementById('prop-cuttingBoard');
+    if (!cbEl) return;
+    const tom = document.getElementById('boardVegTomato');
+    const cuc = document.getElementById('boardVegCucumber');
+    const letEl = document.getElementById('boardVegLettuce');
+
+    if (tom) tom.style.display = (boardIngredients && boardIngredients.tomato) ? 'inline-block' : 'none';
+    if (cuc) cuc.style.display = (boardIngredients && boardIngredients.cucumber) ? 'inline-block' : 'none';
+    if (letEl) letEl.style.display = (boardIngredients && boardIngredients.lettuce) ? 'inline-block' : 'none';
+
+    const isFull = boardIngredients && boardIngredients.tomato && boardIngredients.cucumber && boardIngredients.lettuce;
+    cbEl.classList.toggle('board-is-ready', Boolean(isFull));
+  }
+  window.renderCuttingBoardIngredients = renderCuttingBoardIngredients;
+
+  function addVeggieToBoard(vegId) {
+    if (!boardIngredients) {
+      boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    }
+    if (boardIngredients[vegId]) {
+      // Этот овощ уже на доске
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.4,
+        text: '⚠️ Этот овощ уже на доске!',
+        color: '#facc15'
+      });
+      returnPropToStorage(vegId);
+      return;
+    }
+
+    boardIngredients[vegId] = true;
+    try { Storage.setJSON(CUTTING_BOARD_INGREDIENTS_KEY, boardIngredients); } catch (e) {}
+
+    // Убираем овощ со стола и из хранилища
+    returnPropToStorage(vegId);
+    const idx = ownedProps.indexOf(vegId);
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+
+    renderCuttingBoardIngredients();
+    renderStorage();
+
+    const vegNames = { tomato: '🍅 Помидор', cucumber: '🥒 Огурец', lettuce: '🥬 Лист салата' };
+    const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
+
+    splatSound();
+    if (placedCount === 3) {
+      xpSound();
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 40,
+        vx: 0,
+        vy: -140,
+        size: 22,
+        alpha: 1.8,
+        text: '✨ Доска заполнена (3/3)! Нарежьте овощи ножом 🔪!',
+        color: '#4ade80'
+      });
+    } else {
+      corkPopSound();
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.4,
+        text: `${vegNames[vegId] || 'Овощ'} на доске (${placedCount}/3)`,
+        color: '#a3e635'
+      });
+    }
+  }
+  window.addVeggieToBoard = addVeggieToBoard;
+
+  function chopSaladOnBoard(startLeft, startTop) {
+    const knifeEl = document.getElementById('prop-knife');
+    const isFull = boardIngredients && boardIngredients.tomato && boardIngredients.cucumber && boardIngredients.lettuce;
+
+    if (!isFull) {
+      if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
+      corkPopSound();
+      const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.5,
+        text: `⚠️ Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 🥒 🥬)!`,
+        color: '#facc15'
+      });
+      return;
+    }
+
+    // Доска заполнена: шинкуем салат!
+    knifeStabSound();
+    setTimeout(() => knifeStabSound(), 120);
+    setTimeout(() => knifeStabSound(), 240);
+
+    // Доска остается на столе, овощи пропадают
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    try { Storage.setJSON(CUTTING_BOARD_INGREDIENTS_KEY, boardIngredients); } catch (e) {}
+    renderCuttingBoardIngredients();
+
+    if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
+
+    // Получаем позицию разделочной доски для спавна тарелки салата рядом
+    const cbEl = document.getElementById('prop-cuttingBoard');
+    const cbr = cbEl ? cbEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 85, height: 85 };
+    const plateX = Math.max(20, Math.min(window.innerWidth - 90, cbr.right + 12));
+    const plateY = Math.max(70, Math.min(window.innerHeight - 90, cbr.top));
+
+    // Спавним тарелку салата
+    if (!ownedProps.includes('saladPlate')) {
+      ownedProps.push('saladPlate');
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    }
+
+    const plateEl = document.getElementById('prop-saladPlate');
+    if (plateEl) {
+      plateEl.style.display = 'block';
+      plateEl.style.left = `${Math.round(plateX)}px`;
+      plateEl.style.top = `${Math.round(plateY)}px`;
+      plateEl.classList.add('is-wobbling');
+      setTimeout(() => plateEl.classList.remove('is-wobbling'), 600);
+
+      if (!placedProps.saladPlate) placedProps.saladPlate = { placed: true };
+      placedProps.saladPlate.left = plateEl.style.left;
+      placedProps.saladPlate.top = plateEl.style.top;
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+    }
+
+    xpSound();
+    particles.push({
+      x: plateX + 40,
+      y: plateY - 20,
+      vx: 0,
+      vy: -150,
+      size: 24,
+      alpha: 2.0,
+      text: '🥗 Тарелка салата готова! Скормите утке!',
+      color: '#4ade80'
+    });
+
+    renderStorage();
+  }
+  window.chopSaladOnBoard = chopSaladOnBoard;
+
+  function eatSalad() {
+    returnPropToStorage('saladPlate');
+    const idx = ownedProps.indexOf('saladPlate');
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+
+    quack();
+    xpSound();
+
+    saladBuffRemaining = Math.min(300, (saladBuffRemaining || 0) + 60);
+    try { Storage.set(SALAD_BUFF_REMAINING_KEY, String(saladBuffRemaining)); } catch (e) {}
+    updateFeedBuffsUI();
+
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -130,
+      size: 24,
+      alpha: 2.2,
+      text: '🥗 Хрум! Салат съеден! Бонус +20% к силе нажатий!',
+      color: '#22c55e'
+    });
+
+    renderStorage();
+  }
+  window.eatSalad = eatSalad;

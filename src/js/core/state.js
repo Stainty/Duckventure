@@ -187,6 +187,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let duckDiarrheaRemaining = Storage.getNumber(DUCK_DIARRHEA_REMAINING_KEY, 0, 0);
   let activePoops = [];
   let poopSpawnAccumulator = 0;
+  let saladBuffRemaining = Storage.getNumber(SALAD_BUFF_REMAINING_KEY, 0, 0);
+  let boardIngredients = Storage.getJSON(CUTTING_BOARD_INGREDIENTS_KEY, { tomato: false, cucumber: false, lettuce: false }, (data) => data && typeof data === 'object');
+  if (!boardIngredients || typeof boardIngredients !== 'object') {
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+  }
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
   const HAS_HATCHED_GOLDEN_DUCKLING_KEY = 'duck-has-hatched-golden-duckling';
@@ -582,6 +587,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       fallbackEmoji: '🩹',
       desc: 'Чинит все!'
     },
+    cuttingBoard: {
+      id: 'cuttingBoard',
+      name: 'Разделочная доска',
+      category: 'household',
+      cost: 2000,
+      icon: 'https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx',
+      fallbackEmoji: '🪵',
+      desc: 'Подходит для нарезки овощей'
+    },
+    saladPlate: {
+      id: 'saladPlate',
+      name: 'Тарелка салата',
+      category: 'food',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/12L-UiIq4d_pDvInnPD-euFrgYgUhtmLo',
+      fallbackEmoji: '🥗',
+      desc: 'Свежий витаминный салат. Даёт +20% к силе нажатий'
+    },
     birdFeed: {
       id: 'birdFeed',
       name: 'Корм для птицы',
@@ -781,6 +804,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const strLvl = (typeof upgradeLevels !== 'undefined' && upgradeLevels.strength) ? upgradeLevels.strength : 0;
     if (strUpg && strLvl > 0) {
       p = strUpg.levels[strLvl - 1].power;
+    }
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      p = Math.round(p * 1.2);
     }
     return p;
   }

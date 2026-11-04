@@ -2265,6 +2265,54 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     background: rgba(245, 158, 11, 0.22) !important;
     color: #fef3c7 !important;
   }
+  .duck-salad-badge {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.55), 0 4px 12px rgba(0,0,0,0.5) !important;
+    color: #bbf7d0 !important;
+  }
+  .duck-salad-badge .debuff-badge-timer {
+    background: rgba(34, 197, 94, 0.22) !important;
+    color: #dcfce7 !important;
+  }
+  .cutting-board-prop {
+    position: fixed;
+    cursor: grab;
+    z-index: 48;
+  }
+  .cutting-board-prop.drag-target-hover {
+    filter: drop-shadow(0 0 14px rgba(74, 222, 128, 0.8)) !important;
+    transform: scale(1.06);
+  }
+  .cutting-board-prop.board-is-ready {
+    animation: boardReadyGlow 1.4s ease-in-out infinite alternate;
+  }
+  @keyframes boardReadyGlow {
+    0% { filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.5)); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.95)); transform: scale(1.03); }
+  }
+  .board-ingredients-layer {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .board-veg {
+    font-size: 22px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    animation: vegLandPop 0.35s ease-out;
+  }
+  @keyframes vegLandPop {
+    0% { transform: scale(0.2) translateY(-10px); opacity: 0; }
+    70% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); }
+  }
   .poop-prop {
     position: fixed;
     font-size: 38px;
@@ -3970,6 +4018,23 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     <span style="display: none; font-size: 52px;">🥬</span>
   </div>
 
+  <div id="prop-cuttingBoard" class="draggable-prop cutting-board-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx" alt="Разделочная доска" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🪵</span>
+    <div class="board-ingredients-layer" id="boardIngredientsLayer">
+      <span class="board-veg" id="boardVegTomato" style="display: none;">🍅</span>
+      <span class="board-veg" id="boardVegCucumber" style="display: none;">🥒</span>
+      <span class="board-veg" id="boardVegLettuce" style="display: none;">🥬</span>
+    </div>
+  </div>
+
+  <div id="prop-saladPlate" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/12L-UiIq4d_pDvInnPD-euFrgYgUhtmLo" alt="Тарелка салата" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥗</span>
+  </div>
+
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
@@ -4040,6 +4105,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
       <span class="debuff-badge-icon">⚡</span>
       <span class="debuff-badge-text">Бета-турбо!</span>
       <span id="duckBetaTimer" class="debuff-badge-timer" style="display: none;">00:30</span>
+    </div>
+    <div id="duckSaladBadge" class="duck-debuff-badge duck-buff-badge duck-salad-badge" style="display: none;">
+      <span class="debuff-badge-icon">🥗</span>
+      <span class="debuff-badge-text">Салат: +20% к силе</span>
+      <span id="duckSaladTimer" class="debuff-badge-timer" style="display: none;">01:00</span>
     </div>
   </div>
 
@@ -4121,6 +4191,8 @@ const GRAVITY = 1000;      // px/s²
   const DUCK_FEED_ALPHA_REMAINING_KEY = 'duck-feed-alpha-remaining';
   const DUCK_FEED_BETA_REMAINING_KEY = 'duck-feed-beta-remaining';
   const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
+  const SALAD_BUFF_REMAINING_KEY = 'duck-salad-buff-remaining';
+  const CUTTING_BOARD_INGREDIENTS_KEY = 'duck-cutting-board-ingredients';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)
@@ -4392,6 +4464,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let duckDiarrheaRemaining = Storage.getNumber(DUCK_DIARRHEA_REMAINING_KEY, 0, 0);
   let activePoops = [];
   let poopSpawnAccumulator = 0;
+  let saladBuffRemaining = Storage.getNumber(SALAD_BUFF_REMAINING_KEY, 0, 0);
+  let boardIngredients = Storage.getJSON(CUTTING_BOARD_INGREDIENTS_KEY, { tomato: false, cucumber: false, lettuce: false }, (data) => data && typeof data === 'object');
+  if (!boardIngredients || typeof boardIngredients !== 'object') {
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+  }
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
   const HAS_HATCHED_GOLDEN_DUCKLING_KEY = 'duck-has-hatched-golden-duckling';
@@ -4787,6 +4864,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       fallbackEmoji: '🩹',
       desc: 'Чинит все!'
     },
+    cuttingBoard: {
+      id: 'cuttingBoard',
+      name: 'Разделочная доска',
+      category: 'household',
+      cost: 2000,
+      icon: 'https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx',
+      fallbackEmoji: '🪵',
+      desc: 'Подходит для нарезки овощей'
+    },
+    saladPlate: {
+      id: 'saladPlate',
+      name: 'Тарелка салата',
+      category: 'food',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/12L-UiIq4d_pDvInnPD-euFrgYgUhtmLo',
+      fallbackEmoji: '🥗',
+      desc: 'Свежий витаминный салат. Даёт +20% к силе нажатий'
+    },
     birdFeed: {
       id: 'birdFeed',
       name: 'Корм для птицы',
@@ -4986,6 +5081,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const strLvl = (typeof upgradeLevels !== 'undefined' && upgradeLevels.strength) ? upgradeLevels.strength : 0;
     if (strUpg && strLvl > 0) {
       p = strUpg.levels[strLvl - 1].power;
+    }
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      p = Math.round(p * 1.2);
     }
     return p;
   }
@@ -5780,6 +5878,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       Storage.remove(DUCK_FEED_ALPHA_REMAINING_KEY);
       Storage.remove(DUCK_FEED_BETA_REMAINING_KEY);
       Storage.remove(DUCK_DIARRHEA_REMAINING_KEY);
+      Storage.remove(SALAD_BUFF_REMAINING_KEY);
+      Storage.remove(CUTTING_BOARD_INGREDIENTS_KEY);
       Storage.remove(HAS_SMASHED_EGGS_KEY);
       Storage.remove(LAMP_ON_KEY);
       Storage.remove(FRIDGE_ON_KEY);
@@ -5825,6 +5925,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     duckFeedAlphaRemaining = 0;
     duckFeedBetaRemaining = 0;
     duckDiarrheaRemaining = 0;
+    saladBuffRemaining = 0;
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
     poopSpawnAccumulator = 0;
     if (typeof activePoops !== 'undefined') {
       activePoops.forEach(p => { if (p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el); });
@@ -5912,7 +6015,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';
@@ -9219,14 +9322,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         duck.classList.add('hit');
 
         const rect = duck.getBoundingClientRect();
+        const emits = ['Кря!', '✨', '🦆', '⭐'];
         particles.push({
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
           vx: (Math.random() - 0.5) * 50,
           vy: -100,
-          size: 16,
+          size: 18,
           alpha: 1.3,
-          text: Math.random() > 0.5 ? 'Кря!' : '✨'
+          text: emits[Math.floor(Math.random() * emits.length)]
         });
 
         if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;
@@ -11264,8 +11368,19 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         }
       }
 
+      // Овощи и Нож: подсветка разделочной доски при наведении
+      if (propId === 'tomato' || propId === 'cucumber' || propId === 'lettuce' || propId === 'knife') {
+        const cbEl = document.getElementById('prop-cuttingBoard');
+        if (cbEl && cbEl.style.display !== 'none') {
+          const cbr = cbEl.getBoundingClientRect();
+          const isOverBoard = (e.clientX >= cbr.left - 15 && e.clientX <= cbr.right + 15 &&
+                               e.clientY >= cbr.top - 15 && e.clientY <= cbr.bottom + 15);
+          cbEl.classList.toggle('drag-target-hover', isOverBoard);
+        }
+      }
+
       // Нож и Изолента: подсветка утки при наведении
-      if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
+      if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta' || propId === 'saladPlate') {
         const rDuck = duck.getBoundingClientRect();
         const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom);
         duck.classList.toggle('prop-target-hover', isOverDuck);
@@ -11296,6 +11411,26 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
+
+      const cbEl = document.getElementById('prop-cuttingBoard');
+      if (cbEl) cbEl.classList.remove('drag-target-hover');
+
+      // Проверка взаимодействия с разделочной доской
+      if (cbEl && cbEl.style.display !== 'none') {
+        const cbr = cbEl.getBoundingClientRect();
+        const isOverBoard = (cx >= cbr.left - 15 && cx <= cbr.right + 15 &&
+                             cy >= cbr.top - 15 && cy <= cbr.bottom + 15);
+        if (isOverBoard) {
+          if (propId === 'tomato' || propId === 'cucumber' || propId === 'lettuce') {
+            addVeggieToBoard(propId);
+            return;
+          }
+          if (propId === 'knife') {
+            chopSaladOnBoard(startLeft, startTop);
+            return;
+          }
+        }
+      }
 
       // 1. Проверка сброса в мусорку (кроме самого мусорного ведра)
       if (propId !== 'trashcan' && isCursorNearTrashcan(cx, cy, el)) {
@@ -11330,9 +11465,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           }
         }
 
-        // Кормление утки
+        // Кормление утки или употребление салата
         if (propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
           feedDuck(propId);
+          return;
+        }
+        if (propId === 'saladPlate') {
+          eatSalad();
           return;
         }
 
@@ -12720,6 +12859,22 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
 
+    const saladBadge = document.getElementById('duckSaladBadge');
+    const saladTimer = document.getElementById('duckSaladTimer');
+    if (saladBadge) {
+      if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+        saladBadge.style.display = 'flex';
+        if (saladTimer) {
+          const m = Math.floor(saladBuffRemaining / 60);
+          const s = Math.ceil(saladBuffRemaining % 60);
+          saladTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          saladTimer.style.display = 'inline-block';
+        }
+      } else {
+        saladBadge.style.display = 'none';
+      }
+    }
+
     const diaBadge = document.getElementById('duckDiarrheaBadge');
     const diaTimer = document.getElementById('duckDiarrheaTimer');
     if (diaBadge) {
@@ -12749,6 +12904,191 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }, 12000);
   }
   window.showDiarrheaAlert = showDiarrheaAlert;
+
+
+  /* ---------- Разделочная доска и приготовление салата ---------- */
+  function renderCuttingBoardIngredients() {
+    const cbEl = document.getElementById('prop-cuttingBoard');
+    if (!cbEl) return;
+    const tom = document.getElementById('boardVegTomato');
+    const cuc = document.getElementById('boardVegCucumber');
+    const letEl = document.getElementById('boardVegLettuce');
+
+    if (tom) tom.style.display = (boardIngredients && boardIngredients.tomato) ? 'inline-block' : 'none';
+    if (cuc) cuc.style.display = (boardIngredients && boardIngredients.cucumber) ? 'inline-block' : 'none';
+    if (letEl) letEl.style.display = (boardIngredients && boardIngredients.lettuce) ? 'inline-block' : 'none';
+
+    const isFull = boardIngredients && boardIngredients.tomato && boardIngredients.cucumber && boardIngredients.lettuce;
+    cbEl.classList.toggle('board-is-ready', Boolean(isFull));
+  }
+  window.renderCuttingBoardIngredients = renderCuttingBoardIngredients;
+
+  function addVeggieToBoard(vegId) {
+    if (!boardIngredients) {
+      boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    }
+    if (boardIngredients[vegId]) {
+      // Этот овощ уже на доске
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.4,
+        text: '⚠️ Этот овощ уже на доске!',
+        color: '#facc15'
+      });
+      returnPropToStorage(vegId);
+      return;
+    }
+
+    boardIngredients[vegId] = true;
+    try { Storage.setJSON(CUTTING_BOARD_INGREDIENTS_KEY, boardIngredients); } catch (e) {}
+
+    // Убираем овощ со стола и из хранилища
+    returnPropToStorage(vegId);
+    const idx = ownedProps.indexOf(vegId);
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+
+    renderCuttingBoardIngredients();
+    renderStorage();
+
+    const vegNames = { tomato: '🍅 Помидор', cucumber: '🥒 Огурец', lettuce: '🥬 Лист салата' };
+    const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
+
+    splatSound();
+    if (placedCount === 3) {
+      xpSound();
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 40,
+        vx: 0,
+        vy: -140,
+        size: 22,
+        alpha: 1.8,
+        text: '✨ Доска заполнена (3/3)! Нарежьте овощи ножом 🔪!',
+        color: '#4ade80'
+      });
+    } else {
+      corkPopSound();
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.4,
+        text: `${vegNames[vegId] || 'Овощ'} на доске (${placedCount}/3)`,
+        color: '#a3e635'
+      });
+    }
+  }
+  window.addVeggieToBoard = addVeggieToBoard;
+
+  function chopSaladOnBoard(startLeft, startTop) {
+    const knifeEl = document.getElementById('prop-knife');
+    const isFull = boardIngredients && boardIngredients.tomato && boardIngredients.cucumber && boardIngredients.lettuce;
+
+    if (!isFull) {
+      if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
+      corkPopSound();
+      const placedCount = (boardIngredients.tomato ? 1 : 0) + (boardIngredients.cucumber ? 1 : 0) + (boardIngredients.lettuce ? 1 : 0);
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -110,
+        size: 18,
+        alpha: 1.5,
+        text: `⚠️ Сначала заполните доску всеми овощами (${placedCount}/3: 🍅 🥒 🥬)!`,
+        color: '#facc15'
+      });
+      return;
+    }
+
+    // Доска заполнена: шинкуем салат!
+    knifeStabSound();
+    setTimeout(() => knifeStabSound(), 120);
+    setTimeout(() => knifeStabSound(), 240);
+
+    // Доска остается на столе, овощи пропадают
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    try { Storage.setJSON(CUTTING_BOARD_INGREDIENTS_KEY, boardIngredients); } catch (e) {}
+    renderCuttingBoardIngredients();
+
+    if (knifeEl) returnItemToOrigin(knifeEl, startLeft, startTop, 'knife');
+
+    // Получаем позицию разделочной доски для спавна тарелки салата рядом
+    const cbEl = document.getElementById('prop-cuttingBoard');
+    const cbr = cbEl ? cbEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 85, height: 85 };
+    const plateX = Math.max(20, Math.min(window.innerWidth - 90, cbr.right + 12));
+    const plateY = Math.max(70, Math.min(window.innerHeight - 90, cbr.top));
+
+    // Спавним тарелку салата
+    if (!ownedProps.includes('saladPlate')) {
+      ownedProps.push('saladPlate');
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    }
+
+    const plateEl = document.getElementById('prop-saladPlate');
+    if (plateEl) {
+      plateEl.style.display = 'block';
+      plateEl.style.left = `${Math.round(plateX)}px`;
+      plateEl.style.top = `${Math.round(plateY)}px`;
+      plateEl.classList.add('is-wobbling');
+      setTimeout(() => plateEl.classList.remove('is-wobbling'), 600);
+
+      if (!placedProps.saladPlate) placedProps.saladPlate = { placed: true };
+      placedProps.saladPlate.left = plateEl.style.left;
+      placedProps.saladPlate.top = plateEl.style.top;
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+    }
+
+    xpSound();
+    particles.push({
+      x: plateX + 40,
+      y: plateY - 20,
+      vx: 0,
+      vy: -150,
+      size: 24,
+      alpha: 2.0,
+      text: '🥗 Тарелка салата готова! Скормите утке!',
+      color: '#4ade80'
+    });
+
+    renderStorage();
+  }
+  window.chopSaladOnBoard = chopSaladOnBoard;
+
+  function eatSalad() {
+    returnPropToStorage('saladPlate');
+    const idx = ownedProps.indexOf('saladPlate');
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+
+    quack();
+    xpSound();
+
+    saladBuffRemaining = Math.min(300, (saladBuffRemaining || 0) + 60);
+    try { Storage.set(SALAD_BUFF_REMAINING_KEY, String(saladBuffRemaining)); } catch (e) {}
+    updateFeedBuffsUI();
+
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -130,
+      size: 24,
+      alpha: 2.2,
+      text: '🥗 Хрум! Салат съеден! Бонус +20% к силе нажатий!',
+      color: '#22c55e'
+    });
+
+    renderStorage();
+  }
+  window.eatSalad = eatSalad;
 
 
   /* ===== Module: src/js/ui.js ===== */
@@ -12944,6 +13284,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         isCrit = true;
         gain *= effMult;
       }
+    }
+
+    // Бонус от салата: +20% к силе нажатий
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      gain = Math.round(gain * 1.2);
     }
 
     // Возможности ур 5: Золотая утка (x2 ко всему)
@@ -13834,6 +14179,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
 
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      saladBuffRemaining = Math.max(0, saladBuffRemaining - deltaSec);
+      try { Storage.set(SALAD_BUFF_REMAINING_KEY, String(saladBuffRemaining)); } catch (e) {}
+      if (saladBuffRemaining <= 0) {
+        particles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2 - 30,
+          vx: 0,
+          vy: -100,
+          size: 20,
+          alpha: 1.5,
+          text: '✨ Действие салата закончилось',
+          color: '#94a3b8'
+        });
+      }
+    }
+
     if (typeof duckDiarrheaRemaining === 'number' && duckDiarrheaRemaining > 0) {
       duckDiarrheaRemaining = Math.max(0, duckDiarrheaRemaining - deltaSec);
       try { Storage.set(DUCK_DIARRHEA_REMAINING_KEY, String(duckDiarrheaRemaining)); } catch (e) {}
@@ -13974,6 +14336,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   initDraggableProp(document.getElementById('prop-tomato'), 'tomato');
   initDraggableProp(document.getElementById('prop-cucumber'), 'cucumber');
   initDraggableProp(document.getElementById('prop-lettuce'), 'lettuce');
+  initDraggableProp(document.getElementById('prop-cuttingBoard'), 'cuttingBoard');
+  initDraggableProp(document.getElementById('prop-saladPlate'), 'saladPlate');
+  if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();
@@ -14100,12 +14465,20 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           continue;
         }
         ctx.save();
-        ctx.font = '800 ' + p.size + 'px system-ui, "Segoe UI", sans-serif';
-        ctx.fillStyle = p.color || '#ffd24d';
+        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(p.text);
+        const hasText = /[a-zA-Zа-яА-Я0-9]/.test(p.text);
+        if (hasEmoji && !hasText) {
+          ctx.font = `${p.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif`;
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.font = `800 ${p.size}px system-ui, "Segoe UI", "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+          ctx.fillStyle = p.color || '#ffd24d';
+          ctx.shadowColor = 'rgba(255, 210, 77, 0.7)';
+          ctx.shadowBlur = 12;
+        }
         ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.shadowColor = 'rgba(255, 210, 77, 0.7)';
-        ctx.shadowBlur = 12;
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         ctx.fillText(p.text, p.x, p.y);
         ctx.restore();
       } else {

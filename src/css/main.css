@@ -2258,6 +2258,54 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     background: rgba(245, 158, 11, 0.22) !important;
     color: #fef3c7 !important;
   }
+  .duck-salad-badge {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.55), 0 4px 12px rgba(0,0,0,0.5) !important;
+    color: #bbf7d0 !important;
+  }
+  .duck-salad-badge .debuff-badge-timer {
+    background: rgba(34, 197, 94, 0.22) !important;
+    color: #dcfce7 !important;
+  }
+  .cutting-board-prop {
+    position: fixed;
+    cursor: grab;
+    z-index: 48;
+  }
+  .cutting-board-prop.drag-target-hover {
+    filter: drop-shadow(0 0 14px rgba(74, 222, 128, 0.8)) !important;
+    transform: scale(1.06);
+  }
+  .cutting-board-prop.board-is-ready {
+    animation: boardReadyGlow 1.4s ease-in-out infinite alternate;
+  }
+  @keyframes boardReadyGlow {
+    0% { filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.5)); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.95)); transform: scale(1.03); }
+  }
+  .board-ingredients-layer {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .board-veg {
+    font-size: 22px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    animation: vegLandPop 0.35s ease-out;
+  }
+  @keyframes vegLandPop {
+    0% { transform: scale(0.2) translateY(-10px); opacity: 0; }
+    70% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); }
+  }
   .poop-prop {
     position: fixed;
     font-size: 38px;

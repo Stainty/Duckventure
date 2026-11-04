@@ -367,6 +367,8 @@
       Storage.remove(DUCK_FEED_ALPHA_REMAINING_KEY);
       Storage.remove(DUCK_FEED_BETA_REMAINING_KEY);
       Storage.remove(DUCK_DIARRHEA_REMAINING_KEY);
+      Storage.remove(SALAD_BUFF_REMAINING_KEY);
+      Storage.remove(CUTTING_BOARD_INGREDIENTS_KEY);
       Storage.remove(HAS_SMASHED_EGGS_KEY);
       Storage.remove(LAMP_ON_KEY);
       Storage.remove(FRIDGE_ON_KEY);
@@ -412,6 +414,9 @@
     duckFeedAlphaRemaining = 0;
     duckFeedBetaRemaining = 0;
     duckDiarrheaRemaining = 0;
+    saladBuffRemaining = 0;
+    boardIngredients = { tomato: false, cucumber: false, lettuce: false };
+    if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
     poopSpawnAccumulator = 0;
     if (typeof activePoops !== 'undefined') {
       activePoops.forEach(p => { if (p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el); });
@@ -499,7 +504,7 @@
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';

@@ -21,6 +21,9 @@
   initDraggableProp(document.getElementById('prop-tomato'), 'tomato');
   initDraggableProp(document.getElementById('prop-cucumber'), 'cucumber');
   initDraggableProp(document.getElementById('prop-lettuce'), 'lettuce');
+  initDraggableProp(document.getElementById('prop-cuttingBoard'), 'cuttingBoard');
+  initDraggableProp(document.getElementById('prop-saladPlate'), 'saladPlate');
+  if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();
@@ -147,12 +150,20 @@
           continue;
         }
         ctx.save();
-        ctx.font = '800 ' + p.size + 'px system-ui, "Segoe UI", sans-serif';
-        ctx.fillStyle = p.color || '#ffd24d';
+        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(p.text);
+        const hasText = /[a-zA-Zа-яА-Я0-9]/.test(p.text);
+        if (hasEmoji && !hasText) {
+          ctx.font = `${p.size}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif`;
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.font = `800 ${p.size}px system-ui, "Segoe UI", "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+          ctx.fillStyle = p.color || '#ffd24d';
+          ctx.shadowColor = 'rgba(255, 210, 77, 0.7)';
+          ctx.shadowBlur = 12;
+        }
         ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.shadowColor = 'rgba(255, 210, 77, 0.7)';
-        ctx.shadowBlur = 12;
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         ctx.fillText(p.text, p.x, p.y);
         ctx.restore();
       } else {

@@ -192,6 +192,11 @@
       }
     }
 
+    // Бонус от салата: +20% к силе нажатий
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      gain = Math.round(gain * 1.2);
+    }
+
     // Возможности ур 5: Золотая утка (x2 ко всему)
     if (upgradeLevels.features >= 5) {
       gain *= 2;

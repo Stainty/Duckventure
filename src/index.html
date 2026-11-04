@@ -716,6 +716,23 @@
     <span style="display: none; font-size: 52px;">🥬</span>
   </div>
 
+  <div id="prop-cuttingBoard" class="draggable-prop cutting-board-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx" alt="Разделочная доска" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🪵</span>
+    <div class="board-ingredients-layer" id="boardIngredientsLayer">
+      <span class="board-veg" id="boardVegTomato" style="display: none;">🍅</span>
+      <span class="board-veg" id="boardVegCucumber" style="display: none;">🥒</span>
+      <span class="board-veg" id="boardVegLettuce" style="display: none;">🥬</span>
+    </div>
+  </div>
+
+  <div id="prop-saladPlate" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/12L-UiIq4d_pDvInnPD-euFrgYgUhtmLo" alt="Тарелка салата" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥗</span>
+  </div>
+
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
@@ -786,6 +803,11 @@
       <span class="debuff-badge-icon">⚡</span>
       <span class="debuff-badge-text">Бета-турбо!</span>
       <span id="duckBetaTimer" class="debuff-badge-timer" style="display: none;">00:30</span>
+    </div>
+    <div id="duckSaladBadge" class="duck-debuff-badge duck-buff-badge duck-salad-badge" style="display: none;">
+      <span class="debuff-badge-icon">🥗</span>
+      <span class="debuff-badge-text">Салат: +20% к силе</span>
+      <span id="duckSaladTimer" class="debuff-badge-timer" style="display: none;">01:00</span>
     </div>
   </div>
 

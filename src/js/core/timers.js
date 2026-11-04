@@ -80,6 +80,23 @@
       }
     }
 
+    if (typeof saladBuffRemaining === 'number' && saladBuffRemaining > 0) {
+      saladBuffRemaining = Math.max(0, saladBuffRemaining - deltaSec);
+      try { Storage.set(SALAD_BUFF_REMAINING_KEY, String(saladBuffRemaining)); } catch (e) {}
+      if (saladBuffRemaining <= 0) {
+        particles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2 - 30,
+          vx: 0,
+          vy: -100,
+          size: 20,
+          alpha: 1.5,
+          text: '✨ Действие салата закончилось',
+          color: '#94a3b8'
+        });
+      }
+    }
+
     if (typeof duckDiarrheaRemaining === 'number' && duckDiarrheaRemaining > 0) {
       duckDiarrheaRemaining = Math.max(0, duckDiarrheaRemaining - deltaSec);
       try { Storage.set(DUCK_DIARRHEA_REMAINING_KEY, String(duckDiarrheaRemaining)); } catch (e) {}
