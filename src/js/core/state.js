@@ -559,6 +559,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
       modal.classList.remove('open');
     });
+    const achvContainer = document.getElementById('achvToastContainer');
+    if (achvContainer && achvContainer.children.length === 0) {
+      achvContainer.classList.remove('over-modal');
+    }
+    const particlesCanvas = document.getElementById('particles');
+    if (particlesCanvas && (!achvContainer || achvContainer.children.length === 0)) {
+      particlesCanvas.classList.remove('over-modal');
+    }
     updateUpgradesButtonHighlight();
   }
   window.closeAllModals = closeAllModals;

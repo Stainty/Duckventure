@@ -232,7 +232,12 @@
     const list = document.getElementById('achvList');
     if (list) list.innerHTML = '';
     const toastContainer = document.getElementById('achvToastContainer');
-    if (toastContainer) toastContainer.innerHTML = '';
+    if (toastContainer) {
+      toastContainer.innerHTML = '';
+      toastContainer.classList.remove('over-modal');
+    }
+    const pCanvas = document.getElementById('particles');
+    if (pCanvas) pCanvas.classList.remove('over-modal');
     quackCount = 0;
     setDuckles(0, true);
     hintCount = 0;
@@ -541,11 +546,6 @@
       Storage.set(STORAGE_PREFIX + a.id, '1');
     } catch (e) { /* без сохранения тоже ок */ }
 
-    // Если ачивка была получена вне основного окна, принудительно возвращаем игрока на основное окно
-    if (isAnyModalOpen()) {
-      closeAllModals();
-    }
-
     // Обновляем карточку в модальном окне ачивок
     const card = document.getElementById('achv-card-' + a.id);
     const padlock = document.getElementById('achv-padlock-' + a.id);
@@ -562,6 +562,17 @@
   function showAchievementUnlockToast(a) {
     const container = document.getElementById('achvToastContainer');
     if (!container) return;
+
+    const particlesCanvas = document.getElementById('particles');
+    const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+
+    if (isModalOpen) {
+      container.classList.add('over-modal');
+      if (particlesCanvas) particlesCanvas.classList.add('over-modal');
+    } else if (container.children.length === 0) {
+      container.classList.remove('over-modal');
+      if (particlesCanvas) particlesCanvas.classList.remove('over-modal');
+    }
 
     const toast = document.createElement('div');
     toast.className = 'achv-toast-card fade-in';
@@ -622,6 +633,10 @@
     // Удаление из DOM через 4300мс
     setTimeout(() => {
       toast.remove();
+      if (container.children.length === 0) {
+        container.classList.remove('over-modal');
+        if (particlesCanvas) particlesCanvas.classList.remove('over-modal');
+      }
     }, 4300);
   }
 

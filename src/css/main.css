@@ -270,8 +270,20 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     align-items: flex-end;
     gap: 14px;
     pointer-events: none;
-    z-index: 55;
+    z-index: 200;
     max-width: min(92vw, 920px);
+    transition: top .25s ease, bottom .25s ease;
+  }
+  .achv-toast-container.over-modal,
+  body:has(.upgrades-modal.open) .achv-toast-container {
+    bottom: auto;
+    top: 20px;
+    align-items: flex-start;
+    z-index: 200;
+  }
+  #particles.over-modal,
+  body:has(.upgrades-modal.open) #particles {
+    z-index: 250;
   }
   .achv-toast-card {
     position: relative;
@@ -286,6 +298,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     flex-shrink: 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
     transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+    pointer-events: none;
   }
   .achv-toast-card.fade-in {
     animation: achvToastIn .35s cubic-bezier(.16, 1, .3, 1) forwards;
