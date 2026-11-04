@@ -980,6 +980,14 @@
     });
   }
 
+  const diarrheaAlertCloseBtn = document.getElementById('diarrheaAlertClose');
+  if (diarrheaAlertCloseBtn) {
+    diarrheaAlertCloseBtn.addEventListener('click', () => {
+      const alertEl = document.getElementById('diarrheaAlert');
+      if (alertEl) alertEl.style.display = 'none';
+    });
+  }
+
   const spoilAlertCloseBtn = document.getElementById('eggSpoilAlertClose');
   if (spoilAlertCloseBtn) {
     spoilAlertCloseBtn.addEventListener('click', () => {

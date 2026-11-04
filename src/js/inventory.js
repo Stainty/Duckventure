@@ -1855,7 +1855,7 @@
       }
 
       // Нож и Изолента: подсветка утки при наведении
-      if (propId === 'knife' || propId === 'tape') {
+      if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
         const rDuck = duck.getBoundingClientRect();
         const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom);
         duck.classList.toggle('prop-target-hover', isOverDuck);
@@ -1918,6 +1918,12 @@
             returnItemToOrigin(el, startLeft, startTop, propId);
             return;
           }
+        }
+
+        // Кормление утки
+        if (propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta') {
+          feedDuck(propId);
+          return;
         }
 
         // Нож: укол утки (нож не исчезает, возвращается на место)
@@ -2045,6 +2051,12 @@
         e.preventDefault();
         isDragAction = false;
         dragDistance = 0;
+        return;
+      }
+      if (propId === 'veggieSet') {
+        e.stopPropagation();
+        e.preventDefault();
+        unpackVeggieSet();
         return;
       }
       if (propId === 'incubator') {
@@ -2974,3 +2986,356 @@
     slot.addEventListener('pointerup', finishDrag);
     slot.addEventListener('pointercancel', finishDrag);
   }
+
+
+  /* ---------- Овощной набор, корм и диарея ---------- */
+  function unpackVeggieSet() {
+    const vEl = document.getElementById('prop-veggieSet');
+    if (!vEl || vEl.style.display === 'none') return;
+
+    const r = vEl.getBoundingClientRect();
+    const startX = r.left;
+    const startY = r.top;
+
+    returnPropToStorage('veggieSet');
+    const idx = ownedProps.indexOf('veggieSet');
+    if (idx !== -1) {
+      ownedProps.splice(idx, 1);
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    }
+    renderShopBuyTab();
+
+    corkPopSound();
+    particles.push({
+      x: startX + 40,
+      y: startY + 20,
+      vx: 0,
+      vy: -150,
+      size: 24,
+      alpha: 1.4,
+      text: '🥗 Овощи распакованы!',
+      color: '#4ade80'
+    });
+
+    const items = [
+      { id: 'tomato', vx: -140, vy: -360 },
+      { id: 'cucumber', vx: 10, vy: -420 },
+      { id: 'lettuce', vx: 150, vy: -340 }
+    ];
+
+    const gravity = 1200; // px/s²
+    const duration = 0.65; // секунды
+
+    items.forEach((item, index) => {
+      if (!ownedProps.includes(item.id)) {
+        ownedProps.push(item.id);
+      }
+      const el = document.getElementById('prop-' + item.id);
+      if (!el) return;
+
+      el.style.display = 'block';
+      el.style.left = `${startX}px`;
+      el.style.top = `${startY}px`;
+      el.style.zIndex = '55';
+      el.classList.add('is-dragging');
+
+      const startTime = performance.now();
+      const landX = Math.max(20, Math.min(window.innerWidth - 85, startX + item.vx * duration));
+      const landY = Math.max(100, Math.min(window.innerHeight - 110, startY + item.vy * duration + 0.5 * gravity * duration * duration));
+
+      function animateArc(now) {
+        const t = Math.min(duration, (now - startTime) / 1000);
+        const curX = Math.max(10, Math.min(window.innerWidth - 80, startX + item.vx * t));
+        const curY = Math.max(50, Math.min(window.innerHeight - 80, startY + item.vy * t + 0.5 * gravity * t * t));
+        const rot = (item.vx > 0 ? 1 : -1) * (t / duration) * 360;
+
+        el.style.left = `${Math.round(curX)}px`;
+        el.style.top = `${Math.round(curY)}px`;
+        el.style.transform = `scale(1.05) rotate(${rot}deg)`;
+
+        if (t < duration) {
+          requestAnimationFrame(animateArc);
+        } else {
+          el.classList.remove('is-dragging');
+          el.style.transform = '';
+          el.style.left = `${Math.round(landX)}px`;
+          el.style.top = `${Math.round(landY)}px`;
+          el.classList.add('is-wobbling');
+          setTimeout(() => el.classList.remove('is-wobbling'), 600);
+
+          if (!placedProps[item.id]) placedProps[item.id] = { placed: true };
+          placedProps[item.id].left = el.style.left;
+          placedProps[item.id].top = el.style.top;
+          try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+        }
+      }
+
+      setTimeout(() => {
+        requestAnimationFrame(animateArc);
+      }, index * 80);
+    });
+
+    try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    renderStorage();
+  }
+  window.unpackVeggieSet = unpackVeggieSet;
+
+  function feedDuck(feedType) {
+    if (feedType === 'birdFeed') {
+      returnPropToStorage('birdFeed');
+      const idx = ownedProps.indexOf('birdFeed');
+      if (idx !== -1) ownedProps.splice(idx, 1);
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+      renderShopBuyTab();
+      renderStorage();
+
+      rottenEggSound();
+      duckDiarrheaRemaining = 60;
+      try { Storage.set(DUCK_DIARRHEA_REMAINING_KEY, '60'); } catch (e) {}
+      showDiarrheaAlert();
+      updateFeedBuffsUI();
+
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -120,
+        size: 24,
+        alpha: 2.0,
+        text: '🦆🤢 О нет! Птичий корм вызвал диарею!',
+        color: '#f59e0b'
+      });
+
+      spawnPoop();
+    } else if (feedType === 'duckFeedAlpha') {
+      returnPropToStorage('duckFeedAlpha');
+      const idx = ownedProps.indexOf('duckFeedAlpha');
+      if (idx !== -1) ownedProps.splice(idx, 1);
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+      renderShopBuyTab();
+      renderStorage();
+
+      xpSound();
+      corkPopSound();
+      duckFeedAlphaRemaining = 30;
+      try { Storage.set(DUCK_FEED_ALPHA_REMAINING_KEY, '30'); } catch (e) {}
+      updateFeedBuffsUI();
+      if (typeof updateAutoQuackTimer === 'function') updateAutoQuackTimer();
+
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -130,
+        size: 22,
+        alpha: 2.0,
+        text: '🥫 Альфа-кряк! Автокрякалка бьёт силой клика (30с)!',
+        color: '#38bdf8'
+      });
+    } else if (feedType === 'duckFeedBeta') {
+      returnPropToStorage('duckFeedBeta');
+      const idx = ownedProps.indexOf('duckFeedBeta');
+      if (idx !== -1) ownedProps.splice(idx, 1);
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+      renderShopBuyTab();
+      renderStorage();
+
+      xpSound();
+      corkPopSound();
+      duckFeedBetaRemaining = 30;
+      try { Storage.set(DUCK_FEED_BETA_REMAINING_KEY, '30'); } catch (e) {}
+      updateFeedBuffsUI();
+      if (typeof updateAutoQuackTimer === 'function') updateAutoQuackTimer();
+
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 30,
+        vx: 0,
+        vy: -130,
+        size: 22,
+        alpha: 2.0,
+        text: '⚡ Бета-турбо! Скорость автокрякалки x2 (30с)!',
+        color: '#facc15'
+      });
+    }
+  }
+  window.feedDuck = feedDuck;
+
+  function spawnPoop() {
+    const container = document.getElementById('poopContainer');
+    if (!container) return;
+
+    const rDuck = duck.getBoundingClientRect();
+    const dCenterX = rDuck.left + rDuck.width / 2;
+    const dCenterY = rDuck.top + rDuck.height / 2;
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 75 + Math.random() * 65;
+    const px = Math.max(20, Math.min(window.innerWidth - 60, dCenterX + Math.cos(angle) * dist - 23));
+    const py = Math.max(70, Math.min(window.innerHeight - 80, dCenterY + Math.sin(angle) * dist - 23));
+
+    const poopEl = document.createElement('div');
+    poopEl.className = 'draggable-prop poop-prop';
+    poopEl.textContent = '💩';
+    poopEl.style.left = `${Math.round(px)}px`;
+    poopEl.style.top = `${Math.round(py)}px`;
+
+    const poopId = 'poop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    poopEl.id = poopId;
+    container.appendChild(poopEl);
+
+    const poopObj = {
+      id: poopId,
+      el: poopEl,
+      x: px,
+      y: py,
+      decayRemaining: 25,
+      hasStunk: false
+    };
+    activePoops.push(poopObj);
+
+    splatSound();
+    particles.push({
+      x: px + 23,
+      y: py + 10,
+      vx: (Math.random() - 0.5) * 40,
+      vy: -70,
+      size: 16,
+      alpha: 1.2,
+      text: '💩 Плюх!',
+      color: '#b45309'
+    });
+
+    initDraggablePoop(poopEl, poopObj);
+  }
+  window.spawnPoop = spawnPoop;
+
+  function initDraggablePoop(el, poopObj) {
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let origLeft = 0, origTop = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      origLeft = el.offsetLeft;
+      origTop = el.offsetTop;
+      el.classList.add('is-dragging');
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const nx = Math.max(10, Math.min(window.innerWidth - 60, origLeft + dx));
+      const ny = Math.max(60, Math.min(window.innerHeight - 60, origTop + dy));
+      el.style.left = `${nx}px`;
+      el.style.top = `${ny}px`;
+      poopObj.x = nx;
+      poopObj.y = ny;
+
+      const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) {
+        trashEl.classList.toggle('drag-target-hover', isCursorNearTrashcan(e.clientX, e.clientY, el));
+      }
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      el.classList.remove('is-dragging');
+      try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+
+      const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) trashEl.classList.remove('drag-target-hover');
+
+      const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : poopObj.x;
+      const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : poopObj.y;
+
+      if (isCursorNearTrashcan(cx, cy, el)) {
+        splatSound();
+        particles.push({
+          x: cx,
+          y: cy - 20,
+          vx: 0,
+          vy: -100,
+          size: 18,
+          alpha: 1.4,
+          text: '🗑️ Какашка выброшена!',
+          color: '#84cc16'
+        });
+        if (el.parentNode) el.parentNode.removeChild(el);
+        const idx = activePoops.indexOf(poopObj);
+        if (idx !== -1) activePoops.splice(idx, 1);
+      }
+    };
+
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  }
+  window.initDraggablePoop = initDraggablePoop;
+
+  function updateFeedBuffsUI() {
+    const alphaBadge = document.getElementById('duckAlphaBadge');
+    const alphaTimer = document.getElementById('duckAlphaTimer');
+    if (alphaBadge) {
+      if (duckFeedAlphaRemaining > 0) {
+        alphaBadge.style.display = 'flex';
+        if (alphaTimer) {
+          const s = Math.ceil(duckFeedAlphaRemaining);
+          alphaTimer.textContent = `00:${String(s).padStart(2, '0')}`;
+          alphaTimer.style.display = 'inline-block';
+        }
+      } else {
+        alphaBadge.style.display = 'none';
+      }
+    }
+
+    const betaBadge = document.getElementById('duckBetaBadge');
+    const betaTimer = document.getElementById('duckBetaTimer');
+    if (betaBadge) {
+      if (duckFeedBetaRemaining > 0) {
+        betaBadge.style.display = 'flex';
+        if (betaTimer) {
+          const s = Math.ceil(duckFeedBetaRemaining);
+          betaTimer.textContent = `00:${String(s).padStart(2, '0')}`;
+          betaTimer.style.display = 'inline-block';
+        }
+      } else {
+        betaBadge.style.display = 'none';
+      }
+    }
+
+    const diaBadge = document.getElementById('duckDiarrheaBadge');
+    const diaTimer = document.getElementById('duckDiarrheaTimer');
+    if (diaBadge) {
+      if (duckDiarrheaRemaining > 0) {
+        diaBadge.style.display = 'flex';
+        if (diaTimer) {
+          const m = Math.floor(duckDiarrheaRemaining / 60);
+          const s = Math.ceil(duckDiarrheaRemaining % 60);
+          diaTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          diaTimer.style.display = 'inline-block';
+        }
+      } else {
+        diaBadge.style.display = 'none';
+      }
+    }
+  }
+  window.updateFeedBuffsUI = updateFeedBuffsUI;
+
+  let diarrheaAlertTimeout = null;
+  function showDiarrheaAlert() {
+    const alertEl = document.getElementById('diarrheaAlert');
+    if (!alertEl) return;
+    alertEl.style.display = 'flex';
+    if (diarrheaAlertTimeout) clearTimeout(diarrheaAlertTimeout);
+    diarrheaAlertTimeout = setTimeout(() => {
+      alertEl.style.display = 'none';
+    }, 12000);
+  }
+  window.showDiarrheaAlert = showDiarrheaAlert;

@@ -18,6 +18,9 @@
   initDraggableProp(document.getElementById('prop-duckFeedAlpha'), 'duckFeedAlpha');
   initDraggableProp(document.getElementById('prop-duckFeedBeta'), 'duckFeedBeta');
   initDraggableProp(document.getElementById('prop-veggieSet'), 'veggieSet');
+  initDraggableProp(document.getElementById('prop-tomato'), 'tomato');
+  initDraggableProp(document.getElementById('prop-cucumber'), 'cucumber');
+  initDraggableProp(document.getElementById('prop-lettuce'), 'lettuce');
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();

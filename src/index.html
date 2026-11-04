@@ -700,6 +700,21 @@
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🥗</span>
   </div>
+  <div id="prop-tomato" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1S00SwkmhFOC4QL-_LTpRbf5szE9IwjNp" alt="Помидор" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🍅</span>
+  </div>
+  <div id="prop-cucumber" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1ol8bf9FOn25fPyPdslxoWTp7mbvW30vb" alt="Огурец" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥒</span>
+  </div>
+  <div id="prop-lettuce" class="draggable-prop" style="display: none;">
+    <img src="https://lh3.googleusercontent.com/d/1C7LmH-BSHu6RY0AfTwqK6c8DJ8i5Gwmf" alt="Лист салата" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🥬</span>
+  </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
@@ -730,19 +745,48 @@
     <button class="egg-spoil-alert-close" id="eggSpoilAlertClose" aria-label="Закрыть">✕</button>
   </div>
 
+  <!-- Предупреждение о диарее у утки -->
+  <div id="diarrheaAlert" class="egg-spoil-alert diarrhea-alert" style="display: none;">
+    <div class="egg-spoil-alert-icon">💩</div>
+    <div class="egg-spoil-alert-body">
+      <div class="egg-spoil-alert-title">О нет! У утки началась диарея!</div>
+      <div class="egg-spoil-alert-desc">Птичий корм не предназначен для резиновой утки! Срочно выбрасывайте какашки в мусорку 🗑️, пока не начался дебафф!</div>
+    </div>
+    <button class="egg-spoil-alert-close" id="diarrheaAlertClose" aria-label="Закрыть">✕</button>
+  </div>
+
   <div id="lampWarmGlowOverlay" class="lamp-warm-glow-overlay"></div>
   <div id="roachesContainer"></div>
   <div id="greenSmokeContainer"></div>
 
-  <div id="duckDebuffBadge" class="duck-debuff-badge" style="display: none;">
-    <span class="debuff-badge-icon">🤢</span>
-    <span class="debuff-badge-text">Дебафф: -50%</span>
-    <span id="duckDebuffTimer" class="debuff-badge-timer" style="display: none;">02:00</span>
-  </div>
-  <div id="duckDeflateBadge" class="duck-debuff-badge duck-deflate-badge" style="display: none;">
-    <span class="debuff-badge-icon">💨</span>
-    <span class="debuff-badge-text">Сдувается!</span>
-    <span id="duckDeflateTimer" class="debuff-badge-timer deflate-badge-timer" style="display: none;">05:00</span>
+  <div id="poopContainer"></div>
+
+  <div id="duckStatusContainer" class="duck-status-container">
+    <div id="duckDebuffBadge" class="duck-debuff-badge" style="display: none;">
+      <span class="debuff-badge-icon">🤢</span>
+      <span class="debuff-badge-text">Дебафф: -50%</span>
+      <span id="duckDebuffTimer" class="debuff-badge-timer" style="display: none;">02:00</span>
+    </div>
+    <div id="duckDeflateBadge" class="duck-debuff-badge duck-deflate-badge" style="display: none;">
+      <span class="debuff-badge-icon">💨</span>
+      <span class="debuff-badge-text">Сдувается!</span>
+      <span id="duckDeflateTimer" class="debuff-badge-timer deflate-badge-timer" style="display: none;">05:00</span>
+    </div>
+    <div id="duckDiarrheaBadge" class="duck-debuff-badge duck-diarrhea-badge" style="display: none;">
+      <span class="debuff-badge-icon">💩</span>
+      <span class="debuff-badge-text">Диарея!</span>
+      <span id="duckDiarrheaTimer" class="debuff-badge-timer" style="display: none;">01:00</span>
+    </div>
+    <div id="duckAlphaBadge" class="duck-debuff-badge duck-buff-badge duck-alpha-badge" style="display: none;">
+      <span class="debuff-badge-icon">🥫</span>
+      <span class="debuff-badge-text">Альфа-кряк!</span>
+      <span id="duckAlphaTimer" class="debuff-badge-timer" style="display: none;">00:30</span>
+    </div>
+    <div id="duckBetaBadge" class="duck-debuff-badge duck-buff-badge duck-beta-badge" style="display: none;">
+      <span class="debuff-badge-icon">⚡</span>
+      <span class="debuff-badge-text">Бета-турбо!</span>
+      <span id="duckBetaTimer" class="debuff-badge-timer" style="display: none;">00:30</span>
+    </div>
   </div>
 
   <button id="duck" aria-label="Крякнуть">

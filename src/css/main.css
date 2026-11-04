@@ -2218,6 +2218,72 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     0% { transform: rotate(-3deg) scale(0.98); }
     100% { transform: rotate(3deg) scale(1.02); }
   }
+  .duck-status-container {
+    position: fixed;
+    top: calc(50% - 170px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    z-index: 60;
+    pointer-events: none;
+  }
+  .duck-status-container .duck-debuff-badge {
+    position: static;
+    transform: none;
+    margin: 0;
+  }
+  .duck-buff-badge {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), 0 4px 12px rgba(0,0,0,0.5) !important;
+    color: #bae6fd !important;
+    animation: buffBadgePulse 1.4s ease-in-out infinite alternate !important;
+  }
+  .duck-buff-badge .debuff-badge-timer {
+    background: rgba(56, 189, 248, 0.22) !important;
+    color: #e0f2fe !important;
+  }
+  @keyframes buffBadgePulse {
+    0% { transform: scale(0.98); box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+    100% { transform: scale(1.04); box-shadow: 0 0 20px rgba(56, 189, 248, 0.8); }
+  }
+  .duck-diarrhea-badge {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.55), 0 4px 12px rgba(0,0,0,0.5) !important;
+    color: #fde68a !important;
+  }
+  .duck-diarrhea-badge .debuff-badge-timer {
+    background: rgba(245, 158, 11, 0.22) !important;
+    color: #fef3c7 !important;
+  }
+  .poop-prop {
+    position: fixed;
+    font-size: 38px;
+    line-height: 1;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    z-index: 52;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    transition: transform 0.1s ease;
+    animation: poopWobble 2s ease-in-out infinite alternate;
+  }
+  .poop-prop:active, .poop-prop.is-dragging {
+    cursor: grabbing;
+    transform: scale(1.2);
+    z-index: 100;
+  }
+  @keyframes poopWobble {
+    0% { transform: rotate(-6deg) scale(0.96); }
+    100% { transform: rotate(6deg) scale(1.04); }
+  }
   .duck-debuff-badge {
     position: fixed;
     top: calc(50% - 150px);

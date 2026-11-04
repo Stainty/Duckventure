@@ -55,6 +55,9 @@ const GRAVITY = 1000;      // px/s²
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
   const EGG_BATCHES_KEY = 'duck-egg-batches';
   const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
+  const DUCK_FEED_ALPHA_REMAINING_KEY = 'duck-feed-alpha-remaining';
+  const DUCK_FEED_BETA_REMAINING_KEY = 'duck-feed-beta-remaining';
+  const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)

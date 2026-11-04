@@ -63,6 +63,59 @@
       }
     }
 
+    // Баффы кормов и диарея
+    if (typeof duckFeedAlphaRemaining === 'number' && duckFeedAlphaRemaining > 0) {
+      duckFeedAlphaRemaining = Math.max(0, duckFeedAlphaRemaining - deltaSec);
+      try { Storage.set(DUCK_FEED_ALPHA_REMAINING_KEY, String(duckFeedAlphaRemaining)); } catch (e) {}
+      if (duckFeedAlphaRemaining <= 0 && typeof updateAutoQuackTimer === 'function') {
+        updateAutoQuackTimer();
+      }
+    }
+
+    if (typeof duckFeedBetaRemaining === 'number' && duckFeedBetaRemaining > 0) {
+      duckFeedBetaRemaining = Math.max(0, duckFeedBetaRemaining - deltaSec);
+      try { Storage.set(DUCK_FEED_BETA_REMAINING_KEY, String(duckFeedBetaRemaining)); } catch (e) {}
+      if (duckFeedBetaRemaining <= 0 && typeof updateAutoQuackTimer === 'function') {
+        updateAutoQuackTimer();
+      }
+    }
+
+    if (typeof duckDiarrheaRemaining === 'number' && duckDiarrheaRemaining > 0) {
+      duckDiarrheaRemaining = Math.max(0, duckDiarrheaRemaining - deltaSec);
+      try { Storage.set(DUCK_DIARRHEA_REMAINING_KEY, String(duckDiarrheaRemaining)); } catch (e) {}
+      poopSpawnAccumulator += deltaSec;
+      if (poopSpawnAccumulator >= 6) {
+        poopSpawnAccumulator = 0;
+        if (typeof spawnPoop === 'function') spawnPoop();
+      }
+    }
+
+    if (typeof updateFeedBuffsUI === 'function') {
+      updateFeedBuffsUI();
+    }
+
+    // Проверка игнорирования какашек: если лежат на столе > 20с, накладываем дебафф как от тухлых яиц
+    if (typeof activePoops !== 'undefined' && activePoops.length > 0) {
+      for (let i = 0; i < activePoops.length; i++) {
+        const p = activePoops[i];
+        p.decayRemaining = (p.decayRemaining || 25) - deltaSec;
+        if (p.decayRemaining <= 0 && !p.hasStunk) {
+          p.hasStunk = true;
+          if (typeof applyStinkDebuff === 'function') applyStinkDebuff(120);
+          particles.push({
+            x: p.x || window.innerWidth / 2,
+            y: p.y || window.innerHeight / 2,
+            vx: 0,
+            vy: -80,
+            size: 20,
+            alpha: 1.8,
+            text: '🤢 Вонь от какашки! Дебафф -50% на 2 мин!',
+            color: '#84cc16'
+          });
+        }
+      }
+    }
+
     // 4. Инкубация яиц: 2 минуты (120 сек)
     if (isIncubating) {
       incubatingRemaining = Math.max(0, incubatingRemaining - deltaSec);

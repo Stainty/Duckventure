@@ -182,6 +182,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isDuckDeflating = Storage.getBoolean(DUCK_IS_DEFLATING_KEY, false);
   let deflationRemaining = Storage.getNumber(DUCK_DEFLATING_REMAINING_KEY, 300, 0);
   let isDeflatedDuckActive = false;
+  let duckFeedAlphaRemaining = Storage.getNumber(DUCK_FEED_ALPHA_REMAINING_KEY, 0, 0);
+  let duckFeedBetaRemaining = Storage.getNumber(DUCK_FEED_BETA_REMAINING_KEY, 0, 0);
+  let duckDiarrheaRemaining = Storage.getNumber(DUCK_DIARRHEA_REMAINING_KEY, 0, 0);
+  let activePoops = [];
+  let poopSpawnAccumulator = 0;
   
   const HAS_HATCHED_DUCKLING_KEY = 'duck-has-hatched-duckling';
   const HAS_HATCHED_GOLDEN_DUCKLING_KEY = 'duck-has-hatched-golden-duckling';
@@ -612,6 +617,33 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       icon: 'https://lh3.googleusercontent.com/d/1f56ZpxliSUeMFMauDLLxas4qYL170qMA',
       fallbackEmoji: '🥗',
       desc: 'Помидор, огурец, листья салата - идеальный набор для лёгкой закуски'
+    },
+    tomato: {
+      id: 'tomato',
+      name: 'Помидор',
+      category: 'food',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/1S00SwkmhFOC4QL-_LTpRbf5szE9IwjNp',
+      fallbackEmoji: '🍅',
+      desc: 'Спелый красный помидор'
+    },
+    cucumber: {
+      id: 'cucumber',
+      name: 'Огурец',
+      category: 'food',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/1ol8bf9FOn25fPyPdslxoWTp7mbvW30vb',
+      fallbackEmoji: '🥒',
+      desc: 'Хрустящий свежий огурец'
+    },
+    lettuce: {
+      id: 'lettuce',
+      name: 'Лист салата',
+      category: 'food',
+      cost: 0,
+      icon: 'https://lh3.googleusercontent.com/d/1C7LmH-BSHu6RY0AfTwqK6c8DJ8i5Gwmf',
+      fallbackEmoji: '🥬',
+      desc: 'Сочный зелёный лист салата'
     }
   };
   window.PROPS_DATA = PROPS_DATA;
@@ -742,6 +774,17 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let comboMultiplier = 1;
   let autoQuackTimer = null;
   let hoverTimer = null;
+
+  function getClickPower() {
+    let p = 1;
+    const strUpg = UPGRADES_DATA.find(u => u.id === 'strength');
+    const strLvl = (typeof upgradeLevels !== 'undefined' && upgradeLevels.strength) ? upgradeLevels.strength : 0;
+    if (strUpg && strLvl > 0) {
+      p = strUpg.levels[strLvl - 1].power;
+    }
+    return p;
+  }
+  window.getClickPower = getClickPower;
 
   function getExpForLevel(lvl) {
     if (lvl >= MAX_LEVEL) return Infinity;

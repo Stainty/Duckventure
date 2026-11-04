@@ -364,6 +364,9 @@
       Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
       Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       Storage.remove(SHOP_FOOD_BUY_COLLAPSED_KEY);
+      Storage.remove(DUCK_FEED_ALPHA_REMAINING_KEY);
+      Storage.remove(DUCK_FEED_BETA_REMAINING_KEY);
+      Storage.remove(DUCK_DIARRHEA_REMAINING_KEY);
       Storage.remove(HAS_SMASHED_EGGS_KEY);
       Storage.remove(LAMP_ON_KEY);
       Storage.remove(FRIDGE_ON_KEY);
@@ -406,6 +409,17 @@
       eggSpoilAlertTimeout = null;
     }
     lastEggSpoilAlertTime = 0;
+    duckFeedAlphaRemaining = 0;
+    duckFeedBetaRemaining = 0;
+    duckDiarrheaRemaining = 0;
+    poopSpawnAccumulator = 0;
+    if (typeof activePoops !== 'undefined') {
+      activePoops.forEach(p => { if (p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el); });
+      activePoops = [];
+    }
+    const dAlert = document.getElementById('diarrheaAlert');
+    if (dAlert) dAlert.style.display = 'none';
+    if (typeof updateFeedBuffsUI === 'function') updateFeedBuffsUI();
     if (typeof window !== 'undefined') window.lastEggSpoilAlertTime = 0;
     if (normalEggEl) {
       normalEggEl.style.display = 'none';
@@ -485,7 +499,7 @@
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';

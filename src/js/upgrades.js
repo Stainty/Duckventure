@@ -32,11 +32,18 @@
     // Прокачка Автокрякалка не доступна пока не прокачен 1 LVL Возможности
     if (upgradeLevels.features < 1) return;
     const lvl = upgradeLevels.autoquack;
-    if (lvl <= 0) return; // По умолчанию без дохода
+    const isAlphaActive = (typeof duckFeedAlphaRemaining === 'number' && duckFeedAlphaRemaining > 0);
+    const isBetaActive = (typeof duckFeedBetaRemaining === 'number' && duckFeedBetaRemaining > 0);
+    if (lvl <= 0 && !isAlphaActive) return; // По умолчанию без дохода
 
     const autoUpg = UPGRADES_DATA.find(u => u.id === 'autoquack');
-    if (!autoUpg) return;
-    let rate = autoUpg.levels[lvl - 1].rate;
+    let rate = (autoUpg && lvl > 0) ? autoUpg.levels[lvl - 1].rate : 0;
+
+    // Корм Альфа: увеличиваем доходность автокрякалки до уровня силы обычного клика на 30 сек
+    if (isAlphaActive) {
+      const clickPower = typeof getClickPower === 'function' ? getClickPower() : 1;
+      rate = Math.max(rate, clickPower);
+    }
 
     // Возможности ур 5: Золотая утка (x2 ко всему доходу)
     if (upgradeLevels.features >= 5) {
@@ -49,6 +56,12 @@
     }
 
     let intervalMs = getAutoQuackInterval();
+
+    // Корм Бета: увеличиваем скорость автокрякалки в 2 раза на 30 сек
+    if (isBetaActive) {
+      intervalMs = Math.max(100, Math.round(intervalMs / 2));
+    }
+
     if (typeof isStinkDebuffActive === 'function' && isStinkDebuffActive()) {
       intervalMs = Math.round(intervalMs * 1.5);
     }
