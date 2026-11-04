@@ -6,9 +6,13 @@
   function advanceGameTime(deltaSec) {
     if (deltaSec <= 0) return;
 
+    // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
+    const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+
     // 1. Свежесть и порча яиц (30 сек без холодильника, 60 сек с холодильником)
+    // Останавливаем таймер порчи яиц, пока игрок находится в модальных окнах
     const hasEggs = hasAnyEggsOnPlayer();
-    if (hasEggs) {
+    if (hasEggs && !isModalOpen) {
       eggSpoilRemaining = Math.max(0, eggSpoilRemaining - deltaSec);
       try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       if (eggSpoilRemaining <= 0) {
@@ -18,8 +22,9 @@
     updateEggSpoilTimerDisplay();
 
     // 2. Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты
+    // Также останавливаем отсчет времени до дебаффа, пока открыто меню
     const rottenEggEl = document.getElementById('rottenEgg');
-    if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
+    if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none' && !isModalOpen) {
       let rDelta = deltaSec;
       while (rDelta > 0 && isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
         if (rDelta < rottenEggRotRemaining) {

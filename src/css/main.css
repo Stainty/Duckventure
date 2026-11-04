@@ -731,6 +731,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     background: rgba(56, 189, 248, 0.18);
     box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
   }
+  .egg-count-item.egg-spoil-timer-item.paused {
+    opacity: 0.72;
+    border-color: rgba(148, 163, 184, 0.45);
+    background: rgba(30, 41, 59, 0.55);
+  }
   @keyframes spoilTimerPulse {
     0%   { transform: scale(1); box-shadow: 0 0 4px rgba(239, 68, 68, 0.2); }
     100% { transform: scale(1.05); box-shadow: 0 0 12px rgba(239, 68, 68, 0.65); }

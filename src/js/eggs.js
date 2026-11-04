@@ -513,16 +513,24 @@
     const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     timerText.textContent = formatted;
 
+    const isPaused = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+    if (isPaused) {
+      timerItem.classList.add('paused');
+      timerItem.title = '⏸️ Таймер свежести яиц на паузе (открыто меню)';
+    } else {
+      timerItem.classList.remove('paused');
+    }
+
     if (isFridgeOn) {
       timerItem.classList.add('fridge');
       timerItem.classList.remove('warning');
       timerIcon.textContent = '❄️';
-      timerItem.title = 'Холодильник включён (+30 сек свежести, до 60 сек)';
+      if (!isPaused) timerItem.title = 'Холодильник включён (+30 сек свежести, до 60 сек)';
     } else {
       timerItem.classList.remove('fridge');
       timerIcon.textContent = '⏱️';
-      timerItem.title = 'Время до порчи яиц на столе (30 сек)';
-      if (eggSpoilRemaining <= 10) {
+      if (!isPaused) timerItem.title = 'Время до порчи яиц на столе (30 сек)';
+      if (eggSpoilRemaining <= 10 && !isPaused) {
         timerItem.classList.add('warning');
       } else {
         timerItem.classList.remove('warning');

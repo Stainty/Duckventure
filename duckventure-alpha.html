@@ -738,6 +738,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     background: rgba(56, 189, 248, 0.18);
     box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
   }
+  .egg-count-item.egg-spoil-timer-item.paused {
+    opacity: 0.72;
+    border-color: rgba(148, 163, 184, 0.45);
+    background: rgba(30, 41, 59, 0.55);
+  }
   @keyframes spoilTimerPulse {
     0%   { transform: scale(1); box-shadow: 0 0 4px rgba(239, 68, 68, 0.2); }
     100% { transform: scale(1.05); box-shadow: 0 0 12px rgba(239, 68, 68, 0.65); }
@@ -6678,16 +6683,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     timerText.textContent = formatted;
 
+    const isPaused = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+    if (isPaused) {
+      timerItem.classList.add('paused');
+      timerItem.title = '⏸️ Таймер свежести яиц на паузе (открыто меню)';
+    } else {
+      timerItem.classList.remove('paused');
+    }
+
     if (isFridgeOn) {
       timerItem.classList.add('fridge');
       timerItem.classList.remove('warning');
       timerIcon.textContent = '❄️';
-      timerItem.title = 'Холодильник включён (+30 сек свежести, до 60 сек)';
+      if (!isPaused) timerItem.title = 'Холодильник включён (+30 сек свежести, до 60 сек)';
     } else {
       timerItem.classList.remove('fridge');
       timerIcon.textContent = '⏱️';
-      timerItem.title = 'Время до порчи яиц на столе (30 сек)';
-      if (eggSpoilRemaining <= 10) {
+      if (!isPaused) timerItem.title = 'Время до порчи яиц на столе (30 сек)';
+      if (eggSpoilRemaining <= 10 && !isPaused) {
         timerItem.classList.add('warning');
       } else {
         timerItem.classList.remove('warning');
@@ -12904,9 +12917,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function advanceGameTime(deltaSec) {
     if (deltaSec <= 0) return;
 
+    // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
+    const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+
     // 1. Свежесть и порча яиц (30 сек без холодильника, 60 сек с холодильником)
+    // Останавливаем таймер порчи яиц, пока игрок находится в модальных окнах
     const hasEggs = hasAnyEggsOnPlayer();
-    if (hasEggs) {
+    if (hasEggs && !isModalOpen) {
       eggSpoilRemaining = Math.max(0, eggSpoilRemaining - deltaSec);
       try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       if (eggSpoilRemaining <= 0) {
@@ -12916,8 +12933,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     updateEggSpoilTimerDisplay();
 
     // 2. Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты
+    // Также останавливаем отсчет времени до дебаффа, пока открыто меню
     const rottenEggEl = document.getElementById('rottenEgg');
-    if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
+    if (isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none' && !isModalOpen) {
       let rDelta = deltaSec;
       while (rDelta > 0 && isRottenEggActive && rottenEggEl && rottenEggEl.style.display !== 'none') {
         if (rDelta < rottenEggRotRemaining) {
