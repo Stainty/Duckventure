@@ -444,6 +444,17 @@
       propKey.style.display = 'none';
       delete propKey.dataset.placed;
     }
+    hasUnlockedWithKey = false;
+    try { Storage.remove(STORAGE_PREFIX + 'universal-key'); } catch (e) {}
+    transferredProps = { achievements: [] };
+    window.transferredProps = transferredProps;
+    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+    try { Storage.remove(TRANSFERRED_PROPS_KEY); } catch (e) {}
+
+    const achvWindow = document.getElementById('achvTransferredWindow');
+    if (achvWindow) achvWindow.style.display = 'none';
+    const achvTray = document.getElementById('achvTransferredTray');
+    if (achvTray) achvTray.innerHTML = '';
     const propLamp = document.getElementById('prop-lamp');
     if (propLamp) {
       propLamp.style.display = 'none';
