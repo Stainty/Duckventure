@@ -166,7 +166,7 @@
     const modal = document.getElementById('businessMinigameModal');
     if (modal) {
       modal.classList.remove('open');
-      modal.style.display = 'none';
+      modal.style.display = '';
     }
     const container = document.getElementById('businessMinigameContainer');
     if (container) container.innerHTML = '';
@@ -200,7 +200,7 @@
       initFactoryMinigame(container, b);
     }
 
-    modal.style.display = 'flex';
+    modal.style.display = '';
     modal.classList.add('open');
   }
   window.openBusinessMinigame = openBusinessMinigame;
@@ -216,7 +216,7 @@
     wrap.style.width = '100%';
     wrap.innerHTML = `
       <div class="minigame-instruction">
-        🧽 Зажмите губку и <b>водите по машине</b>, чтобы отмыть грязь!
+        🧽 Зажмите губку и <b>водите по всей машине</b>, чтобы смыть грязь!
       </div>
       <div class="minigame-progress-wrap" style="margin: 12px 0 8px 0;">
         <div class="minigame-progress-header">
@@ -229,14 +229,95 @@
       </div>
       <div class="carwash-arena" id="carwashArena">
         <div class="carwash-car-wrap">
-          <div class="carwash-car-icon" id="carwashCarIcon">🚗</div>
-          <div class="carwash-dirt-overlay" id="carwashDirtOverlay">
-            <span class="carwash-dirt-spot" style="top: 20%; left: 30%;">💩</span>
-            <span class="carwash-dirt-spot" style="top: 45%; left: 55%;">🟫</span>
-            <span class="carwash-dirt-spot" style="top: 60%; left: 35%;">💩</span>
-            <span class="carwash-dirt-spot" style="top: 30%; left: 65%;">🟫</span>
-            <span class="carwash-dirt-spot" style="top: 50%; left: 20%;">💩</span>
-          </div>
+          <svg viewBox="0 0 360 160" class="carwash-car-svg" id="carwashCarSvg">
+            <defs>
+              <linearGradient id="cwCarBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="45%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#0369a1"/>
+              </linearGradient>
+              <linearGradient id="cwCarGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#475569"/>
+                <stop offset="100%" stop-color="#0f172a"/>
+              </linearGradient>
+              <linearGradient id="cwGlassShine" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.45)"/>
+                <stop offset="60%" stop-color="rgba(255,255,255,0.06)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Тень под машиной -->
+            <ellipse cx="180" cy="144" rx="155" ry="11" fill="rgba(0,0,0,0.45)"/>
+
+            <!-- Кузов машины -->
+            <path d="M 30 115 
+                     L 40 85 
+                     Q 55 60 95 55 
+                     L 135 32 
+                     Q 155 24 220 24 
+                     L 265 52 
+                     Q 325 58 335 88 
+                     L 345 115 
+                     Q 348 126 338 126 
+                     L 298 126 
+                     Q 285 96 250 96 
+                     Q 215 96 202 126 
+                     L 143 126 
+                     Q 130 96 95 96 
+                     Q 60 96 47 126 
+                     L 32 126 
+                     Q 26 126 30 115 Z" 
+                  fill="url(#cwCarBody)" stroke="#0284c7" stroke-width="2"/>
+
+            <!-- Окна -->
+            <path d="M 138 35 Q 155 28 215 28 L 255 53 L 135 53 Z" fill="url(#cwCarGlass)" stroke="#0f172a" stroke-width="1.5"/>
+            <path d="M 104 53 L 130 35 L 130 53 Z" fill="url(#cwCarGlass)" stroke="#0f172a" stroke-width="1.5"/>
+            <path d="M 142 35 L 210 30 L 175 52 L 138 52 Z" fill="url(#cwGlassShine)"/>
+
+            <!-- Фары -->
+            <path d="M 328 80 Q 338 85 338 95 L 320 95 Z" fill="#fef08a" stroke="#eab308" stroke-width="1"/>
+            <path d="M 32 85 Q 28 92 32 100 L 40 98 Z" fill="#ef4444"/>
+
+            <!-- Линия двери и ручка -->
+            <line x1="175" y1="78" x2="195" y2="78" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+            <line x1="205" y1="55" x2="200" y2="124" stroke="rgba(0,0,0,0.22)" stroke-width="1.5"/>
+
+            <!-- Эмблема утки на двери -->
+            <text x="175" y="104" font-size="24" text-anchor="middle" dominant-baseline="central">🦆</text>
+
+            <!-- Колеса -->
+            <circle cx="95" cy="124" r="26" fill="#1e293b" stroke="#0f172a" stroke-width="3"/>
+            <circle cx="95" cy="124" r="15" fill="#94a3b8" stroke="#cbd5e1" stroke-width="2"/>
+            <circle cx="95" cy="124" r="6" fill="#334155"/>
+
+            <circle cx="250" cy="124" r="26" fill="#1e293b" stroke="#0f172a" stroke-width="3"/>
+            <circle cx="250" cy="124" r="15" fill="#94a3b8" stroke="#cbd5e1" stroke-width="2"/>
+            <circle cx="250" cy="124" r="6" fill="#334155"/>
+
+            <!-- Слой реалистичной грязи (органические брызги) -->
+            <g id="carwashMudLayer" style="transition: opacity 0.12s ease;">
+              <path d="M 175 38 Q 212 24 242 44 Q 262 55 246 72 Q 220 58 194 72 Q 168 55 175 38 Z" fill="#713f12" opacity="0.88"/>
+              <path d="M 145 74 Q 192 62 212 90 Q 186 116 158 106 Q 132 110 138 88 Q 132 78 145 74 Z" fill="#854d0e" opacity="0.85"/>
+              <path d="M 276 74 Q 328 68 332 94 Q 312 116 284 106 Q 272 88 276 74 Z" fill="#78350f" opacity="0.88"/>
+              <path d="M 58 84 Q 106 68 116 94 Q 90 126 64 110 Q 48 94 58 84 Z" fill="#713f12" opacity="0.85"/>
+              <path d="M 232 108 Q 266 102 272 130 Q 238 140 228 124 Z" fill="#854d0e" opacity="0.88"/>
+              <circle cx="128" cy="64" r="5" fill="#713f12" opacity="0.88"/>
+              <circle cx="118" cy="78" r="4" fill="#78350f" opacity="0.88"/>
+              <circle cx="222" cy="34" r="4" fill="#713f12" opacity="0.88"/>
+              <circle cx="268" cy="64" r="5.5" fill="#854d0e" opacity="0.88"/>
+              <circle cx="312" cy="114" r="4.5" fill="#78350f" opacity="0.88"/>
+              <circle cx="168" cy="118" r="4.5" fill="#713f12" opacity="0.88"/>
+            </g>
+
+            <!-- Слой сверкающих звезд после мойки -->
+            <g id="carwashSparklesLayer" style="display: none; pointer-events: none;">
+              <text x="65" y="48" font-size="28">✨</text>
+              <text x="215" y="24" font-size="36">✨</text>
+              <text x="315" y="68" font-size="30">✨</text>
+              <text x="155" y="112" font-size="26">✨</text>
+            </g>
+          </svg>
         </div>
         <div class="carwash-sponge" id="carwashSponge" style="left: 50%; top: 50%;">🧽</div>
       </div>
@@ -245,16 +326,17 @@
 
     const arena = document.getElementById('carwashArena');
     const sponge = document.getElementById('carwashSponge');
-    const dirtOverlay = document.getElementById('carwashDirtOverlay');
-    const carIcon = document.getElementById('carwashCarIcon');
+    const mudLayer = document.getElementById('carwashMudLayer');
+    const sparklesLayer = document.getElementById('carwashSparklesLayer');
+    const carSvg = document.getElementById('carwashCarSvg');
     const pText = document.getElementById('carwashProgressText');
     const pBar = document.getElementById('carwashProgressBar');
 
     function updatePos(clientX, clientY) {
       if (!arena || !sponge) return;
       const rect = arena.getBoundingClientRect();
-      const x = Math.max(20, Math.min(rect.width - 20, clientX - rect.left));
-      const y = Math.max(20, Math.min(rect.height - 20, clientY - rect.top));
+      const x = Math.max(25, Math.min(rect.width - 25, clientX - rect.left));
+      const y = Math.max(25, Math.min(rect.height - 25, clientY - rect.top));
       sponge.style.left = `${x}px`;
       sponge.style.top = `${y}px`;
     }
@@ -271,7 +353,7 @@
         washProgress = Math.min(100, washProgress + 3.4);
         if (pBar) pBar.style.width = `${washProgress}%`;
         if (pText) pText.textContent = `${Math.round(washProgress)}%`;
-        if (dirtOverlay) dirtOverlay.style.opacity = String(Math.max(0, 1 - washProgress / 90));
+        if (mudLayer) mudLayer.style.opacity = String(Math.max(0, 1 - washProgress / 90));
 
         particles.push({
           x: e.clientX,
@@ -287,12 +369,10 @@
           isWon = true;
           isWiping = false;
           if (sponge) sponge.classList.remove('wiping');
-          if (carIcon) {
-            carIcon.textContent = '✨🚗✨';
-            carIcon.style.transform = 'scale(1.15)';
-          }
-          if (dirtOverlay) dirtOverlay.style.display = 'none';
-          if (pText) pText.textContent = '100% (Отмыто!)';
+          if (mudLayer) mudLayer.style.display = 'none';
+          if (sparklesLayer) sparklesLayer.style.display = 'block';
+          if (carSvg) carSvg.style.transform = 'scale(1.08)';
+          if (pText) pText.textContent = '✨ 100% (Отмыто!)';
           corkPopSound();
           setTimeout(() => {
             completeBusinessAttention('carwash');
