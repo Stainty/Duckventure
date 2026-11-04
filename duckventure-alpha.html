@@ -3973,6 +3973,7 @@ const GRAVITY = 1000;      // px/s²
   const LAMP_ON_KEY = 'duck-lamp-on';
   const FRIDGE_ON_KEY = 'duck-fridge-on';
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
+  const EGG_BATCHES_KEY = 'duck-egg-batches';
   const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
 
   /* ==========================================================================
@@ -4076,6 +4077,148 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let goldenEggs = Storage.getNumber(EGGS_GOLDEN_KEY, 0, 0);
   let friedEggs = Storage.getNumber(FRIED_EGGS_KEY, 0, 0);
   let goldenFriedEggs = Storage.getNumber(GOLDEN_FRIED_EGGS_KEY, 0, 0);
+
+  let eggBatches = Storage.getJSON(EGG_BATCHES_KEY, [], (data) => Array.isArray(data));
+  if (!Array.isArray(eggBatches)) eggBatches = [];
+  window.eggBatches = eggBatches;
+
+  function syncEggCountsFromBatches() {
+    let n = 0, g = 0, f = 0, gf = 0;
+    for (const b of eggBatches) {
+      if (b.type === 'normal') n += b.count;
+      else if (b.type === 'golden') g += b.count;
+      else if (b.type === 'fried') f += b.count;
+      else if (b.type === 'goldenFried') gf += b.count;
+    }
+    normalEggs = n;
+    goldenEggs = g;
+    friedEggs = f;
+    goldenFriedEggs = gf;
+    try {
+      Storage.set(EGGS_NORMAL_KEY, String(normalEggs));
+      Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs));
+      Storage.set(FRIED_EGGS_KEY, String(friedEggs));
+      Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
+    } catch (e) {}
+  }
+  window.syncEggCountsFromBatches = syncEggCountsFromBatches;
+
+  function saveEggBatches() {
+    try { Storage.setJSON(EGG_BATCHES_KEY, eggBatches); } catch (e) {}
+  }
+  window.saveEggBatches = saveEggBatches;
+
+  function getOldestEggBatchRemaining() {
+    if (!eggBatches || eggBatches.length === 0) return null;
+    let minRemaining = Infinity;
+    for (const b of eggBatches) {
+      if (b.count > 0 && b.remaining < minRemaining) {
+        minRemaining = b.remaining;
+      }
+    }
+    return minRemaining === Infinity ? null : minRemaining;
+  }
+  window.getOldestEggBatchRemaining = getOldestEggBatchRemaining;
+
+  function addEggBatch(type, count = 1, remaining = null) {
+    if (count <= 0) return;
+    if (remaining === null) {
+      remaining = (typeof isFridgeOn !== 'undefined' && isFridgeOn) ? 60 : 30;
+    }
+    eggBatches.push({
+      id: 'batch_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      type: type,
+      count: count,
+      remaining: remaining
+    });
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay(true, type);
+  }
+  window.addEggBatch = addEggBatch;
+
+  function removeEggsFromBatches(type, countToRemove) {
+    if (countToRemove <= 0) return 0;
+    let needed = countToRemove;
+    eggBatches.sort((a, b) => a.remaining - b.remaining);
+    for (let i = 0; i < eggBatches.length && needed > 0; i++) {
+      const b = eggBatches[i];
+      if (b.type === type && b.count > 0) {
+        if (b.count <= needed) {
+          needed -= b.count;
+          b.count = 0;
+        } else {
+          b.count -= needed;
+          needed = 0;
+        }
+      }
+    }
+    eggBatches = eggBatches.filter(b => b.count > 0);
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    return countToRemove - needed;
+  }
+  window.removeEggsFromBatches = removeEggsFromBatches;
+
+  function cookEggBatches(sourceType, targetType) {
+    let cookedCount = 0;
+    for (const b of eggBatches) {
+      if (b.type === sourceType && b.count > 0) {
+        b.type = targetType;
+        cookedCount += b.count;
+      }
+    }
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    return cookedCount;
+  }
+  window.cookEggBatches = cookEggBatches;
+
+  function spoilEggBatches(spoiledBatches) {
+    if (!spoiledBatches || spoiledBatches.length === 0) return;
+    let totalSpoiled = 0;
+    const spoiledIds = new Set(spoiledBatches.map(b => b.id));
+    for (const b of spoiledBatches) {
+      totalSpoiled += b.count;
+    }
+    eggBatches = eggBatches.filter(b => !spoiledIds.has(b.id));
+    syncEggCountsFromBatches();
+    saveEggBatches();
+
+    isRottenEggActive = true;
+    rottenEggRotRemaining = 120;
+    try {
+      Storage.set('duck-rotten-egg-active', '1');
+      Storage.set('duck-rotten-rot-remaining', '120');
+    } catch (e) {}
+
+    const rottenEggEl = document.getElementById('rottenEgg');
+    if (rottenEggEl) {
+      const r = duck.getBoundingClientRect();
+      rottenEggEl.style.left = `${Math.max(10, r.left - 50)}px`;
+      rottenEggEl.style.top = `${Math.min(window.innerHeight - 80, r.bottom - 40)}px`;
+      rottenEggEl.style.display = 'block';
+    }
+
+    if (typeof rottenEggSound === 'function') rottenEggSound();
+    if (typeof showEggSpoilAlert === 'function') showEggSpoilAlert();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    if (typeof updateShopSellTab === 'function') updateShopSellTab();
+
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -110,
+      size: 22,
+      alpha: 2.0,
+      text: `🤢 Испортилась партия яиц (-${totalSpoiled.toLocaleString('ru-RU')} шт.)!`,
+      color: '#84cc16'
+    });
+  }
+  window.spoilEggBatches = spoilEggBatches;
   let hasUnlockedFriedEggs = Storage.getBoolean(HAS_FRIED_KEY, false) || friedEggs > 0 || goldenFriedEggs > 0;
   let hasCookedEgg = Storage.getBoolean(COOKED_EGG_KEY, false) || hasUnlockedFriedEggs;
   let isStoveCombined = Storage.getBoolean(STOVE_COMBINED_KEY, false);
@@ -4164,6 +4307,18 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let eggSpoilRemaining = Storage.getNumber(EGG_SPOIL_TIMER_KEY, maxInitialSpoil, 0, maxInitialSpoil);
   if (eggSpoilRemaining > maxInitialSpoil) {
     eggSpoilRemaining = maxInitialSpoil;
+  }
+
+  // Миграция старых сохранений на партии яиц
+  if (eggBatches.length === 0 && (normalEggs > 0 || goldenEggs > 0 || friedEggs > 0 || goldenFriedEggs > 0)) {
+    const initTime = Math.max(1, eggSpoilRemaining || (isFridgeOn ? 60 : 30));
+    if (normalEggs > 0) eggBatches.push({ id: 'batch_migr_norm', type: 'normal', count: normalEggs, remaining: initTime });
+    if (goldenEggs > 0) eggBatches.push({ id: 'batch_migr_gold', type: 'golden', count: goldenEggs, remaining: initTime });
+    if (friedEggs > 0) eggBatches.push({ id: 'batch_migr_fried', type: 'fried', count: friedEggs, remaining: initTime });
+    if (goldenFriedEggs > 0) eggBatches.push({ id: 'batch_migr_goldFried', type: 'goldenFried', count: goldenFriedEggs, remaining: initTime });
+    saveEggBatches();
+  } else if (eggBatches.length > 0) {
+    syncEggCountsFromBatches();
   }
   let activeContextEggType = null;
   let eggSpoilInterval = null;
@@ -5284,6 +5439,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     goldenEggs = 0;
     friedEggs = 0;
     goldenFriedEggs = 0;
+    eggBatches = [];
+    try { Storage.remove('duck-egg-batches'); } catch (e) {}
     hasUnlockedFriedEggs = false;
     hasCookedEgg = false;
     isStoveCombined = false;
@@ -6177,20 +6334,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const roll = Math.random();
     // С шансом 0.5% золотое яйцо
     if (roll < 0.005) {
-      goldenEggs++;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
-      if (hadNoEggs) resetEggSpoilTimer();
+      addEggBatch('golden', 1);
       xpSound();
-      updateEggsDisplay(true, 'golden');
       return;
     }
     // С шансом 10% обычное яйцо (0.005 + 0.10 = 0.105)
     if (roll < 0.105) {
-      normalEggs++;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
-      if (hadNoEggs) resetEggSpoilTimer();
+      addEggBatch('normal', 1);
       corkPopSound();
-      updateEggsDisplay(true, 'normal');
     }
   }
 
@@ -6373,15 +6524,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     if (type === 'normal') {
       if (normalEggs <= 0) return;
-      const count = normalEggs;
-      normalEggs = 0;
-      friedEggs += count;
+      const count = cookEggBatches('normal', 'fried');
       hasUnlockedFriedEggs = true;
       hasCookedEgg = true;
 
       try {
-        Storage.set(EGGS_NORMAL_KEY, '0');
-        Storage.set(FRIED_EGGS_KEY, String(friedEggs));
         Storage.set(HAS_FRIED_KEY, '1');
         Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
@@ -6434,15 +6581,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       tryUnlock();
     } else if (type === 'golden') {
       if (goldenEggs <= 0) return;
-      const count = goldenEggs;
-      goldenEggs = 0;
-      goldenFriedEggs += count;
+      const count = cookEggBatches('golden', 'goldenFried');
       hasUnlockedFriedEggs = true;
       hasCookedEgg = true;
 
       try {
-        Storage.set(EGGS_GOLDEN_KEY, '0');
-        Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
         Storage.set(HAS_FRIED_KEY, '1');
         Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
@@ -6515,11 +6658,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
 
     if (eggType === 'golden') {
-      goldenEggs = 0;
-      try { Storage.set(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
+      removeEggsFromBatches('golden', goldenEggs);
     } else {
-      normalEggs = 0;
-      try { Storage.set(EGGS_NORMAL_KEY, '0'); } catch (e) {}
+      removeEggsFromBatches('normal', normalEggs);
     }
 
     hasSmashedEggs = true;
@@ -6717,6 +6858,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.resetEggSpoilTimer = resetEggSpoilTimer;
 
   function spoilEggs() {
+    if (eggBatches && eggBatches.length > 0) {
+      spoilEggBatches(eggBatches.slice());
+      return;
+    }
     const spoiledCount = normalEggs + goldenEggs + friedEggs + goldenFriedEggs;
     if (spoiledCount <= 0) return;
 
@@ -7071,14 +7216,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const avail = (type === 'golden') ? goldenEggs : normalEggs;
     if (count <= 0 || avail < count || isIncubating) return;
 
-    if (type === 'golden') {
-      goldenEggs -= count;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
-    } else {
-      normalEggs -= count;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
-    }
-    updateEggsDisplay();
+    removeEggsFromBatches(type, count);
 
     isIncubating = true;
     incubatingType = type;
@@ -8608,7 +8746,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (dist > 10) {
         lastX = e.clientX;
         lastY = e.clientY;
-        washProgress = Math.min(100, washProgress + 3.4);
+        washProgress = Math.min(100, washProgress + 1.7);
         if (pBar) pBar.style.width = `${washProgress}%`;
         if (pText) pText.textContent = `${Math.round(washProgress)}%`;
         if (mudLayer) mudLayer.style.opacity = String(Math.max(0, 1 - washProgress / 90));
@@ -8811,7 +8949,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           vy: -100,
           size: 16,
           alpha: 1.3,
-          text: Math.random() > 0.5 ? 'Кря!' : '🪶'
+          text: Math.random() > 0.5 ? 'Кря!' : '✨'
         });
 
         if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;
@@ -9168,27 +9306,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (type === 'normal') {
       const qty = (amount === 'all') ? normalEggs : Math.min(amount, normalEggs);
       if (qty <= 0) return;
-      normalEggs -= qty;
+      removeEggsFromBatches('normal', qty);
       earned = qty * 200;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
     } else if (type === 'golden') {
       const qty = (amount === 'all') ? goldenEggs : Math.min(amount, goldenEggs);
       if (qty <= 0) return;
-      goldenEggs -= qty;
+      removeEggsFromBatches('golden', qty);
       earned = qty * 5000;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
     } else if (type === 'fried') {
       const qty = (amount === 'all') ? friedEggs : Math.min(amount, friedEggs);
       if (qty <= 0) return;
-      friedEggs -= qty;
+      removeEggsFromBatches('fried', qty);
       earned = qty * 1600;
-      try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
     } else if (type === 'goldenFried') {
       const qty = (amount === 'all') ? goldenFriedEggs : Math.min(amount, goldenFriedEggs);
       if (qty <= 0) return;
-      goldenFriedEggs -= qty;
+      removeEggsFromBatches('goldenFried', qty);
       earned = qty * 15000;
-      try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
     }
 
     if (earned > 0) {
@@ -10030,8 +10164,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
 
     if (propId === 'incubator' && isIncubating) {
-      if (incubatingType === 'golden') goldenEggs += incubatingCount;
-      else normalEggs += incubatingCount;
+      addEggBatch(incubatingType, incubatingCount);
       updateEggsDisplay();
       isIncubating = false;
       incubatingRemaining = 0;
@@ -10636,21 +10769,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (typeof updateShopSellTab === 'function') updateShopSellTab();
     } else if (type === 'egg') {
       const eggType = id;
+      removeEggsFromBatches(eggType, 1);
       if (eggType === 'normal') {
-        normalEggs = Math.max(0, normalEggs - 1);
-        try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
         itemName = 'Обычное яйцо';
       } else if (eggType === 'golden') {
-        goldenEggs = Math.max(0, goldenEggs - 1);
-        try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
         itemName = 'Золотое яйцо';
       } else if (eggType === 'fried') {
-        friedEggs = Math.max(0, friedEggs - 1);
-        try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
         itemName = 'Жареное яйцо';
       } else if (eggType === 'goldenFried') {
-        goldenFriedEggs = Math.max(0, goldenFriedEggs - 1);
-        try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
         itemName = 'Золотое жареное яйцо';
       }
       if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
@@ -11264,12 +11390,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
     if (isFridgeOn) {
       if (!wasActive) {
-        // При включении добавляет +30 сек свежести (до 60 сек макс)
-        if (hasAnyEggsOnPlayer()) {
-          eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
-        } else {
-          eggSpoilRemaining = 60;
+        // При включении добавляет +30 сек свежести ко всем партиям (до 60 сек макс)
+        if (typeof eggBatches !== 'undefined' && eggBatches.length > 0) {
+          for (const b of eggBatches) {
+            b.remaining = Math.min(60, b.remaining + 30);
+          }
+          saveEggBatches();
         }
+        eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
         try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
       // Тараканы появляются при включении холодильника (если еще не пройден квест)
@@ -11287,18 +11415,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     } else {
       if (wasActive) {
-        // При выключении отнимает бонус 30 сек свежести
-        if (hasAnyEggsOnPlayer()) {
-          eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 30);
-          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-          if (eggSpoilRemaining <= 0) {
-            spoilEggs();
-            return;
+        // При выключении отнимает бонус 30 сек свежести у всех партий
+        if (typeof eggBatches !== 'undefined' && eggBatches.length > 0) {
+          let spoiled = [];
+          for (const b of eggBatches) {
+            b.remaining = Math.max(0, b.remaining - 30);
+            if (b.remaining <= 0) {
+              spoiled.push(b);
+            }
           }
-        } else {
-          eggSpoilRemaining = 30;
-          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+          if (spoiled.length > 0) {
+            spoilEggBatches(spoiled);
+          } else {
+            saveEggBatches();
+          }
         }
+        eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 30);
+        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
     }
     updateEggSpoilTimerDisplay();
@@ -12920,16 +13053,30 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
     const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
 
-    // 1. Свежесть и порча яиц (30 сек без холодильника, 60 сек с холодильником)
+    // 1. Свежесть и порча партий яиц (30 сек без холодильника, 60 сек с холодильником)
     // Останавливаем таймер порчи яиц, пока игрок находится в модальных окнах
-    const hasEggs = hasAnyEggsOnPlayer();
-    if (hasEggs && !isModalOpen) {
-      eggSpoilRemaining = Math.max(0, eggSpoilRemaining - deltaSec);
-      try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-      if (eggSpoilRemaining <= 0) {
-        spoilEggs();
+    if (!isModalOpen && eggBatches && eggBatches.length > 0) {
+      let spoiled = [];
+      for (const b of eggBatches) {
+        b.remaining = Math.max(0, b.remaining - deltaSec);
+        if (b.remaining <= 0) {
+          spoiled.push(b);
+        }
+      }
+      if (spoiled.length > 0) {
+        spoilEggBatches(spoiled);
+      } else {
+        saveEggBatches();
       }
     }
+
+    const oldest = getOldestEggBatchRemaining();
+    if (oldest !== null) {
+      eggSpoilRemaining = Math.ceil(oldest);
+    } else {
+      eggSpoilRemaining = (typeof isFridgeOn !== 'undefined' && isFridgeOn) ? 60 : 30;
+    }
+    try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     updateEggSpoilTimerDisplay();
 
     // 2. Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты

@@ -173,27 +173,23 @@
     if (type === 'normal') {
       const qty = (amount === 'all') ? normalEggs : Math.min(amount, normalEggs);
       if (qty <= 0) return;
-      normalEggs -= qty;
+      removeEggsFromBatches('normal', qty);
       earned = qty * 200;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
     } else if (type === 'golden') {
       const qty = (amount === 'all') ? goldenEggs : Math.min(amount, goldenEggs);
       if (qty <= 0) return;
-      goldenEggs -= qty;
+      removeEggsFromBatches('golden', qty);
       earned = qty * 5000;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
     } else if (type === 'fried') {
       const qty = (amount === 'all') ? friedEggs : Math.min(amount, friedEggs);
       if (qty <= 0) return;
-      friedEggs -= qty;
+      removeEggsFromBatches('fried', qty);
       earned = qty * 1600;
-      try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
     } else if (type === 'goldenFried') {
       const qty = (amount === 'all') ? goldenFriedEggs : Math.min(amount, goldenFriedEggs);
       if (qty <= 0) return;
-      goldenFriedEggs -= qty;
+      removeEggsFromBatches('goldenFried', qty);
       earned = qty * 15000;
-      try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
     }
 
     if (earned > 0) {
@@ -1035,8 +1031,7 @@
     }
 
     if (propId === 'incubator' && isIncubating) {
-      if (incubatingType === 'golden') goldenEggs += incubatingCount;
-      else normalEggs += incubatingCount;
+      addEggBatch(incubatingType, incubatingCount);
       updateEggsDisplay();
       isIncubating = false;
       incubatingRemaining = 0;
@@ -1641,21 +1636,14 @@
       if (typeof updateShopSellTab === 'function') updateShopSellTab();
     } else if (type === 'egg') {
       const eggType = id;
+      removeEggsFromBatches(eggType, 1);
       if (eggType === 'normal') {
-        normalEggs = Math.max(0, normalEggs - 1);
-        try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
         itemName = 'Обычное яйцо';
       } else if (eggType === 'golden') {
-        goldenEggs = Math.max(0, goldenEggs - 1);
-        try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
         itemName = 'Золотое яйцо';
       } else if (eggType === 'fried') {
-        friedEggs = Math.max(0, friedEggs - 1);
-        try { Storage.set(FRIED_EGGS_KEY, String(friedEggs)); } catch (e) {}
         itemName = 'Жареное яйцо';
       } else if (eggType === 'goldenFried') {
-        goldenFriedEggs = Math.max(0, goldenFriedEggs - 1);
-        try { Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs)); } catch (e) {}
         itemName = 'Золотое жареное яйцо';
       }
       if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
@@ -2269,12 +2257,14 @@
 
     if (isFridgeOn) {
       if (!wasActive) {
-        // При включении добавляет +30 сек свежести (до 60 сек макс)
-        if (hasAnyEggsOnPlayer()) {
-          eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
-        } else {
-          eggSpoilRemaining = 60;
+        // При включении добавляет +30 сек свежести ко всем партиям (до 60 сек макс)
+        if (typeof eggBatches !== 'undefined' && eggBatches.length > 0) {
+          for (const b of eggBatches) {
+            b.remaining = Math.min(60, b.remaining + 30);
+          }
+          saveEggBatches();
         }
+        eggSpoilRemaining = Math.min(60, eggSpoilRemaining + 30);
         try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
       // Тараканы появляются при включении холодильника (если еще не пройден квест)
@@ -2292,18 +2282,23 @@
       }
     } else {
       if (wasActive) {
-        // При выключении отнимает бонус 30 сек свежести
-        if (hasAnyEggsOnPlayer()) {
-          eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 30);
-          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-          if (eggSpoilRemaining <= 0) {
-            spoilEggs();
-            return;
+        // При выключении отнимает бонус 30 сек свежести у всех партий
+        if (typeof eggBatches !== 'undefined' && eggBatches.length > 0) {
+          let spoiled = [];
+          for (const b of eggBatches) {
+            b.remaining = Math.max(0, b.remaining - 30);
+            if (b.remaining <= 0) {
+              spoiled.push(b);
+            }
           }
-        } else {
-          eggSpoilRemaining = 30;
-          try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
+          if (spoiled.length > 0) {
+            spoilEggBatches(spoiled);
+          } else {
+            saveEggBatches();
+          }
         }
+        eggSpoilRemaining = Math.max(0, eggSpoilRemaining - 30);
+        try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
       }
     }
     updateEggSpoilTimerDisplay();

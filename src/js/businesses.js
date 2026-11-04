@@ -350,7 +350,7 @@
       if (dist > 10) {
         lastX = e.clientX;
         lastY = e.clientY;
-        washProgress = Math.min(100, washProgress + 3.4);
+        washProgress = Math.min(100, washProgress + 1.7);
         if (pBar) pBar.style.width = `${washProgress}%`;
         if (pText) pText.textContent = `${Math.round(washProgress)}%`;
         if (mudLayer) mudLayer.style.opacity = String(Math.max(0, 1 - washProgress / 90));
@@ -553,7 +553,7 @@
           vy: -100,
           size: 16,
           alpha: 1.3,
-          text: Math.random() > 0.5 ? 'Кря!' : '🪶'
+          text: Math.random() > 0.5 ? 'Кря!' : '✨'
         });
 
         if (pBar) pBar.style.width = `${(catches / maxCatches) * 100}%`;

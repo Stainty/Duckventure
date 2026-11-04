@@ -271,14 +271,7 @@
     const avail = (type === 'golden') ? goldenEggs : normalEggs;
     if (count <= 0 || avail < count || isIncubating) return;
 
-    if (type === 'golden') {
-      goldenEggs -= count;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
-    } else {
-      normalEggs -= count;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
-    }
-    updateEggsDisplay();
+    removeEggsFromBatches(type, count);
 
     isIncubating = true;
     incubatingType = type;

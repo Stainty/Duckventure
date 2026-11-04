@@ -254,6 +254,8 @@
     goldenEggs = 0;
     friedEggs = 0;
     goldenFriedEggs = 0;
+    eggBatches = [];
+    try { Storage.remove('duck-egg-batches'); } catch (e) {}
     hasUnlockedFriedEggs = false;
     hasCookedEgg = false;
     isStoveCombined = false;

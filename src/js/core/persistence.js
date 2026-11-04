@@ -52,6 +52,7 @@ const GRAVITY = 1000;      // px/s²
   const LAMP_ON_KEY = 'duck-lamp-on';
   const FRIDGE_ON_KEY = 'duck-fridge-on';
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
+  const EGG_BATCHES_KEY = 'duck-egg-batches';
   const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
 
   /* ==========================================================================

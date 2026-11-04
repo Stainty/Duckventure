@@ -7,20 +7,14 @@
     const roll = Math.random();
     // С шансом 0.5% золотое яйцо
     if (roll < 0.005) {
-      goldenEggs++;
-      try { Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs)); } catch (e) {}
-      if (hadNoEggs) resetEggSpoilTimer();
+      addEggBatch('golden', 1);
       xpSound();
-      updateEggsDisplay(true, 'golden');
       return;
     }
     // С шансом 10% обычное яйцо (0.005 + 0.10 = 0.105)
     if (roll < 0.105) {
-      normalEggs++;
-      try { Storage.set(EGGS_NORMAL_KEY, String(normalEggs)); } catch (e) {}
-      if (hadNoEggs) resetEggSpoilTimer();
+      addEggBatch('normal', 1);
       corkPopSound();
-      updateEggsDisplay(true, 'normal');
     }
   }
 
@@ -203,15 +197,11 @@
 
     if (type === 'normal') {
       if (normalEggs <= 0) return;
-      const count = normalEggs;
-      normalEggs = 0;
-      friedEggs += count;
+      const count = cookEggBatches('normal', 'fried');
       hasUnlockedFriedEggs = true;
       hasCookedEgg = true;
 
       try {
-        Storage.set(EGGS_NORMAL_KEY, '0');
-        Storage.set(FRIED_EGGS_KEY, String(friedEggs));
         Storage.set(HAS_FRIED_KEY, '1');
         Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
@@ -264,15 +254,11 @@
       tryUnlock();
     } else if (type === 'golden') {
       if (goldenEggs <= 0) return;
-      const count = goldenEggs;
-      goldenEggs = 0;
-      goldenFriedEggs += count;
+      const count = cookEggBatches('golden', 'goldenFried');
       hasUnlockedFriedEggs = true;
       hasCookedEgg = true;
 
       try {
-        Storage.set(EGGS_GOLDEN_KEY, '0');
-        Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
         Storage.set(HAS_FRIED_KEY, '1');
         Storage.set(COOKED_EGG_KEY, '1');
       } catch (e) {}
@@ -345,11 +331,9 @@
     }
 
     if (eggType === 'golden') {
-      goldenEggs = 0;
-      try { Storage.set(EGGS_GOLDEN_KEY, '0'); } catch (e) {}
+      removeEggsFromBatches('golden', goldenEggs);
     } else {
-      normalEggs = 0;
-      try { Storage.set(EGGS_NORMAL_KEY, '0'); } catch (e) {}
+      removeEggsFromBatches('normal', normalEggs);
     }
 
     hasSmashedEggs = true;
@@ -547,6 +531,10 @@
   window.resetEggSpoilTimer = resetEggSpoilTimer;
 
   function spoilEggs() {
+    if (eggBatches && eggBatches.length > 0) {
+      spoilEggBatches(eggBatches.slice());
+      return;
+    }
     const spoiledCount = normalEggs + goldenEggs + friedEggs + goldenFriedEggs;
     if (spoiledCount <= 0) return;
 

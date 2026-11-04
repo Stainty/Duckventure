@@ -18,6 +18,148 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let goldenEggs = Storage.getNumber(EGGS_GOLDEN_KEY, 0, 0);
   let friedEggs = Storage.getNumber(FRIED_EGGS_KEY, 0, 0);
   let goldenFriedEggs = Storage.getNumber(GOLDEN_FRIED_EGGS_KEY, 0, 0);
+
+  let eggBatches = Storage.getJSON(EGG_BATCHES_KEY, [], (data) => Array.isArray(data));
+  if (!Array.isArray(eggBatches)) eggBatches = [];
+  window.eggBatches = eggBatches;
+
+  function syncEggCountsFromBatches() {
+    let n = 0, g = 0, f = 0, gf = 0;
+    for (const b of eggBatches) {
+      if (b.type === 'normal') n += b.count;
+      else if (b.type === 'golden') g += b.count;
+      else if (b.type === 'fried') f += b.count;
+      else if (b.type === 'goldenFried') gf += b.count;
+    }
+    normalEggs = n;
+    goldenEggs = g;
+    friedEggs = f;
+    goldenFriedEggs = gf;
+    try {
+      Storage.set(EGGS_NORMAL_KEY, String(normalEggs));
+      Storage.set(EGGS_GOLDEN_KEY, String(goldenEggs));
+      Storage.set(FRIED_EGGS_KEY, String(friedEggs));
+      Storage.set(GOLDEN_FRIED_EGGS_KEY, String(goldenFriedEggs));
+    } catch (e) {}
+  }
+  window.syncEggCountsFromBatches = syncEggCountsFromBatches;
+
+  function saveEggBatches() {
+    try { Storage.setJSON(EGG_BATCHES_KEY, eggBatches); } catch (e) {}
+  }
+  window.saveEggBatches = saveEggBatches;
+
+  function getOldestEggBatchRemaining() {
+    if (!eggBatches || eggBatches.length === 0) return null;
+    let minRemaining = Infinity;
+    for (const b of eggBatches) {
+      if (b.count > 0 && b.remaining < minRemaining) {
+        minRemaining = b.remaining;
+      }
+    }
+    return minRemaining === Infinity ? null : minRemaining;
+  }
+  window.getOldestEggBatchRemaining = getOldestEggBatchRemaining;
+
+  function addEggBatch(type, count = 1, remaining = null) {
+    if (count <= 0) return;
+    if (remaining === null) {
+      remaining = (typeof isFridgeOn !== 'undefined' && isFridgeOn) ? 60 : 30;
+    }
+    eggBatches.push({
+      id: 'batch_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      type: type,
+      count: count,
+      remaining: remaining
+    });
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay(true, type);
+  }
+  window.addEggBatch = addEggBatch;
+
+  function removeEggsFromBatches(type, countToRemove) {
+    if (countToRemove <= 0) return 0;
+    let needed = countToRemove;
+    eggBatches.sort((a, b) => a.remaining - b.remaining);
+    for (let i = 0; i < eggBatches.length && needed > 0; i++) {
+      const b = eggBatches[i];
+      if (b.type === type && b.count > 0) {
+        if (b.count <= needed) {
+          needed -= b.count;
+          b.count = 0;
+        } else {
+          b.count -= needed;
+          needed = 0;
+        }
+      }
+    }
+    eggBatches = eggBatches.filter(b => b.count > 0);
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    return countToRemove - needed;
+  }
+  window.removeEggsFromBatches = removeEggsFromBatches;
+
+  function cookEggBatches(sourceType, targetType) {
+    let cookedCount = 0;
+    for (const b of eggBatches) {
+      if (b.type === sourceType && b.count > 0) {
+        b.type = targetType;
+        cookedCount += b.count;
+      }
+    }
+    syncEggCountsFromBatches();
+    saveEggBatches();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    return cookedCount;
+  }
+  window.cookEggBatches = cookEggBatches;
+
+  function spoilEggBatches(spoiledBatches) {
+    if (!spoiledBatches || spoiledBatches.length === 0) return;
+    let totalSpoiled = 0;
+    const spoiledIds = new Set(spoiledBatches.map(b => b.id));
+    for (const b of spoiledBatches) {
+      totalSpoiled += b.count;
+    }
+    eggBatches = eggBatches.filter(b => !spoiledIds.has(b.id));
+    syncEggCountsFromBatches();
+    saveEggBatches();
+
+    isRottenEggActive = true;
+    rottenEggRotRemaining = 120;
+    try {
+      Storage.set('duck-rotten-egg-active', '1');
+      Storage.set('duck-rotten-rot-remaining', '120');
+    } catch (e) {}
+
+    const rottenEggEl = document.getElementById('rottenEgg');
+    if (rottenEggEl) {
+      const r = duck.getBoundingClientRect();
+      rottenEggEl.style.left = `${Math.max(10, r.left - 50)}px`;
+      rottenEggEl.style.top = `${Math.min(window.innerHeight - 80, r.bottom - 40)}px`;
+      rottenEggEl.style.display = 'block';
+    }
+
+    if (typeof rottenEggSound === 'function') rottenEggSound();
+    if (typeof showEggSpoilAlert === 'function') showEggSpoilAlert();
+    if (typeof updateEggsDisplay === 'function') updateEggsDisplay();
+    if (typeof updateShopSellTab === 'function') updateShopSellTab();
+
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -110,
+      size: 22,
+      alpha: 2.0,
+      text: `🤢 Испортилась партия яиц (-${totalSpoiled.toLocaleString('ru-RU')} шт.)!`,
+      color: '#84cc16'
+    });
+  }
+  window.spoilEggBatches = spoilEggBatches;
   let hasUnlockedFriedEggs = Storage.getBoolean(HAS_FRIED_KEY, false) || friedEggs > 0 || goldenFriedEggs > 0;
   let hasCookedEgg = Storage.getBoolean(COOKED_EGG_KEY, false) || hasUnlockedFriedEggs;
   let isStoveCombined = Storage.getBoolean(STOVE_COMBINED_KEY, false);
@@ -106,6 +248,18 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let eggSpoilRemaining = Storage.getNumber(EGG_SPOIL_TIMER_KEY, maxInitialSpoil, 0, maxInitialSpoil);
   if (eggSpoilRemaining > maxInitialSpoil) {
     eggSpoilRemaining = maxInitialSpoil;
+  }
+
+  // Миграция старых сохранений на партии яиц
+  if (eggBatches.length === 0 && (normalEggs > 0 || goldenEggs > 0 || friedEggs > 0 || goldenFriedEggs > 0)) {
+    const initTime = Math.max(1, eggSpoilRemaining || (isFridgeOn ? 60 : 30));
+    if (normalEggs > 0) eggBatches.push({ id: 'batch_migr_norm', type: 'normal', count: normalEggs, remaining: initTime });
+    if (goldenEggs > 0) eggBatches.push({ id: 'batch_migr_gold', type: 'golden', count: goldenEggs, remaining: initTime });
+    if (friedEggs > 0) eggBatches.push({ id: 'batch_migr_fried', type: 'fried', count: friedEggs, remaining: initTime });
+    if (goldenFriedEggs > 0) eggBatches.push({ id: 'batch_migr_goldFried', type: 'goldenFried', count: goldenFriedEggs, remaining: initTime });
+    saveEggBatches();
+  } else if (eggBatches.length > 0) {
+    syncEggCountsFromBatches();
   }
   let activeContextEggType = null;
   let eggSpoilInterval = null;

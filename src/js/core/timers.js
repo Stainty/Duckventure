@@ -9,16 +9,30 @@
     // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
     const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
 
-    // 1. Свежесть и порча яиц (30 сек без холодильника, 60 сек с холодильником)
+    // 1. Свежесть и порча партий яиц (30 сек без холодильника, 60 сек с холодильником)
     // Останавливаем таймер порчи яиц, пока игрок находится в модальных окнах
-    const hasEggs = hasAnyEggsOnPlayer();
-    if (hasEggs && !isModalOpen) {
-      eggSpoilRemaining = Math.max(0, eggSpoilRemaining - deltaSec);
-      try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
-      if (eggSpoilRemaining <= 0) {
-        spoilEggs();
+    if (!isModalOpen && eggBatches && eggBatches.length > 0) {
+      let spoiled = [];
+      for (const b of eggBatches) {
+        b.remaining = Math.max(0, b.remaining - deltaSec);
+        if (b.remaining <= 0) {
+          spoiled.push(b);
+        }
+      }
+      if (spoiled.length > 0) {
+        spoilEggBatches(spoiled);
+      } else {
+        saveEggBatches();
       }
     }
+
+    const oldest = getOldestEggBatchRemaining();
+    if (oldest !== null) {
+      eggSpoilRemaining = Math.ceil(oldest);
+    } else {
+      eggSpoilRemaining = (typeof isFridgeOn !== 'undefined' && isFridgeOn) ? 60 : 30;
+    }
+    try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     updateEggSpoilTimerDisplay();
 
     // 2. Протухшие яйца на столе: если не убирать в течение 2 минут (120 сек) -> дебафф -50% на 2 минуты
