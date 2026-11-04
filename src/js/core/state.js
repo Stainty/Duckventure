@@ -609,7 +609,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Овощной набор',
       category: 'food',
       cost: 2000,
-      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      icon: 'https://lh3.googleusercontent.com/d/1f56ZpxliSUeMFMauDLLxas4qYL170qMA',
       fallbackEmoji: '🥗',
       desc: 'Помидор, огурец, листья салата - идеальный набор для лёгкой закуски'
     }
