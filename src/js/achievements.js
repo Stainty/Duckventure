@@ -364,6 +364,7 @@
       Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
       Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       Storage.remove(SHOP_FOOD_BUY_COLLAPSED_KEY);
+      Storage.remove(SHOP_GARDENING_COLLAPSED_KEY);
       Storage.remove(DUCK_FEED_ALPHA_REMAINING_KEY);
       Storage.remove(DUCK_FEED_BETA_REMAINING_KEY);
       Storage.remove(DUCK_DIARRHEA_REMAINING_KEY);
@@ -571,6 +572,7 @@
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
     isFoodBuyCollapsed = false;
+    isGardeningCollapsed = false;
     isFoodCollapsed = false;
     isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();

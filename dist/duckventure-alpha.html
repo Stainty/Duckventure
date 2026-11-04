@@ -3539,6 +3539,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
             </div>
             <div class="buy-items-grid" id="foodBuyList"></div>
           </div>
+
+          <!-- Секция: Садоводство -->
+          <div class="shop-section" id="gardeningShopSection">
+            <div class="shop-section-title" id="gardeningSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('gardening')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('gardening');}">
+              <div class="shop-section-title-left">
+                <span>🌱</span> <span>Садоводство</span>
+              </div>
+              <span class="shop-collapse-arrow" id="gardeningSectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="gardeningBuyList"></div>
+          </div>
         </div>
       </div>
       <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
@@ -4225,6 +4236,7 @@ const GRAVITY = 1000;      // px/s²
   const SHOP_CLOTHING_COLLAPSED_KEY = 'duck-shop-clothing-collapsed';
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
   const SHOP_FOOD_BUY_COLLAPSED_KEY = 'duck-shop-food-buy-collapsed';
+  const SHOP_GARDENING_COLLAPSED_KEY = 'duck-shop-gardening-collapsed';
   const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
   const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
@@ -4500,6 +4512,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
   let isFoodBuyCollapsed = true;
+  let isGardeningCollapsed = true;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -5926,6 +5939,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       Storage.remove(SHOP_CLOTHING_COLLAPSED_KEY);
       Storage.remove(SHOP_HOUSEHOLD_COLLAPSED_KEY);
       Storage.remove(SHOP_FOOD_BUY_COLLAPSED_KEY);
+      Storage.remove(SHOP_GARDENING_COLLAPSED_KEY);
       Storage.remove(DUCK_FEED_ALPHA_REMAINING_KEY);
       Storage.remove(DUCK_FEED_BETA_REMAINING_KEY);
       Storage.remove(DUCK_DIARRHEA_REMAINING_KEY);
@@ -6133,6 +6147,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     isClothingCollapsed = false;
     isHouseholdCollapsed = false;
     isFoodBuyCollapsed = false;
+    isGardeningCollapsed = false;
     isFoodCollapsed = false;
     isAnimalsCollapsed = false;
     updateShopSectionCollapsedUI();
@@ -10019,6 +10034,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
       isFoodBuyCollapsed = true;
+      isGardeningCollapsed = true;
       isFoodCollapsed = true;
       isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
@@ -10066,7 +10082,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         text: '👔 Новый скин надет!',
         color: '#f0abfc'
       });
-    } else if (category === 'household' || category === 'food') {
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
       if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
@@ -10086,7 +10102,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!',
+        text: category === 'gardening' ? '🌱 Садовый инвентарь на столе!' : (category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!'),
         color: '#fdba74'
       });
     }
@@ -10128,7 +10144,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
         color: '#ffd24d'
       });
-    } else if (category === 'household' || category === 'food') {
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
       if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
@@ -10347,6 +10363,67 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         foodBuyContainer.appendChild(card);
       });
     }
+
+    const gardeningContainer = document.getElementById('gardeningBuyList');
+    if (gardeningContainer) {
+      gardeningContainer.innerHTML = '';
+      const sortedGardeningKeys = Object.keys(PROPS_DATA).filter(id => {
+        return PROPS_DATA[id].category === 'gardening';
+      }).sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+
+      if (sortedGardeningKeys.length === 0) {
+        gardeningContainer.innerHTML = `
+          <div class="empty-shop-msg" style="padding: 16px 12px; text-align: center; color: #94a3b8; font-size: 13px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.08);">
+            🌱 Товары для садоводства скоро появятся в продаже!
+          </div>
+        `;
+      } else {
+        sortedGardeningKeys.forEach(id => {
+          const prop = PROPS_DATA[id];
+          const isOwned = ownedProps.includes(id);
+          const canAfford = duckles >= prop.cost;
+
+          let actionHtml = '';
+          if (isOwned) {
+            const refundPrice = Math.floor(prop.cost / 2);
+            actionHtml = `
+              <div class="buy-owned-wrap">
+                <div class="buy-owned-badge">✓ На складе</div>
+                <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('gardening', '${id}')">
+                  Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+                </button>
+              </div>
+            `;
+          } else {
+            const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
+            actionHtml = `<button class="${btnClass}" onclick="buyShopItem('gardening', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
+          }
+
+          const card = document.createElement('div');
+          card.className = 'buy-card' + (isOwned ? ' owned' : '');
+          card.innerHTML = `
+            <div class="buy-item-left">
+              <div class="buy-item-img-box">
+                <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+                <span style="display: none;">${prop.fallbackEmoji || '🌱'}</span>
+              </div>
+              <div class="buy-item-info">
+                <div class="buy-item-name">${prop.name}</div>
+                <div class="buy-item-desc">${prop.desc}</div>
+                <div class="buy-item-price">${prop.cost.toLocaleString('ru-RU')} 🦆</div>
+              </div>
+            </div>
+            ${actionHtml}
+          `;
+          gardeningContainer.appendChild(card);
+        });
+      }
+    }
     updateShopSectionCollapsedUI();
   }
 
@@ -10354,6 +10431,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
     const foodBuySection = document.getElementById('foodBuyShopSection');
+    const gardeningSection = document.getElementById('gardeningShopSection');
     const foodSection = document.getElementById('foodShopSection');
     const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
@@ -10364,6 +10442,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
     if (foodBuySection) {
       foodBuySection.classList.toggle('collapsed', isFoodBuyCollapsed);
+    }
+    if (gardeningSection) {
+      gardeningSection.classList.toggle('collapsed', isGardeningCollapsed);
     }
     if (foodSection) {
       foodSection.classList.toggle('collapsed', isFoodCollapsed);
@@ -10388,6 +10469,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isFoodBuyCollapsed = !isFoodBuyCollapsed;
       try {
         Storage.set(SHOP_FOOD_BUY_COLLAPSED_KEY, isFoodBuyCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'gardening') {
+      isGardeningCollapsed = !isGardeningCollapsed;
+      try {
+        Storage.set(SHOP_GARDENING_COLLAPSED_KEY, isGardeningCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'food') {
       isFoodCollapsed = !isFoodCollapsed;

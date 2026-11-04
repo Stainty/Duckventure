@@ -439,6 +439,7 @@
       isClothingCollapsed = true;
       isHouseholdCollapsed = true;
       isFoodBuyCollapsed = true;
+      isGardeningCollapsed = true;
       isFoodCollapsed = true;
       isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
@@ -486,7 +487,7 @@
         text: '👔 Новый скин надет!',
         color: '#f0abfc'
       });
-    } else if (category === 'household' || category === 'food') {
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
       if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
@@ -506,7 +507,7 @@
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!',
+        text: category === 'gardening' ? '🌱 Садовый инвентарь на столе!' : (category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!'),
         color: '#fdba74'
       });
     }
@@ -548,7 +549,7 @@
         text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
         color: '#ffd24d'
       });
-    } else if (category === 'household' || category === 'food') {
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
       if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
@@ -767,6 +768,67 @@
         foodBuyContainer.appendChild(card);
       });
     }
+
+    const gardeningContainer = document.getElementById('gardeningBuyList');
+    if (gardeningContainer) {
+      gardeningContainer.innerHTML = '';
+      const sortedGardeningKeys = Object.keys(PROPS_DATA).filter(id => {
+        return PROPS_DATA[id].category === 'gardening';
+      }).sort((a, b) => {
+        const aOwned = ownedProps.includes(a) ? 1 : 0;
+        const bOwned = ownedProps.includes(b) ? 1 : 0;
+        return aOwned - bOwned;
+      });
+
+      if (sortedGardeningKeys.length === 0) {
+        gardeningContainer.innerHTML = `
+          <div class="empty-shop-msg" style="padding: 16px 12px; text-align: center; color: #94a3b8; font-size: 13px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.08);">
+            🌱 Товары для садоводства скоро появятся в продаже!
+          </div>
+        `;
+      } else {
+        sortedGardeningKeys.forEach(id => {
+          const prop = PROPS_DATA[id];
+          const isOwned = ownedProps.includes(id);
+          const canAfford = duckles >= prop.cost;
+
+          let actionHtml = '';
+          if (isOwned) {
+            const refundPrice = Math.floor(prop.cost / 2);
+            actionHtml = `
+              <div class="buy-owned-wrap">
+                <div class="buy-owned-badge">✓ На складе</div>
+                <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('gardening', '${id}')">
+                  Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
+                </button>
+              </div>
+            `;
+          } else {
+            const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
+            actionHtml = `<button class="${btnClass}" onclick="buyShopItem('gardening', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
+          }
+
+          const card = document.createElement('div');
+          card.className = 'buy-card' + (isOwned ? ' owned' : '');
+          card.innerHTML = `
+            <div class="buy-item-left">
+              <div class="buy-item-img-box">
+                <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+                <span style="display: none;">${prop.fallbackEmoji || '🌱'}</span>
+              </div>
+              <div class="buy-item-info">
+                <div class="buy-item-name">${prop.name}</div>
+                <div class="buy-item-desc">${prop.desc}</div>
+                <div class="buy-item-price">${prop.cost.toLocaleString('ru-RU')} 🦆</div>
+              </div>
+            </div>
+            ${actionHtml}
+          `;
+          gardeningContainer.appendChild(card);
+        });
+      }
+    }
     updateShopSectionCollapsedUI();
   }
 
@@ -774,6 +836,7 @@
     const clothingSection = document.getElementById('clothingShopSection');
     const householdSection = document.getElementById('householdShopSection');
     const foodBuySection = document.getElementById('foodBuyShopSection');
+    const gardeningSection = document.getElementById('gardeningShopSection');
     const foodSection = document.getElementById('foodShopSection');
     const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
@@ -784,6 +847,9 @@
     }
     if (foodBuySection) {
       foodBuySection.classList.toggle('collapsed', isFoodBuyCollapsed);
+    }
+    if (gardeningSection) {
+      gardeningSection.classList.toggle('collapsed', isGardeningCollapsed);
     }
     if (foodSection) {
       foodSection.classList.toggle('collapsed', isFoodCollapsed);
@@ -808,6 +874,11 @@
       isFoodBuyCollapsed = !isFoodBuyCollapsed;
       try {
         Storage.set(SHOP_FOOD_BUY_COLLAPSED_KEY, isFoodBuyCollapsed ? '1' : '0');
+      } catch (e) {}
+    } else if (sectionKey === 'gardening') {
+      isGardeningCollapsed = !isGardeningCollapsed;
+      try {
+        Storage.set(SHOP_GARDENING_COLLAPSED_KEY, isGardeningCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'food') {
       isFoodCollapsed = !isFoodCollapsed;

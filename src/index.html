@@ -196,6 +196,17 @@
             </div>
             <div class="buy-items-grid" id="foodBuyList"></div>
           </div>
+
+          <!-- Секция: Садоводство -->
+          <div class="shop-section" id="gardeningShopSection">
+            <div class="shop-section-title" id="gardeningSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('gardening')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('gardening');}">
+              <div class="shop-section-title-left">
+                <span>🌱</span> <span>Садоводство</span>
+              </div>
+              <span class="shop-collapse-arrow" id="gardeningSectionArrow">▼</span>
+            </div>
+            <div class="buy-items-grid" id="gardeningBuyList"></div>
+          </div>
         </div>
       </div>
       <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">

@@ -172,6 +172,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isClothingCollapsed = true;
   let isHouseholdCollapsed = true;
   let isFoodBuyCollapsed = true;
+  let isGardeningCollapsed = true;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
