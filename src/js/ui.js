@@ -882,9 +882,10 @@
       rottenEggEl.style.top = `${Math.max(0, Math.min(window.innerHeight - rottenEggEl.offsetHeight, y))}px`;
 
       const trashEl = document.getElementById('prop-trashcan');
-      if (trashEl && trashEl.style.display !== 'none') {
-        const trRect = trashEl.getBoundingClientRect();
-        const isHover = (e.clientX >= trRect.left - 10 && e.clientX <= trRect.right + 10 && e.clientY >= trRect.top - 10 && e.clientY <= trRect.bottom + 10);
+      if (trashEl) {
+        const isHover = (typeof isCursorNearTrashcan === 'function')
+          ? isCursorNearTrashcan(e.clientX, e.clientY, rottenEggEl)
+          : (trashEl.style.display !== 'none' && e.clientX >= trashEl.getBoundingClientRect().left - 10 && e.clientX <= trashEl.getBoundingClientRect().right + 10 && e.clientY >= trashEl.getBoundingClientRect().top - 10 && e.clientY <= trashEl.getBoundingClientRect().bottom + 10);
         trashEl.classList.toggle('drag-target-hover', isHover);
       }
     });
@@ -899,11 +900,13 @@
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
 
       const trashEl = document.getElementById('prop-trashcan');
+      if (trashEl) trashEl.classList.remove('drag-target-hover');
       let isOverTrash = false;
-      if (trashEl && trashEl.style.display !== 'none' && cx !== undefined && cy !== undefined) {
+      if (typeof isCursorNearTrashcan === 'function') {
+        isOverTrash = isCursorNearTrashcan(cx, cy, rottenEggEl);
+      } else if (trashEl && trashEl.style.display !== 'none' && cx !== undefined && cy !== undefined) {
         const trRect = trashEl.getBoundingClientRect();
         isOverTrash = (cx >= trRect.left - 20 && cx <= trRect.right + 20 && cy >= trRect.top - 20 && cy <= trRect.bottom + 20);
-        trashEl.classList.remove('drag-target-hover');
       }
 
       if (isOverTrash && rHasMoved) {

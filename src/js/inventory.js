@@ -1279,21 +1279,43 @@
 
   function isCursorNearTrashcan(clientX, clientY, itemEl) {
     const trashEl = document.getElementById('prop-trashcan');
-    if (!trashEl || trashEl.offsetParent === null || window.getComputedStyle(trashEl).display === 'none') return false;
+    if (!trashEl) return false;
+    if (trashEl.style.display === 'none' || window.getComputedStyle(trashEl).display === 'none') return false;
+
+    const tr = trashEl.getBoundingClientRect();
+    if (tr.width === 0 || tr.height === 0) return false;
+
     let px = clientX;
     let py = clientY;
-    if (px === undefined || py === undefined) {
-      if (!itemEl) return false;
-      const ir = itemEl.getBoundingClientRect();
-      px = ir.left + ir.width / 2;
-      py = ir.top + ir.height / 2;
+    if (typeof px !== 'number' || typeof py !== 'number' || px <= 0 || py <= 0) {
+      if (itemEl && typeof itemEl.getBoundingClientRect === 'function') {
+        const ir = itemEl.getBoundingClientRect();
+        px = ir.left + ir.width / 2;
+        py = ir.top + ir.height / 2;
+      }
     }
-    const tr = trashEl.getBoundingClientRect();
-    const inBox = (px >= tr.left - 15 && px <= tr.right + 15 && py >= tr.top - 15 && py <= tr.bottom + 25);
-    const cx = tr.left + tr.width / 2;
-    const cy = tr.top + tr.height / 2;
-    const dist = Math.hypot(px - cx, py - cy);
-    return inBox || dist < 75;
+
+    if (typeof px === 'number' && typeof py === 'number' && px > 0 && py > 0) {
+      const inBox = (px >= tr.left - 25 && px <= tr.right + 25 &&
+                     py >= tr.top - 25 && py <= tr.bottom + 35);
+      const cx = tr.left + tr.width / 2;
+      const cy = tr.top + tr.height / 2;
+      const dist = Math.hypot(px - cx, py - cy);
+      if (inBox || dist < 90) return true;
+    }
+
+    if (itemEl && typeof itemEl.getBoundingClientRect === 'function') {
+      const ir = itemEl.getBoundingClientRect();
+      if (ir.width > 0 && ir.height > 0) {
+        const overlap = !(ir.right < tr.left - 10 ||
+                          ir.left > tr.right + 10 ||
+                          ir.bottom < tr.top - 10 ||
+                          ir.top > tr.bottom + 10);
+        if (overlap) return true;
+      }
+    }
+
+    return false;
   }
   window.isCursorNearTrashcan = isCursorNearTrashcan;
 
@@ -1603,6 +1625,7 @@
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
       lastClientX = e.clientX;
+      lastClientY = e.clientY;
       currentTilt = 0;
       e.stopPropagation();
     });
@@ -1624,6 +1647,7 @@
       // Физичное качание при перемещении (tilt) — наклон увеличен на 10 градусов
       const dx = e.clientX - lastClientX;
       lastClientX = e.clientX;
+      lastClientY = e.clientY;
       currentTilt = Math.max(-26, Math.min(26, dx * 2.4));
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
@@ -1684,11 +1708,14 @@
       const trashEl = document.getElementById('prop-trashcan');
       if (trashEl) trashEl.classList.remove('drag-target-hover');
 
+      const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
+      const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
+
       // Проверка сброса в мусорку (кроме самого мусорного ведра)
-      if (propId !== 'trashcan' && isCursorNearTrashcan(e.clientX, e.clientY, el)) {
+      if (propId !== 'trashcan' && isCursorNearTrashcan(cx, cy, el)) {
         const info = getItemDiscardInfo('prop', propId);
         requestDiscardConfirmation(info.name, info.emoji, () => {
-          performItemDiscard('prop', propId, e.clientX, e.clientY);
+          performItemDiscard('prop', propId, cx, cy);
         });
         return;
       }

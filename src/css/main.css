@@ -2144,6 +2144,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     cursor: grabbing !important;
     animation: none !important;
     transition: transform 0.05s ease-out !important;
+    z-index: 70 !important;
   }
   .draggable-egg.is-wobbling,
   .draggable-prop.is-wobbling,

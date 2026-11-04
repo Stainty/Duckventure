@@ -944,6 +944,7 @@
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
       lastClientX = e.clientX;
+      lastClientY = e.clientY;
       currentTilt = 0;
       el.classList.remove('is-wobbling');
       e.stopPropagation();
@@ -958,6 +959,7 @@
 
       const dx = e.clientX - lastClientX;
       lastClientX = e.clientX;
+      lastClientY = e.clientY;
       currentTilt = Math.max(-26, Math.min(26, dx * 2.4));
       el.style.transform = `scale(1.12) rotate(${currentTilt}deg)`;
 
@@ -990,12 +992,12 @@
       const trashEl = document.getElementById('prop-trashcan');
       if (trashEl) trashEl.classList.remove('drag-target-hover');
 
-      const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : undefined;
-      const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : undefined;
+      const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
+      const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
       const t = getCreatureType();
 
       // 0. Проверка сброса питомца в мусорное ведро
-      if (cx !== undefined && cy !== undefined && typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cx, cy, el)) {
+      if (typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cx, cy, el)) {
         if (typeof getItemDiscardInfo === 'function' && typeof requestDiscardConfirmation === 'function') {
           const info = getItemDiscardInfo('creature', t);
           requestDiscardConfirmation(info.name, info.emoji, () => {
