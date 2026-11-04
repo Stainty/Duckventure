@@ -400,6 +400,12 @@
     eggSpoilRemaining = isFridgeOn ? 60 : 30;
     try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     if (eggSpoilAlert) eggSpoilAlert.style.display = 'none';
+    if (eggSpoilAlertTimeout) {
+      clearTimeout(eggSpoilAlertTimeout);
+      eggSpoilAlertTimeout = null;
+    }
+    lastEggSpoilAlertTime = 0;
+    if (typeof window !== 'undefined') window.lastEggSpoilAlertTime = 0;
     if (normalEggEl) {
       normalEggEl.style.display = 'none';
       delete normalEggEl.dataset.placed;

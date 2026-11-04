@@ -603,7 +603,14 @@
   }
   window.spoilEggs = spoilEggs;
 
+  const EGG_SPOIL_ALERT_COOLDOWN_MS = 30000; // Кулдаун 30 секунд между показами подсказки
+
   function showEggSpoilAlert() {
+    const now = Date.now();
+    if (now - lastEggSpoilAlertTime < EGG_SPOIL_ALERT_COOLDOWN_MS) return;
+    lastEggSpoilAlertTime = now;
+    window.lastEggSpoilAlertTime = lastEggSpoilAlertTime;
+
     const alertEl = document.getElementById('eggSpoilAlert');
     if (!alertEl) return;
     alertEl.style.display = 'flex';

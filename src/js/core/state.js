@@ -264,6 +264,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let activeContextEggType = null;
   let eggSpoilInterval = null;
   let eggSpoilAlertTimeout = null;
+  let lastEggSpoilAlertTime = 0;
+  window.lastEggSpoilAlertTime = lastEggSpoilAlertTime;
 
   let ownedSkins = Storage.getJSON(OWNED_SKINS_KEY, ['default'], (data) => Array.isArray(data));
   if (!Array.isArray(ownedSkins) || !ownedSkins.includes('default')) {

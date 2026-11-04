@@ -4323,6 +4323,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let activeContextEggType = null;
   let eggSpoilInterval = null;
   let eggSpoilAlertTimeout = null;
+  let lastEggSpoilAlertTime = 0;
+  window.lastEggSpoilAlertTime = lastEggSpoilAlertTime;
 
   let ownedSkins = Storage.getJSON(OWNED_SKINS_KEY, ['default'], (data) => Array.isArray(data));
   if (!Array.isArray(ownedSkins) || !ownedSkins.includes('default')) {
@@ -5585,6 +5587,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     eggSpoilRemaining = isFridgeOn ? 60 : 30;
     try { Storage.set(EGG_SPOIL_TIMER_KEY, String(eggSpoilRemaining)); } catch (e) {}
     if (eggSpoilAlert) eggSpoilAlert.style.display = 'none';
+    if (eggSpoilAlertTimeout) {
+      clearTimeout(eggSpoilAlertTimeout);
+      eggSpoilAlertTimeout = null;
+    }
+    lastEggSpoilAlertTime = 0;
+    if (typeof window !== 'undefined') window.lastEggSpoilAlertTime = 0;
     if (normalEggEl) {
       normalEggEl.style.display = 'none';
       delete normalEggEl.dataset.placed;
@@ -6930,7 +6938,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
   window.spoilEggs = spoilEggs;
 
+  const EGG_SPOIL_ALERT_COOLDOWN_MS = 30000; // Кулдаун 30 секунд между показами подсказки
+
   function showEggSpoilAlert() {
+    const now = Date.now();
+    if (now - lastEggSpoilAlertTime < EGG_SPOIL_ALERT_COOLDOWN_MS) return;
+    lastEggSpoilAlertTime = now;
+    window.lastEggSpoilAlertTime = lastEggSpoilAlertTime;
+
     const alertEl = document.getElementById('eggSpoilAlert');
     if (!alertEl) return;
     alertEl.style.display = 'flex';
