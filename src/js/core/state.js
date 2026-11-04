@@ -63,6 +63,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let hasHatchedDuckling = Storage.getBoolean(HAS_HATCHED_DUCKLING_KEY, false);
   let hasFriedDuckling = Storage.getBoolean(HAS_FRIED_DUCKLING_KEY, false);
   let hasCookedGoose = Storage.getBoolean(HAS_COOKED_GOOSE_KEY, false);
+  let hasUnlockedWithKey = Storage.getBoolean(STORAGE_PREFIX + 'universal-key', false);
 
   let isIncubating = Storage.getBoolean(IS_INCUBATING_KEY, false);
   let incubatingType = Storage.get(INCUBATING_TYPE_KEY, 'normal') === 'golden' ? 'golden' : 'normal';
@@ -141,6 +142,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let placedProps = Storage.getJSON(PLACED_PROPS_KEY, {}, (data) => data && typeof data === 'object' && !Array.isArray(data));
   if (!placedProps || typeof placedProps !== 'object' || Array.isArray(placedProps)) placedProps = {};
   Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true });
+
+  let transferredProps = Storage.getJSON(TRANSFERRED_PROPS_KEY, { achievements: [] });
+  if (!transferredProps || typeof transferredProps !== 'object' || !Array.isArray(transferredProps.achievements)) {
+    transferredProps = { achievements: [] };
+  }
+  Object.defineProperty(window, 'transferredProps', { get: () => transferredProps, set: (v) => { transferredProps = v; }, configurable: true });
 
   const SKINS_DATA = {
     default: {

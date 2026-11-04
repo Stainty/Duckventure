@@ -427,17 +427,30 @@
 
   <!-- Модальное окно ачивок -->
   <div class="upgrades-modal" id="achievementsModal">
-    <div class="upgrades-dialog achv-dialog">
-      <div class="upgrades-header">
-        <div class="upgrades-title">
-          <span class="achv-title-icon">🏆</span>
-          <span>Ачивки</span>
-          <span class="achv-counter-badge" id="achvModalCounter">(0/26)</span>
+    <div class="achv-modal-wrapper" id="achvModalWrapper">
+      <div class="upgrades-dialog achv-dialog" id="achvDialog">
+        <div class="upgrades-header">
+          <div class="upgrades-title">
+            <span class="achv-title-icon">🏆</span>
+            <span>Ачивки</span>
+            <span class="achv-counter-badge" id="achvModalCounter">(0/27)</span>
+          </div>
+          <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
         </div>
-        <button class="upgrades-close-btn" id="closeAchvBtn" aria-label="Закрыть">✕</button>
+        <div class="achv-body" id="achvModalBody">
+          <div class="achv-grid" id="achvList"></div>
+        </div>
       </div>
-      <div class="achv-body" id="achvModalBody">
-        <div class="achv-grid" id="achvList"></div>
+
+      <!-- Окно для перетащенных предметов под окном ачивок -->
+      <div class="transferred-props-window" id="achvTransferredWindow">
+        <div class="transferred-props-info">
+          <span class="transferred-props-title">📦 Перенесённые предметы</span>
+          <span class="transferred-props-hint">(вынеси за окно или ПКМ — вернуть на стол)</span>
+        </div>
+        <div class="transferred-props-tray" id="achvTransferredTray">
+          <span class="transferred-prop-empty-hint">Перенесите предметы со стола на кнопку «🏆 Ачивки»</span>
+        </div>
       </div>
     </div>
   </div>

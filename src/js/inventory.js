@@ -1685,6 +1685,15 @@
       el.style.setProperty('--sway-tilt', `${currentTilt || 15}deg`);
       el.style.transform = `scale(1.08) rotate(${currentTilt}deg)`;
 
+      // Подсветка кнопки Ачивки при наведении ключа
+      const achvBtn = document.getElementById('achvBtn');
+      if (propId === 'key' && achvBtn) {
+        const ar = achvBtn.getBoundingClientRect();
+        const isHoverAchv = (e.clientX >= ar.left - 20 && e.clientX <= ar.right + 20 &&
+                             e.clientY >= ar.top - 20 && e.clientY <= ar.bottom + 20);
+        achvBtn.classList.toggle('drag-target-hover', isHoverAchv);
+      }
+
       // Подсветка мусорки при наведении предмета (кроме самого мусорного ведра)
       let isNearTrash = false;
       const trashEl = document.getElementById('prop-trashcan');
@@ -1790,6 +1799,19 @@
         corkPopSound();
         returnItemToOrigin(el, startLeft, startTop, propId);
         return;
+      }
+
+      // Перенос ключа на кнопку Ачивки
+      const achvBtnEl = document.getElementById('achvBtn');
+      if (achvBtnEl) achvBtnEl.classList.remove('drag-target-hover');
+      if (propId === 'key' && achvBtnEl) {
+        const ar = achvBtnEl.getBoundingClientRect();
+        const isOverAchv = (cx >= ar.left - 25 && cx <= ar.right + 25 &&
+                            cy >= ar.top - 25 && cy <= ar.bottom + 25);
+        if (isOverAchv) {
+          transferPropToScreen('achievements', 'key');
+          return;
+        }
       }
 
       const activeTarget = getActiveDragTarget(el, e.clientX, e.clientY, propId);
@@ -1927,6 +1949,11 @@
   function restorePropsOnScreen() {
     let changed = false;
     Object.keys(placedProps).forEach(id => {
+      if (transferredProps && transferredProps.achievements && transferredProps.achievements.includes(id)) {
+        const trEl = document.getElementById('prop-' + id);
+        if (trEl) trEl.style.display = 'none';
+        return;
+      }
       if (ownedProps.includes(id)) {
         const el = document.getElementById('prop-' + id);
         if (el && placedProps[id].left && placedProps[id].top) {
@@ -2507,6 +2534,7 @@
   if (achvBtn && achievementsModal && closeAchvBtn) {
     achvBtn.addEventListener('click', () => {
       achievementsModal.classList.add('open');
+      if (typeof renderTransferredPropsTray === 'function') renderTransferredPropsTray('achievements');
       updateAchvCounter();
     });
     closeAchvBtn.addEventListener('click', () => {
@@ -2519,4 +2547,271 @@
         updateUpgradesButtonHighlight();
       }
     });
+  }
+
+  // ---------- Механика переноса предметов между экранами ----------
+  function transferPropToScreen(screen, propId) {
+    if (!transferredProps) transferredProps = { achievements: [] };
+    if (!transferredProps[screen]) transferredProps[screen] = [];
+    if (!transferredProps[screen].includes(propId)) {
+      transferredProps[screen].push(propId);
+      try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+    }
+
+    const el = document.getElementById('prop-' + propId);
+    if (el) {
+      el.style.display = 'none';
+      delete el.dataset.placed;
+    }
+    if (placedProps && placedProps[propId]) {
+      delete placedProps[propId];
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+    }
+
+    corkPopSound();
+    const achvBtn = document.getElementById('achvBtn');
+    if (achvBtn) {
+      const ar = achvBtn.getBoundingClientRect();
+      particles.push({
+        x: ar.left + ar.width / 2,
+        y: ar.top + ar.height / 2,
+        vx: 0,
+        vy: -90,
+        size: 16,
+        alpha: 1.3,
+        text: '🗝️ Ключ перенесён в Ачивки!',
+        color: '#ffd24d'
+      });
+    }
+
+    renderTransferredPropsTray(screen);
+  }
+  window.transferPropToScreen = transferPropToScreen;
+
+  function returnTransferredPropToDesk(screen, propId) {
+    if (!transferredProps || !transferredProps[screen]) return;
+    const idx = transferredProps[screen].indexOf(propId);
+    if (idx !== -1) {
+      transferredProps[screen].splice(idx, 1);
+      try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+    }
+
+    const el = document.getElementById('prop-' + propId);
+    if (el) {
+      const defaultLeft = Math.max(20, Math.min(window.innerWidth - 100, Math.round(window.innerWidth / 2 - 36))) + 'px';
+      const defaultTop = Math.max(80, Math.min(window.innerHeight - 100, Math.round(window.innerHeight / 2 - 36))) + 'px';
+      el.style.left = defaultLeft;
+      el.style.top = defaultTop;
+      el.style.display = 'block';
+      el.dataset.placed = '1';
+      placedProps[propId] = { placed: true, left: defaultLeft, top: defaultTop };
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+
+      el.classList.add('is-wobbling');
+      setTimeout(() => el.classList.remove('is-wobbling'), 600);
+    }
+
+    corkPopSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      vx: 0,
+      vy: -90,
+      size: 16,
+      alpha: 1.3,
+      text: '🗝️ Ключ возвращён на стол!',
+      color: '#ffd24d'
+    });
+
+    renderTransferredPropsTray(screen);
+  }
+  window.returnTransferredPropToDesk = returnTransferredPropToDesk;
+
+  function renderTransferredPropsTray(screen) {
+    if (screen !== 'achievements') return;
+    const trayEl = document.getElementById('achvTransferredTray');
+    if (!trayEl) return;
+
+    trayEl.innerHTML = '';
+    const items = (transferredProps && transferredProps.achievements) ? transferredProps.achievements : [];
+
+    if (items.length === 0) {
+      trayEl.innerHTML = '<span class="transferred-prop-empty-hint">Перенесите предметы со стола на кнопку «🏆 Ачивки»</span>';
+      return;
+    }
+
+    items.forEach(id => {
+      if (id === 'key') {
+        const slot = document.createElement('div');
+        slot.className = 'transferred-prop-slot';
+        slot.id = 'trayProp_key';
+        slot.setAttribute('data-prop-id', 'key');
+        slot.title = 'Ключ (Зажми ЛКМ для переноса на ачивку, вынеси за окно или ПКМ — вернуть на стол)';
+        slot.innerHTML = `
+          <img src="https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+          <span style="display: none; font-size: 32px;">🔑</span>
+        `;
+        trayEl.appendChild(slot);
+        initTransferredPropDrag(slot, 'achievements', 'key');
+      }
+    });
+  }
+  window.renderTransferredPropsTray = renderTransferredPropsTray;
+
+  function initTransferredPropDrag(slot, screen, propId) {
+    let isDragging = false;
+    let proxy = null;
+    let lastX = 0, lastY = 0;
+    let startX = 0, startY = 0;
+
+    slot.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      returnTransferredPropToDesk(screen, propId);
+    });
+
+    slot.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+
+      const rect = slot.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+
+      try { slot.setPointerCapture(e.pointerId); } catch (err) {}
+
+      proxy = document.createElement('div');
+      proxy.id = 'draggingTransferredProxy';
+      proxy.innerHTML = slot.innerHTML;
+      proxy.style.position = 'fixed';
+      proxy.style.left = `${rect.left}px`;
+      proxy.style.top = `${rect.top}px`;
+      proxy.style.width = `${rect.width}px`;
+      proxy.style.height = `${rect.height}px`;
+      proxy.style.zIndex = '1500';
+      proxy.style.pointerEvents = 'none';
+      proxy.style.transform = 'scale(1.15)';
+      proxy.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 14px rgba(255,210,77,0.8))';
+      proxy.style.transition = 'transform 0.08s ease';
+      document.body.appendChild(proxy);
+
+      slot.style.opacity = '0.3';
+      e.stopPropagation();
+    });
+
+    slot.addEventListener('pointermove', (e) => {
+      if (!isDragging || !proxy) return;
+      const x = e.clientX - startX;
+      const y = e.clientY - startY;
+      proxy.style.left = `${x}px`;
+      proxy.style.top = `${y}px`;
+
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      const tilt = Math.max(-25, Math.min(25, dx * 2.2));
+      proxy.style.transform = `scale(1.18) rotate(${tilt}deg)`;
+
+      // Подсветка заблокированной ачивки под курсором
+      document.querySelectorAll('.achv-card.key-card-hover').forEach(c => c.classList.remove('key-card-hover'));
+      const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+      const card = targetEl ? targetEl.closest('.achv-card') : null;
+      if (card && !card.classList.contains('unlocked')) {
+        card.classList.add('key-card-hover');
+      }
+
+      // Проверка выноса за пределы обоих окон
+      const achvDialog = document.getElementById('achvDialog');
+      const achvWindow = document.getElementById('achvTransferredWindow');
+      let isInside = false;
+      if (achvDialog) {
+        const ar = achvDialog.getBoundingClientRect();
+        if (e.clientX >= ar.left && e.clientX <= ar.right && e.clientY >= ar.top && e.clientY <= ar.bottom) isInside = true;
+      }
+      if (achvWindow) {
+        const wr = achvWindow.getBoundingClientRect();
+        if (e.clientX >= wr.left && e.clientX <= wr.right && e.clientY >= wr.top && e.clientY <= wr.bottom) isInside = true;
+      }
+
+      if (!isInside) {
+        proxy.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 16px #4ade80)';
+      } else {
+        proxy.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 0 14px rgba(255,210,77,0.8))';
+      }
+    });
+
+    const finishDrag = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      try { slot.releasePointerCapture(e.pointerId); } catch (err) {}
+      if (proxy) {
+        proxy.remove();
+        proxy = null;
+      }
+      slot.style.opacity = '1';
+
+      // 1. Проверяем, брошен ли на заблокированную ачивку
+      const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+      const card = targetEl ? targetEl.closest('.achv-card') : null;
+      if (card && !card.classList.contains('unlocked')) {
+        card.classList.remove('key-card-hover');
+        const targetAchvId = card.id.replace('achv-card-', '');
+
+        if (typeof unlockAchievementById === 'function') {
+          unlockAchievementById(targetAchvId);
+        }
+
+        hasUnlockedWithKey = true;
+        try { Storage.set(STORAGE_PREFIX + 'universal-key', '1'); } catch (err) {}
+        if (typeof unlockAchievementById === 'function') {
+          unlockAchievementById('universal-key');
+        }
+
+        const cr = card.getBoundingClientRect();
+        for (let i = 0; i < 16; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 100 + Math.random() * 200;
+          particles.push({
+            x: cr.left + cr.width / 2,
+            y: cr.top + cr.height / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 20 + Math.random() * 15,
+            alpha: 1.2,
+            text: '✨',
+            color: '#ffd24d'
+          });
+        }
+        return;
+      }
+
+      document.querySelectorAll('.achv-card.key-card-hover').forEach(c => c.classList.remove('key-card-hover'));
+
+      // 2. Проверяем, вынесен ли за оба окна
+      const achvDialog = document.getElementById('achvDialog');
+      const achvWindow = document.getElementById('achvTransferredWindow');
+      let isInside = false;
+      if (achvDialog) {
+        const ar = achvDialog.getBoundingClientRect();
+        if (e.clientX >= ar.left && e.clientX <= ar.right && e.clientY >= ar.top && e.clientY <= ar.bottom) isInside = true;
+      }
+      if (achvWindow) {
+        const wr = achvWindow.getBoundingClientRect();
+        if (e.clientX >= wr.left && e.clientX <= wr.right && e.clientY >= wr.top && e.clientY <= wr.bottom) isInside = true;
+      }
+
+      if (!isInside) {
+        returnTransferredPropToDesk(screen, propId);
+        return;
+      }
+
+      slot.classList.add('is-wobbling');
+      setTimeout(() => slot.classList.remove('is-wobbling'), 400);
+    };
+
+    slot.addEventListener('pointerup', finishDrag);
+    slot.addEventListener('pointercancel', finishDrag);
   }

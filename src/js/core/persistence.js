@@ -43,6 +43,7 @@ const GRAVITY = 1000;      // px/s²
   const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
   const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
+  const TRANSFERRED_PROPS_KEY = 'duck-transferred-props';
   const HAS_FRIED_DUCK_KEY = 'duck-has-fried-duck';
   const HAS_STABBED_DUCK_KEY = 'duck-has-stabbed-duck';
   const DUCK_IS_DEFLATING_KEY = 'duck-is-deflating';

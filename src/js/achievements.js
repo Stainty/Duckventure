@@ -182,6 +182,13 @@
       done: false,
       check: () => hasPatchedDuck,
     },
+      {
+      id: 'universal-key',
+      name: 'Универсальный ключ',
+      desc: 'Откройте ачивку с помощью ключа',
+      done: false,
+      check: () => hasUnlockedWithKey,
+    },
   ];
   window.ACHIEVEMENTS = ACHIEVEMENTS;
 
@@ -537,6 +544,14 @@
       if (!a.done && a.check()) unlockAchievement(i);
     });
   }
+
+  function unlockAchievementById(id) {
+    const idx = ACHIEVEMENTS.findIndex(a => a.id === id);
+    if (idx !== -1) {
+      unlockAchievement(idx);
+    }
+  }
+  window.unlockAchievementById = unlockAchievementById;
 
   function unlockAchievement(i) {
     const a = ACHIEVEMENTS[i];
