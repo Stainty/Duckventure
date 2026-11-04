@@ -933,6 +933,9 @@
 
     const getCreatureType = () => el.getAttribute('data-creature-type') || 'duckling';
 
+    let startLeft = '';
+    let startTop = '';
+
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       hidePropContextMenu();
@@ -943,6 +946,8 @@
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      startLeft = el.style.left || `${rect.left}px`;
+      startTop = el.style.top || `${rect.top}px`;
       lastClientX = e.clientX;
       lastClientY = e.clientY;
       currentTilt = 0;
@@ -1000,10 +1005,24 @@
       if (typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cx, cy, el)) {
         if (typeof getItemDiscardInfo === 'function' && typeof requestDiscardConfirmation === 'function') {
           const info = getItemDiscardInfo('creature', t);
-          requestDiscardConfirmation(info.name, info.emoji, () => {
-            if (typeof performItemDiscard === 'function') performItemDiscard('creature', t, cx, cy);
-          });
+          requestDiscardConfirmation(
+            info.name,
+            info.emoji,
+            () => {
+              if (typeof performItemDiscard === 'function') performItemDiscard('creature', t, cx, cy);
+            },
+            () => {
+              if (typeof returnItemToOrigin === 'function') returnItemToOrigin(el, startLeft, startTop);
+            }
+          );
         }
+        return;
+      }
+
+      // 0.5. Проверка переноса питомца на утку (питомец на утке не исчезает — возвращается на место)
+      if (typeof isItemOverDuck === 'function' && isItemOverDuck(cx, cy, el)) {
+        corkPopSound();
+        if (typeof returnItemToOrigin === 'function') returnItemToOrigin(el, startLeft, startTop);
         return;
       }
 
@@ -1203,6 +1222,9 @@
       return 200;
     };
 
+    let startLeft = '';
+    let startTop = '';
+
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       hidePropContextMenu();
@@ -1213,6 +1235,8 @@
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      startLeft = el.style.left || `${rect.left}px`;
+      startTop = el.style.top || `${rect.top}px`;
       lastClientX = e.clientX;
       currentTilt = 0;
       el.classList.remove('is-wobbling');
@@ -1304,10 +1328,24 @@
       if (count > 0 && typeof isCursorNearTrashcan === 'function' && isCursorNearTrashcan(cursorX, cursorY, el)) {
         if (typeof getItemDiscardInfo === 'function' && typeof requestDiscardConfirmation === 'function') {
           const info = getItemDiscardInfo('egg', eggType);
-          requestDiscardConfirmation(info.name, info.emoji, () => {
-            if (typeof performItemDiscard === 'function') performItemDiscard('egg', eggType, cursorX, cursorY);
-          });
+          requestDiscardConfirmation(
+            info.name,
+            info.emoji,
+            () => {
+              if (typeof performItemDiscard === 'function') performItemDiscard('egg', eggType, cursorX, cursorY);
+            },
+            () => {
+              if (typeof returnItemToOrigin === 'function') returnItemToOrigin(el, startLeft, startTop);
+            }
+          );
         }
+        return;
+      }
+
+      // Проверка переноса яйца на утку (яйцо на утке не исчезает — возвращается на место)
+      if (typeof isItemOverDuck === 'function' && isItemOverDuck(cursorX, cursorY, el)) {
+        corkPopSound();
+        if (typeof returnItemToOrigin === 'function') returnItemToOrigin(el, startLeft, startTop);
         return;
       }
 

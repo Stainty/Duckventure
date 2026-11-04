@@ -1354,9 +1354,70 @@
   }
   window.getItemDiscardInfo = getItemDiscardInfo;
 
-  let pendingDiscardAction = null;
+  function isItemOverDuck(clientX, clientY, el) {
+    if (!duck) return false;
+    const rDuck = duck.getBoundingClientRect();
+    if (rDuck.width === 0 || rDuck.height === 0) return false;
 
-  function requestDiscardConfirmation(itemName, emoji, onConfirm) {
+    if (typeof clientX === 'number' && typeof clientY === 'number' && clientX > 0 && clientY > 0) {
+      if (clientX >= rDuck.left && clientX <= rDuck.right &&
+          clientY >= rDuck.top && clientY <= rDuck.bottom) {
+        return true;
+      }
+    }
+
+    if (el && typeof el.getBoundingClientRect === 'function') {
+      const er = el.getBoundingClientRect();
+      if (er.width > 0 && er.height > 0) {
+        const overlap = !(er.right < rDuck.left ||
+                          er.left > rDuck.right ||
+                          er.bottom < rDuck.top ||
+                          er.top > rDuck.bottom);
+        if (overlap) return true;
+      }
+    }
+    return false;
+  }
+  window.isItemOverDuck = isItemOverDuck;
+
+  function returnItemToOrigin(el, startLeft, startTop, propId) {
+    if (!el || !startLeft || !startTop) return;
+    el.style.transition = 'left 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28), top 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+    el.style.left = startLeft;
+    el.style.top = startTop;
+    el.classList.add('is-wobbling');
+    setTimeout(() => {
+      el.style.transition = '';
+      el.classList.remove('is-wobbling');
+    }, 380);
+
+    if (propId && placedProps && placedProps[propId]) {
+      placedProps[propId].left = startLeft;
+      placedProps[propId].top = startTop;
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+    }
+  }
+  window.returnItemToOrigin = returnItemToOrigin;
+
+  let pendingDiscardAction = null;
+  let pendingDiscardCancel = null;
+
+  function cancelDiscardConfirmation() {
+    const modal = document.getElementById('discardConfirmModal');
+    if (modal) modal.classList.remove('open');
+    if (typeof pendingDiscardCancel === 'function') {
+      const cancelFn = pendingDiscardCancel;
+      pendingDiscardCancel = null;
+      pendingDiscardAction = null;
+      cancelFn();
+    } else {
+      pendingDiscardAction = null;
+      pendingDiscardCancel = null;
+    }
+  }
+  window.cancelDiscardConfirmation = cancelDiscardConfirmation;
+
+  function requestDiscardConfirmation(itemName, emoji, onConfirm, onCancel) {
     const modal = document.getElementById('discardConfirmModal');
     const nameEl = document.getElementById('discardConfirmItemName');
     const emojiEl = document.getElementById('discardConfirmEmoji');
@@ -1364,6 +1425,8 @@
     if (!modal) {
       if (confirm(`Вы точно хотите выбросить ${itemName}? Это действие нельзя отменить, а предмет пропадёт со стола и его придётся добыть заново.`)) {
         onConfirm();
+      } else if (typeof onCancel === 'function') {
+        onCancel();
       }
       return;
     }
@@ -1371,6 +1434,7 @@
     if (nameEl) nameEl.textContent = `«${itemName}»`;
     if (emojiEl && emoji) emojiEl.textContent = emoji;
     pendingDiscardAction = onConfirm;
+    pendingDiscardCancel = onCancel;
     modal.classList.add('open');
   }
   window.requestDiscardConfirmation = requestDiscardConfirmation;
@@ -1380,14 +1444,12 @@
   const discardConfirmBtn = document.getElementById('discardConfirmBtn');
 
   if (discardCancelBtn && discardConfirmModal) {
-    discardCancelBtn.addEventListener('click', () => {
-      discardConfirmModal.classList.remove('open');
-      pendingDiscardAction = null;
-    });
+    discardCancelBtn.addEventListener('click', cancelDiscardConfirmation);
   }
   if (discardConfirmBtn && discardConfirmModal) {
     discardConfirmBtn.addEventListener('click', () => {
       discardConfirmModal.classList.remove('open');
+      pendingDiscardCancel = null;
       if (typeof pendingDiscardAction === 'function') {
         const action = pendingDiscardAction;
         pendingDiscardAction = null;
@@ -1398,11 +1460,18 @@
   if (discardConfirmModal) {
     discardConfirmModal.addEventListener('click', (e) => {
       if (e.target === discardConfirmModal) {
-        discardConfirmModal.classList.remove('open');
-        pendingDiscardAction = null;
+        cancelDiscardConfirmation();
       }
     });
   }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (discardConfirmModal && discardConfirmModal.classList.contains('open')) {
+        cancelDiscardConfirmation();
+      }
+    }
+  });
 
   function performItemDiscard(type, id, spawnX, spawnY) {
     let itemName = '';
@@ -1609,6 +1678,9 @@
     let downY = 0;
     let isDragAction = false;
 
+    let startLeft = '';
+    let startTop = '';
+
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
       if (e.target.closest('.stove-separate-btn')) return;
@@ -1624,6 +1696,8 @@
       const rect = el.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
+      startLeft = el.style.left || `${rect.left}px`;
+      startTop = el.style.top || `${rect.top}px`;
       lastClientX = e.clientX;
       lastClientY = e.clientY;
       currentTilt = 0;
@@ -1711,12 +1785,51 @@
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
 
-      // Проверка сброса в мусорку (кроме самого мусорного ведра)
+      // 1. Проверка сброса в мусорку (кроме самого мусорного ведра)
       if (propId !== 'trashcan' && isCursorNearTrashcan(cx, cy, el)) {
         const info = getItemDiscardInfo('prop', propId);
-        requestDiscardConfirmation(info.name, info.emoji, () => {
-          performItemDiscard('prop', propId, cx, cy);
-        });
+        requestDiscardConfirmation(
+          info.name,
+          info.emoji,
+          () => {
+            performItemDiscard('prop', propId, cx, cy);
+          },
+          () => {
+            // Если в мусорку не выброшено (отмена) — возвращается на исходное место
+            returnItemToOrigin(el, startLeft, startTop, propId);
+          }
+        );
+        return;
+      }
+
+      // 2. Проверка переноса на утку
+      if (isItemOverDuck(cx, cy, el)) {
+        if (duck) duck.classList.remove('prop-target-hover');
+
+        // Изолента: починка утки
+        if (propId === 'tape') {
+          if (isDuckDeflating) {
+            applyTapeToDuck(); // Успешная починка: изолента исчезает!
+            return;
+          } else {
+            applyTapeToDuck(); // Утка не сдута: не исчезает, возвращается на место!
+            returnItemToOrigin(el, startLeft, startTop, propId);
+            return;
+          }
+        }
+
+        // Нож: укол утки (нож не исчезает, возвращается на место)
+        if (propId === 'knife') {
+          if (!isCookedDuckActive && !isDeflatedDuckActive) {
+            stabDuckWithKnife(true);
+          }
+          returnItemToOrigin(el, startLeft, startTop, propId);
+          return;
+        }
+
+        // Любой другой предмет перенесён на утку — не исчезает, возвращается на место
+        corkPopSound();
+        returnItemToOrigin(el, startLeft, startTop, propId);
         return;
       }
 
@@ -1726,24 +1839,6 @@
       if (storageBtn) storageBtn.classList.remove('drag-target-hover');
       if (shopBtn) shopBtn.classList.remove('drag-target-hover');
       if (duck) duck.classList.remove('prop-target-hover');
-
-      // Нож: перетаскивание на утку (инцидент с проколом утки)
-      if (propId === 'knife') {
-        const rDuck = duck.getBoundingClientRect();
-        const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom) || isOverlapping(el.getBoundingClientRect(), rDuck);
-        if (isOverDuck && !isCookedDuckActive && !isDeflatedDuckActive) {
-          stabDuckWithKnife(true);
-        }
-      }
-
-      // Изолента: перетаскивание на утку (починка утки)
-      if (propId === 'tape') {
-        const rDuck = duck.getBoundingClientRect();
-        const isOverDuck = (e.clientX >= rDuck.left && e.clientX <= rDuck.right && e.clientY >= rDuck.top && e.clientY <= rDuck.bottom) || isOverlapping(el.getBoundingClientRect(), rDuck);
-        if (isOverDuck && !isCookedDuckActive && !isDeflatedDuckActive) {
-          applyTapeToDuck();
-        }
-      }
 
       if (isStoveCombined && (propId === 'skovoroda' || propId === 'plita')) {
         const partnerId = (propId === 'skovoroda') ? 'plita' : 'skovoroda';

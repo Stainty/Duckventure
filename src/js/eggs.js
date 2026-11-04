@@ -193,6 +193,7 @@
              r2.top > r1.bottom ||
              r2.bottom < r1.top);
   }
+  window.isOverlapping = isOverlapping;
 
   function cookEggsOnStove(type) {
     const plitaEl = document.getElementById('prop-plita');

@@ -653,6 +653,26 @@
         Storage.set(STORAGE_PREFIX + 'emergency-surgery', '1');
       } catch (e) {}
 
+      // Изолента после починки пропадает со стола и из инвентаря
+      const tapeEl = document.getElementById('prop-tape');
+      if (tapeEl) {
+        tapeEl.style.display = 'none';
+        delete tapeEl.dataset.placed;
+      }
+      if (placedProps && placedProps.tape) {
+        delete placedProps.tape;
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
+      const tIdx = ownedProps.indexOf('tape');
+      if (tIdx !== -1) {
+        ownedProps.splice(tIdx, 1);
+        window.ownedProps = ownedProps;
+        try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+      }
+      if (typeof renderShopBuyTab === 'function') renderShopBuyTab();
+      if (typeof renderStorage === 'function') renderStorage();
+      if (typeof updateShopButtonVisibility === 'function') updateShopButtonVisibility();
+
       tryUnlock();
     } else {
       if (ownedSkins.includes('patched')) {

@@ -555,6 +555,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function closeAllModals() {
     if (typeof hidePropContextMenu === 'function') hidePropContextMenu();
+    if (typeof cancelDiscardConfirmation === 'function') cancelDiscardConfirmation();
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
       modal.classList.remove('open');
     });
