@@ -3389,22 +3389,25 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
+  gap: clamp(24px, 4vw, 50px);
   box-sizing: border-box;
-  padding: 24px;
+  padding: 30px clamp(20px, 4vw, 60px);
 }
 
-/* Персонаж слева: выглядывает из экрана */
+/* Персонаж слева: крупная уточка в центре левой половины */
 .character-peeking-wrap {
-  position: fixed;
-  left: 20px;
-  bottom: 35px;
-  width: 210px;
-  height: 210px;
+  position: relative;
+  width: clamp(280px, 25vw, 380px);
+  height: clamp(280px, 25vw, 380px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 252;
   pointer-events: none;
-  transform: translateX(-130%);
-  transition: transform .42s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+  transform: translateX(-100vw);
+  transition: transform .45s cubic-bezier(0.18, 0.89, 0.32, 1.25);
 }
 
 .character-dialog-modal.open .character-peeking-wrap {
@@ -3412,7 +3415,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .character-dialog-modal.closing .character-peeking-wrap {
-  transform: translateX(-130%);
+  transform: translateX(-100vw);
   transition: transform .25s ease-in;
 }
 
@@ -3420,52 +3423,52 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   transform-origin: bottom center;
-  animation: peekingDuckRock 3s ease-in-out infinite alternate;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 20px rgba(255, 210, 77, 0.3));
+  animation: peekingDuckRock 3.2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 28px rgba(255, 210, 77, 0.35));
 }
 
 .character-peeking-avatar img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
 }
 
 .character-peeking-fallback {
-  font-size: 110px;
+  font-size: 160px;
   line-height: 1;
 }
 
 @keyframes peekingDuckRock {
   0% {
-    transform: rotate(-4deg) translateY(0);
+    transform: rotate(-3.5deg) translateY(0);
   }
   50% {
-    transform: rotate(4deg) translateY(-10px);
+    transform: rotate(3.5deg) translateY(-14px);
   }
   100% {
-    transform: rotate(-4deg) translateY(0);
+    transform: rotate(-3.5deg) translateY(0);
   }
 }
 
 /* Диалоговое облачко над уточкой */
 .character-speech-bubble {
   position: absolute;
-  bottom: 190px;
-  left: 45px;
+  bottom: calc(100% - 12px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.7) translateY(12px);
   background: #ffffff;
   color: #0f172a;
-  padding: 12px 20px;
-  border-radius: 20px;
+  padding: 13px 24px;
+  border-radius: 22px;
   border: 2px solid #ffd24d;
-  font: 800 15px/1.3 system-ui, -apple-system, sans-serif;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 210, 77, 0.4);
+  font: 800 16px/1.35 system-ui, -apple-system, sans-serif;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 210, 77, 0.4);
   white-space: nowrap;
-  transform: scale(0.7) translateY(10px);
   opacity: 0;
   transition: transform .32s cubic-bezier(0.18, 0.89, 0.32, 1.25) .14s, opacity .22s ease .14s;
   pointer-events: auto;
@@ -3474,12 +3477,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .character-dialog-modal.open .character-speech-bubble {
-  transform: scale(1) translateY(0);
+  transform: translateX(-50%) scale(1) translateY(0);
   opacity: 1;
 }
 
 .character-dialog-modal.closing .character-speech-bubble {
-  transform: scale(0.7) translateY(10px);
+  transform: translateX(-50%) scale(0.7) translateY(12px);
   opacity: 0;
   transition: transform .2s ease-in, opacity .2s ease-in;
 }
@@ -3487,9 +3490,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 .character-speech-bubble::after {
   content: '';
   position: absolute;
-  bottom: -11px;
-  left: 36px;
-  border-width: 11px 9px 0 9px;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 12px 10px 0 10px;
   border-style: solid;
   border-color: #ffd24d transparent transparent transparent;
 }
@@ -3497,9 +3501,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 .character-speech-bubble::before {
   content: '';
   position: absolute;
-  bottom: -8px;
-  left: 38px;
-  border-width: 9px 7px 0 7px;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 8px 0 8px;
   border-style: solid;
   border-color: #ffffff transparent transparent transparent;
   z-index: 1;
@@ -3507,24 +3512,24 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 
 @keyframes speechBubbleHover {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-6px); }
+  100% { transform: translateY(-7px); }
 }
 
-/* Центральное прямоугольное диалоговое окно (больше в ширину) */
+/* Центральное прямоугольное диалоговое окно (широкое, прямоугольное) */
 .character-dialog-card {
   position: relative;
   z-index: 252;
-  width: 92%;
-  max-width: 650px;
+  width: 100%;
+  max-width: 860px;
   box-sizing: border-box;
   background: linear-gradient(145deg, rgba(26, 32, 46, 0.96), rgba(15, 20, 32, 0.98));
   border: 2px solid rgba(255, 210, 77, 0.4);
   border-radius: 20px;
-  padding: 30px 36px 26px 36px;
+  padding: 34px 44px 30px 44px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(255, 210, 77, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   transform: scale(0.9) translateY(24px);
   opacity: 0;
   transition: transform .34s cubic-bezier(0.18, 0.89, 0.32, 1.15), opacity .28s ease;
@@ -3564,9 +3569,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 .character-dialog-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   color: #e2e8f0;
-  font: 400 16px/1.6 system-ui, -apple-system, sans-serif;
+  font: 400 16.5px/1.65 system-ui, -apple-system, sans-serif;
 }
 
 .character-dialog-body p {
@@ -3574,7 +3579,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .character-dialog-body .dialog-text-lead {
-  font-size: 16px;
+  font-size: 16.5px;
   color: #f1f5f9;
 }
 
@@ -3583,7 +3588,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .character-dialog-body .dialog-text-sub {
-  font-size: 15px;
+  font-size: 15.5px;
   color: #94a3b8;
   font-weight: 500;
 }
@@ -3601,7 +3606,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   gap: 10px;
   cursor: pointer;
   user-select: none;
-  font: 500 13.5px system-ui, sans-serif;
+  font: 500 14px system-ui, sans-serif;
   color: #cbd5e1;
   transition: color .15s;
 }
@@ -3615,8 +3620,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .dialog-checkbox-custom {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   border-radius: 5px;
   border: 2px solid rgba(255, 210, 77, 0.5);
   background: rgba(255, 255, 255, 0.04);
@@ -3655,9 +3660,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 .character-dialog-btn {
-  padding: 13px 32px;
+  padding: 14px 40px;
   border-radius: 12px;
-  font: 800 15px system-ui, sans-serif;
+  font: 800 16px system-ui, sans-serif;
   cursor: pointer;
   border: none;
   transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
@@ -3680,27 +3685,32 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   transform: translateY(1px);
 }
 
-/* Адаптивность для мобильных экранов */
-@media (max-width: 768px) {
-  .character-dialog-card {
-    padding: 22px 20px 20px 20px;
-    gap: 14px;
-    margin-bottom: 70px;
-  }
-  .character-dialog-body {
-    font-size: 14.5px;
+/* Адаптивность для мобильных экранов и планшетов */
+@media (max-width: 880px) {
+  .character-dialog-layout {
+    flex-direction: column-reverse;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px;
+    overflow-y: auto;
   }
   .character-peeking-wrap {
-    left: -5px;
-    bottom: 10px;
-    width: 140px;
-    height: 140px;
+    width: 170px;
+    height: 170px;
   }
   .character-speech-bubble {
-    bottom: 125px;
-    left: 25px;
-    padding: 9px 15px;
-    font-size: 13px;
+    bottom: calc(100% - 6px);
+    font-size: 13.5px;
+    padding: 9px 16px;
+  }
+  .character-dialog-card {
+    width: 100%;
+    max-width: 560px;
+    padding: 24px 22px 20px 22px;
+    gap: 14px;
+  }
+  .character-dialog-body {
+    font-size: 15px;
   }
 }
 
