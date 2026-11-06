@@ -3351,6 +3351,15 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 /* ==========================================================================
    Character Dialog System (Диалоги с персонажами и стартовый экран)
    ========================================================================== */
+
+/* Скрытие утки на основном экране во время активного диалога */
+body.has-character-dialog #duck {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity .2s ease;
+}
+
 .character-dialog-modal {
   position: fixed;
   inset: 0;
@@ -3377,29 +3386,34 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 .character-dialog-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(8, 12, 22, 0.78);
+  background: rgba(8, 12, 22, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Трехколоночная компоновка: центр левой трети, центр центральной трети, центр правой трети */
 .character-dialog-layout {
   position: relative;
   z-index: 251;
   width: 100%;
   height: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-evenly;
-  gap: clamp(24px, 4vw, 50px);
+  justify-items: center;
   box-sizing: border-box;
-  padding: 30px clamp(20px, 4vw, 60px);
+  padding: 30px clamp(16px, 3vw, 40px);
+  gap: clamp(16px, 2.5vw, 40px);
 }
 
-/* Персонаж слева: крупная уточка в центре левой половины */
-.character-peeking-wrap {
+/* Персонаж слева (Уточка): располагается строго в центре левой трети экрана */
+.character-peeking-wrap.character-left {
+  grid-column: 1;
+  justify-self: center;
+  align-self: center;
   position: relative;
-  width: clamp(280px, 25vw, 380px);
-  height: clamp(280px, 25vw, 380px);
+  width: clamp(260px, 22vw, 360px);
+  height: clamp(260px, 22vw, 360px);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -3410,13 +3424,44 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   transition: transform .45s cubic-bezier(0.18, 0.89, 0.32, 1.25);
 }
 
-.character-dialog-modal.open .character-peeking-wrap {
+.character-dialog-modal.open .character-peeking-wrap.character-left {
   transform: translateX(0);
 }
 
-.character-dialog-modal.closing .character-peeking-wrap {
+.character-dialog-modal.closing .character-peeking-wrap.character-left {
   transform: translateX(-100vw);
   transition: transform .25s ease-in;
+}
+
+/* Персонаж справа (второй персонаж): располагается строго в центре правой трети экрана */
+.character-peeking-wrap.character-right {
+  grid-column: 3;
+  justify-self: center;
+  align-self: center;
+  position: relative;
+  width: clamp(260px, 22vw, 360px);
+  height: clamp(260px, 22vw, 360px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 252;
+  pointer-events: none;
+  transform: translateX(100vw);
+  transition: transform .45s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+.character-dialog-modal.open .character-peeking-wrap.character-right {
+  transform: translateX(0);
+}
+
+.character-dialog-modal.closing .character-peeking-wrap.character-right {
+  transform: translateX(100vw);
+  transition: transform .25s ease-in;
+}
+
+.character-peeking-wrap.character-right .character-peeking-avatar {
+  transform: scaleX(-1);
 }
 
 .character-peeking-avatar {
@@ -3455,7 +3500,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   }
 }
 
-/* Диалоговое облачко над уточкой */
+/* Диалоговые облачка над персонажами */
 .character-speech-bubble {
   position: absolute;
   bottom: calc(100% - 12px);
@@ -3515,12 +3560,15 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   100% { transform: translateY(-7px); }
 }
 
-/* Центральное прямоугольное диалоговое окно (широкое, прямоугольное) */
+/* Центральное прямоугольное диалоговое окно (центр центральной трети) */
 .character-dialog-card {
+  grid-column: 2;
+  justify-self: center;
+  align-self: center;
   position: relative;
   z-index: 252;
   width: 100%;
-  max-width: 860px;
+  max-width: 820px;
   box-sizing: border-box;
   background: linear-gradient(145deg, rgba(26, 32, 46, 0.96), rgba(15, 20, 32, 0.98));
   border: 2px solid rgba(255, 210, 77, 0.4);
@@ -3686,15 +3734,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
 }
 
 /* Адаптивность для мобильных экранов и планшетов */
-@media (max-width: 880px) {
+@media (max-width: 960px) {
   .character-dialog-layout {
+    display: flex;
     flex-direction: column-reverse;
     justify-content: center;
     gap: 16px;
     padding: 16px;
     overflow-y: auto;
   }
-  .character-peeking-wrap {
+  .character-peeking-wrap.character-left,
+  .character-peeking-wrap.character-right {
     width: 170px;
     height: 170px;
   }
@@ -4555,9 +4605,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
   <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">
     <div class="character-dialog-backdrop" id="characterDialogBackdrop"></div>
     
-    <div class="character-dialog-layout">
-      <!-- Персонаж слева из экрана (Уточка) -->
-      <div class="character-peeking-wrap" id="characterPeekingWrap">
+    <div class="character-dialog-layout" id="characterDialogLayout">
+      <!-- Левый персонаж (Уточка, всегда слева в центре левой трети) -->
+      <div class="character-peeking-wrap character-left" id="characterPeekingWrap">
         <div class="character-speech-bubble" id="characterSpeechBubble">
           <div class="character-speech-text" id="characterSpeechText">Кря, приятной игры</div>
         </div>
@@ -4568,7 +4618,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
         </div>
       </div>
 
-      <!-- Центральное диалоговое окно (прямоугольное, больше в ширину) -->
+      <!-- Центральное диалоговое окно (центр центральной трети) -->
       <div class="character-dialog-card" id="characterDialogCard">
         <div class="character-dialog-card-header">
           <div class="character-dialog-badge">
@@ -4589,6 +4639,18 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
         </div>
         <div class="character-dialog-actions" id="characterDialogActions">
           <button class="character-dialog-btn primary" id="characterDialogStartBtn">Начать игру</button>
+        </div>
+      </div>
+
+      <!-- Правый персонаж (центр правой трети) -->
+      <div class="character-peeking-wrap character-right" id="characterPeekingWrapRight" style="visibility: hidden;">
+        <div class="character-speech-bubble" id="characterSpeechBubbleRight" style="display: none;">
+          <div class="character-speech-text" id="characterSpeechTextRight"></div>
+        </div>
+        <div class="character-peeking-avatar" id="characterPeekingAvatarRight">
+          <img id="characterPeekingImgRight" src="" alt="Персонаж" referrerpolicy="no-referrer"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="character-peeking-fallback" id="characterPeekingFallbackRight" style="display: none;">👤</div>
         </div>
       </div>
     </div>
@@ -14718,20 +14780,57 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       lastGameTickTime = Date.now();
     }
 
-    // 1. Персонаж и облачко
-    const charData = config.character || {};
+    // Скрываем утку на основном экране пока открыт диалог
+    document.body.classList.add('has-character-dialog');
+    const mainDuck = document.getElementById('duck');
+    if (mainDuck) mainDuck.style.visibility = 'hidden';
+
+    // 1. Левый персонаж (Уточка, всегда слева в центре левой трети)
+    const charLeft = config.characterLeft || (config.characters && config.characters.left) || config.character || {};
     const speechEl = document.getElementById('characterSpeechText');
+    const speechBubble = document.getElementById('characterSpeechBubble');
     if (speechEl) {
-      speechEl.textContent = charData.speechText || 'Кря, приятной игры';
+      speechEl.textContent = charLeft.speechText || 'Кря, приятной игры';
+      if (speechBubble) speechBubble.style.display = (charLeft.speechText === '') ? 'none' : 'block';
     }
 
     const peekingImg = document.getElementById('characterPeekingImg');
     const peekingFallback = document.getElementById('characterPeekingFallback');
-    const avatarUrl = charData.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
+    const avatarUrl = charLeft.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
     if (peekingImg) {
       peekingImg.src = avatarUrl;
       peekingImg.style.display = 'block';
       if (peekingFallback) peekingFallback.style.display = 'none';
+    }
+
+    // 1b. Правый персонаж (второй персонаж в центре правой трети)
+    const charRight = config.characterRight || (config.characters && config.characters.right) || null;
+    const rightWrap = document.getElementById('characterPeekingWrapRight');
+    if (rightWrap) {
+      if (charRight) {
+        rightWrap.style.visibility = 'visible';
+        const rightSpeechEl = document.getElementById('characterSpeechTextRight');
+        const rightBubble = document.getElementById('characterSpeechBubbleRight');
+        if (rightSpeechEl && charRight.speechText) {
+          rightSpeechEl.textContent = charRight.speechText;
+          if (rightBubble) rightBubble.style.display = 'block';
+        } else if (rightBubble) {
+          rightBubble.style.display = 'none';
+        }
+
+        const rightImg = document.getElementById('characterPeekingImgRight');
+        const rightFallback = document.getElementById('characterPeekingFallbackRight');
+        if (rightImg && charRight.avatar) {
+          rightImg.src = charRight.avatar;
+          rightImg.style.display = 'block';
+          if (rightFallback) rightFallback.style.display = 'none';
+        }
+      } else {
+        // Оставляем как невидимый элемент-распорку для сбалансированной 3-колоночной сетки
+        rightWrap.style.visibility = 'hidden';
+        const rightBubble = document.getElementById('characterSpeechBubbleRight');
+        if (rightBubble) rightBubble.style.display = 'none';
+      }
     }
 
     // 2. Центральное окно (текст)
@@ -14832,7 +14931,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
 
-    // Снимаем блокировку игры сразу в момент нажатия на кнопку "Начать игру"
+    // Снимаем блокировку игры и восстанавливаем утку на основном экране
+    document.body.classList.remove('has-character-dialog');
+    const mainDuckEl = document.getElementById('duck');
+    if (mainDuckEl) mainDuckEl.style.visibility = '';
+
     isCharacterDialogOpen = false;
     window.isCharacterDialogOpen = false;
     if (typeof lastGameTickTime !== 'undefined') {

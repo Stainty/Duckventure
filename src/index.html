@@ -845,9 +845,9 @@
   <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">
     <div class="character-dialog-backdrop" id="characterDialogBackdrop"></div>
     
-    <div class="character-dialog-layout">
-      <!-- Персонаж слева из экрана (Уточка) -->
-      <div class="character-peeking-wrap" id="characterPeekingWrap">
+    <div class="character-dialog-layout" id="characterDialogLayout">
+      <!-- Левый персонаж (Уточка, всегда слева в центре левой трети) -->
+      <div class="character-peeking-wrap character-left" id="characterPeekingWrap">
         <div class="character-speech-bubble" id="characterSpeechBubble">
           <div class="character-speech-text" id="characterSpeechText">Кря, приятной игры</div>
         </div>
@@ -858,7 +858,7 @@
         </div>
       </div>
 
-      <!-- Центральное диалоговое окно (прямоугольное, больше в ширину) -->
+      <!-- Центральное диалоговое окно (центр центральной трети) -->
       <div class="character-dialog-card" id="characterDialogCard">
         <div class="character-dialog-card-header">
           <div class="character-dialog-badge">
@@ -879,6 +879,18 @@
         </div>
         <div class="character-dialog-actions" id="characterDialogActions">
           <button class="character-dialog-btn primary" id="characterDialogStartBtn">Начать игру</button>
+        </div>
+      </div>
+
+      <!-- Правый персонаж (центр правой трети) -->
+      <div class="character-peeking-wrap character-right" id="characterPeekingWrapRight" style="visibility: hidden;">
+        <div class="character-speech-bubble" id="characterSpeechBubbleRight" style="display: none;">
+          <div class="character-speech-text" id="characterSpeechTextRight"></div>
+        </div>
+        <div class="character-peeking-avatar" id="characterPeekingAvatarRight">
+          <img id="characterPeekingImgRight" src="" alt="Персонаж" referrerpolicy="no-referrer"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="character-peeking-fallback" id="characterPeekingFallbackRight" style="display: none;">👤</div>
         </div>
       </div>
     </div>

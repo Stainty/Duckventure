@@ -31,20 +31,57 @@
       lastGameTickTime = Date.now();
     }
 
-    // 1. Персонаж и облачко
-    const charData = config.character || {};
+    // Скрываем утку на основном экране пока открыт диалог
+    document.body.classList.add('has-character-dialog');
+    const mainDuck = document.getElementById('duck');
+    if (mainDuck) mainDuck.style.visibility = 'hidden';
+
+    // 1. Левый персонаж (Уточка, всегда слева в центре левой трети)
+    const charLeft = config.characterLeft || (config.characters && config.characters.left) || config.character || {};
     const speechEl = document.getElementById('characterSpeechText');
+    const speechBubble = document.getElementById('characterSpeechBubble');
     if (speechEl) {
-      speechEl.textContent = charData.speechText || 'Кря, приятной игры';
+      speechEl.textContent = charLeft.speechText || 'Кря, приятной игры';
+      if (speechBubble) speechBubble.style.display = (charLeft.speechText === '') ? 'none' : 'block';
     }
 
     const peekingImg = document.getElementById('characterPeekingImg');
     const peekingFallback = document.getElementById('characterPeekingFallback');
-    const avatarUrl = charData.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
+    const avatarUrl = charLeft.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
     if (peekingImg) {
       peekingImg.src = avatarUrl;
       peekingImg.style.display = 'block';
       if (peekingFallback) peekingFallback.style.display = 'none';
+    }
+
+    // 1b. Правый персонаж (второй персонаж в центре правой трети)
+    const charRight = config.characterRight || (config.characters && config.characters.right) || null;
+    const rightWrap = document.getElementById('characterPeekingWrapRight');
+    if (rightWrap) {
+      if (charRight) {
+        rightWrap.style.visibility = 'visible';
+        const rightSpeechEl = document.getElementById('characterSpeechTextRight');
+        const rightBubble = document.getElementById('characterSpeechBubbleRight');
+        if (rightSpeechEl && charRight.speechText) {
+          rightSpeechEl.textContent = charRight.speechText;
+          if (rightBubble) rightBubble.style.display = 'block';
+        } else if (rightBubble) {
+          rightBubble.style.display = 'none';
+        }
+
+        const rightImg = document.getElementById('characterPeekingImgRight');
+        const rightFallback = document.getElementById('characterPeekingFallbackRight');
+        if (rightImg && charRight.avatar) {
+          rightImg.src = charRight.avatar;
+          rightImg.style.display = 'block';
+          if (rightFallback) rightFallback.style.display = 'none';
+        }
+      } else {
+        // Оставляем как невидимый элемент-распорку для сбалансированной 3-колоночной сетки
+        rightWrap.style.visibility = 'hidden';
+        const rightBubble = document.getElementById('characterSpeechBubbleRight');
+        if (rightBubble) rightBubble.style.display = 'none';
+      }
     }
 
     // 2. Центральное окно (текст)
@@ -145,7 +182,11 @@
       }
     }
 
-    // Снимаем блокировку игры сразу в момент нажатия на кнопку "Начать игру"
+    // Снимаем блокировку игры и восстанавливаем утку на основном экране
+    document.body.classList.remove('has-character-dialog');
+    const mainDuckEl = document.getElementById('duck');
+    if (mainDuckEl) mainDuckEl.style.visibility = '';
+
     isCharacterDialogOpen = false;
     window.isCharacterDialogOpen = false;
     if (typeof lastGameTickTime !== 'undefined') {
