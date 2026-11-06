@@ -588,6 +588,9 @@
     renderStorage();
     updateShopButtonVisibility();
     updateShopTabsVisibility();
+    if (typeof showWelcomeDialog === 'function') {
+      showWelcomeDialog();
+    }
   }
 
   function tryUnlock() {

@@ -19,6 +19,7 @@ const JS_FILES = [
   'src/js/businesses.js',
   'src/js/inventory.js',
   'src/js/ui.js',
+  'src/js/dialogs.js',
   'src/js/core/timers.js',
   'src/js/main.js'
 ];

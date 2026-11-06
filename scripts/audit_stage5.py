@@ -90,6 +90,9 @@ window.addEventListener('load', () => {
     };
 
     try {
+        const startBtn = document.getElementById('characterDialogStartBtn');
+        if (startBtn) startBtn.click();
+
         // 1. Click
         const prev = window.getDuckles();
         document.getElementById('duck').click();

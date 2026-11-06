@@ -108,6 +108,11 @@
   updateShopTabsVisibility();
   tryUnlock();
 
+  // Приветственный диалог для новой игры (если не отключен игроком)
+  if (typeof showWelcomeDialog === 'function') {
+    showWelcomeDialog();
+  }
+
   /* ---------- цикл ---------- */
   let last = performance.now();
   function frame(now) {

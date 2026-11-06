@@ -173,6 +173,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isHouseholdCollapsed = true;
   let isFoodBuyCollapsed = true;
   let isGardeningCollapsed = true;
+  let isCharacterDialogOpen = false;
+  window.isCharacterDialogOpen = isCharacterDialogOpen;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -819,12 +821,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
   function isAnyModalOpen() {
-    return document.querySelector('.upgrades-modal.open') !== null;
+    return document.querySelector('.upgrades-modal.open') !== null || Boolean(window.isCharacterDialogOpen || isCharacterDialogOpen);
   }
   window.isAnyModalOpen = isAnyModalOpen;
 
   function closeAllModals() {
     if (typeof hidePropContextMenu === 'function') hidePropContextMenu();
+    if (typeof closeCharacterDialog === 'function') closeCharacterDialog(true);
     if (typeof cancelDiscardConfirmation === 'function') cancelDiscardConfirmation();
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
       modal.classList.remove('open');

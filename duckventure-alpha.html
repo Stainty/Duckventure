@@ -3347,6 +3347,363 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
   }
 
+
+/* ==========================================================================
+   Character Dialog System (Диалоги с персонажами и стартовый экран)
+   ========================================================================== */
+.character-dialog-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.character-dialog-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.character-dialog-modal.closing {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.character-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 22, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.character-dialog-layout {
+  position: relative;
+  z-index: 251;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+/* Персонаж слева: выглядывает из экрана */
+.character-peeking-wrap {
+  position: fixed;
+  left: 20px;
+  bottom: 35px;
+  width: 210px;
+  height: 210px;
+  z-index: 252;
+  pointer-events: none;
+  transform: translateX(-130%);
+  transition: transform .42s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+.character-dialog-modal.open .character-peeking-wrap {
+  transform: translateX(0);
+}
+
+.character-dialog-modal.closing .character-peeking-wrap {
+  transform: translateX(-130%);
+  transition: transform .25s ease-in;
+}
+
+.character-peeking-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform-origin: bottom center;
+  animation: peekingDuckRock 3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 20px rgba(255, 210, 77, 0.3));
+}
+
+.character-peeking-avatar img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.character-peeking-fallback {
+  font-size: 110px;
+  line-height: 1;
+}
+
+@keyframes peekingDuckRock {
+  0% {
+    transform: rotate(-4deg) translateY(0);
+  }
+  50% {
+    transform: rotate(4deg) translateY(-10px);
+  }
+  100% {
+    transform: rotate(-4deg) translateY(0);
+  }
+}
+
+/* Диалоговое облачко над уточкой */
+.character-speech-bubble {
+  position: absolute;
+  bottom: 190px;
+  left: 45px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 12px 20px;
+  border-radius: 20px;
+  border: 2px solid #ffd24d;
+  font: 800 15px/1.3 system-ui, -apple-system, sans-serif;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 210, 77, 0.4);
+  white-space: nowrap;
+  transform: scale(0.7) translateY(10px);
+  opacity: 0;
+  transition: transform .32s cubic-bezier(0.18, 0.89, 0.32, 1.25) .14s, opacity .22s ease .14s;
+  pointer-events: auto;
+  z-index: 253;
+  animation: speechBubbleHover 2.6s ease-in-out infinite alternate;
+}
+
+.character-dialog-modal.open .character-speech-bubble {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.character-dialog-modal.closing .character-speech-bubble {
+  transform: scale(0.7) translateY(10px);
+  opacity: 0;
+  transition: transform .2s ease-in, opacity .2s ease-in;
+}
+
+.character-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 36px;
+  border-width: 11px 9px 0 9px;
+  border-style: solid;
+  border-color: #ffd24d transparent transparent transparent;
+}
+
+.character-speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 38px;
+  border-width: 9px 7px 0 7px;
+  border-style: solid;
+  border-color: #ffffff transparent transparent transparent;
+  z-index: 1;
+}
+
+@keyframes speechBubbleHover {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+/* Центральное прямоугольное диалоговое окно (больше в ширину) */
+.character-dialog-card {
+  position: relative;
+  z-index: 252;
+  width: 92%;
+  max-width: 650px;
+  box-sizing: border-box;
+  background: linear-gradient(145deg, rgba(26, 32, 46, 0.96), rgba(15, 20, 32, 0.98));
+  border: 2px solid rgba(255, 210, 77, 0.4);
+  border-radius: 20px;
+  padding: 30px 36px 26px 36px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(255, 210, 77, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: scale(0.9) translateY(24px);
+  opacity: 0;
+  transition: transform .34s cubic-bezier(0.18, 0.89, 0.32, 1.15), opacity .28s ease;
+}
+
+.character-dialog-modal.open .character-dialog-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.character-dialog-modal.closing .character-dialog-card {
+  transform: scale(0.92) translateY(20px);
+  opacity: 0;
+  transition: transform .22s ease-in, opacity .22s ease-in;
+}
+
+.character-dialog-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.character-dialog-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 210, 77, 0.12);
+  border: 1px solid rgba(255, 210, 77, 0.3);
+  border-radius: 999px;
+  color: #ffd24d;
+  font: 800 13px system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.character-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #e2e8f0;
+  font: 400 16px/1.6 system-ui, -apple-system, sans-serif;
+}
+
+.character-dialog-body p {
+  margin: 0;
+}
+
+.character-dialog-body .dialog-text-lead {
+  font-size: 16px;
+  color: #f1f5f9;
+}
+
+.character-dialog-body .dialog-text-lead strong {
+  color: #ffd24d;
+}
+
+.character-dialog-body .dialog-text-sub {
+  font-size: 15px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Эксклюзивный чекбокс */
+.character-dialog-checkbox-wrap {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.character-dialog-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font: 500 13.5px system-ui, sans-serif;
+  color: #cbd5e1;
+  transition: color .15s;
+}
+
+.character-dialog-checkbox-label:hover {
+  color: #ffffff;
+}
+
+.character-dialog-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.dialog-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 2px solid rgba(255, 210, 77, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+  position: relative;
+  display: inline-block;
+  transition: all .15s ease;
+  box-sizing: border-box;
+}
+
+.character-dialog-checkbox-label input[type="checkbox"]:checked + .dialog-checkbox-custom {
+  background: #ffd24d;
+  border-color: #ffd24d;
+  box-shadow: 0 0 10px rgba(255, 210, 77, 0.5);
+}
+
+.character-dialog-checkbox-label input[type="checkbox"]:checked + .dialog-checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e1b4b;
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* Кнопки внизу окна */
+.character-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.character-dialog-btn {
+  padding: 13px 32px;
+  border-radius: 12px;
+  font: 800 15px system-ui, sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  outline: none;
+}
+
+.character-dialog-btn.primary {
+  background: linear-gradient(135deg, #ffd24d, #f59e0b);
+  color: #1e1b4b;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.character-dialog-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.55);
+  filter: brightness(1.06);
+}
+
+.character-dialog-btn.primary:active {
+  transform: translateY(1px);
+}
+
+/* Адаптивность для мобильных экранов */
+@media (max-width: 768px) {
+  .character-dialog-card {
+    padding: 22px 20px 20px 20px;
+    gap: 14px;
+    margin-bottom: 70px;
+  }
+  .character-dialog-body {
+    font-size: 14.5px;
+  }
+  .character-peeking-wrap {
+    left: -5px;
+    bottom: 10px;
+    width: 140px;
+    height: 140px;
+  }
+  .character-speech-bubble {
+    bottom: 125px;
+    left: 25px;
+    padding: 9px 15px;
+    font-size: 13px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4184,6 +4541,49 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
   </button>
 
+  <!-- Система диалоговых окон с персонажами -->
+  <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="character-dialog-backdrop" id="characterDialogBackdrop"></div>
+    
+    <div class="character-dialog-layout">
+      <!-- Персонаж слева из экрана (Уточка) -->
+      <div class="character-peeking-wrap" id="characterPeekingWrap">
+        <div class="character-speech-bubble" id="characterSpeechBubble">
+          <div class="character-speech-text" id="characterSpeechText">Кря, приятной игры</div>
+        </div>
+        <div class="character-peeking-avatar" id="characterPeekingAvatar">
+          <img id="characterPeekingImg" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png" alt="Уточка" referrerpolicy="no-referrer"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="character-peeking-fallback" id="characterPeekingFallback" style="display: none;">🦆</div>
+        </div>
+      </div>
+
+      <!-- Центральное диалоговое окно (прямоугольное, больше в ширину) -->
+      <div class="character-dialog-card" id="characterDialogCard">
+        <div class="character-dialog-card-header">
+          <div class="character-dialog-badge">
+            <span class="dialog-badge-icon">✨</span>
+            <span class="dialog-badge-text" id="characterDialogTitle">Duckventure</span>
+          </div>
+        </div>
+        <div class="character-dialog-body" id="characterDialogBody">
+          <p class="dialog-text-lead">Добро пожаловать в <strong>Duckventure</strong> — игру кликер с пачкой иммерсивных механик. Не бойтесь экспериментировать, если вы играли в Альфа-версию, попробуйте использовать старые предметы по-новому.</p>
+          <p class="dialog-text-sub">Всем хорошего путешествия!</p>
+        </div>
+        <div class="character-dialog-checkbox-wrap" id="characterDialogCheckboxWrap">
+          <label class="character-dialog-checkbox-label">
+            <input type="checkbox" id="characterDialogDontShowCheckbox">
+            <span class="dialog-checkbox-custom"></span>
+            <span id="characterDialogCheckboxLabel">Больше не показывать это сообщение</span>
+          </label>
+        </div>
+        <div class="character-dialog-actions" id="characterDialogActions">
+          <button class="character-dialog-btn primary" id="characterDialogStartBtn">Начать игру</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="achvToastContainer" class="achv-toast-container"></div>
 
   <canvas id="particles"></canvas>
@@ -4251,6 +4651,7 @@ const GRAVITY = 1000;      // px/s²
   const EGG_SPOIL_TIMER_KEY = 'duck-egg-spoil-sec';
   const EGG_BATCHES_KEY = 'duck-egg-batches';
   const CHEAT_PANEL_KEY = 'duck-cheat-panel-visible';
+  const DONT_SHOW_WELCOME_DIALOG_KEY = 'duck-dont-show-welcome-dialog';
   const DUCK_FEED_ALPHA_REMAINING_KEY = 'duck-feed-alpha-remaining';
   const DUCK_FEED_BETA_REMAINING_KEY = 'duck-feed-beta-remaining';
   const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
@@ -4513,6 +4914,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isHouseholdCollapsed = true;
   let isFoodBuyCollapsed = true;
   let isGardeningCollapsed = true;
+  let isCharacterDialogOpen = false;
+  window.isCharacterDialogOpen = isCharacterDialogOpen;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -5159,12 +5562,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
   function isAnyModalOpen() {
-    return document.querySelector('.upgrades-modal.open') !== null;
+    return document.querySelector('.upgrades-modal.open') !== null || Boolean(window.isCharacterDialogOpen || isCharacterDialogOpen);
   }
   window.isAnyModalOpen = isAnyModalOpen;
 
   function closeAllModals() {
     if (typeof hidePropContextMenu === 'function') hidePropContextMenu();
+    if (typeof closeCharacterDialog === 'function') closeCharacterDialog(true);
     if (typeof cancelDiscardConfirmation === 'function') cancelDiscardConfirmation();
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
       modal.classList.remove('open');
@@ -6163,6 +6567,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     renderStorage();
     updateShopButtonVisibility();
     updateShopTabsVisibility();
+    if (typeof showWelcomeDialog === 'function') {
+      showWelcomeDialog();
+    }
   }
 
   function tryUnlock() {
@@ -14267,6 +14674,228 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
 
+  /* ===== Module: src/js/dialogs.js ===== */
+/* ==========================================================================
+   Character Dialog System (Система диалоговых окон с персонажами)
+   ========================================================================== */
+
+(function() {
+  'use strict';
+
+  let activeDialogConfig = null;
+  let dialogCloseTimeout = null;
+
+  /**
+   * Открывает диалоговое окно персонажа
+   * @param {Object} config
+   */
+  function showCharacterDialog(config) {
+    if (!config) return;
+    activeDialogConfig = config;
+
+    const modal = document.getElementById('characterDialogModal');
+    if (!modal) return;
+
+    if (dialogCloseTimeout) {
+      clearTimeout(dialogCloseTimeout);
+      dialogCloseTimeout = null;
+    }
+
+    // Ставим игру на паузу
+    isCharacterDialogOpen = true;
+    window.isCharacterDialogOpen = true;
+    if (typeof lastGameTickTime !== 'undefined') {
+      lastGameTickTime = Date.now();
+    }
+
+    // 1. Персонаж и облачко
+    const charData = config.character || {};
+    const speechEl = document.getElementById('characterSpeechText');
+    if (speechEl) {
+      speechEl.textContent = charData.speechText || 'Кря, приятной игры';
+    }
+
+    const peekingImg = document.getElementById('characterPeekingImg');
+    const peekingFallback = document.getElementById('characterPeekingFallback');
+    const avatarUrl = charData.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
+    if (peekingImg) {
+      peekingImg.src = avatarUrl;
+      peekingImg.style.display = 'block';
+      if (peekingFallback) peekingFallback.style.display = 'none';
+    }
+
+    // 2. Центральное окно (текст)
+    const content = config.content || {};
+    const titleEl = document.getElementById('characterDialogTitle');
+    if (titleEl) {
+      titleEl.textContent = content.title || 'Duckventure';
+    }
+
+    const bodyEl = document.getElementById('characterDialogBody');
+    if (bodyEl) {
+      if (content.html) {
+        bodyEl.innerHTML = content.html;
+      } else if (content.text) {
+        // Если передан простой текст, форматируем абзацами
+        const paragraphs = content.text.split('\n\n');
+        bodyEl.innerHTML = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      }
+    }
+
+    // 3. Эксклюзивный чекбокс (например "Больше не показывать это сообщение")
+    const cbWrap = document.getElementById('characterDialogCheckboxWrap');
+    const cbInput = document.getElementById('characterDialogDontShowCheckbox');
+    const cbLabel = document.getElementById('characterDialogCheckboxLabel');
+    if (cbWrap && cbInput) {
+      if (content.dontShowKey) {
+        cbWrap.style.display = 'flex';
+        cbInput.checked = false;
+        if (cbLabel) {
+          cbLabel.textContent = content.dontShowLabel || 'Больше не показывать это сообщение';
+        }
+      } else {
+        cbWrap.style.display = 'none';
+      }
+    }
+
+    // 4. Кнопки внизу
+    const actionsEl = document.getElementById('characterDialogActions');
+    if (actionsEl) {
+      actionsEl.innerHTML = '';
+      const buttons = (config.buttons && config.buttons.length > 0)
+        ? config.buttons
+        : [{
+            text: 'Начать игру',
+            primary: true,
+            onClick: () => closeCharacterDialog()
+          }];
+
+      buttons.forEach(btnConfig => {
+        const btn = document.createElement('button');
+        btn.className = 'character-dialog-btn' + (btnConfig.primary ? ' primary' : '');
+        btn.id = btnConfig.id || 'characterDialogStartBtn';
+        btn.textContent = btnConfig.text || 'ОК';
+        btn.addEventListener('click', () => {
+          if (typeof btnConfig.onClick === 'function') {
+            btnConfig.onClick();
+          } else {
+            closeCharacterDialog();
+          }
+        });
+        actionsEl.appendChild(btn);
+      });
+    }
+
+    // 5. Анимированное появление
+    modal.classList.remove('closing');
+    modal.style.display = 'flex';
+    // Принудительный reflow для запуска CSS-перехода
+    void modal.offsetHeight;
+    modal.classList.add('open');
+
+    // Звук появления диалога
+    if (typeof corkPopSound === 'function') {
+      try { corkPopSound(); } catch (e) {}
+    }
+  }
+
+  /**
+   * Закрывает активное диалоговое окно персонажа
+   * @param {boolean} [immediate=false] - Закрыть немедленно без анимации
+   */
+  function closeCharacterDialog(immediate = false) {
+    const modal = document.getElementById('characterDialogModal');
+    if (!modal) return;
+
+    if (dialogCloseTimeout) {
+      clearTimeout(dialogCloseTimeout);
+      dialogCloseTimeout = null;
+    }
+
+    // Проверяем состояние чекбокса "Больше не показывать"
+    if (activeDialogConfig && activeDialogConfig.content && activeDialogConfig.content.dontShowKey) {
+      const cbInput = document.getElementById('characterDialogDontShowCheckbox');
+      if (cbInput && cbInput.checked) {
+        try {
+          Storage.set(activeDialogConfig.content.dontShowKey, '1');
+        } catch (e) {}
+      }
+    }
+
+    // Снимаем блокировку игры сразу в момент нажатия на кнопку "Начать игру"
+    isCharacterDialogOpen = false;
+    window.isCharacterDialogOpen = false;
+    if (typeof lastGameTickTime !== 'undefined') {
+      lastGameTickTime = Date.now();
+    }
+
+    const finalizeClose = () => {
+      modal.classList.remove('open', 'closing');
+      modal.style.display = 'none';
+      if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
+        activeDialogConfig.onClose();
+      }
+      activeDialogConfig = null;
+    };
+
+    if (immediate) {
+      finalizeClose();
+    } else {
+      modal.classList.add('closing');
+      modal.classList.remove('open');
+      if (typeof quack === 'function') {
+        try { quack(); } catch (e) {}
+      }
+      dialogCloseTimeout = setTimeout(finalizeClose, 280);
+    }
+  }
+
+  /**
+   * Отображает приветственное диалоговое окно в начале новой игры
+   * @returns {boolean} Было ли показано окно
+   */
+  function showWelcomeDialog() {
+    // Если игрок выбрал "Больше не показывать это сообщение", не показываем
+    const isSuppressed = Storage.getBoolean(DONT_SHOW_WELCOME_DIALOG_KEY, false);
+    if (isSuppressed) return false;
+
+    showCharacterDialog({
+      character: {
+        name: 'Уточка',
+        avatar: 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png',
+        speechText: 'Кря, приятной игры',
+        position: 'left'
+      },
+      content: {
+        title: 'Duckventure',
+        html: `
+          <p class="dialog-text-lead">Добро пожаловать в <strong>Duckventure</strong> — игру кликер с пачкой иммерсивных механик. Не бойтесь экспериментировать, если вы играли в Альфа-версию, попробуйте использовать старые предметы по-новому.</p>
+          <p class="dialog-text-sub">Всем хорошего путешествия!</p>
+        `,
+        dontShowKey: DONT_SHOW_WELCOME_DIALOG_KEY,
+        dontShowLabel: 'Больше не показывать это сообщение'
+      },
+      buttons: [
+        {
+          id: 'characterDialogStartBtn',
+          text: 'Начать игру',
+          primary: true,
+          onClick: () => closeCharacterDialog()
+        }
+      ]
+    });
+
+    return true;
+  }
+
+  // Экспорт в глобальное пространство
+  window.showCharacterDialog = showCharacterDialog;
+  window.closeCharacterDialog = closeCharacterDialog;
+  window.showWelcomeDialog = showWelcomeDialog;
+
+})();
+
+
   /* ===== Module: src/js/core/timers.js ===== */
 /* ==========================================================================
      Единый игровой мастер-таймер реального времени (Date.now + Фоновая вкладка)
@@ -14593,6 +15222,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   updateShopButtonVisibility();
   updateShopTabsVisibility();
   tryUnlock();
+
+  // Приветственный диалог для новой игры (если не отключен игроком)
+  if (typeof showWelcomeDialog === 'function') {
+    showWelcomeDialog();
+  }
 
   /* ---------- цикл ---------- */
   let last = performance.now();

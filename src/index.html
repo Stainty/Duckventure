@@ -841,6 +841,49 @@
     <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
   </button>
 
+  <!-- Система диалоговых окон с персонажами -->
+  <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="character-dialog-backdrop" id="characterDialogBackdrop"></div>
+    
+    <div class="character-dialog-layout">
+      <!-- Персонаж слева из экрана (Уточка) -->
+      <div class="character-peeking-wrap" id="characterPeekingWrap">
+        <div class="character-speech-bubble" id="characterSpeechBubble">
+          <div class="character-speech-text" id="characterSpeechText">Кря, приятной игры</div>
+        </div>
+        <div class="character-peeking-avatar" id="characterPeekingAvatar">
+          <img id="characterPeekingImg" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png" alt="Уточка" referrerpolicy="no-referrer"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="character-peeking-fallback" id="characterPeekingFallback" style="display: none;">🦆</div>
+        </div>
+      </div>
+
+      <!-- Центральное диалоговое окно (прямоугольное, больше в ширину) -->
+      <div class="character-dialog-card" id="characterDialogCard">
+        <div class="character-dialog-card-header">
+          <div class="character-dialog-badge">
+            <span class="dialog-badge-icon">✨</span>
+            <span class="dialog-badge-text" id="characterDialogTitle">Duckventure</span>
+          </div>
+        </div>
+        <div class="character-dialog-body" id="characterDialogBody">
+          <p class="dialog-text-lead">Добро пожаловать в <strong>Duckventure</strong> — игру кликер с пачкой иммерсивных механик. Не бойтесь экспериментировать, если вы играли в Альфа-версию, попробуйте использовать старые предметы по-новому.</p>
+          <p class="dialog-text-sub">Всем хорошего путешествия!</p>
+        </div>
+        <div class="character-dialog-checkbox-wrap" id="characterDialogCheckboxWrap">
+          <label class="character-dialog-checkbox-label">
+            <input type="checkbox" id="characterDialogDontShowCheckbox">
+            <span class="dialog-checkbox-custom"></span>
+            <span id="characterDialogCheckboxLabel">Больше не показывать это сообщение</span>
+          </label>
+        </div>
+        <div class="character-dialog-actions" id="characterDialogActions">
+          <button class="character-dialog-btn primary" id="characterDialogStartBtn">Начать игру</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="achvToastContainer" class="achv-toast-container"></div>
 
   <canvas id="particles"></canvas>
