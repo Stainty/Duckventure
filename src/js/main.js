@@ -29,6 +29,7 @@
   initDraggableProp(document.getElementById('prop-honey'), 'honey');
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   if (typeof updatePotUI === 'function') updatePotUI();
+  if (typeof updateHoneyDeskProp === 'function') updateHoneyDeskProp();
 
   const flowerBeeEl = document.getElementById('flowerBee');
   if (flowerBeeEl) {

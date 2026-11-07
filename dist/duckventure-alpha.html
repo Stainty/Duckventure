@@ -11573,6 +11573,30 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const card = document.createElement('div');
       card.className = 'storage-card';
 
+      let propIcon = prop.icon;
+      let propFallbackEmoji = prop.fallbackEmoji;
+      let propDescExtra = '';
+
+      if (id === 'pot') {
+        if (potState === 'dirt') {
+          propIcon = (window.ASSETS && ASSETS.props && ASSETS.props.potDirt) || prop.icon;
+          propFallbackEmoji = '🌱';
+          propDescExtra = ' (С землёй)';
+        } else if (potState === 'planted') {
+          propIcon = (window.ASSETS && ASSETS.props && ASSETS.props.potDirt) || prop.icon;
+          propFallbackEmoji = '🌱';
+          propDescExtra = ' (Посажены семена)';
+        } else if (potState === 'bloomed') {
+          propIcon = (window.ASSETS && ASSETS.props && ASSETS.props.potFlower) || prop.icon;
+          propFallbackEmoji = '🌸';
+          propDescExtra = ' (С цветами)';
+        } else {
+          propIcon = (window.ASSETS && ASSETS.props && ASSETS.props.potEmpty) || prop.icon;
+          propFallbackEmoji = '🪴';
+          propDescExtra = ' (Пустой)';
+        }
+      }
+
       let btnHtml = isPlaced
         ? `<button class="storage-toggle-btn placed" onclick="returnPropToStorage('${id}')">Убрать на склад</button>`
         : `<button class="storage-toggle-btn" onclick="placePropOnScreen('${id}')">Выложить на стол</button>`;
@@ -11580,12 +11604,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       card.innerHTML = `
         <div class="buy-item-left">
           <div class="buy-item-img-box">
-            <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
+            <img class="buy-item-img" src="${propIcon}" alt="${prop.name}" referrerpolicy="no-referrer"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-            <span style="display: none;">${prop.fallbackEmoji}</span>
+            <span style="display: none;">${propFallbackEmoji}</span>
           </div>
           <div class="buy-item-info">
-            <div class="buy-item-name">${prop.name}</div>
+            <div class="buy-item-name">${prop.name}${propDescExtra}</div>
             <div class="buy-item-desc">${loc.label}</div>
           </div>
         </div>
@@ -11715,6 +11739,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (typeof updateDeflationUI === 'function') updateDeflationUI();
       if (typeof updateDeskCreatureUI === 'function') updateDeskCreatureUI();
       if (typeof updateIncubatorUI === 'function') updateIncubatorUI();
+    } else if (propId === 'pot') {
+      if (typeof updatePotUI === 'function') updatePotUI();
+    } else if (propId === 'pot') {
+      if (typeof updatePotUI === 'function') updatePotUI();
     }
 
     if (propId === 'skovoroda' || propId === 'plita') {
@@ -12847,7 +12875,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         if (trEl) trEl.style.display = 'none';
         return;
       }
-      if (ownedProps.includes(id)) {
+      if (ownedProps.includes(id) || (id === 'honey' && typeof honeyCount !== 'undefined' && honeyCount > 0)) {
         const el = document.getElementById('prop-' + id);
         if (el && placedProps[id].left && placedProps[id].top) {
           const dims = getPropDimensions(id);
@@ -12894,12 +12922,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       isLampOn = false;
       updateLampGlowUI();
     }
+
+    updateHoneyDeskProp();
   }
 
   function clampAllPlacedPropsToScreen() {
     let changed = false;
     Object.keys(placedProps).forEach(id => {
-      if (ownedProps.includes(id) && placedProps[id] && placedProps[id].placed) {
+      if ((ownedProps.includes(id) || (id === 'honey' && typeof honeyCount !== 'undefined' && honeyCount > 0)) && placedProps[id] && placedProps[id].placed) {
         const el = document.getElementById('prop-' + id);
         if (el && el.style.display !== 'none') {
           const dims = getPropDimensions(id);
@@ -14294,7 +14324,34 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (!honeyEl) return;
 
     if (honeyCount > 0) {
+      let curLeft = (placedProps['honey'] && placedProps['honey'].left) || honeyEl.style.left;
+      let curTop = (placedProps['honey'] && placedProps['honey'].top) || honeyEl.style.top;
+
+      const numLeft = parseFloat(curLeft);
+      const numTop = parseFloat(curTop);
+
+      // Если координаты отсутствуют, некорректны или за границами экрана — вычисляем рядом с горшком
+      if (isNaN(numLeft) || isNaN(numTop) || numLeft < 0 || numLeft > window.innerWidth - 30 || numTop < 0 || numTop > window.innerHeight - 30) {
+        const potEl = document.getElementById('prop-pot');
+        const potRect = (potEl && potEl.offsetWidth > 0) ? potEl.getBoundingClientRect() : null;
+        const pL = (potRect && potRect.left > 0) ? potRect.left : (parseFloat(potEl?.style.left) || (window.innerWidth / 2));
+        const pT = (potRect && potRect.top > 0) ? potRect.top : (parseFloat(potEl?.style.top) || (window.innerHeight / 2));
+        let targetL = pL + 95;
+        if (targetL + 75 > window.innerWidth) {
+          targetL = Math.max(20, pL - 75);
+        }
+        const targetT = Math.min(window.innerHeight - 90, pT + 12);
+        curLeft = `${Math.round(targetL)}px`;
+        curTop = `${Math.round(targetT)}px`;
+      }
+
+      honeyEl.style.left = curLeft;
+      honeyEl.style.top = curTop;
       honeyEl.style.display = 'block';
+
+      placedProps['honey'] = { placed: true, left: curLeft, top: curTop };
+      try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+
       if (badgeEl) {
         badgeEl.style.display = honeyCount > 1 ? 'block' : 'none';
         badgeEl.textContent = String(honeyCount);
@@ -14302,6 +14359,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     } else {
       honeyEl.style.display = 'none';
       if (badgeEl) badgeEl.style.display = 'none';
+      if (placedProps['honey']) {
+        delete placedProps['honey'];
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
     }
   }
   window.updateHoneyDeskProp = updateHoneyDeskProp;
@@ -14418,6 +14479,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
     updateHoneyDeskProp();
+    if (typeof renderStorage === 'function') renderStorage();
   }
   window.updatePotUI = updatePotUI;
 
@@ -16235,6 +16297,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   initDraggableProp(document.getElementById('prop-honey'), 'honey');
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   if (typeof updatePotUI === 'function') updatePotUI();
+  if (typeof updateHoneyDeskProp === 'function') updateHoneyDeskProp();
 
   const flowerBeeEl = document.getElementById('flowerBee');
   if (flowerBeeEl) {
