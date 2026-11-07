@@ -36,18 +36,37 @@
     const mainDuck = document.getElementById('duck');
     if (mainDuck) mainDuck.style.visibility = 'hidden';
 
-    // 1. Левый персонаж (Уточка, всегда слева в центре левой трети)
+    // Режим без персонажей: Вступление (intro), Прощание (outro) или повествование
+    const isNarrative = (config.type === 'intro' || config.type === 'outro' || config.noCharacters === true);
+    const layoutEl = document.getElementById('characterDialogLayout');
+    if (layoutEl) {
+      layoutEl.classList.toggle('is-narrative', isNarrative);
+    }
+
+    // 1. Левый персонаж (Уточка, слева в центре левой трети)
     const charLeft = config.characterLeft || (config.characters && config.characters.left) || config.character || {};
+    const leftWrap = document.getElementById('characterPeekingWrapLeft') || document.querySelector('.character-peeking-wrap.character-left');
     const speechEl = document.getElementById('characterSpeechText');
     const speechBubble = document.getElementById('characterSpeechBubble');
     if (speechEl) {
       speechEl.textContent = charLeft.speechText || 'Кря, приятной игры';
-      if (speechBubble) speechBubble.style.display = (charLeft.speechText === '') ? 'none' : 'block';
+      if (speechBubble) speechBubble.style.display = (charLeft.speechText === '' || isNarrative) ? 'none' : 'block';
     }
 
     const peekingImg = document.getElementById('characterPeekingImg');
     const peekingFallback = document.getElementById('characterPeekingFallback');
-    const avatarUrl = charLeft.avatar || (window.ASSETS ? ASSETS.skins.default : 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png');
+
+    // Определение аватара: по умолчанию используется текущий надетый скин игрока
+    let avatarUrl;
+    if (charLeft.avatar && charLeft.avatar !== 'current_player_skin') {
+      avatarUrl = charLeft.avatar;
+    } else {
+      const curSkinId = (typeof getCurrentSkin === 'function') ? getCurrentSkin() : 'default';
+      avatarUrl = (typeof SKINS_DATA !== 'undefined' && SKINS_DATA[curSkinId] && SKINS_DATA[curSkinId].img) ||
+                  (window.ASSETS && ASSETS.skins && (ASSETS.skins[curSkinId] || ASSETS.skins.default)) ||
+                  'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png';
+    }
+
     if (peekingImg) {
       peekingImg.src = avatarUrl;
       peekingImg.style.display = 'block';
@@ -58,8 +77,9 @@
     const charRight = config.characterRight || (config.characters && config.characters.right) || null;
     const rightWrap = document.getElementById('characterPeekingWrapRight');
     if (rightWrap) {
-      if (charRight) {
+      if (charRight && !isNarrative) {
         rightWrap.style.visibility = 'visible';
+        rightWrap.style.display = 'flex';
         const rightSpeechEl = document.getElementById('characterSpeechTextRight');
         const rightBubble = document.getElementById('characterSpeechBubbleRight');
         if (rightSpeechEl && charRight.speechText) {
@@ -77,10 +97,27 @@
           if (rightFallback) rightFallback.style.display = 'none';
         }
       } else {
-        // Оставляем как невидимый элемент-распорку для сбалансированной 3-колоночной сетки
-        rightWrap.style.visibility = 'hidden';
+        rightWrap.style.visibility = isNarrative ? 'hidden' : 'hidden';
+        rightWrap.style.display = isNarrative ? 'none' : 'flex';
         const rightBubble = document.getElementById('characterSpeechBubbleRight');
         if (rightBubble) rightBubble.style.display = 'none';
+      }
+    }
+
+    if (leftWrap) {
+      leftWrap.style.display = isNarrative ? 'none' : 'flex';
+    }
+
+    // 1c. Настройка говорящего персонажа (speaker: 'left' | 'right' | 'both' | 'none')
+    const speaker = config.speaker || (charLeft.isSpeaking ? 'left' : (charRight && charRight.isSpeaking ? 'right' : (charLeft.speechText && !charRight?.speechText ? 'left' : (charRight?.speechText && !charLeft.speechText ? 'right' : 'both'))));
+    if (!isNarrative) {
+      if (leftWrap) {
+        leftWrap.classList.toggle('is-speaking', speaker === 'left' || speaker === 'both');
+        leftWrap.classList.toggle('is-silent', speaker === 'right' || speaker === 'none');
+      }
+      if (rightWrap && charRight) {
+        rightWrap.classList.toggle('is-speaking', speaker === 'right' || speaker === 'both');
+        rightWrap.classList.toggle('is-silent', speaker === 'left' || speaker === 'none');
       }
     }
 
@@ -196,6 +233,12 @@
     const finalizeClose = () => {
       modal.classList.remove('open', 'closing');
       modal.style.display = 'none';
+      const layoutEl = document.getElementById('characterDialogLayout');
+      if (layoutEl) layoutEl.classList.remove('is-narrative');
+      const leftW = document.getElementById('characterPeekingWrapLeft') || document.querySelector('.character-peeking-wrap.character-left');
+      const rightW = document.getElementById('characterPeekingWrapRight');
+      if (leftW) { leftW.classList.remove('is-speaking', 'is-silent'); leftW.style.display = ''; }
+      if (rightW) { rightW.classList.remove('is-speaking', 'is-silent'); rightW.style.display = ''; }
       if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
         activeDialogConfig.onClose();
       }

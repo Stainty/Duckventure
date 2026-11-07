@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Duckventure — Конструктор диалогов</title>
+  <title>Duckventure — Конструктор диалогов и квестов</title>
   <style>
     :root {
       --bg-dark: #0b1120;
@@ -19,7 +19,9 @@
       --success: #10b981;
       --danger: #ef4444;
       --info: #38bdf8;
+      --purple: #c084fc;
       --radius: 10px;
+      --preview-char-size: 105px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -110,11 +112,39 @@
     }
     button.btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
 
+    /* Сегментированные кнопки переключения */
+    .segmented-control {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .segmented-control button {
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .segmented-control button.active {
+      background: var(--bg-card);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .segmented-control button.active.primary { color: #f59e0b; }
+    .segmented-control button.active.success { color: #34d399; }
+    .segmented-control button.active.purple { color: #c084fc; }
+
     /* Основная рабочая область */
     .app-workspace {
       flex: 1;
       display: grid;
-      grid-template-columns: 290px 1fr 480px;
+      grid-template-columns: 310px 1fr 500px;
       overflow: hidden;
     }
 
@@ -138,6 +168,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .node-list-quick-actions {
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border-color);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5px;
+    }
+    .node-list-quick-actions button {
+      padding: 5px 4px;
+      font-size: 11px;
+      justify-content: center;
     }
 
     .node-list {
@@ -179,6 +223,11 @@
       color: #38bdf8;
       font-weight: 600;
     }
+    .node-item-tags {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
     .node-item-tag {
       font-size: 10px;
       padding: 1px 5px;
@@ -186,10 +235,20 @@
       background: rgba(255,255,255,0.08);
       color: var(--text-muted);
     }
-    .node-item.is-start .node-item-tag {
+    .node-item-tag.tag-intro {
       background: rgba(16, 185, 129, 0.2);
       color: #34d399;
       border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .node-item-tag.tag-outro {
+      background: rgba(192, 132, 252, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(192, 132, 252, 0.4);
+    }
+    .node-item-tag.tag-start {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
     }
     .node-item-title {
       font-size: 13px;
@@ -215,7 +274,7 @@
     }
     .branch-pill {
       font-size: 9px;
-      padding: 1px 4px;
+      padding: 1px 5px;
       background: rgba(245, 158, 11, 0.15);
       color: #f59e0b;
       border-radius: 3px;
@@ -336,7 +395,21 @@
       align-items: center;
       justify-content: space-between;
       font-size: 12px;
+      gap: 10px;
     }
+
+    .char-size-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .char-size-slider-wrap input[type="range"] {
+      width: 85px;
+      cursor: pointer;
+    }
+
     .preview-viewport {
       flex: 1;
       position: relative;
@@ -345,17 +418,23 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
     }
 
     /* Точная стилизация диалогового окна из Duckventure */
     .sim-dialog-modal {
-      width: 95%;
-      max-width: 440px;
+      width: 100%;
+      max-width: 470px;
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.85));
+      transition: all .25s ease;
+    }
+
+    .sim-dialog-modal.is-narrative {
+      max-width: 480px;
     }
 
     .sim-characters-layer {
@@ -368,6 +447,11 @@
       position: relative;
       z-index: 2;
       pointer-events: none;
+      transition: all .25s ease;
+    }
+
+    .sim-dialog-modal.is-narrative .sim-characters-layer {
+      display: none;
     }
 
     .sim-character-wrap {
@@ -375,17 +459,47 @@
       flex-direction: column;
       align-items: center;
       position: relative;
+      transition: transform .25s cubic-bezier(0.18, 0.89, 0.32, 1.25), filter .25s ease, opacity .25s ease;
     }
+
     .sim-character-img {
-      width: 90px;
-      height: 90px;
+      width: var(--preview-char-size, 105px);
+      height: var(--preview-char-size, 105px);
       object-fit: contain;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
-      animation: simDuckPeek 2.4s ease-in-out infinite alternate;
+      animation: simDuckPeek 2.6s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+      transition: all .2s ease;
     }
     @keyframes simDuckPeek {
-      0% { transform: translateY(0) rotate(-2deg); }
-      100% { transform: translateY(-6px) rotate(3deg); }
+      0% { transform: translateY(0) rotate(-2.5deg); }
+      100% { transform: translateY(-7px) rotate(3deg); }
+    }
+
+    /* АКТИВНЫЙ ГОВОРЯЩИЙ */
+    .sim-character-wrap.is-speaking {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.65)) brightness(1.08);
+      z-index: 5;
+    }
+    .sim-character-wrap.is-speaking .sim-character-img {
+      animation-play-state: running;
+    }
+
+    /* НЕ ГОВОРЯЩИЙ (ЗАТЕМНЕН, УМЕНЬШЕН, АНИМАЦИЯ ОСТАНОВЛЕНА) */
+    .sim-character-wrap.is-silent {
+      transform: scale(0.88);
+      filter: brightness(0.38) contrast(0.85) grayscale(30%);
+      opacity: 0.75;
+      z-index: 1;
+    }
+    .sim-character-wrap.is-silent .sim-character-img {
+      animation-play-state: paused !important;
+    }
+    .sim-character-wrap.is-silent .sim-speech-bubble {
+      opacity: 0 !important;
+      transform: scale(0.6) translateY(10px) !important;
+      pointer-events: none;
     }
 
     .sim-speech-bubble {
@@ -393,16 +507,18 @@
       color: #0f172a;
       font-size: 11px;
       font-weight: 700;
-      padding: 6px 10px;
+      padding: 6px 11px;
       border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      border: 1.5px solid #ffd24d;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
       position: relative;
       margin-bottom: 6px;
       white-space: nowrap;
-      max-width: 160px;
+      max-width: 170px;
       overflow: hidden;
       text-overflow: ellipsis;
       text-align: center;
+      transition: all .2s ease;
     }
     .sim-speech-bubble::after {
       content: '';
@@ -424,11 +540,12 @@
       width: 100%;
       padding: 22px 20px 18px;
       position: relative;
-      z-index: 1;
+      z-index: 2;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       display: flex;
       flex-direction: column;
       gap: 12px;
+      transition: all .2s ease;
     }
 
     .sim-header {
@@ -448,13 +565,23 @@
       font-size: 12px;
       font-weight: 700;
     }
+    .sim-badge.badge-intro {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .sim-badge.badge-outro {
+      background: rgba(192, 132, 252, 0.18);
+      border-color: rgba(192, 132, 252, 0.4);
+      color: #c084fc;
+    }
 
     .sim-body {
       color: #cbd5e1;
       font-size: 13px;
       line-height: 1.5;
       text-align: center;
-      max-height: 180px;
+      max-height: 200px;
       overflow-y: auto;
       padding: 0 4px;
     }
@@ -499,7 +626,7 @@
       color: #fca5a5;
     }
 
-    /* Модальное окно экспорта */
+    /* Модальные окна */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -516,7 +643,7 @@
       background: var(--bg-panel);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      width: 820px;
+      width: 840px;
       max-width: 95vw;
       max-height: 88vh;
       display: flex;
@@ -619,7 +746,7 @@
     <div class="top-actions">
       <select id="templateSelect" title="Загрузить готовый пример">
         <option value="">Шаблоны...</option>
-        <option value="sus_duck_quest">Квест: Подозрительная Сус-Утка</option>
+        <option value="sus_duck_quest">Квест: Подозрительная Сус-Утка (с Вступлением и Финалом)</option>
         <option value="welcome">Приветствие новой игры</option>
         <option value="mafia_offer">Мафиози: Сделка века</option>
       </select>
@@ -639,7 +766,14 @@
     <div class="sidebar-left">
       <div class="panel-header">
         <span>Шаги диалога (<span id="nodeCountBadge">0</span>)</span>
-        <button class="btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="addNewNode()">+ Шаг</button>
+        <button class="btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="addNewNode('dialogue')">+ Шаг</button>
+      </div>
+
+      <!-- Быстрое добавление типов окон -->
+      <div class="node-list-quick-actions">
+        <button class="btn-success" onclick="addNewNode('intro')" title="Создать окно появления / предыстории без персонажей">+ Вступление</button>
+        <button onclick="addNewNode('dialogue')" title="Обычный шаг диалога с персонажами">+ Диалог</button>
+        <button style="border-color: rgba(192, 132, 252, 0.4); color: #c084fc;" onclick="addNewNode('outro')" title="Создать окно ухода / эпилога без персонажей">+ Прощание</button>
       </div>
 
       <div class="node-list" id="nodeList">
@@ -677,48 +811,102 @@
           </div>
         </div>
 
+        <!-- Тип окна и ID -->
         <div class="form-row">
+          <div class="form-group">
+            <label>Тип окна</label>
+            <div class="segmented-control" id="nodeTypeSegmented">
+              <button type="button" class="active primary" onclick="setNodeType('dialogue')">💬 Диалог</button>
+              <button type="button" class="success" onclick="setNodeType('intro')">🌅 Вступление (Intro)</button>
+              <button type="button" class="purple" onclick="setNodeType('outro')">👋 Прощание (Outro)</button>
+            </div>
+          </div>
           <div class="form-group">
             <label>ID этого шага (уникальный ключ)</label>
             <input type="text" id="nodeIdInput" oninput="onNodeIdChange(this.value)">
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label>Заголовок карточки (бейдж)</label>
             <input type="text" id="nodeTitleInput" oninput="updateActiveNode('title', this.value)">
           </div>
+          <!-- Настройка говорящего персонажа -->
+          <div class="form-group" id="speakerGroup">
+            <label>Кто говорит на этом шаге (акцент и анимация)</label>
+            <div class="segmented-control" id="speakerSegmented">
+              <button type="button" class="active primary" onclick="setNodeSpeaker('left')" title="Левый говорит (увеличен), правый затемнен и на паузе">🗣️ Левый</button>
+              <button type="button" onclick="setNodeSpeaker('right')" title="Правый говорит (увеличен), левый затемнен и на паузе">🗣️ Правый</button>
+              <button type="button" onclick="setNodeSpeaker('both')" title="Говорят оба одновременно">👥 Оба</button>
+              <button type="button" onclick="setNodeSpeaker('none')" title="Никто не говорит (только текст в карточке)">📜 Никто</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Настройка персонажей -->
-        <div class="form-row">
+        <!-- Настройка персонажей (скрывается для intro/outro) -->
+        <div id="charactersConfigWrap" class="form-row">
           <!-- Левый персонаж -->
-          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <label style="color: #38bdf8;">Левый персонаж (Уточка / Игрок)</label>
-            <div style="display: flex; gap: 6px; margin: 4px 0;">
-              <select id="leftCharSelect" style="flex: 1;" onchange="updateCharPreset('left', this.value)">
-                <option value="duck">Классическая утка</option>
-                <option value="sus_duck">Сус-утка в шляпе</option>
-                <option value="boss">Сус-Босс</option>
-                <option value="mafioznik">Мафиозник</option>
-                <option value="agent47">Агент 47</option>
+          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label style="color: #38bdf8; font-weight: 700;">Левый персонаж (Игрок / Утка)</label>
+            </div>
+            
+            <div style="margin: 6px 0;">
+              <select id="leftCharSelect" style="width: 100%; font-size: 12px;" onchange="updateCharPreset('left', this.value)">
+                <option value="current_player_skin">⭐ Текущий скин игрока (из игры)</option>
+                <optgroup label="Скины Duckventure">
+                  <option value="duck">Классическая утка (Жёлтая)</option>
+                  <option value="argo">Золотая цепь "Арго"</option>
+                  <option value="mafioznik">Мафиозник</option>
+                  <option value="agent47">Агент 47</option>
+                  <option value="rocker">Рокер</option>
+                  <option value="glasses">Очки</option>
+                  <option value="jojo">Набор JOJO</option>
+                  <option value="patched">С изолентой</option>
+                  <option value="doshirak">Доширак</option>
+                  <option value="vape">VAPE "Париш"</option>
+                  <option value="wig_goose">Парик "Гусыня"</option>
+                  <option value="bikini">Купальник "Бора-Бора"</option>
+                  <option value="sus_duck">Сус-утка в шляпе</option>
+                  <option value="boss">Сус-Босс</option>
+                </optgroup>
                 <option value="custom">Свой URL...</option>
               </select>
             </div>
+
+            <!-- Тестовый выбор скина в превью при выборе "Текущий скин игрока" -->
+            <div id="playerSkinTestWrap" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+              <span style="font-size: 11px; color: #94a3b8;">Превью со скином:</span>
+              <select id="playerSkinTestSelect" style="font-size: 11px; padding: 3px 6px;" onchange="updatePlayerSkinPreview(this.value)">
+                <option value="duck">Классическая</option>
+                <option value="argo">Арго</option>
+                <option value="mafioznik">Мафиозник</option>
+                <option value="agent47">Агент 47</option>
+                <option value="rocker">Рокер</option>
+                <option value="patched">Изолента</option>
+              </select>
+            </div>
+
             <input type="text" id="leftAvatarUrl" placeholder="URL аватара (png)" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('leftAvatar', this.value)">
             <label>Облачко речи слева (над головой)</label>
             <input type="text" id="leftSpeechInput" placeholder="Кря! Привет" oninput="updateActiveNode('leftSpeech', this.value)">
           </div>
 
           <!-- Правый персонаж -->
-          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <label style="color: #fbbf24;">Правый персонаж (Собеседник / NPC)</label>
-            <div style="display: flex; gap: 6px; margin: 4px 0;">
-              <select id="rightCharSelect" style="flex: 1;" onchange="updateCharPreset('right', this.value)">
+          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="color: #fbbf24; font-weight: 700;">Правый персонаж (Собеседник / NPC)</label>
+            <div style="margin: 6px 0;">
+              <select id="rightCharSelect" style="width: 100%; font-size: 12px;" onchange="updateCharPreset('right', this.value)">
                 <option value="none">Без второго персонажа</option>
-                <option value="sus_duck">Сус-утка в шляпе</option>
-                <option value="boss">Сус-Босс</option>
-                <option value="duck">Классическая утка</option>
-                <option value="mafioznik">Мафиозник</option>
-                <option value="agent47">Агент 47</option>
+                <optgroup label="Персонажи и NPC">
+                  <option value="sus_duck">Сус-утка в шляпе</option>
+                  <option value="boss">Сус-Босс</option>
+                  <option value="mafioznik">Мафиозник</option>
+                  <option value="agent47">Агент 47</option>
+                  <option value="duck">Классическая утка</option>
+                  <option value="rocker">Рокер</option>
+                </optgroup>
                 <option value="custom">Свой URL...</option>
               </select>
             </div>
@@ -726,6 +914,11 @@
             <label>Облачко речи справа</label>
             <input type="text" id="rightSpeechInput" placeholder="Псс... есть дело" oninput="updateActiveNode('rightSpeech', this.value)">
           </div>
+        </div>
+
+        <!-- Подсказка для Intro / Outro -->
+        <div id="narrativeModeNotice" style="display: none; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #38bdf8;">
+          ✨ <strong>Нарративный режим (Вступление / Прощание)</strong>: персонажи на этом шаге скрыты, чтобы атмосферно описать их появление, обстановку или их уход.
         </div>
 
         <!-- Текст карточки диалога -->
@@ -751,24 +944,30 @@
     <div class="preview-right">
       <div class="preview-topbar">
         <span>🎮 Интерактивный просмотр</span>
-        <div style="display: flex; gap: 6px;">
-          <button style="font-size: 11px; padding: 3px 8px;" onclick="resetPreviewToStart()">↺ Сначала</button>
+        
+        <!-- Ползунок размера персонажей -->
+        <div class="char-size-slider-wrap" id="charSizeSliderGroup">
+          <span>Размер:</span>
+          <input type="range" id="charSizeSlider" min="70" max="170" step="5" value="105" oninput="setCharPreviewSize(this.value)">
+          <span id="charSizeVal" style="font-family: monospace; min-width: 36px;">105px</span>
         </div>
+
+        <button style="font-size: 11px; padding: 3px 8px;" onclick="resetPreviewToStart()">↺ Сначала</button>
       </div>
 
       <div class="preview-viewport">
         <!-- Симуляция Character Dialog Modal -->
-        <div class="sim-dialog-modal">
+        <div class="sim-dialog-modal" id="simModal">
           
-          <div class="sim-characters-layer">
+          <div class="sim-characters-layer" id="simCharsLayer">
             <!-- Левый персонаж -->
-            <div class="sim-character-wrap" id="simCharLeftWrap">
+            <div class="sim-character-wrap is-speaking" id="simCharLeftWrap">
               <div class="sim-speech-bubble" id="simSpeechLeft">Кря! Привет</div>
               <img id="simImgLeft" class="sim-character-img" src="" alt="Left Duck">
             </div>
 
             <!-- Правый персонаж -->
-            <div class="sim-character-wrap" id="simCharRightWrap" style="visibility: hidden;">
+            <div class="sim-character-wrap is-silent" id="simCharRightWrap" style="visibility: hidden;">
               <div class="sim-speech-bubble" id="simSpeechRight">Псс...</div>
               <img id="simImgRight" class="sim-character-img" src="" alt="Right Duck">
             </div>
@@ -778,7 +977,7 @@
           <div class="sim-card">
             <div class="sim-header">
               <div class="sim-badge" id="simBadge">
-                <span>✨</span>
+                <span id="simBadgeIcon">✨</span>
                 <span id="simBadgeText">Duckventure</span>
               </div>
             </div>
@@ -853,12 +1052,24 @@
        База ассетов и пресетов Duckventure
        ========================================================================== */
     const PRESET_AVATARS = {
+      current_player_skin: 'current_player_skin',
       duck: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png',
-      sus_duck: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png',
-      boss: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck-boss.png',
+      argo: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/argo-duck.png',
       mafioznik: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/mafioznik-duck.png',
-      agent47: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/agent47-duck.png'
+      agent47: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/agent47-duck.png',
+      rocker: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/rocker-duck.png',
+      glasses: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/glasses-duck.png',
+      jojo: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/jojo-duck.png',
+      patched: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/patched-duck.png',
+      doshirak: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/doshirak-duck.png',
+      vape: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/vape-duck.png',
+      wig_goose: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/wig-duck.png',
+      bikini: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/bikini-duck.png',
+      sus_duck: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png',
+      boss: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck-boss.png'
     };
+
+    let previewPlayerSkin = 'duck';
 
     /* ==========================================================================
        Шаблоны диалогов
@@ -867,16 +1078,32 @@
       sus_duck_quest: {
         id: 'sus_duck_encounter',
         title: 'Подозрительная Сус-Утка',
-        startNode: 'start',
+        startNode: 'intro_fog',
         nodes: {
+          intro_fog: {
+            id: 'intro_fog',
+            type: 'intro',
+            title: 'Загадочный шорох',
+            speaker: 'none',
+            leftAvatar: 'current_player_skin',
+            leftSpeech: '',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Вечерняя тишина на столе внезапно нарушается тихим шуршанием за холодильником...\n\nВ полутьме вспыхивает огонёк спички. Из тени медленно выступает силуэт утки в глубоко надвинутой шляпе и тёмных очках.',
+            choices: [
+              { text: 'Окликнуть незнакомца ➔', target: 'start', style: 'primary' }
+            ]
+          },
           start: {
             id: 'start',
+            type: 'dialogue',
             title: 'Подозрительный незнакомец',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right', // Говорит Сус-утка!
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Кря?.. Ты кто?',
             rightAvatar: PRESET_AVATARS.sus_duck,
             rightSpeech: 'Пс-с... эй, пернатый!',
-            text: 'Из тени за холодильником появляется странная утка в шляпе и тёмных очках. Она нервно оглядывается по сторонам.\n\n— У меня есть для тебя предложение, от которого твои дакли умножатся... но нужно проверить, можно ли тебе доверять.',
+            text: '— У меня есть для тебя предложение, от которого твои дакли умножатся... но нужно проверить, можно ли тебе доверять.',
             choices: [
               { text: 'Кто ты такой?', target: 'who_are_you', style: 'primary' },
               { text: 'Что за предложение?', target: 'the_deal', style: 'default' },
@@ -885,8 +1112,10 @@
           },
           who_are_you: {
             id: 'who_are_you',
+            type: 'dialogue',
             title: 'Агент из подполья',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Представься сначала!',
             rightAvatar: PRESET_AVATARS.sus_duck,
             rightSpeech: 'Зови меня Сус...',
@@ -898,8 +1127,10 @@
           },
           the_deal: {
             id: 'the_deal',
+            type: 'dialogue',
             title: 'Деловое предложение',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Выкладывай свои условия',
             rightAvatar: PRESET_AVATARS.sus_duck,
             rightSpeech: 'Чистый бизнес!',
@@ -911,20 +1142,38 @@
           },
           accept_quest: {
             id: 'accept_quest',
+            type: 'dialogue',
             title: 'Сделка заключена!',
-            leftAvatar: PRESET_AVATARS.duck,
-            leftSpeech: 'Договорились!',
+            speaker: 'left', // Отвечает игрок!
+            leftAvatar: 'current_player_skin',
+            leftSpeech: 'Договорились, держи крыло!',
             rightAvatar: PRESET_AVATARS.sus_duck,
             rightSpeech: 'Отличный выбор!',
             text: '— Вот и славно! Держи аванс 5 000 🦆 и следи за столом. Скоро я снова выйду на связь!\n\nКвест начат: подготовьте золотое яйцо для Сус-Утки.',
             choices: [
-              { text: 'Забрать аванс и начать (+5 000 🦆)', target: 'end', style: 'primary', reward: { type: 'duckles', amount: 5000 } }
+              { text: 'Забрать аванс и разойтись (+5 000 🦆)', target: 'outro_deal', style: 'primary', reward: { type: 'duckles', amount: 5000 } }
+            ]
+          },
+          outro_deal: {
+            id: 'outro_deal',
+            type: 'outro',
+            title: 'Исчезновение в ночи',
+            speaker: 'none',
+            leftAvatar: 'current_player_skin',
+            leftSpeech: '',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Сус-утка прячет золотую монету в карман плаща, кивает вам и бесшумно растворяется во тьме стола.\n\nНа столе остаётся конверт с даклями и смутное ощущение, что это только начало большой истории...',
+            choices: [
+              { text: 'Вернуться к игре', target: 'end', style: 'primary' }
             ]
           },
           refuse_quest: {
             id: 'refuse_quest',
+            type: 'dialogue',
             title: 'Осторожность не повредит',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Я не связываюсь с мафией',
             rightAvatar: PRESET_AVATARS.sus_duck,
             rightSpeech: 'Ты ещё пожалеешь...',
@@ -935,14 +1184,16 @@
           },
           walk_away: {
             id: 'walk_away',
+            type: 'outro',
             title: 'Разговор окончен',
-            leftAvatar: PRESET_AVATARS.duck,
-            leftSpeech: 'Не приближайся ко мне!',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Ну и ладно...',
-            text: 'Вы игнорируете странного незнакомца и продолжаете заниматься своими делами на столе.',
+            speaker: 'none',
+            leftAvatar: 'current_player_skin',
+            leftSpeech: '',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Вы игнорируете подозрительного незнакомца. Шаги за спиной затихают, а стол снова погружается в привычный рабочий ритм.',
             choices: [
-              { text: 'Вернуться к игре', target: 'end', style: 'default' }
+              { text: 'Вернуться к столу', target: 'end', style: 'default' }
             ]
           }
         }
@@ -954,8 +1205,10 @@
         nodes: {
           start: {
             id: 'start',
+            type: 'dialogue',
             title: 'Duckventure',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'left',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Кря, приятной игры',
             rightAvatar: '',
             rightSpeech: '',
@@ -969,12 +1222,28 @@
       mafia_offer: {
         id: 'mafia_offer',
         title: 'Сделка с Мафиози',
-        startNode: 'start',
+        startNode: 'intro_mafia',
         nodes: {
+          intro_mafia: {
+            id: 'intro_mafia',
+            type: 'intro',
+            title: 'Приглашение в семью',
+            speaker: 'none',
+            leftAvatar: 'current_player_skin',
+            leftSpeech: '',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Тяжёлая деревянная дверь кабинета со скрипом распахивается. Запах дорогого табака и жареных зёрен наполняет комнату...',
+            choices: [
+              { text: 'Войти в кабинет ➔', target: 'start', style: 'primary' }
+            ]
+          },
           start: {
             id: 'start',
+            type: 'dialogue',
             title: 'Дон Утконе',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'К-кто вы?!',
             rightAvatar: PRESET_AVATARS.mafioznik,
             rightSpeech: 'Кряпоне передаёт привет...',
@@ -986,8 +1255,10 @@
           },
           listen: {
             id: 'listen',
+            type: 'dialogue',
             title: 'Условия синдиката',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'right',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Я слушаю вас, Дон',
             rightAvatar: PRESET_AVATARS.mafioznik,
             rightSpeech: 'Умный селезень...',
@@ -999,8 +1270,10 @@
           },
           rebel: {
             id: 'rebel',
+            type: 'dialogue',
             title: 'Утиная вендетта',
-            leftAvatar: PRESET_AVATARS.duck,
+            speaker: 'left',
+            leftAvatar: 'current_player_skin',
             leftSpeech: 'Стол принадлежит мне!',
             rightAvatar: PRESET_AVATARS.mafioznik,
             rightSpeech: 'Это война, кря!',
@@ -1011,12 +1284,14 @@
           },
           end_deal: {
             id: 'end_deal',
+            type: 'outro',
             title: 'Защита мафии',
-            leftAvatar: PRESET_AVATARS.duck,
-            leftSpeech: 'По рукам, Дон',
-            rightAvatar: PRESET_AVATARS.mafioznik,
-            rightSpeech: 'Семья помнит добро!',
-            text: 'Дон Утконе пожимает ваше крыло. Теперь ваш бизнес находится под защитой утиного синдиката!',
+            speaker: 'none',
+            leftAvatar: 'current_player_skin',
+            leftSpeech: '',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Дон Утконе пожимает ваше крыло. Теперь ваш бизнес находится под защитой утиного синдиката!\n\nАвторитет на столе вырос до небес.',
             choices: [
               { text: 'Продолжить игру', target: 'end', style: 'primary' }
             ]
@@ -1029,12 +1304,20 @@
        Текущее состояние приложения
        ========================================================================== */
     let dialogData = JSON.parse(JSON.stringify(DIALOG_TEMPLATES.sus_duck_quest));
-    let activeNodeId = 'start';
-    let previewNodeId = 'start';
+    let activeNodeId = dialogData.startNode || 'intro_fog';
+    let previewNodeId = activeNodeId;
+
+    // Загрузка настроек размера персонажей из localStorage
+    try {
+      const savedCharSize = localStorage.getItem('duck_dialog_preview_char_size');
+      if (savedCharSize) {
+        document.documentElement.style.setProperty('--preview-char-size', `${savedCharSize}px`);
+      }
+    } catch (e) {}
 
     // Загрузка сохранённого черновика из localStorage
     try {
-      const saved = localStorage.getItem('duckventure_dialog_draft');
+      const saved = localStorage.getItem('duckventure_dialog_draft_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.nodes && parsed.startNode) {
@@ -1049,9 +1332,18 @@
        Инициализация и привязка событий
        ========================================================================== */
     window.addEventListener('DOMContentLoaded', () => {
+      // Инициализация ползунка размера
+      const savedCharSize = parseInt(localStorage.getItem('duck_dialog_preview_char_size')) || 105;
+      const slider = document.getElementById('charSizeSlider');
+      if (slider) {
+        slider.value = savedCharSize;
+        document.getElementById('charSizeVal').textContent = `${savedCharSize}px`;
+        document.documentElement.style.setProperty('--preview-char-size', `${savedCharSize}px`);
+      }
+
       document.getElementById('templateSelect').addEventListener('change', (e) => {
         if (!e.target.value) return;
-        if (confirm('Загрузить выбранный шаблон? Текущие несохраненные данные будут заменены.')) {
+        if (confirm('Загрузить выбранный шаблон? Текущие данные будут заменены.')) {
           dialogData = JSON.parse(JSON.stringify(DIALOG_TEMPLATES[e.target.value]));
           activeNodeId = dialogData.startNode || Object.keys(dialogData.nodes)[0];
           previewNodeId = activeNodeId;
@@ -1073,9 +1365,17 @@
       renderAll();
     });
 
+    function setCharPreviewSize(val) {
+      document.getElementById('charSizeVal').textContent = `${val}px`;
+      document.documentElement.style.setProperty('--preview-char-size', `${val}px`);
+      try {
+        localStorage.setItem('duck_dialog_preview_char_size', val);
+      } catch (e) {}
+    }
+
     function saveDraft() {
       try {
-        localStorage.setItem('duckventure_dialog_draft', JSON.stringify(dialogData));
+        localStorage.setItem('duckventure_dialog_draft_v2', JSON.stringify(dialogData));
       } catch (e) {}
     }
 
@@ -1088,8 +1388,10 @@
           nodes: {
             start: {
               id: 'start',
+              type: 'dialogue',
               title: 'Начало диалога',
-              leftAvatar: PRESET_AVATARS.duck,
+              speaker: 'left',
+              leftAvatar: 'current_player_skin',
               leftSpeech: 'Кря!',
               rightAvatar: '',
               rightSpeech: '',
@@ -1139,10 +1441,22 @@
         const node = dialogData.nodes[key];
         const isStart = (key === dialogData.startNode);
         const isActive = (key === activeNodeId);
+        const nodeType = node.type || 'dialogue';
 
         const item = document.createElement('div');
-        item.className = `node-item ${isActive ? 'active' : ''} ${isStart ? 'is-start' : ''}`;
+        item.className = `node-item ${isActive ? 'active' : ''}`;
         item.onclick = () => selectNode(key);
+
+        let typeTag = '';
+        if (nodeType === 'intro') {
+          typeTag = '<span class="node-item-tag tag-intro">ВСТУПЛЕНИЕ</span>';
+        } else if (nodeType === 'outro') {
+          typeTag = '<span class="node-item-tag tag-outro">ПРОЩАНИЕ</span>';
+        } else {
+          typeTag = '<span class="node-item-tag">ДИАЛОГ</span>';
+        }
+
+        const startTag = isStart ? '<span class="node-item-tag tag-start">★ СТАРТ</span>' : '';
 
         const choicesPills = (node.choices || []).map(c => {
           const tgt = c.target || 'end';
@@ -1152,10 +1466,13 @@
         item.innerHTML = `
           <div class="node-item-header">
             <span class="node-item-id">#${node.id}</span>
-            <span class="node-item-tag">${isStart ? '★ СТАРТ' : (node.choices && node.choices.length > 0 ? `${node.choices.length} выб.` : 'Конец')}</span>
+            <div class="node-item-tags">
+              ${startTag}
+              ${typeTag}
+            </div>
           </div>
           <div class="node-item-title">${node.title || 'Без названия'}</div>
-          <div class="node-item-preview">${(node.text || '').substring(0, 40)}...</div>
+          <div class="node-item-preview">${(node.text || '').substring(0, 42)}...</div>
           <div class="node-item-links">${choicesPills}</div>
         `;
 
@@ -1174,16 +1491,54 @@
       const node = dialogData.nodes[activeNodeId];
       if (!node) return;
 
+      const nodeType = node.type || 'dialogue';
+      const speaker = node.speaker || 'left';
+
       document.getElementById('activeNodeHeading').textContent = `Шаг: #${node.id}`;
       document.getElementById('nodeIdInput').value = node.id;
       document.getElementById('nodeTitleInput').value = node.title || '';
       document.getElementById('nodeTextInput').value = node.text || '';
 
-      // Пресеты и аватары
-      document.getElementById('leftAvatarUrl').value = node.leftAvatar || '';
-      document.getElementById('leftSpeechInput').value = node.leftSpeech || '';
-      matchPresetDropdown('left', node.leftAvatar);
+      // Тип шага (сегментированные кнопки)
+      const typeBtns = document.getElementById('nodeTypeSegmented').children;
+      typeBtns[0].className = (nodeType === 'dialogue') ? 'active primary' : '';
+      typeBtns[1].className = (nodeType === 'intro') ? 'active success' : '';
+      typeBtns[2].className = (nodeType === 'outro') ? 'active purple' : '';
 
+      // Нарративный режим (intro/outro): скрываем персонажей
+      const charsWrap = document.getElementById('charactersConfigWrap');
+      const speakerGroup = document.getElementById('speakerGroup');
+      const narrativeNotice = document.getElementById('narrativeModeNotice');
+      const isNarrative = (nodeType === 'intro' || nodeType === 'outro');
+
+      if (isNarrative) {
+        charsWrap.style.display = 'none';
+        speakerGroup.style.display = 'none';
+        narrativeNotice.style.display = 'block';
+      } else {
+        charsWrap.style.display = 'grid';
+        speakerGroup.style.display = 'flex';
+        narrativeNotice.style.display = 'none';
+      }
+
+      // Говорящий персонаж
+      const spkBtns = document.getElementById('speakerSegmented').children;
+      spkBtns[0].className = (speaker === 'left') ? 'active primary' : '';
+      spkBtns[1].className = (speaker === 'right') ? 'active primary' : '';
+      spkBtns[2].className = (speaker === 'both') ? 'active primary' : '';
+      spkBtns[3].className = (speaker === 'none') ? 'active primary' : '';
+
+      // Левый персонаж
+      const leftAvatar = node.leftAvatar || 'current_player_skin';
+      document.getElementById('leftAvatarUrl').value = (leftAvatar === 'current_player_skin') ? '' : leftAvatar;
+      document.getElementById('leftSpeechInput').value = node.leftSpeech || '';
+      matchPresetDropdown('left', leftAvatar);
+
+      // Тестовый скин для превью игрока
+      const pTestWrap = document.getElementById('playerSkinTestWrap');
+      pTestWrap.style.display = (leftAvatar === 'current_player_skin') ? 'flex' : 'none';
+
+      // Правый персонаж
       document.getElementById('rightAvatarUrl').value = node.rightAvatar || '';
       document.getElementById('rightSpeechInput').value = node.rightSpeech || '';
       matchPresetDropdown('right', node.rightAvatar);
@@ -1202,10 +1557,34 @@
       renderChoicesEditor(node);
     }
 
+    function setNodeType(type) {
+      if (!dialogData.nodes[activeNodeId]) return;
+      dialogData.nodes[activeNodeId].type = type;
+      if (type === 'intro' || type === 'outro') {
+        dialogData.nodes[activeNodeId].speaker = 'none';
+      }
+      renderAll();
+    }
+
+    function setNodeSpeaker(spk) {
+      if (!dialogData.nodes[activeNodeId]) return;
+      dialogData.nodes[activeNodeId].speaker = spk;
+      renderAll();
+    }
+
+    function updatePlayerSkinPreview(skinKey) {
+      previewPlayerSkin = skinKey;
+      renderPreview();
+    }
+
     function matchPresetDropdown(side, url) {
       const sel = document.getElementById(side + 'CharSelect');
       if (!url) {
-        sel.value = (side === 'left') ? 'duck' : 'none';
+        sel.value = (side === 'left') ? 'current_player_skin' : 'none';
+        return;
+      }
+      if (url === 'current_player_skin') {
+        sel.value = 'current_player_skin';
         return;
       }
       for (const [k, v] of Object.entries(PRESET_AVATARS)) {
@@ -1218,7 +1597,10 @@
     }
 
     function updateCharPreset(side, val) {
-      if (val === 'none') {
+      if (val === 'current_player_skin') {
+        updateActiveNode('leftAvatar', 'current_player_skin');
+        document.getElementById('leftAvatarUrl').value = '';
+      } else if (val === 'none') {
         updateActiveNode(side + 'Avatar', '');
         document.getElementById(side + 'AvatarUrl').value = '';
       } else if (val === 'custom') {
@@ -1227,6 +1609,7 @@
         updateActiveNode(side + 'Avatar', PRESET_AVATARS[val]);
         document.getElementById(side + 'AvatarUrl').value = PRESET_AVATARS[val];
       }
+      renderAll();
     }
 
     function renderChoicesEditor(node) {
@@ -1241,7 +1624,9 @@
 
         let targetOptions = `<option value="end" ${choice.target === 'end' ? 'selected' : ''}>[Завершить диалог (end)]</option>`;
         nodeKeys.forEach(k => {
-          targetOptions += `<option value="${k}" ${choice.target === k ? 'selected' : ''}>${k} (${(dialogData.nodes[k].title || '').substring(0, 20)})</option>`;
+          const nObj = dialogData.nodes[k];
+          const badgeType = nObj.type === 'intro' ? '🌅 ' : (nObj.type === 'outro' ? '👋 ' : '');
+          targetOptions += `<option value="${k}" ${choice.target === k ? 'selected' : ''}>${badgeType}#${k} (${(nObj.title || '').substring(0, 20)})</option>`;
         });
 
         card.innerHTML = `
@@ -1325,31 +1710,44 @@
       renderAll();
     }
 
-    function addNewNode() {
+    function addNewNode(type = 'dialogue') {
       let counter = Object.keys(dialogData.nodes).length + 1;
-      let newId = 'step_' + counter;
+      let prefix = (type === 'intro') ? 'intro_' : ((type === 'outro') ? 'outro_' : 'step_');
+      let newId = prefix + counter;
       while (dialogData.nodes[newId]) {
         counter++;
-        newId = 'step_' + counter;
+        newId = prefix + counter;
+      }
+
+      let defaultTitle = 'Новый шаг ' + counter;
+      let defaultText = 'Новое сообщение...';
+      if (type === 'intro') {
+        defaultTitle = 'Появление персонажей';
+        defaultText = 'Описание обстановки или появление фигур из тени...';
+      } else if (type === 'outro') {
+        defaultTitle = 'Завершение встречи';
+        defaultText = 'Персонажи уходят, подводятся итоги встречи...';
       }
 
       dialogData.nodes[newId] = {
         id: newId,
-        title: 'Новый шаг ' + counter,
-        leftAvatar: PRESET_AVATARS.duck,
-        leftSpeech: 'Кря...',
+        type: type,
+        title: defaultTitle,
+        speaker: (type === 'intro' || type === 'outro') ? 'none' : 'left',
+        leftAvatar: 'current_player_skin',
+        leftSpeech: (type === 'intro' || type === 'outro') ? '' : 'Кря...',
         rightAvatar: '',
         rightSpeech: '',
-        text: 'Новое сообщение...',
+        text: defaultText,
         choices: [
-          { text: 'Завершить', target: 'end', style: 'default' }
+          { text: 'Продолжить', target: 'end', style: 'primary' }
         ]
       };
 
       activeNodeId = newId;
       previewNodeId = newId;
       renderAll();
-      showToast('Добавлен новый шаг #' + newId);
+      showToast('Добавлен шаг #' + newId);
     }
 
     function createAndLinkNode(choiceIdx) {
@@ -1365,10 +1763,12 @@
 
       dialogData.nodes[newId] = {
         id: newId,
+        type: 'dialogue',
         title: 'Ответ на: ' + (activeNode.choices[choiceIdx].text || 'выбор').substring(0, 15),
-        leftAvatar: activeNode.leftAvatar,
+        speaker: activeNode.speaker === 'left' ? 'right' : 'left',
+        leftAvatar: activeNode.leftAvatar || 'current_player_skin',
         leftSpeech: 'Кря',
-        rightAvatar: activeNode.rightAvatar,
+        rightAvatar: activeNode.rightAvatar || '',
         rightSpeech: 'Продолжай...',
         text: 'Продолжение истории после выбора...',
         choices: [
@@ -1446,48 +1846,81 @@
       const node = dialogData.nodes[previewNodeId];
       if (!node) return;
 
-      // 1. Левый персонаж
-      const leftImg = document.getElementById('simImgLeft');
-      const leftSpeech = document.getElementById('simSpeechLeft');
-      if (node.leftAvatar) {
-        leftImg.src = node.leftAvatar;
-        leftImg.style.display = 'block';
-      } else {
-        leftImg.src = PRESET_AVATARS.duck;
-      }
-      if (node.leftSpeech) {
-        leftSpeech.textContent = node.leftSpeech;
-        leftSpeech.style.display = 'block';
-      } else {
-        leftSpeech.style.display = 'none';
-      }
+      const nodeType = node.type || 'dialogue';
+      const speaker = node.speaker || 'left';
+      const isNarrative = (nodeType === 'intro' || nodeType === 'outro');
 
-      // 2. Правый персонаж
+      const modalEl = document.getElementById('simModal');
+      modalEl.classList.toggle('is-narrative', isNarrative);
+
+      const leftWrap = document.getElementById('simCharLeftWrap');
       const rightWrap = document.getElementById('simCharRightWrap');
+      const leftImg = document.getElementById('simImgLeft');
       const rightImg = document.getElementById('simImgRight');
+      const leftSpeech = document.getElementById('simSpeechLeft');
       const rightSpeech = document.getElementById('simSpeechRight');
-      if (node.rightAvatar) {
-        rightWrap.style.visibility = 'visible';
-        rightImg.src = node.rightAvatar;
-        if (node.rightSpeech) {
-          rightSpeech.textContent = node.rightSpeech;
-          rightSpeech.style.display = 'block';
+
+      if (!isNarrative) {
+        // 1. Левый персонаж
+        let leftSrc = PRESET_AVATARS.duck;
+        if (node.leftAvatar === 'current_player_skin' || !node.leftAvatar) {
+          leftSrc = PRESET_AVATARS[previewPlayerSkin] || PRESET_AVATARS.duck;
         } else {
-          rightSpeech.style.display = 'none';
+          leftSrc = node.leftAvatar;
         }
-      } else {
-        rightWrap.style.visibility = 'hidden';
+        leftImg.src = leftSrc;
+
+        if (node.leftSpeech) {
+          leftSpeech.textContent = node.leftSpeech;
+          leftSpeech.style.display = 'block';
+        } else {
+          leftSpeech.style.display = 'none';
+        }
+
+        // 2. Правый персонаж
+        if (node.rightAvatar) {
+          rightWrap.style.visibility = 'visible';
+          rightImg.src = node.rightAvatar;
+          if (node.rightSpeech) {
+            rightSpeech.textContent = node.rightSpeech;
+            rightSpeech.style.display = 'block';
+          } else {
+            rightSpeech.style.display = 'none';
+          }
+        } else {
+          rightWrap.style.visibility = 'hidden';
+        }
+
+        // 3. Активный говорящий / затемнение молчащего
+        const isLeftSpeaking = (speaker === 'left' || speaker === 'both');
+        const isRightSpeaking = (speaker === 'right' || speaker === 'both');
+
+        leftWrap.className = 'sim-character-wrap ' + (isLeftSpeaking ? 'is-speaking' : 'is-silent');
+        rightWrap.className = 'sim-character-wrap ' + (isRightSpeaking ? 'is-speaking' : 'is-silent');
       }
 
-      // 3. Заголовок
+      // Заголовок и бейдж
+      const badgeEl = document.getElementById('simBadge');
+      const badgeIcon = document.getElementById('simBadgeIcon');
+      badgeEl.className = 'sim-badge';
+      if (nodeType === 'intro') {
+        badgeEl.classList.add('badge-intro');
+        badgeIcon.textContent = '🌅';
+      } else if (nodeType === 'outro') {
+        badgeEl.classList.add('badge-outro');
+        badgeIcon.textContent = '👋';
+      } else {
+        badgeIcon.textContent = '✨';
+      }
+
       document.getElementById('simBadgeText').textContent = node.title || dialogData.title || 'Duckventure';
 
-      // 4. Текст
+      // Текст
       const bodyEl = document.getElementById('simBody');
       const paras = (node.text || '').split('\n\n');
       bodyEl.innerHTML = paras.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
 
-      // 5. Кнопки
+      // Кнопки
       const actionsEl = document.getElementById('simActions');
       actionsEl.innerHTML = '';
 
@@ -1564,8 +1997,10 @@
       const totalNodes = Object.keys(dialogData.nodes).length;
       let branchSummary = [];
       Object.values(dialogData.nodes).forEach(n => {
+        const typeStr = n.type ? `[${n.type.toUpperCase()}] ` : '';
+        const spkStr = n.speaker ? `(говорит: ${n.speaker}) ` : '';
         const choices = (n.choices || []).map(c => `"${c.text}" -> [${c.target}]`).join(', ');
-        branchSummary.push(`  - Шаг #${n.id} ("${n.title}"): ${choices || '[Конец диалога]'}`);
+        branchSummary.push(`  - ${typeStr}Шаг #${n.id} ${spkStr}("${n.title}"): ${choices || '[Конец диалога]'}`);
       });
 
       return `[DUCKVENTURE_DIALOG_SPEC]
@@ -1573,7 +2008,7 @@
 Стартовый шаг: #${dialogData.startNode}
 Всего шагов: ${totalNodes}
 
-Схема ветвления:
+Схема шагов и ветвлений:
 ${branchSummary.join('\n')}
 
 Структура диалога в формате JSON:
@@ -1583,8 +2018,9 @@ ${JSON.stringify(dialogData, null, 2)}
 
 Инструкция для AI:
 1. Интегрируй этот разветвлённый диалог в Duckventure (модуль dialogs.js или вызов через showCharacterDialog).
-2. Реализуй переходы между шагами согласно полю target у каждой кнопки (при target: 'end' закрывать диалог).
-3. При необходимости привяжи вызов диалога к игровому событию (клик по утке, покупка предмета, появление персонажа на столе или чит-код).
+2. Обрати внимание на типы шагов (intro/outro без персонажей) и поле speaker ('left'/'right'/'both'/'none' для анимации говорящего).
+3. Левый аватар 'current_player_skin' автоматически привязывается к текущему надетому скину игрока.
+4. Реализуй переходы между шагами согласно полю target у каждой кнопки (при target: 'end' закрывать диалог).
 [/DUCKVENTURE_DIALOG_SPEC]`;
     }
 
@@ -1602,8 +2038,10 @@ function launch_${dialogData.id.replace(/[^a-zA-Z0-9_]/g, '_')}() {
     }
     const step = tree.nodes[stepId];
     showCharacterDialog({
+      type: step.type || 'dialogue',
+      speaker: step.speaker || 'left',
       characterLeft: {
-        avatar: step.leftAvatar || undefined,
+        avatar: (step.leftAvatar && step.leftAvatar !== 'current_player_skin') ? step.leftAvatar : undefined,
         speechText: step.leftSpeech || ''
       },
       characterRight: step.rightAvatar ? {
@@ -1640,7 +2078,6 @@ function launch_${dialogData.id.replace(/[^a-zA-Z0-9_]/g, '_')}() {
       navigator.clipboard.writeText(code).then(() => {
         showToast('Скопировано в буфер обмена!');
       }).catch(() => {
-        // Fallback
         const ta = document.createElement('textarea');
         ta.value = code;
         document.body.appendChild(ta);

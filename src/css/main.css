@@ -3494,6 +3494,36 @@ body.has-character-dialog #duck {
 }
 
 /* Диалоговые облачка над персонажами */
+/* Активный говорящий и не говорящий персонажи */
+.character-peeking-wrap.is-speaking .character-peeking-avatar {
+  transform: scale(1.08);
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 32px rgba(255, 210, 77, 0.6)) brightness(1.08);
+  animation-play-state: running;
+}
+.character-peeking-wrap.is-silent .character-peeking-avatar {
+  transform: scale(0.92);
+  filter: brightness(0.42) contrast(0.85) grayscale(25%);
+  animation-play-state: paused !important;
+}
+.character-peeking-wrap.is-silent .character-speech-bubble {
+  opacity: 0 !important;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.7) translateY(12px) !important;
+}
+
+/* Окна без персонажей (Вступление / Прощание / Нарратив) */
+.character-dialog-layout.is-narrative {
+  grid-template-columns: 1fr;
+  max-width: 620px;
+}
+.character-dialog-layout.is-narrative .character-peeking-wrap {
+  display: none !important;
+}
+.character-dialog-layout.is-narrative .character-dialog-card {
+  max-width: 620px;
+  width: 100%;
+}
+
 .character-speech-bubble {
   position: absolute;
   bottom: calc(100% - 12px);
