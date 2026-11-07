@@ -3839,7 +3839,7 @@
 
     if (ytContainer) {
       ytContainer.innerHTML = `
-        <iframe width="260" height="146"
+        <iframe width="300" height="300"
                 src="https://www.youtube-nocookie.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
                 title="${track.title.replace(/"/g, '&quot;')}"
                 frameborder="0"

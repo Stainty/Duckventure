@@ -3820,7 +3820,8 @@ body.has-character-dialog #duck {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
   z-index: 120;
   pointer-events: auto;
-  width: 276px;
+  width: 316px;
+  max-width: 92vw;
   backdrop-filter: blur(14px);
   box-sizing: border-box;
 }
@@ -3897,8 +3898,9 @@ body.has-character-dialog #duck {
   border-color: rgba(239, 68, 68, 0.7);
 }
 .boombox-iframe-wrap {
-  width: 260px;
-  height: 146px;
+  width: 300px;
+  height: 300px;
+  max-width: 100%;
   background: #000;
   border-radius: 8px;
   overflow: hidden;
@@ -3906,8 +3908,9 @@ body.has-character-dialog #duck {
   margin: 0 auto;
 }
 .boombox-iframe-wrap iframe {
-  width: 260px;
-  height: 146px;
+  width: 300px;
+  height: 300px;
+  max-width: 100%;
   border: none;
   display: block;
 }
