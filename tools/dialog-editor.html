@@ -585,6 +585,39 @@
       border-color: rgba(192, 132, 252, 0.4);
       color: #c084fc;
     }
+    /* Имена говорящих над карточкой в превью */
+    .sim-speaker-name {
+      position: absolute;
+      top: -14px;
+      z-index: 20;
+      pointer-events: none;
+      transition: all .2s ease;
+    }
+    .sim-speaker-name.speaker-left { left: 16px; }
+    .sim-speaker-name.speaker-right { right: 16px; }
+    .sim-speaker-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    .sim-speaker-name.speaker-left .sim-speaker-badge {
+      background: linear-gradient(135deg, #0c4a6e, #075985);
+      border: 1.5px solid #38bdf8;
+      color: #e0f2fe;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 10px rgba(56, 189, 248, 0.35);
+    }
+    .sim-speaker-name.speaker-right .sim-speaker-badge {
+      background: linear-gradient(135deg, #78350f, #92400e);
+      border: 1.5px solid #fbbf24;
+      color: #fef3c7;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 10px rgba(251, 191, 36, 0.35);
+    }
+
     .sim-badge.is-hidden-in-game {
       border: 1px dashed rgba(248, 113, 113, 0.55);
       background: rgba(239, 68, 68, 0.12);
@@ -933,6 +966,9 @@
               <span id="leftCharSizeVal" style="font-size: 11px; font-family: monospace; min-width: 38px; color: #38bdf8; font-weight: 700;">105px</span>
             </div>
 
+            <label style="font-size: 11px; color: #38bdf8;">Имя левого персонажа (подпись сверху слева)</label>
+            <input type="text" id="leftCharNameInput" placeholder="Утка" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('leftName', this.value)">
+
             <input type="text" id="leftAvatarUrl" placeholder="URL аватара (png)" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('leftAvatar', this.value)">
             <label>Облачко речи слева (над головой)</label>
             <input type="text" id="leftSpeechInput" placeholder="Кря! Привет" oninput="updateActiveNode('leftSpeech', this.value)">
@@ -961,6 +997,9 @@
               <input type="range" id="rightCharSizeSlider" min="60" max="180" step="5" value="105" style="flex: 1; cursor: pointer;" oninput="updateCharSize('right', this.value)">
               <span id="rightCharSizeVal" style="font-size: 11px; font-family: monospace; min-width: 38px; color: #fbbf24; font-weight: 700;">105px</span>
             </div>
+
+            <label style="font-size: 11px; color: #fbbf24;">Имя правого персонажа (подпись сверху справа)</label>
+            <input type="text" id="rightCharNameInput" placeholder="Подозрительная утка" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('rightName', this.value)">
 
             <input type="text" id="rightAvatarUrl" placeholder="URL аватара (png)" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('rightAvatar', this.value)">
             <label>Облачко речи справа</label>
@@ -1034,6 +1073,20 @@
 
           <!-- Центральная карточка -->
           <div class="sim-card">
+            <!-- Имена говорящих персонажей над карточкой -->
+            <div class="sim-speaker-name speaker-left" id="simSpeakerNameLeft" style="display: none;">
+              <span class="sim-speaker-badge">
+                <span style="font-size: 10px;">🗣️</span>
+                <span id="simSpeakerTextLeft">Утка</span>
+              </span>
+            </div>
+            <div class="sim-speaker-name speaker-right" id="simSpeakerNameRight" style="display: none;">
+              <span class="sim-speaker-badge">
+                <span id="simSpeakerTextRight">Подозрительная утка</span>
+                <span style="font-size: 10px;">🗣️</span>
+              </span>
+            </div>
+
             <div class="sim-header">
               <div class="sim-badge" id="simBadge">
                 <span id="simBadgeIcon">✨</span>
@@ -1626,6 +1679,10 @@
       spkBtns[2].className = (speaker === 'both') ? 'active primary' : '';
       spkBtns[3].className = (speaker === 'none') ? 'active primary' : '';
 
+      // Имена персонажей
+      document.getElementById('leftCharNameInput').value = node.leftName || 'Утка';
+      document.getElementById('rightCharNameInput').value = node.rightName || '';
+
       // Левый персонаж
       const leftAvatar = node.leftAvatar || 'current_player_skin';
       document.getElementById('leftAvatarUrl').value = (leftAvatar === 'current_player_skin') ? '' : leftAvatar;
@@ -2023,6 +2080,22 @@
         if (badgeHiddenTag) badgeHiddenTag.style.display = 'none';
       }
 
+      // Имена говорящих над карточкой (показывается только у говорящего)
+      const leftName = node.leftName || 'Утка';
+      const rightName = node.rightName || '';
+      const spkLeftEl = document.getElementById('simSpeakerNameLeft');
+      const spkRightEl = document.getElementById('simSpeakerNameRight');
+      if (document.getElementById('simSpeakerTextLeft')) {
+        document.getElementById('simSpeakerTextLeft').textContent = leftName;
+      }
+      if (document.getElementById('simSpeakerTextRight')) {
+        document.getElementById('simSpeakerTextRight').textContent = rightName;
+      }
+      const showLeftSpk = !isNarrative && (speaker === 'left' || speaker === 'both') && Boolean(leftName);
+      const showRightSpk = !isNarrative && (speaker === 'right' || speaker === 'both') && Boolean(rightName);
+      if (spkLeftEl) spkLeftEl.style.display = showLeftSpk ? 'block' : 'none';
+      if (spkRightEl) spkRightEl.style.display = showRightSpk ? 'block' : 'none';
+
       // Применяем индивидуальные размеры персонажей
       const prevLeftSize = (typeof node.leftCharSize === 'number') ? node.leftCharSize : (parseInt(localStorage.getItem('duck_dialog_preview_left_size')) || 105);
       const prevRightSize = (typeof node.rightCharSize === 'number') ? node.rightCharSize : (parseInt(localStorage.getItem('duck_dialog_preview_right_size')) || 105);
@@ -2157,11 +2230,13 @@ function launch_${dialogData.id.replace(/[^a-zA-Z0-9_]/g, '_')}() {
       speaker: step.speaker || 'left',
       hideBadge: Boolean(step.hideBadge),
       characterLeft: {
+        name: step.leftName || 'Утка',
         avatar: (step.leftAvatar && step.leftAvatar !== 'current_player_skin') ? step.leftAvatar : undefined,
         speechText: step.leftSpeech || '',
         size: step.leftCharSize || 105
       },
       characterRight: step.rightAvatar ? {
+        name: step.rightName || '',
         avatar: step.rightAvatar,
         speechText: step.rightSpeech || '',
         size: step.rightCharSize || 105

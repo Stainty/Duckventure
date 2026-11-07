@@ -3624,6 +3624,53 @@ body.has-character-dialog #duck {
   transition: transform .22s ease-in, opacity .22s ease-in;
 }
 
+/* Подписи имён говорящих сверху над карточкой диалога */
+.character-dialog-speaker-name {
+  position: absolute;
+  top: -18px;
+  z-index: 260;
+  pointer-events: none;
+  animation: speakerNamePop .24s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+.character-dialog-speaker-name.speaker-left {
+  left: 28px;
+}
+
+.character-dialog-speaker-name.speaker-right {
+  right: 28px;
+}
+
+.speaker-name-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font: 800 13px system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+.character-dialog-speaker-name.speaker-left .speaker-name-badge {
+  background: linear-gradient(135deg, #0c4a6e, #075985);
+  border: 1.5px solid #38bdf8;
+  color: #e0f2fe;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(56, 189, 248, 0.35);
+}
+
+.character-dialog-speaker-name.speaker-right .speaker-name-badge {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  border: 1.5px solid #fbbf24;
+  color: #fef3c7;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(251, 191, 36, 0.35);
+}
+
+@keyframes speakerNamePop {
+  0% { transform: scale(0.8) translateY(6px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
 .character-dialog-card-header {
   display: flex;
   align-items: center;
@@ -4871,6 +4918,20 @@ body.has-character-dialog #duck {
 
       <!-- Центральное диалоговое окно (центр центральной трети) -->
       <div class="character-dialog-card" id="characterDialogCard">
+        <!-- Подписи имён говорящих сверху над карточкой -->
+        <div class="character-dialog-speaker-name speaker-left" id="characterDialogSpeakerLeft" style="display: none;">
+          <span class="speaker-name-badge">
+            <span class="speaker-icon">🗣️</span>
+            <span class="speaker-text" id="characterDialogSpeakerTextLeft">Утка</span>
+          </span>
+        </div>
+        <div class="character-dialog-speaker-name speaker-right" id="characterDialogSpeakerRight" style="display: none;">
+          <span class="speaker-name-badge">
+            <span class="speaker-text" id="characterDialogSpeakerTextRight">Подозрительная утка</span>
+            <span class="speaker-icon">🗣️</span>
+          </span>
+        </div>
+
         <div class="character-dialog-card-header">
           <div class="character-dialog-badge">
             <span class="dialog-badge-icon">✨</span>
@@ -6983,13 +7044,35 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';
         delete el.dataset.placed;
       }
     });
+    const flowerBeeEl = document.getElementById('flowerBee');
+    if (flowerBeeEl) flowerBeeEl.remove();
+    if (typeof stopBeeBuzz === 'function') stopBeeBuzz();
+
+    potState = 'empty';
+    window.potState = 'empty';
+    potGrowRemaining = 0;
+    window.potGrowRemaining = 0;
+    beeActive = false;
+    window.beeActive = false;
+    beeTimer = 0;
+    window.beeTimer = 0;
+    honeyCount = 0;
+    window.honeyCount = 0;
+    try {
+      Storage.remove(POT_STATE_KEY);
+      Storage.remove(POT_GROW_REMAINING_KEY);
+      Storage.remove(BEE_ACTIVE_KEY);
+      Storage.remove(BEE_TIMER_KEY);
+      Storage.remove(HONEY_COUNT_KEY);
+    } catch (e) {}
+    if (typeof updatePotUI === 'function') updatePotUI();
     const propTape = document.getElementById('prop-tape');
     if (propTape) {
       propTape.style.display = 'none';
@@ -15973,6 +16056,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
 
+    // 1e. Имена говорящих над карточкой (слева сверху для левого, справа сверху для правого)
+    const speakerLeftEl = document.getElementById('characterDialogSpeakerLeft');
+    const speakerRightEl = document.getElementById('characterDialogSpeakerRight');
+    const speakerLeftText = document.getElementById('characterDialogSpeakerTextLeft');
+    const speakerRightText = document.getElementById('characterDialogSpeakerTextRight');
+
+    const leftName = (charLeft && charLeft.name) || config.leftName || 'Утка';
+    const rightName = (charRight && charRight.name) || config.rightName || '';
+
+    if (speakerLeftText) speakerLeftText.textContent = leftName;
+    if (speakerRightText) speakerRightText.textContent = rightName;
+
+    const showLeftName = !isNarrative && (speaker === 'left' || speaker === 'both') && Boolean(leftName);
+    const showRightName = !isNarrative && (speaker === 'right' || speaker === 'both') && Boolean(rightName);
+
+    if (speakerLeftEl) speakerLeftEl.style.display = showLeftName ? 'block' : 'none';
+    if (speakerRightEl) speakerRightEl.style.display = showRightName ? 'block' : 'none';
+
     // 2. Центральное окно (текст и бейдж)
     const content = config.content || {};
     const titleEl = document.getElementById('characterDialogTitle');
@@ -16106,6 +16207,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
       const bHeader = document.querySelector('.character-dialog-card-header');
       if (bHeader) bHeader.style.display = 'flex';
+      const spkL = document.getElementById('characterDialogSpeakerLeft');
+      const spkR = document.getElementById('characterDialogSpeakerRight');
+      if (spkL) spkL.style.display = 'none';
+      if (spkR) spkR.style.display = 'none';
       if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
         activeDialogConfig.onClose();
       }
@@ -16168,6 +16273,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   const DARK_DUCK_DIALOG_TREE = {
     id: "new_dialog_dark_duck_1",
     title: "Таинственный незнакомец",
+    leftName: "Утка",
+    rightName: "Подозрительная утка",
     startNode: "start",
     nodes: {
       "start": {
@@ -16360,11 +16467,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         type: step.type || 'dialogue',
         speaker: step.speaker || 'left',
         characterLeft: {
+          name: step.leftName || tree.leftName || 'Утка',
           avatar: (step.leftAvatar && step.leftAvatar !== 'current_player_skin') ? step.leftAvatar : undefined,
           speechText: step.leftSpeech || '',
           size: step.leftCharSize || 105
         },
         characterRight: step.rightAvatar ? {
+          name: step.rightName || tree.rightName || 'Подозрительная утка',
           avatar: step.rightAvatar,
           speechText: step.rightSpeech || '',
           size: step.rightCharSize || 105

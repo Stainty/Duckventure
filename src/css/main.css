@@ -3617,6 +3617,53 @@ body.has-character-dialog #duck {
   transition: transform .22s ease-in, opacity .22s ease-in;
 }
 
+/* Подписи имён говорящих сверху над карточкой диалога */
+.character-dialog-speaker-name {
+  position: absolute;
+  top: -18px;
+  z-index: 260;
+  pointer-events: none;
+  animation: speakerNamePop .24s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+.character-dialog-speaker-name.speaker-left {
+  left: 28px;
+}
+
+.character-dialog-speaker-name.speaker-right {
+  right: 28px;
+}
+
+.speaker-name-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font: 800 13px system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+.character-dialog-speaker-name.speaker-left .speaker-name-badge {
+  background: linear-gradient(135deg, #0c4a6e, #075985);
+  border: 1.5px solid #38bdf8;
+  color: #e0f2fe;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(56, 189, 248, 0.35);
+}
+
+.character-dialog-speaker-name.speaker-right .speaker-name-badge {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  border: 1.5px solid #fbbf24;
+  color: #fef3c7;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(251, 191, 36, 0.35);
+}
+
+@keyframes speakerNamePop {
+  0% { transform: scale(0.8) translateY(6px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
 .character-dialog-card-header {
   display: flex;
   align-items: center;

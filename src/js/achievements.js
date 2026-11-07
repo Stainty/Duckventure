@@ -521,13 +521,35 @@
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';
         delete el.dataset.placed;
       }
     });
+    const flowerBeeEl = document.getElementById('flowerBee');
+    if (flowerBeeEl) flowerBeeEl.remove();
+    if (typeof stopBeeBuzz === 'function') stopBeeBuzz();
+
+    potState = 'empty';
+    window.potState = 'empty';
+    potGrowRemaining = 0;
+    window.potGrowRemaining = 0;
+    beeActive = false;
+    window.beeActive = false;
+    beeTimer = 0;
+    window.beeTimer = 0;
+    honeyCount = 0;
+    window.honeyCount = 0;
+    try {
+      Storage.remove(POT_STATE_KEY);
+      Storage.remove(POT_GROW_REMAINING_KEY);
+      Storage.remove(BEE_ACTIVE_KEY);
+      Storage.remove(BEE_TIMER_KEY);
+      Storage.remove(HONEY_COUNT_KEY);
+    } catch (e) {}
+    if (typeof updatePotUI === 'function') updatePotUI();
     const propTape = document.getElementById('prop-tape');
     if (propTape) {
       propTape.style.display = 'none';

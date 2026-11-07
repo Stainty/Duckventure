@@ -139,6 +139,24 @@
       }
     }
 
+    // 1e. Имена говорящих над карточкой (слева сверху для левого, справа сверху для правого)
+    const speakerLeftEl = document.getElementById('characterDialogSpeakerLeft');
+    const speakerRightEl = document.getElementById('characterDialogSpeakerRight');
+    const speakerLeftText = document.getElementById('characterDialogSpeakerTextLeft');
+    const speakerRightText = document.getElementById('characterDialogSpeakerTextRight');
+
+    const leftName = (charLeft && charLeft.name) || config.leftName || 'Утка';
+    const rightName = (charRight && charRight.name) || config.rightName || '';
+
+    if (speakerLeftText) speakerLeftText.textContent = leftName;
+    if (speakerRightText) speakerRightText.textContent = rightName;
+
+    const showLeftName = !isNarrative && (speaker === 'left' || speaker === 'both') && Boolean(leftName);
+    const showRightName = !isNarrative && (speaker === 'right' || speaker === 'both') && Boolean(rightName);
+
+    if (speakerLeftEl) speakerLeftEl.style.display = showLeftName ? 'block' : 'none';
+    if (speakerRightEl) speakerRightEl.style.display = showRightName ? 'block' : 'none';
+
     // 2. Центральное окно (текст и бейдж)
     const content = config.content || {};
     const titleEl = document.getElementById('characterDialogTitle');
@@ -272,6 +290,10 @@
       }
       const bHeader = document.querySelector('.character-dialog-card-header');
       if (bHeader) bHeader.style.display = 'flex';
+      const spkL = document.getElementById('characterDialogSpeakerLeft');
+      const spkR = document.getElementById('characterDialogSpeakerRight');
+      if (spkL) spkL.style.display = 'none';
+      if (spkR) spkR.style.display = 'none';
       if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
         activeDialogConfig.onClose();
       }
@@ -334,6 +356,8 @@
   const DARK_DUCK_DIALOG_TREE = {
     id: "new_dialog_dark_duck_1",
     title: "Таинственный незнакомец",
+    leftName: "Утка",
+    rightName: "Подозрительная утка",
     startNode: "start",
     nodes: {
       "start": {
@@ -526,11 +550,13 @@
         type: step.type || 'dialogue',
         speaker: step.speaker || 'left',
         characterLeft: {
+          name: step.leftName || tree.leftName || 'Утка',
           avatar: (step.leftAvatar && step.leftAvatar !== 'current_player_skin') ? step.leftAvatar : undefined,
           speechText: step.leftSpeech || '',
           size: step.leftCharSize || 105
         },
         characterRight: step.rightAvatar ? {
+          name: step.rightName || tree.rightName || 'Подозрительная утка',
           avatar: step.rightAvatar,
           speechText: step.rightSpeech || '',
           size: step.rightCharSize || 105
