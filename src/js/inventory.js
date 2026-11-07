@@ -54,6 +54,21 @@
       if (sellGoldenFriedCard) sellGoldenFriedCard.style.display = 'none';
     }
 
+    const sellHoneyCard = document.getElementById('sellHoneyCard');
+    const shopHoneyCount = document.getElementById('shopHoneyCount');
+    const sellHoney1Btn = document.getElementById('sellHoney1Btn');
+    const sellHoneyAllBtn = document.getElementById('sellHoneyAllBtn');
+
+    if (sellHoneyCard) {
+      sellHoneyCard.style.display = (honeyCount > 0) ? 'flex' : 'none';
+      if (shopHoneyCount) shopHoneyCount.textContent = honeyCount.toLocaleString('ru-RU');
+      if (sellHoney1Btn) sellHoney1Btn.disabled = honeyCount < 1;
+      if (sellHoneyAllBtn) {
+        sellHoneyAllBtn.disabled = honeyCount < 1;
+        sellHoneyAllBtn.textContent = `Продать всё (+${(honeyCount * 2500).toLocaleString('ru-RU')} 🦆)`;
+      }
+    }
+
     // Обновление карточек продажи питомцев (по одному эмодзи каждого типа на столе)
     const dCount = normalDucklings;
     const gdCount = goldenDucklings;
@@ -1033,6 +1048,10 @@
     if (propId === 'key') return { width: 72, height: 72 };
     if (propId === 'knife') return { width: 76, height: 76 };
     if (propId === 'tape') return { width: 72, height: 72 };
+    if (propId === 'pot') return { width: 90, height: 98 };
+    if (propId === 'dirtBag') return { width: 80, height: 80 };
+    if (propId === 'flowerSeeds') return { width: 72, height: 72 };
+    if (propId === 'honey') return { width: 68, height: 68 };
     return { width: 85, height: 85 };
   }
 
@@ -1400,7 +1419,17 @@
     if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'flex';
 
     const prop = PROPS_DATA[propId];
-    if (propCtxRefundBtn) {
+    if (propId === 'honey') {
+      if (propCtxReturnBtn) propCtxReturnBtn.style.display = 'none';
+      if (propCtxRefundBtn) {
+        propCtxRefundBtn.style.display = 'flex';
+        propCtxRefundBtn.innerHTML = `<span class="prop-ctx-icon">💰</span> Продать за 2 500 🦆`;
+      }
+      if (propCtxSellAllBtn && honeyCount > 1) {
+        propCtxSellAllBtn.style.display = 'flex';
+        propCtxSellAllBtn.innerHTML = `<span class="prop-ctx-icon">✨</span> Продать всё (+${(honeyCount * 2500).toLocaleString('ru-RU')} 🦆)`;
+      }
+    } else if (propCtxRefundBtn) {
       if (prop && prop.cost && prop.cost > 0) {
         const refundPrice = Math.floor(prop.cost / 2);
         propCtxRefundBtn.style.display = 'flex';
@@ -1448,7 +1477,11 @@
     propCtxRefundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextPropId) {
-        refundShopItem('household', activeContextPropId);
+        if (activeContextPropId === 'honey') {
+          sellHoney(1);
+        } else {
+          refundShopItem('household', activeContextPropId);
+        }
         hidePropContextMenu();
       }
     });
@@ -1459,6 +1492,11 @@
     propCtxSell1Btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (activeContextEggType) {
+        if (activeContextPropId === 'honey' || activeContextEggType === 'honey') {
+          sellHoney('all');
+          hidePropContextMenu();
+          return;
+        }
         const isCreature = ['duckling', 'goldenDuckling', 'goose', 'goldenGoose', 'roastedGoose', 'goldenRoastedGoose'].includes(activeContextEggType);
         if (isCreature) {
           sellCreature(activeContextEggType, 1);
@@ -1535,7 +1573,7 @@
       const emojiMap = {
         skovoroda: '🍳', plita: '🔥', fridge: '❄️', knife: '🔪',
         tape: '🩹', lamp: '💡', clock: '⏰', dichlofos: '💨',
-        incubator: '🐣', key: '🗝️'
+        incubator: '🐣', key: '🗝️', pot: '🪴', dirtBag: '🌱', flowerSeeds: '🌸', honey: '🍯'
       };
       return { name, emoji: emojiMap[id] || '📦' };
     }
@@ -1743,6 +1781,12 @@
       renderShopBuyTab();
       renderStorage();
       updateShopButtonVisibility();
+    } else if (type === 'prop' && id === 'honey') {
+      honeyCount = Math.max(0, honeyCount - 1);
+      try { Storage.set(HONEY_COUNT_KEY, String(honeyCount)); } catch (e) {}
+      updateHoneyDeskProp();
+      updateShopSellTab();
+      updateShopTabsVisibility();
     } else if (type === 'creature') {
       const t = id;
       if (t === 'duckling') {
@@ -1976,6 +2020,30 @@
 
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
+
+      const potEl = document.getElementById('prop-pot');
+      if (potEl) potEl.classList.remove('drag-target-hover');
+
+      if ((propId === 'dirtBag' || propId === 'flowerSeeds') && potEl && potEl.style.display !== 'none') {
+        const pr = potEl.getBoundingClientRect();
+        const isOverPot = (cx >= pr.left - 20 && cx <= pr.right + 20 &&
+                           cy >= pr.top - 20 && cy <= pr.bottom + 20);
+        if (isOverPot) {
+          if (propId === 'dirtBag') {
+            applyDirtToPot(startLeft, startTop);
+            return;
+          }
+          if (propId === 'flowerSeeds') {
+            applySeedsToPot(startLeft, startTop);
+            return;
+          }
+        }
+      }
+
+      if (propId === 'honey' && activeTarget === 'shop') {
+        sellHoney(1);
+        return;
+      }
 
       const cbEl = document.getElementById('prop-cuttingBoard');
       if (cbEl) cbEl.classList.remove('drag-target-hover');
@@ -3650,3 +3718,323 @@
     renderStorage();
   }
   window.eatSalad = eatSalad;
+
+  /* ==========================================================================
+     Садоводство, Цветочный горшок, Пчела и Мёд
+     ========================================================================== */
+
+  function updateHoneyDeskProp() {
+    const honeyEl = document.getElementById('prop-honey');
+    const badgeEl = document.getElementById('honeyCountBadge');
+    if (!honeyEl) return;
+
+    if (honeyCount > 0) {
+      honeyEl.style.display = 'block';
+      if (badgeEl) {
+        badgeEl.style.display = honeyCount > 1 ? 'block' : 'none';
+        badgeEl.textContent = String(honeyCount);
+      }
+    } else {
+      honeyEl.style.display = 'none';
+      if (badgeEl) badgeEl.style.display = 'none';
+    }
+  }
+  window.updateHoneyDeskProp = updateHoneyDeskProp;
+
+  function sellHoney(amount) {
+    if (honeyCount <= 0) return;
+    const qty = (amount === 'all') ? honeyCount : Math.min(amount, honeyCount);
+    if (qty <= 0) return;
+
+    honeyCount -= qty;
+    try { Storage.set(HONEY_COUNT_KEY, String(honeyCount)); } catch (e) {}
+
+    const earned = qty * 2500;
+    earnDuckles(earned);
+
+    corkPopSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 20,
+      vx: 0,
+      vy: -100,
+      size: 20,
+      alpha: 1.5,
+      text: `+${earned.toLocaleString('ru-RU')} 🦆 (🍯 x${qty})`,
+      color: '#fbbf24'
+    });
+
+    updateHoneyDeskProp();
+    updateShopSellTab();
+    updateShopTabsVisibility();
+  }
+  window.sellHoney = sellHoney;
+
+  function updatePotUI() {
+    const potImg = document.getElementById('potImg');
+    const badgeEl = document.getElementById('potActionBadge');
+    const timerBadge = document.getElementById('potTimerBadge');
+    const beeEl = document.getElementById('flowerBee');
+    const potEl = document.getElementById('prop-pot');
+
+    if (!potImg) return;
+
+    if (potState === 'empty') {
+      potImg.src = ASSETS.props.potEmpty;
+      if (badgeEl) { badgeEl.textContent = '🪴'; badgeEl.title = 'Пустой горшок. Добавьте землю!'; }
+      if (timerBadge) timerBadge.style.display = 'none';
+      if (beeEl) beeEl.style.display = 'none';
+      stopBeeBuzz();
+    } else if (potState === 'dirt') {
+      potImg.src = ASSETS.props.potDirt;
+      if (badgeEl) { badgeEl.textContent = '🌱'; badgeEl.title = 'Горшок с землёй. Посадите семена цветов!'; }
+      if (timerBadge) timerBadge.style.display = 'none';
+      if (beeEl) beeEl.style.display = 'none';
+      stopBeeBuzz();
+    } else if (potState === 'planted') {
+      potImg.src = ASSETS.props.potDirt;
+      if (badgeEl) { badgeEl.textContent = '⏳'; badgeEl.title = 'Цветы растут...'; }
+      if (timerBadge) {
+        timerBadge.style.display = 'block';
+        const mins = Math.floor(potGrowRemaining / 60);
+        const secs = Math.floor(potGrowRemaining % 60);
+        timerBadge.textContent = `🌱 ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }
+      if (beeEl) beeEl.style.display = 'none';
+      stopBeeBuzz();
+    } else if (potState === 'bloomed') {
+      potImg.src = ASSETS.props.potFlower;
+      if (badgeEl) { badgeEl.textContent = '🌸'; badgeEl.title = 'Цветущий цветок'; }
+      if (timerBadge) timerBadge.style.display = 'none';
+
+      const isPotOnDesk = potEl && potEl.style.display !== 'none';
+      if (beeActive && isPotOnDesk) {
+        if (beeEl) beeEl.style.display = 'block';
+        startBeeBuzz();
+      } else {
+        if (beeEl) beeEl.style.display = 'none';
+        stopBeeBuzz();
+      }
+    }
+    updateHoneyDeskProp();
+  }
+  window.updatePotUI = updatePotUI;
+
+  function applyDirtToPot(startLeft, startTop) {
+    if (potState !== 'empty') {
+      corkPopSound();
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert('Цветочный горшок', 'В горшке уже есть земля!', '🪴');
+      }
+      return;
+    }
+
+    potState = 'dirt';
+    try { Storage.set(POT_STATE_KEY, 'dirt'); } catch (e) {}
+
+    returnPropToStorage('dirtBag');
+    const idx = ownedProps.indexOf('dirtBag');
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    delete placedProps['dirtBag'];
+    try {
+      Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
+      Storage.setJSON(PLACED_PROPS_KEY, placedProps);
+    } catch (e) {}
+
+    corkPopSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 20,
+      vx: 0,
+      vy: -90,
+      size: 18,
+      alpha: 1.5,
+      text: '🌱 Земля насыпана! Теперь посадите семена цветов 🌸',
+      color: '#4ade80'
+    });
+
+    renderStorage();
+    renderShopBuyTab();
+    updatePotUI();
+  }
+  window.applyDirtToPot = applyDirtToPot;
+
+  function applySeedsToPot(startLeft, startTop) {
+    if (potState === 'empty') {
+      corkPopSound();
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert('Цветочный горшок', 'Сначала насыпьте в горшок землю!', '🪴');
+      }
+      return;
+    }
+    if (potState === 'planted' || potState === 'bloomed') {
+      corkPopSound();
+      if (typeof showGameHintAlert === 'function') {
+        showGameHintAlert('Цветочный горшок', 'В горшке уже посажены цветы!', '🌸');
+      }
+      return;
+    }
+
+    potState = 'planted';
+    potGrowRemaining = 300; // 5 minutes = 300 sec
+    try {
+      Storage.set(POT_STATE_KEY, 'planted');
+      Storage.set(POT_GROW_REMAINING_KEY, '300');
+    } catch (e) {}
+
+    returnPropToStorage('flowerSeeds');
+    const idx = ownedProps.indexOf('flowerSeeds');
+    if (idx !== -1) ownedProps.splice(idx, 1);
+    delete placedProps['flowerSeeds'];
+    try {
+      Storage.setJSON(OWNED_PROPS_KEY, ownedProps);
+      Storage.setJSON(PLACED_PROPS_KEY, placedProps);
+    } catch (e) {}
+
+    xpSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 20,
+      vx: 0,
+      vy: -95,
+      size: 18,
+      alpha: 1.6,
+      text: '🌸 Семена посажены! Цветы вырастут через 5 минут',
+      color: '#f472b6'
+    });
+
+    renderStorage();
+    renderShopBuyTab();
+    updatePotUI();
+  }
+  window.applySeedsToPot = applySeedsToPot;
+
+  function bloomPotFlower() {
+    potState = 'bloomed';
+    potGrowRemaining = 0;
+    try {
+      Storage.set(POT_STATE_KEY, 'bloomed');
+      Storage.set(POT_GROW_REMAINING_KEY, '0');
+    } catch (e) {}
+
+    beeTimer = Math.floor(300 + Math.random() * 300);
+    beeActive = false;
+    try {
+      Storage.set(BEE_TIMER_KEY, String(beeTimer));
+      Storage.set(BEE_ACTIVE_KEY, '0');
+    } catch (e) {}
+
+    xpSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 30,
+      vx: 0,
+      vy: -110,
+      size: 22,
+      alpha: 1.8,
+      text: '🌸 Цветы расцвели в горшке! Скоро прилетит пчёлка 🐝',
+      color: '#fb7185'
+    });
+
+    updatePotUI();
+  }
+  window.bloomPotFlower = bloomPotFlower;
+
+  function tickPlantGrowth(deltaSec) {
+    if (potState === 'planted') {
+      potGrowRemaining = Math.max(0, potGrowRemaining - deltaSec);
+      try { Storage.set(POT_GROW_REMAINING_KEY, String(potGrowRemaining)); } catch (e) {}
+      if (potGrowRemaining <= 0) {
+        bloomPotFlower();
+      } else {
+        updatePotUI();
+      }
+    } else if (potState === 'bloomed') {
+      const potEl = document.getElementById('prop-pot');
+      const isPotOnDesk = potEl && potEl.style.display !== 'none';
+      if (isPotOnDesk && !beeActive) {
+        beeTimer = Math.max(0, beeTimer - deltaSec);
+        try { Storage.set(BEE_TIMER_KEY, String(beeTimer)); } catch (e) {}
+        if (beeTimer <= 0) {
+          spawnBee();
+        }
+      }
+    }
+  }
+  window.tickPlantGrowth = tickPlantGrowth;
+
+  function spawnBee() {
+    beeActive = true;
+    beeTimer = 0;
+    try {
+      Storage.set(BEE_ACTIVE_KEY, '1');
+      Storage.set(BEE_TIMER_KEY, '0');
+    } catch (e) {}
+
+    updatePotUI();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 25,
+      vx: 0,
+      vy: -80,
+      size: 19,
+      alpha: 1.6,
+      text: '🐝 Прилетела пчёлка! Нажмите на неё, чтобы собрать мёд!',
+      color: '#facc15'
+    });
+  }
+  window.spawnBee = spawnBee;
+
+  function clickBee() {
+    if (!beeActive) return;
+    const beeEl = document.getElementById('flowerBee');
+    if (beeEl) {
+      beeEl.classList.add('is-flying-away');
+      setTimeout(() => {
+        beeEl.classList.remove('is-flying-away');
+        beeEl.style.display = 'none';
+      }, 700);
+    }
+
+    beeActive = false;
+    try { Storage.set(BEE_ACTIVE_KEY, '0'); } catch (e) {}
+    stopBeeBuzz();
+
+    beeTimer = Math.floor(300 + Math.random() * 300);
+    try { Storage.set(BEE_TIMER_KEY, String(beeTimer)); } catch (e) {}
+
+    honeyCount++;
+    try { Storage.set(HONEY_COUNT_KEY, String(honeyCount)); } catch (e) {}
+
+    corkPopSound();
+    particles.push({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2 - 20,
+      vx: 0,
+      vy: -100,
+      size: 20,
+      alpha: 1.6,
+      text: '🍯 Пчёлка оставила баночку мёда (+2 500 🦆 при продаже)!',
+      color: '#f59e0b'
+    });
+
+    const potEl = document.getElementById('prop-pot');
+    const honeyEl = document.getElementById('prop-honey');
+    if (potEl && honeyEl) {
+      if (!placedProps['honey'] || !placedProps['honey'].placed) {
+        const curL = parseFloat(potEl.style.left) || (window.innerWidth / 2);
+        const curT = parseFloat(potEl.style.top) || (window.innerHeight / 2);
+        const targetL = Math.min(window.innerWidth - 80, curL + 95);
+        honeyEl.style.left = `${targetL}px`;
+        honeyEl.style.top = `${curT + 10}px`;
+        placedProps['honey'] = { placed: true, left: `${targetL}px`, top: `${curT + 10}px` };
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
+    }
+
+    updateHoneyDeskProp();
+    updatePotUI();
+    updateShopSellTab();
+    updateShopTabsVisibility();
+  }
+  window.clickBee = clickBee;

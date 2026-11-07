@@ -62,6 +62,11 @@ const GRAVITY = 1000;      // px/s²
   const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
   const SALAD_BUFF_REMAINING_KEY = 'duck-salad-buff-remaining';
   const CUTTING_BOARD_INGREDIENTS_KEY = 'duck-cutting-board-ingredients';
+  const POT_STATE_KEY = 'duck-pot-state';
+  const POT_GROW_REMAINING_KEY = 'duck-pot-grow-remaining';
+  const BEE_TIMER_KEY = 'duck-bee-timer';
+  const BEE_ACTIVE_KEY = 'duck-bee-active';
+  const HONEY_COUNT_KEY = 'duck-honey-count';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)

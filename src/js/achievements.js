@@ -256,6 +256,20 @@
     goldenFriedEggs = 0;
     eggBatches = [];
     try { Storage.remove('duck-egg-batches'); } catch (e) {}
+    potState = 'empty';
+    potGrowRemaining = 0;
+    beeTimer = 0;
+    beeActive = false;
+    honeyCount = 0;
+    stopBeeBuzz();
+    try {
+      Storage.remove(POT_STATE_KEY);
+      Storage.remove(POT_GROW_REMAINING_KEY);
+      Storage.remove(BEE_TIMER_KEY);
+      Storage.remove(BEE_ACTIVE_KEY);
+      Storage.remove(HONEY_COUNT_KEY);
+    } catch (e) {}
+    if (typeof updatePotUI === 'function') updatePotUI();
     hasUnlockedFriedEggs = false;
     hasCookedEgg = false;
     isStoveCombined = false;
@@ -916,6 +930,70 @@
   }
 
   /* звук разбития яиц (хруст скорлупы + шмяк) */
+  let beeBuzzNodes = null;
+
+  function startBeeBuzz() {
+    try {
+      if (beeBuzzNodes) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(175, t);
+
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.setValueAtTime(32, t);
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.setValueAtTime(16, t);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(680, t);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.045, t + 0.3);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(t);
+      lfo.start(t);
+
+      beeBuzzNodes = { osc, lfo, gain, filter };
+    } catch (e) {}
+  }
+  window.startBeeBuzz = startBeeBuzz;
+
+  function stopBeeBuzz() {
+    try {
+      if (!beeBuzzNodes || !audioCtx) return;
+      const t = audioCtx.currentTime;
+      beeBuzzNodes.gain.gain.cancelScheduledValues(t);
+      beeBuzzNodes.gain.gain.setValueAtTime(beeBuzzNodes.gain.gain.value, t);
+      beeBuzzNodes.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      const oldNodes = beeBuzzNodes;
+      beeBuzzNodes = null;
+      setTimeout(() => {
+        try {
+          oldNodes.osc.stop();
+          oldNodes.lfo.stop();
+          oldNodes.osc.disconnect();
+          oldNodes.lfo.disconnect();
+          oldNodes.gain.disconnect();
+        } catch (e) {}
+      }, 200);
+    } catch (e) {
+      beeBuzzNodes = null;
+    }
+  }
+  window.stopBeeBuzz = stopBeeBuzz;
+
   function splatSound() {
     try {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();

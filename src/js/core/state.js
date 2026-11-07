@@ -304,6 +304,17 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.getDeskCreaturesPos = () => deskCreaturesPos;
   window.setDeskCreaturesPos = (v) => { deskCreaturesPos = v; try { Storage.setJSON(DESK_CREATURES_POS_KEY, deskCreaturesPos); } catch (e) {} };
 
+  let potState = Storage.get(POT_STATE_KEY, 'empty');
+  window.potState = potState;
+  let potGrowRemaining = Storage.getNumber(POT_GROW_REMAINING_KEY, 0, 0, 999999);
+  window.potGrowRemaining = potGrowRemaining;
+  let beeTimer = Storage.getNumber(BEE_TIMER_KEY, 0, 0, 999999);
+  window.beeTimer = beeTimer;
+  let beeActive = Storage.getBoolean(BEE_ACTIVE_KEY, false);
+  window.beeActive = beeActive;
+  let honeyCount = Storage.getNumber(HONEY_COUNT_KEY, 0, 0, 999999);
+  window.honeyCount = honeyCount;
+
   let ownedProps = Storage.getJSON(OWNED_PROPS_KEY, [], (data) => Array.isArray(data));
   if (!Array.isArray(ownedProps)) ownedProps = [];
   ownedProps = ownedProps.filter(id => typeof id === 'string');
@@ -607,6 +618,43 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       icon: ASSETS.food.saladPlate,
       fallbackEmoji: '🥗',
       desc: 'Свежий витаминный салат. Даёт +20% к силе нажатий'
+    },
+    pot: {
+      id: 'pot',
+      name: 'Цветочный горшок',
+      category: 'household',
+      cost: 500,
+      icon: ASSETS.props.potEmpty,
+      fallbackEmoji: '🪴',
+      desc: 'Цветочный горшок. Можно посадить растение'
+    },
+    dirtBag: {
+      id: 'dirtBag',
+      name: 'Мешок земли',
+      category: 'gardening',
+      cost: 1000,
+      icon: ASSETS.props.dirtBag,
+      fallbackEmoji: '🌱',
+      desc: 'Питательный грунт для комнатных и садовых растений. Идеально для цветов!'
+    },
+    flowerSeeds: {
+      id: 'flowerSeeds',
+      name: 'Семена (Цветы)',
+      category: 'gardening',
+      cost: 500,
+      icon: ASSETS.props.flowerSeeds,
+      fallbackEmoji: '🌸',
+      desc: 'Пакетик отборных цветочных семян. Сажайте в подготовленный горшок с землёй!'
+    },
+    honey: {
+      id: 'honey',
+      name: 'Мёд',
+      category: 'food',
+      cost: 0,
+      sellPrice: 2500,
+      icon: ASSETS.props.honey,
+      fallbackEmoji: '🍯',
+      desc: 'Натуральный цветочный мёд от прилетевшей пчёлки. Можно продать за 2 500 🦆!'
     },
     birdFeed: {
       id: 'birdFeed',
@@ -949,6 +997,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       (typeof goldenFriedEggs !== 'undefined' && goldenFriedEggs > 0) ||
       (typeof normalRoastedGeese !== 'undefined' && normalRoastedGeese > 0) ||
       (typeof goldenRoastedGeese !== 'undefined' && goldenRoastedGeese > 0) ||
+      (typeof honeyCount !== 'undefined' && honeyCount > 0) ||
       (typeof hasUnlockedFriedEggs !== 'undefined' && hasUnlockedFriedEggs) ||
       (typeof hasCookedGoose !== 'undefined' && hasCookedGoose)
     );

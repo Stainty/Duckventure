@@ -151,6 +151,11 @@
       tickDucklingsGrowth(deltaSec);
     }
 
+    // 8. Рост растения в горшке и появление пчелы
+    if (typeof tickPlantGrowth === 'function') {
+      tickPlantGrowth(deltaSec);
+    }
+
     // 7. Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
     if (isDuckDeflating) {
       deflationRemaining = Math.max(0, deflationRemaining - deltaSec);

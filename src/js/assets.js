@@ -17,7 +17,13 @@
       tape: CDN_BASE + 'props/tape.png',
       trashcan: CDN_BASE + 'props/trashcan.png',
       incubator: CDN_BASE + 'props/incubator.png',
-      cuttingBoard: CDN_BASE + 'props/cutting-board.png'
+      cuttingBoard: CDN_BASE + 'props/cutting-board.png',
+      dirtBag: CDN_BASE + 'props/dirt-bag.png',
+      flowerSeeds: CDN_BASE + 'props/flower-seeds.png',
+      potEmpty: CDN_BASE + 'props/pot-empty.png',
+      potDirt: CDN_BASE + 'props/pot-dirt.png',
+      potFlower: CDN_BASE + 'props/pot-flower.png',
+      honey: CDN_BASE + 'props/honey.png' 
     },
     food: {
       saladPlate: CDN_BASE + 'food/salad-plate.png',

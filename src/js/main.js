@@ -23,7 +23,21 @@
   initDraggableProp(document.getElementById('prop-lettuce'), 'lettuce');
   initDraggableProp(document.getElementById('prop-cuttingBoard'), 'cuttingBoard');
   initDraggableProp(document.getElementById('prop-saladPlate'), 'saladPlate');
+  initDraggableProp(document.getElementById('prop-pot'), 'pot');
+  initDraggableProp(document.getElementById('prop-dirtBag'), 'dirtBag');
+  initDraggableProp(document.getElementById('prop-flowerSeeds'), 'flowerSeeds');
+  initDraggableProp(document.getElementById('prop-honey'), 'honey');
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
+  if (typeof updatePotUI === 'function') updatePotUI();
+
+  const flowerBeeEl = document.getElementById('flowerBee');
+  if (flowerBeeEl) {
+    flowerBeeEl.addEventListener('pointerdown', (e) => e.stopPropagation());
+    flowerBeeEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clickBee();
+    });
+  }
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();

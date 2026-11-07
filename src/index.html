@@ -265,6 +265,22 @@
                 </div>
               </div>
 
+              <div class="sell-card honey-card" id="sellHoneyCard" style="display: none; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.04);">
+                <div class="sell-item-left">
+                  <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/honey.png" alt="Мёд" class="sell-egg-icon" style="width: 38px; height: 38px; object-fit: contain;" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+                  <div class="sell-egg-icon" style="display: none;">🍯</div>
+                  <div>
+                    <div class="sell-item-title" style="color: #fbbf24; font-weight: 700;">Цветочный мёд</div>
+                    <div class="sell-item-price">Цена: <span class="duckles-accent">2 500 🦆</span> / шт.</div>
+                    <div class="sell-item-count">В наличии: <span id="shopHoneyCount">0</span> шт.</div>
+                  </div>
+                </div>
+                <div class="sell-actions">
+                  <button class="sell-btn gold" id="sellHoney1Btn" onclick="sellHoney(1)">Продать 1 (+2.5k 🦆)</button>
+                  <button class="sell-btn gold sell-all" id="sellHoneyAllBtn" onclick="sellHoney('all')">Продать всё</button>
+                </div>
+              </div>
+
               <div class="sell-card golden-card golden-fried-card" id="sellGoldenFriedCard" style="display: none;">
                 <div class="sell-item-left">
                   <div class="sell-egg-icon golden">🍳</div>
@@ -742,6 +758,37 @@
     <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/food/salad-plate.png" alt="Тарелка салата" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🥗</span>
+  </div>
+
+  <!-- Цветочный горшок и садоводство -->
+  <div id="prop-pot" class="draggable-prop is-interactive" style="display: none;" title="Цветочный горшок">
+    <img id="potImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pot-empty.png" alt="Цветочный горшок" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span id="potFallbackEmoji" style="display: none; font-size: 52px;">🪴</span>
+    <div id="potActionBadge" class="prop-action-badge pot-badge" aria-hidden="true" title="Состояние растения">🪴</div>
+    <div id="potTimerBadge" class="pot-timer-badge" style="display: none;">🌱 5:00</div>
+    <div id="flowerBee" class="flower-bee" style="display: none;" title="Нажмите на пчёлку!">
+      <span class="bee-emoji">🐝</span>
+    </div>
+  </div>
+
+  <div id="prop-dirtBag" class="draggable-prop" style="display: none;" title="Мешок земли. Перетащите на горшок!">
+    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/dirt-bag.png" alt="Мешок земли" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🌱</span>
+  </div>
+
+  <div id="prop-flowerSeeds" class="draggable-prop" style="display: none;" title="Семена цветов. Посадите в горшок с землёй!">
+    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/flower-seeds.png" alt="Семена цветов" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🌸</span>
+  </div>
+
+  <div id="prop-honey" class="draggable-prop honey-prop" style="display: none;" title="Цветочный мёд. Можно продать за 2 500 🦆!">
+    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/honey.png" alt="Мёд" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🍯</span>
+    <div id="honeyCountBadge" class="honey-count-badge" style="display: none;">1</div>
   </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
