@@ -23,6 +23,11 @@
   initDraggableProp(document.getElementById('prop-lettuce'), 'lettuce');
   initDraggableProp(document.getElementById('prop-cuttingBoard'), 'cuttingBoard');
   initDraggableProp(document.getElementById('prop-saladPlate'), 'saladPlate');
+  initDraggableProp(document.getElementById('prop-magnitofon'), 'magnitofon');
+  initDraggableProp(document.getElementById('prop-casseteBoxS3rl'), 'casseteBoxS3rl');
+  for (let i = 1; i <= 7; i++) {
+    initDraggableProp(document.getElementById(`prop-cassette_s3rl_${i}`), `cassette_s3rl_${i}`);
+  }
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
@@ -35,6 +40,7 @@
   updateDeskCreatureUI();
   startDeskCreatureWander();
   updateBadgesPosition();
+  if (typeof updateBoomboxUI === 'function') updateBoomboxUI();
   function clampDeskCreatureToScreen() {
     document.querySelectorAll('.desk-creature').forEach(el => {
       if (!el || el.style.display === 'none') return;
@@ -107,6 +113,21 @@
   updateShopButtonVisibility();
   updateShopTabsVisibility();
   tryUnlock();
+
+  const closeBoomboxBtn = document.getElementById('closeBoomboxBtn');
+  if (closeBoomboxBtn) closeBoomboxBtn.addEventListener('click', closeBoomboxModal);
+
+  const boomboxPowerBtn = document.getElementById('boomboxPowerBtn');
+  if (boomboxPowerBtn) boomboxPowerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stopBoombox();
+  });
+
+  const boomboxDeckBtn = document.getElementById('boomboxDeckBtn');
+  if (boomboxDeckBtn) boomboxDeckBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openBoomboxModal();
+  });
 
   // Приветственный диалог для новой игры (если не отключен игроком)
   if (typeof showWelcomeDialog === 'function') {

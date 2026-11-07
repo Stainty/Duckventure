@@ -173,6 +173,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isHouseholdCollapsed = true;
   let isFoodBuyCollapsed = true;
   let isGardeningCollapsed = true;
+  let isMusicCollapsed = true;
+  window.isMusicCollapsed = isMusicCollapsed;
   let isCharacterDialogOpen = false;
   window.isCharacterDialogOpen = isCharacterDialogOpen;
   let isFoodCollapsed = true;
@@ -670,9 +672,125 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       icon: ASSETS.food.lettuce,
       fallbackEmoji: '🥬',
       desc: 'Сочный зелёный лист салата'
+    },
+    magnitofon: {
+      id: 'magnitofon',
+      name: 'Магнитофон',
+      category: 'household',
+      cost: 2500,
+      icon: ASSETS.props.magnitofon,
+      fallbackEmoji: '📻',
+      desc: 'Позволяет слушать музыку с кассет'
+    },
+    casseteBoxS3rl: {
+      id: 'casseteBoxS3rl',
+      name: 'Набор кассет - S3RL',
+      category: 'music',
+      cost: 1500,
+      icon: ASSETS.props.casseteBoxS3rl,
+      fallbackEmoji: '📦🎶',
+      desc: 'Хиты S3RL теперь в вашем магнитофоне'
+    },
+    cassette_s3rl_1: {
+      id: 'cassette_s3rl_1',
+      name: 'Кассета: Doof Doof Untz Untz',
+      trackTitle: 'Doof Doof Untz Untz (VVVIP) - S3RL',
+      youtubeId: 'j-LZLN3y2qk',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'Doof Doof Untz Untz (VVVIP) - S3RL'
+    },
+    cassette_s3rl_2: {
+      id: 'cassette_s3rl_2',
+      name: 'Кассета: You Are Mine',
+      trackTitle: 'You Are Mine - S3RL ft Kayliana',
+      youtubeId: 'FF3Dr3_h0Hw',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'You Are Mine - S3RL ft Kayliana'
+    },
+    cassette_s3rl_3: {
+      id: 'cassette_s3rl_3',
+      name: 'Кассета: Dopamine',
+      trackTitle: 'Dopamine - S3RL ft Sara',
+      youtubeId: 'Yqy7_zUKyNQ',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'Dopamine - S3RL ft Sara'
+    },
+    cassette_s3rl_4: {
+      id: 'cassette_s3rl_4',
+      name: 'Кассета: MTC',
+      trackTitle: 'MTC - S3RL',
+      youtubeId: 'bO-NaEj2dQ0',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'MTC - S3RL'
+    },
+    cassette_s3rl_5: {
+      id: 'cassette_s3rl_5',
+      name: 'Кассета: Internet Baby',
+      trackTitle: 'Internet Baby - S3RL x BEANIE',
+      youtubeId: 'ctNiIV52G80',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'Internet Baby - S3RL x BEANIE'
+    },
+    cassette_s3rl_6: {
+      id: 'cassette_s3rl_6',
+      name: 'Кассета: Together',
+      trackTitle: 'Together - S3RL x Fatshaudi x Luca Rain',
+      youtubeId: 'ewHFH7P0sjQ',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'Together - S3RL x Fatshaudi x Luca Rain'
+    },
+    cassette_s3rl_7: {
+      id: 'cassette_s3rl_7',
+      name: 'Кассета: Play It Loud',
+      trackTitle: 'Play It Loud - S3RL & Remzcore',
+      youtubeId: 'Pnp-vIrNaYc',
+      category: 'cassette',
+      cost: 0,
+      icon: ASSETS.props.cassete,
+      fallbackEmoji: '📼',
+      desc: 'Play It Loud - S3RL & Remzcore 📢 DEFI BRILATOR'
     }
   };
   window.PROPS_DATA = PROPS_DATA;
+
+  const CASSETTE_TRACKS = {
+    cassette_s3rl_1: { id: 'cassette_s3rl_1', title: 'Doof Doof Untz Untz (VVVIP) - S3RL', youtubeId: 'j-LZLN3y2qk' },
+    cassette_s3rl_2: { id: 'cassette_s3rl_2', title: 'You Are Mine - S3RL ft Kayliana', youtubeId: 'FF3Dr3_h0Hw' },
+    cassette_s3rl_3: { id: 'cassette_s3rl_3', title: 'Dopamine - S3RL ft Sara', youtubeId: 'Yqy7_zUKyNQ' },
+    cassette_s3rl_4: { id: 'cassette_s3rl_4', title: 'MTC - S3RL', youtubeId: 'bO-NaEj2dQ0' },
+    cassette_s3rl_5: { id: 'cassette_s3rl_5', title: 'Internet Baby - S3RL x BEANIE', youtubeId: 'ctNiIV52G80' },
+    cassette_s3rl_6: { id: 'cassette_s3rl_6', title: 'Together - S3RL x Fatshaudi x Luca Rain', youtubeId: 'ewHFH7P0sjQ' },
+    cassette_s3rl_7: { id: 'cassette_s3rl_7', title: 'Play It Loud - S3RL & Remzcore', youtubeId: 'Pnp-vIrNaYc' }
+  };
+  window.CASSETTE_TRACKS = CASSETTE_TRACKS;
+
+  let boomboxUnlockedTracks = Storage.getJSON(BOOMBOX_UNLOCKED_TRACKS_KEY, [], (data) => Array.isArray(data));
+  if (!Array.isArray(boomboxUnlockedTracks)) boomboxUnlockedTracks = [];
+  Object.defineProperty(window, 'boomboxUnlockedTracks', { get: () => boomboxUnlockedTracks, set: (v) => { boomboxUnlockedTracks = v; }, configurable: true });
+
+  let boomboxCurrentTrack = Storage.get(BOOMBOX_CURRENT_TRACK_KEY, null);
+  Object.defineProperty(window, 'boomboxCurrentTrack', { get: () => boomboxCurrentTrack, set: (v) => { boomboxCurrentTrack = v; }, configurable: true });
+
+  let boomboxIsPlaying = Storage.getBoolean(BOOMBOX_IS_PLAYING_KEY, false);
+  Object.defineProperty(window, 'boomboxIsPlaying', { get: () => boomboxIsPlaying, set: (v) => { boomboxIsPlaying = v; }, configurable: true });
 
   let upgradeLevels = {
     autoquack: Storage.getNumber('duck-upg-autoquack', 0, 0, 5),

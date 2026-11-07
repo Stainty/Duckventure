@@ -382,6 +382,10 @@
       Storage.remove('duck-upg-crit');
       Storage.remove('duck-upg-strength');
       Storage.remove('duck-upg-features');
+      Storage.remove(BOOMBOX_UNLOCKED_TRACKS_KEY);
+      Storage.remove(BOOMBOX_CURRENT_TRACK_KEY);
+      Storage.remove(BOOMBOX_IS_PLAYING_KEY);
+      Storage.remove(SHOP_MUSIC_COLLAPSED_KEY);
     } catch (e) {}
     if (!preserveAchievements) {
       ACHIEVEMENTS.forEach((a) => {
@@ -418,6 +422,11 @@
     saladBuffRemaining = 0;
     boardIngredients = { tomato: false, cucumber: false, lettuce: false };
     if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
+    boomboxUnlockedTracks = [];
+    boomboxCurrentTrack = null;
+    boomboxIsPlaying = false;
+    if (typeof stopBoombox === 'function') stopBoombox();
+    if (typeof updateBoomboxUI === 'function') updateBoomboxUI();
     poopSpawnAccumulator = 0;
     if (typeof activePoops !== 'undefined') {
       activePoops.forEach(p => { if (p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el); });

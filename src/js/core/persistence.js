@@ -42,6 +42,7 @@ const GRAVITY = 1000;      // px/s²
   const SHOP_HOUSEHOLD_COLLAPSED_KEY = 'duck-shop-household-collapsed';
   const SHOP_FOOD_BUY_COLLAPSED_KEY = 'duck-shop-food-buy-collapsed';
   const SHOP_GARDENING_COLLAPSED_KEY = 'duck-shop-gardening-collapsed';
+  const SHOP_MUSIC_COLLAPSED_KEY = 'duck-shop-music-collapsed';
   const SHOP_FOOD_COLLAPSED_KEY = 'duck-shop-food-collapsed';
   const SHOP_ANIMALS_COLLAPSED_KEY = 'duck-shop-animals-collapsed';
   const HAS_SMASHED_EGGS_KEY = 'duck-has-smashed-eggs';
@@ -62,6 +63,9 @@ const GRAVITY = 1000;      // px/s²
   const DUCK_DIARRHEA_REMAINING_KEY = 'duck-diarrhea-remaining';
   const SALAD_BUFF_REMAINING_KEY = 'duck-salad-buff-remaining';
   const CUTTING_BOARD_INGREDIENTS_KEY = 'duck-cutting-board-ingredients';
+  const BOOMBOX_UNLOCKED_TRACKS_KEY = 'duck-boombox-unlocked-tracks';
+  const BOOMBOX_CURRENT_TRACK_KEY = 'duck-boombox-current-track';
+  const BOOMBOX_IS_PLAYING_KEY = 'duck-boombox-is-playing';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)
