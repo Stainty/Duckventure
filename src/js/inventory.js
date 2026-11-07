@@ -1931,6 +1931,9 @@
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
+      if (e.target.closest('#boomboxMiniPlayer')) {
+        return; // Не перетаскивать магнитофон при взаимодействии с элементами плеера
+      }
       if (e.target.closest('.stove-separate-btn')) return;
       hidePropContextMenu();
       isDragging = true;
@@ -2262,6 +2265,9 @@
 
     // Клик по предмету (для инкубатора): открывать меню только если предмет НЕ перетаскивали
     el.addEventListener('click', (e) => {
+      if (e.target.closest('#boomboxMiniPlayer')) {
+        return;
+      }
       if (isDragAction || dragDistance > 5) {
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -3833,12 +3839,11 @@
 
     if (ytContainer) {
       ytContainer.innerHTML = `
-        <iframe width="200" height="112"
-                src="https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
+        <iframe width="260" height="146"
+                src="https://www.youtube-nocookie.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
                 title="${track.title.replace(/"/g, '&quot;')}"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen>
         </iframe>
       `;

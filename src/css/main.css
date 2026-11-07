@@ -3810,25 +3810,26 @@ body.has-character-dialog #duck {
 /* Мини-плеер над магнитофоном */
 .boombox-mini-player {
   position: absolute;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.96);
+  background: rgba(15, 23, 42, 0.97);
   border: 1px solid rgba(56, 189, 248, 0.45);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 20px rgba(56, 189, 248, 0.3);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
   z-index: 120;
   pointer-events: auto;
-  width: 212px;
-  backdrop-filter: blur(12px);
+  width: 276px;
+  backdrop-filter: blur(14px);
+  box-sizing: border-box;
 }
 .boombox-player-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 8px;
   padding: 0 2px;
 }
 .boombox-status-line {
@@ -3855,7 +3856,7 @@ body.has-character-dialog #duck {
   100% { opacity: 1; }
 }
 .boombox-track-title {
-  font: 600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #f1f5f9;
   white-space: nowrap;
   overflow: hidden;
@@ -3864,7 +3865,7 @@ body.has-character-dialog #duck {
 .boombox-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
 }
 .boombox-deck-btn, .boombox-power-btn {
@@ -3872,34 +3873,78 @@ body.has-character-dialog #duck {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   color: #cbd5e1;
-  font-size: 11px;
-  padding: 2px 6px;
+  font: 600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 3px 8px;
   cursor: pointer;
   transition: all .15s ease;
+  white-space: nowrap;
 }
 .boombox-deck-btn:hover {
   background: rgba(56, 189, 248, 0.3);
   color: #fff;
   border-color: rgba(56, 189, 248, 0.6);
 }
+.boombox-power-btn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+  padding: 3px 9px;
+  font-weight: 700;
+}
 .boombox-power-btn:hover {
-  background: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.45);
   color: #fff;
-  border-color: rgba(239, 68, 68, 0.6);
+  border-color: rgba(239, 68, 68, 0.7);
 }
 .boombox-iframe-wrap {
-  width: 200px;
-  height: 112px;
+  width: 260px;
+  height: 146px;
   background: #000;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  margin: 0 auto;
 }
 .boombox-iframe-wrap iframe {
-  width: 200px;
-  height: 112px;
+  width: 260px;
+  height: 146px;
   border: none;
   display: block;
+}
+.boombox-player-footer {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.boombox-footer-yt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  border-radius: 8px;
+  font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  transition: all .15s ease;
+  cursor: pointer;
+  text-align: center;
+}
+.boombox-footer-yt-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
+}
+.boombox-footer-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1.25;
+  text-align: center;
+  padding: 0 2px;
 }
 
 /* Диалог кассетной деки */

@@ -127,16 +127,48 @@
   }
 
   const boomboxPowerBtn = document.getElementById('boomboxPowerBtn');
-  if (boomboxPowerBtn) boomboxPowerBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    stopBoombox();
-  });
+  if (boomboxPowerBtn) {
+    boomboxPowerBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+    boomboxPowerBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+    boomboxPowerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      stopBoombox();
+    });
+  }
 
   const boomboxDeckBtn = document.getElementById('boomboxDeckBtn');
-  if (boomboxDeckBtn) boomboxDeckBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openBoomboxModal();
-  });
+  if (boomboxDeckBtn) {
+    boomboxDeckBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+    boomboxDeckBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+    boomboxDeckBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      openBoomboxModal();
+    });
+  }
+
+  const boomboxYtLinkBtn = document.getElementById('boomboxYtLinkBtn');
+  if (boomboxYtLinkBtn) {
+    boomboxYtLinkBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+    boomboxYtLinkBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+    boomboxYtLinkBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof boomboxCurrentTrack !== 'undefined' && boomboxCurrentTrack && CASSETTE_TRACKS[boomboxCurrentTrack]) {
+        const url = `https://www.youtube.com/watch?v=${CASSETTE_TRACKS[boomboxCurrentTrack].youtubeId}`;
+        window.open(url, '_blank');
+      }
+    });
+  }
+
+  const boomboxMiniPlayer = document.getElementById('boomboxMiniPlayer');
+  if (boomboxMiniPlayer) {
+    boomboxMiniPlayer.addEventListener('pointerdown', (e) => e.stopPropagation());
+    boomboxMiniPlayer.addEventListener('pointerup', (e) => e.stopPropagation());
+    boomboxMiniPlayer.addEventListener('mousedown', (e) => e.stopPropagation());
+    boomboxMiniPlayer.addEventListener('mouseup', (e) => e.stopPropagation());
+    boomboxMiniPlayer.addEventListener('click', (e) => e.stopPropagation());
+  }
 
   // Приветственный диалог для новой игры (если не отключен игроком)
   if (typeof showWelcomeDialog === 'function') {
