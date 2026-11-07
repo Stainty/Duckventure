@@ -440,7 +440,6 @@
       isHouseholdCollapsed = true;
       isFoodBuyCollapsed = true;
       isGardeningCollapsed = true;
-      isMusicCollapsed = true;
       isFoodCollapsed = true;
       isAnimalsCollapsed = true;
       updateShopSectionCollapsedUI();
@@ -488,9 +487,9 @@
         text: '👔 Новый скин надет!',
         color: '#f0abfc'
       });
-    } else if (category === 'household' || category === 'food' || category === 'gardening' || category === 'music') {
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId.startsWith('cassette_')) return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -508,7 +507,7 @@
         vy: -180,
         size: 24,
         alpha: 1.2,
-        text: category === 'music' ? '🎵 Музыкальный набор на столе!' : (category === 'gardening' ? '🌱 Садовый инвентарь на столе!' : (category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!')),
+        text: category === 'gardening' ? '🌱 Садовый инвентарь на столе!' : (category === 'food' ? '🥗 Еда на столе!' : '🍳 Предмет на столе!'),
         color: '#fdba74'
       });
     }
@@ -550,8 +549,8 @@
         text: `💰 Возврат в магазин: +${refundAmount.toLocaleString('ru-RU')} 🦆`,
         color: '#ffd24d'
       });
-    } else if (category === 'household' || category === 'food' || category === 'gardening' || category === 'music') {
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId.startsWith('cassette_')) return;
+    } else if (category === 'household' || category === 'food' || category === 'gardening') {
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -830,66 +829,6 @@
         });
       }
     }
-    const musicContainer = document.getElementById('musicBuyList');
-    if (musicContainer) {
-      musicContainer.innerHTML = '';
-      const sortedMusicKeys = Object.keys(PROPS_DATA).filter(id => {
-        return PROPS_DATA[id].category === 'music';
-      }).sort((a, b) => {
-        const aOwned = ownedProps.includes(a) ? 1 : 0;
-        const bOwned = ownedProps.includes(b) ? 1 : 0;
-        return aOwned - bOwned;
-      });
-
-      if (sortedMusicKeys.length === 0) {
-        musicContainer.innerHTML = `
-          <div class="empty-shop-msg" style="padding: 16px 12px; text-align: center; color: #94a3b8; font-size: 13px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.08);">
-            🎵 Музыкальные наборы скоро появятся в продаже!
-          </div>
-        `;
-      } else {
-        sortedMusicKeys.forEach(id => {
-          const prop = PROPS_DATA[id];
-          const isOwned = ownedProps.includes(id);
-          const canAfford = duckles >= prop.cost;
-
-          let actionHtml = '';
-          if (isOwned) {
-            const refundPrice = Math.floor(prop.cost / 2);
-            actionHtml = `
-              <div class="buy-owned-wrap">
-                <div class="buy-owned-badge">✓ На складе</div>
-                <button class="buy-refund-btn" title="Вернуть предмет в магазин за 50% стоимости" onclick="refundShopItem('music', '${id}')">
-                  Вернуть (+${refundPrice.toLocaleString('ru-RU')} 🦆)
-                </button>
-              </div>
-            `;
-          } else {
-            const btnClass = canAfford ? 'buy-action-btn' : 'buy-action-btn disabled';
-            actionHtml = `<button class="${btnClass}" onclick="buyShopItem('music', '${id}')">Купить (${prop.cost.toLocaleString('ru-RU')} 🦆)</button>`;
-          }
-
-          const card = document.createElement('div');
-          card.className = 'buy-card' + (isOwned ? ' owned' : '');
-          card.innerHTML = `
-            <div class="buy-item-left">
-              <div class="buy-item-img-box">
-                <img class="buy-item-img" src="${prop.icon}" alt="${prop.name}" referrerpolicy="no-referrer"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-                <span style="display: none;">${prop.fallbackEmoji || '🎵'}</span>
-              </div>
-              <div class="buy-item-info">
-                <div class="buy-item-name">${prop.name}</div>
-                <div class="buy-item-desc">${prop.desc}</div>
-                <div class="buy-item-price">${prop.cost.toLocaleString('ru-RU')} 🦆</div>
-              </div>
-            </div>
-            ${actionHtml}
-          `;
-          musicContainer.appendChild(card);
-        });
-      }
-    }
     updateShopSectionCollapsedUI();
   }
 
@@ -898,7 +837,6 @@
     const householdSection = document.getElementById('householdShopSection');
     const foodBuySection = document.getElementById('foodBuyShopSection');
     const gardeningSection = document.getElementById('gardeningShopSection');
-    const musicSection = document.getElementById('musicShopSection');
     const foodSection = document.getElementById('foodShopSection');
     const animalsSection = document.getElementById('animalsShopSection');
     if (clothingSection) {
@@ -912,9 +850,6 @@
     }
     if (gardeningSection) {
       gardeningSection.classList.toggle('collapsed', isGardeningCollapsed);
-    }
-    if (musicSection) {
-      musicSection.classList.toggle('collapsed', isMusicCollapsed);
     }
     if (foodSection) {
       foodSection.classList.toggle('collapsed', isFoodCollapsed);
@@ -944,11 +879,6 @@
       isGardeningCollapsed = !isGardeningCollapsed;
       try {
         Storage.set(SHOP_GARDENING_COLLAPSED_KEY, isGardeningCollapsed ? '1' : '0');
-      } catch (e) {}
-    } else if (sectionKey === 'music') {
-      isMusicCollapsed = !isMusicCollapsed;
-      try {
-        Storage.set(SHOP_MUSIC_COLLAPSED_KEY, isMusicCollapsed ? '1' : '0');
       } catch (e) {}
     } else if (sectionKey === 'food') {
       isFoodCollapsed = !isFoodCollapsed;
@@ -1103,9 +1033,6 @@
     if (propId === 'key') return { width: 72, height: 72 };
     if (propId === 'knife') return { width: 76, height: 76 };
     if (propId === 'tape') return { width: 72, height: 72 };
-    if (propId === 'magnitofon') return { width: 110, height: 80 };
-    if (propId === 'casseteBoxS3rl') return { width: 85, height: 85 };
-    if (propId && propId.startsWith('cassette_')) return { width: 75, height: 50 };
     return { width: 85, height: 85 };
   }
 
@@ -1213,9 +1140,6 @@
   window.placePropOnScreen = placePropOnScreen;
 
   function returnPropToStorage(propId) {
-    if (propId === 'magnitofon') {
-      stopBoombox();
-    }
     const el = document.getElementById('prop-' + propId);
     if (el) {
       el.style.display = 'none';
@@ -1931,9 +1855,6 @@
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return; // Перетаскивание только ЛКМ (ПКМ для контекстного меню)
-      if (e.target.closest('#boomboxMiniPlayer')) {
-        return; // Не перетаскивать магнитофон при взаимодействии с элементами плеера
-      }
       if (e.target.closest('.stove-separate-btn')) return;
       hidePropContextMenu();
       isDragging = true;
@@ -2023,17 +1944,6 @@
         }
       }
 
-      // Кассеты: подсветка магнитофона при наведении
-      if (propId && propId.startsWith('cassette_')) {
-        const boomboxEl = document.getElementById('prop-magnitofon');
-        if (boomboxEl && boomboxEl.style.display !== 'none') {
-          const br = boomboxEl.getBoundingClientRect();
-          const isOverB = (e.clientX >= br.left - 20 && e.clientX <= br.right + 20 &&
-                           e.clientY >= br.top - 20 && e.clientY <= br.bottom + 20);
-          boomboxEl.classList.toggle('drag-target-hover', isOverB);
-        }
-      }
-
       // Нож и Изолента: подсветка утки при наведении
       if (propId === 'knife' || propId === 'tape' || propId === 'birdFeed' || propId === 'duckFeedAlpha' || propId === 'duckFeedBeta' || propId === 'saladPlate') {
         const rDuck = duck.getBoundingClientRect();
@@ -2066,22 +1976,6 @@
 
       const cx = (e && typeof e.clientX === 'number' && e.clientX > 0) ? e.clientX : lastClientX;
       const cy = (e && typeof e.clientY === 'number' && e.clientY > 0) ? e.clientY : lastClientY;
-
-      const boomboxEl = document.getElementById('prop-magnitofon');
-      if (boomboxEl) boomboxEl.classList.remove('drag-target-hover');
-
-      // Перетаскивание кассеты на магнитофон
-      if (propId && propId.startsWith('cassette_')) {
-        if (boomboxEl && boomboxEl.style.display !== 'none') {
-          const br = boomboxEl.getBoundingClientRect();
-          const isOverB = (cx >= br.left - 20 && cx <= br.right + 20 &&
-                           cy >= br.top - 20 && cy <= br.bottom + 20);
-          if (isOverB) {
-            insertCassetteIntoBoombox(propId);
-            return;
-          }
-        }
-      }
 
       const cbEl = document.getElementById('prop-cuttingBoard');
       if (cbEl) cbEl.classList.remove('drag-target-hover');
@@ -2265,9 +2159,6 @@
 
     // Клик по предмету (для инкубатора): открывать меню только если предмет НЕ перетаскивали
     el.addEventListener('click', (e) => {
-      if (e.target.closest('#boomboxMiniPlayer')) {
-        return;
-      }
       if (isDragAction || dragDistance > 5) {
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -2280,18 +2171,6 @@
         e.stopPropagation();
         e.preventDefault();
         unpackVeggieSet();
-        return;
-      }
-      if (propId === 'casseteBoxS3rl') {
-        e.stopPropagation();
-        e.preventDefault();
-        unpackCasseteBoxS3rl();
-        return;
-      }
-      if (propId === 'magnitofon') {
-        e.stopPropagation();
-        e.preventDefault();
-        openBoomboxModal();
         return;
       }
       if (propId === 'incubator') {
@@ -3771,312 +3650,3 @@
     renderStorage();
   }
   window.eatSalad = eatSalad;
-
-
-  /* ==========================================================================
-     Магнитофон, Кассеты и YouTube-плеер
-     ========================================================================== */
-
-  function updateBoomboxUI() {
-    const boomboxEl = document.getElementById('prop-magnitofon');
-    const miniPlayer = document.getElementById('boomboxMiniPlayer');
-    const ledEl = document.getElementById('boomboxLed');
-    const titleEl = document.getElementById('boomboxTrackTitle');
-
-    if (boomboxEl) {
-      boomboxEl.classList.toggle('is-playing', !!boomboxIsPlaying);
-    }
-    if (ledEl) {
-      ledEl.classList.toggle('is-active', !!boomboxIsPlaying);
-    }
-
-    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
-    if (boomboxIsPlaying && boomboxCurrentTrack && CASSETTE_TRACKS[boomboxCurrentTrack]) {
-      const track = CASSETTE_TRACKS[boomboxCurrentTrack];
-      if (titleEl) {
-        titleEl.textContent = track.title;
-        titleEl.title = track.title;
-      }
-      if (ytLinkBtn) {
-        ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
-      }
-      if (miniPlayer) miniPlayer.style.display = 'block';
-    } else {
-      if (miniPlayer) miniPlayer.style.display = 'none';
-      if (ytLinkBtn) ytLinkBtn.href = '#';
-      const ytContainer = document.getElementById('boomboxYtContainer');
-      if (ytContainer) ytContainer.innerHTML = '';
-    }
-  }
-  window.updateBoomboxUI = updateBoomboxUI;
-
-  function playBoomboxTrack(trackId) {
-    const track = CASSETTE_TRACKS[trackId];
-    if (!track) return;
-
-    boomboxCurrentTrack = trackId;
-    boomboxIsPlaying = true;
-    try {
-      Storage.set(BOOMBOX_CURRENT_TRACK_KEY, trackId);
-      Storage.set(BOOMBOX_IS_PLAYING_KEY, '1');
-    } catch (e) {}
-
-    const miniPlayer = document.getElementById('boomboxMiniPlayer');
-    const titleEl = document.getElementById('boomboxTrackTitle');
-    const ytContainer = document.getElementById('boomboxYtContainer');
-    const ledEl = document.getElementById('boomboxLed');
-    const boomboxEl = document.getElementById('prop-magnitofon');
-
-    if (boomboxEl) boomboxEl.classList.add('is-playing');
-    if (ledEl) ledEl.classList.add('is-active');
-    if (titleEl) titleEl.textContent = track.title;
-    if (miniPlayer) miniPlayer.style.display = 'block';
-
-    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
-    if (ytLinkBtn) {
-      ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
-    }
-
-    if (ytContainer) {
-      ytContainer.innerHTML = `
-        <iframe width="300" height="300"
-                src="https://www.youtube-nocookie.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
-                title="${track.title.replace(/"/g, '&quot;')}"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen>
-        </iframe>
-      `;
-    }
-
-    renderBoomboxModal();
-  }
-  window.playBoomboxTrack = playBoomboxTrack;
-
-  function stopBoombox() {
-    boomboxIsPlaying = false;
-    try { Storage.set(BOOMBOX_IS_PLAYING_KEY, '0'); } catch (e) {}
-
-    const miniPlayer = document.getElementById('boomboxMiniPlayer');
-    const ytContainer = document.getElementById('boomboxYtContainer');
-    const ledEl = document.getElementById('boomboxLed');
-    const boomboxEl = document.getElementById('prop-magnitofon');
-
-    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
-    if (boomboxEl) boomboxEl.classList.remove('is-playing');
-    if (ledEl) ledEl.classList.remove('is-active');
-    if (miniPlayer) miniPlayer.style.display = 'none';
-    if (ytContainer) ytContainer.innerHTML = '';
-    if (ytLinkBtn) ytLinkBtn.href = '#';
-
-    renderBoomboxModal();
-  }
-  window.stopBoombox = stopBoombox;
-
-  function openBoomboxModal() {
-    const modal = document.getElementById('boomboxModal');
-    if (!modal) return;
-    renderBoomboxModal();
-    modal.style.display = '';
-    modal.classList.add('open');
-  }
-  window.openBoomboxModal = openBoomboxModal;
-
-  function closeBoomboxModal() {
-    const modal = document.getElementById('boomboxModal');
-    if (!modal) return;
-    modal.classList.remove('open');
-    modal.style.display = '';
-  }
-  window.closeBoomboxModal = closeBoomboxModal;
-
-  function renderBoomboxModal() {
-    const body = document.getElementById('boomboxModalBody');
-    if (!body) return;
-
-    const currentTrack = boomboxCurrentTrack ? CASSETTE_TRACKS[boomboxCurrentTrack] : null;
-
-    let headerHtml = `
-      <div class="boombox-deck-status-box">
-        <div class="boombox-deck-status-top">
-          <span class="boombox-led ${boomboxIsPlaying ? 'is-active' : ''}"></span>
-          <span class="boombox-deck-status-text">
-            ${boomboxIsPlaying && currentTrack ? `Играет: <strong>${currentTrack.title}</strong>` : (currentTrack ? `Выбран: <strong>${currentTrack.title}</strong> (пауза)` : 'Магнитофон выключен')}
-          </span>
-        </div>
-        <div class="boombox-deck-global-actions">
-          ${currentTrack ? `
-            <a href="https://www.youtube.com/watch?v=${currentTrack.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-ctrl-btn ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
-          ` : ''}
-          ${boomboxIsPlaying ? `
-            <button class="boombox-ctrl-btn stop-btn" onclick="stopBoombox()">⏹ Выключить</button>
-          ` : (boomboxCurrentTrack ? `
-            <button class="boombox-ctrl-btn play-btn" onclick="playBoomboxTrack('${boomboxCurrentTrack}')">▶ Слушать</button>
-          ` : '')}
-        </div>
-      </div>
-    `;
-
-    let tracksHtml = '';
-    if (!boomboxUnlockedTracks || boomboxUnlockedTracks.length === 0) {
-      tracksHtml = `
-        <div class="empty-boombox-msg">
-          <div style="font-size: 32px; margin-bottom: 8px;">📼</div>
-          <div>В магнитофон пока не вставлено ни одной кассеты.</div>
-          <div style="color: #94a3b8; font-size: 13px; margin-top: 6px;">
-            Купите «Набор кассет» в магазине (раздел «Музыка»), откройте его на столе и перетащите кассету на магнитофон!
-          </div>
-        </div>
-      `;
-    } else {
-      tracksHtml = '<div class="boombox-tracks-grid">';
-      boomboxUnlockedTracks.forEach(tId => {
-        const track = CASSETTE_TRACKS[tId];
-        if (!track) return;
-        const isCurrent = (boomboxCurrentTrack === tId);
-        const isPlayingThis = (isCurrent && boomboxIsPlaying);
-
-        tracksHtml += `
-          <div class="boombox-track-card ${isCurrent ? 'active' : ''}">
-            <div class="boombox-track-left">
-              <img class="boombox-track-img" src="${ASSETS.props.cassete}" alt="Кассета" referrerpolicy="no-referrer">
-              <div class="boombox-track-info">
-                <div class="boombox-track-name">${track.title}</div>
-                <div class="boombox-track-badge">${isPlayingThis ? '🔴 Сейчас играет' : (isCurrent ? '⏸ Выбран' : '✓ В коллекции')}</div>
-              </div>
-            </div>
-            <div class="boombox-track-actions">
-              <a href="https://www.youtube.com/watch?v=${track.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-track-ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
-              ${isPlayingThis ? `
-                <button class="boombox-track-btn playing" onclick="stopBoombox()">⏹ Стоп</button>
-              ` : `
-                <button class="boombox-track-btn play" onclick="playBoomboxTrack('${tId}')">▶ Включить</button>
-              `}
-            </div>
-          </div>
-        `;
-      });
-      tracksHtml += '</div>';
-    }
-
-    body.innerHTML = headerHtml + tracksHtml;
-  }
-  window.renderBoomboxModal = renderBoomboxModal;
-
-  function insertCassetteIntoBoombox(cassetteId) {
-    const track = CASSETTE_TRACKS[cassetteId];
-    if (!track) return;
-
-    if (!boomboxUnlockedTracks.includes(cassetteId)) {
-      boomboxUnlockedTracks.push(cassetteId);
-      try { Storage.setJSON(BOOMBOX_UNLOCKED_TRACKS_KEY, boomboxUnlockedTracks); } catch (e) {}
-    }
-
-    // Убираем кассету со стола и из инвентаря
-    returnPropToStorage(cassetteId);
-    const idx = ownedProps.indexOf(cassetteId);
-    if (idx !== -1) {
-      ownedProps.splice(idx, 1);
-      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
-    }
-    renderStorage();
-
-    const boomboxEl = document.getElementById('prop-magnitofon');
-    if (boomboxEl) {
-      const r = boomboxEl.getBoundingClientRect();
-      particles.push({
-        x: r.left + r.width / 2,
-        y: r.top + 10,
-        vx: 0,
-        vy: -140,
-        size: 20,
-        alpha: 1.4,
-        text: `🎵 Кассета вставлена!`,
-        color: '#38bdf8'
-      });
-    }
-    corkPopSound();
-    playBoomboxTrack(cassetteId);
-  }
-  window.insertCassetteIntoBoombox = insertCassetteIntoBoombox;
-
-  function unpackCasseteBoxS3rl() {
-    const boxEl = document.getElementById('prop-casseteBoxS3rl');
-    if (!boxEl || boxEl.style.display === 'none') return;
-
-    const r = boxEl.getBoundingClientRect();
-    const startX = r.left;
-    const startY = r.top;
-
-    returnPropToStorage('casseteBoxS3rl');
-    const idx = ownedProps.indexOf('casseteBoxS3rl');
-    if (idx !== -1) {
-      ownedProps.splice(idx, 1);
-      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
-    }
-    renderShopBuyTab();
-
-    corkPopSound();
-    particles.push({
-      x: startX + 40,
-      y: startY + 20,
-      vx: 0,
-      vy: -150,
-      size: 24,
-      alpha: 1.4,
-      text: '🎶 Хиты S3RL распакованы!',
-      color: '#e879f9'
-    });
-
-    const items = [
-      { id: 'cassette_s3rl_1', vx: -200, vy: -360 },
-      { id: 'cassette_s3rl_2', vx: -130, vy: -420 },
-      { id: 'cassette_s3rl_3', vx: -65, vy: -470 },
-      { id: 'cassette_s3rl_4', vx: 0, vy: -500 },
-      { id: 'cassette_s3rl_5', vx: 65, vy: -470 },
-      { id: 'cassette_s3rl_6', vx: 130, vy: -420 },
-      { id: 'cassette_s3rl_7', vx: 200, vy: -360 }
-    ];
-
-    const gravity = 1200; // px/s²
-    const duration = 0.65; // секунды
-
-    items.forEach((item, index) => {
-      if (!ownedProps.includes(item.id)) {
-        ownedProps.push(item.id);
-      }
-      const el = document.getElementById('prop-' + item.id);
-      if (!el) return;
-
-      el.style.display = 'block';
-      el.style.left = `${startX}px`;
-      el.style.top = `${startY}px`;
-      el.style.zIndex = '55';
-      el.classList.add('is-dragging');
-
-      const startTime = performance.now();
-      const landX = Math.max(20, Math.min(window.innerWidth - 85, startX + item.vx * duration));
-      const landY = Math.max(100, Math.min(window.innerHeight - 110, startY + item.vy * duration + 0.5 * gravity * duration * duration));
-
-      function animateArc(now) {
-        const elapsed = (now - startTime) / 1000;
-        if (elapsed < duration) {
-          const curX = startX + item.vx * elapsed;
-          const curY = startY + item.vy * elapsed + 0.5 * gravity * elapsed * elapsed;
-          el.style.left = `${curX}px`;
-          el.style.top = `${curY}px`;
-          requestAnimationFrame(animateArc);
-        } else {
-          el.style.left = `${landX}px`;
-          el.style.top = `${landY}px`;
-          el.classList.remove('is-dragging');
-          placedProps[item.id] = { placed: true, left: `${landX}px`, top: `${landY}px` };
-          try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
-          try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
-          renderStorage();
-        }
-      }
-      requestAnimationFrame(animateArc);
-    });
-  }
-  window.unpackCasseteBoxS3rl = unpackCasseteBoxS3rl;

@@ -207,17 +207,6 @@
             </div>
             <div class="buy-items-grid" id="gardeningBuyList"></div>
           </div>
-
-          <!-- Секция: Музыка -->
-          <div class="shop-section" id="musicShopSection">
-            <div class="shop-section-title" id="musicSectionTitle" role="button" tabindex="0" onclick="toggleShopSection('music')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleShopSection('music');}">
-              <div class="shop-section-title-left">
-                <span>🎵</span> <span>Музыка</span>
-              </div>
-              <span class="shop-collapse-arrow" id="musicSectionArrow">▼</span>
-            </div>
-            <div class="buy-items-grid" id="musicBuyList"></div>
-          </div>
         </div>
       </div>
       <div class="shop-body" id="shopBodySell" style="display: none; align-items: stretch; justify-content: flex-start;">
@@ -534,20 +523,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно магнитофона / Кассетная дека -->
-  <div class="upgrades-modal" id="boomboxModal">
-    <div class="upgrades-dialog boombox-dialog">
-      <div class="upgrades-header">
-        <div class="upgrades-title">
-          <span class="shop-title-icon">📻</span>
-          <span>Магнитофон — Кассетная дека</span>
-        </div>
-        <button class="upgrades-close-btn" id="closeBoomboxBtn" aria-label="Закрыть">✕</button>
-      </div>
-      <div class="boombox-modal-body" id="boomboxModalBody"></div>
-    </div>
-  </div>
-
   <div class="upgrades-modal" id="knifeAccidentModal">
     <div class="upgrades-dialog cooked-duck-dialog" style="max-width: 440px;">
       <div class="cooked-duck-content">
@@ -767,89 +742,6 @@
     <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/food/salad-plate.png" alt="Тарелка салата" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🥗</span>
-  </div>
-
-  <!-- Магнитофон и кассеты на столе -->
-  <div id="prop-magnitofon" class="draggable-prop is-interactive" style="display: none;">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/magnitofon.png" alt="Магнитофон" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 52px;">📻</span>
-    <div class="prop-action-badge boombox-badge" aria-hidden="true" title="Управление магнитофоном">🎵</div>
-
-    <!-- Компактный YouTube-плеер над магнитофоном -->
-    <div id="boomboxMiniPlayer" class="boombox-mini-player" style="display: none;">
-      <div class="boombox-player-header">
-        <div class="boombox-status-line">
-          <span class="boombox-led" id="boomboxLed"></span>
-          <span id="boomboxTrackTitle" class="boombox-track-title">Трек</span>
-        </div>
-        <div class="boombox-header-actions">
-          <button id="boomboxDeckBtn" class="boombox-deck-btn" title="Кассетная дека">📼 Дека</button>
-          <button id="boomboxPowerBtn" class="boombox-power-btn" title="Выключить магнитофон">✕</button>
-        </div>
-      </div>
-      <div class="boombox-iframe-wrap">
-        <div id="boomboxYtContainer"></div>
-      </div>
-      <div class="boombox-player-footer">
-        <a id="boomboxYtLinkBtn" class="boombox-footer-yt-btn" href="#" target="_blank" rel="noopener noreferrer" title="Слушать трек на YouTube">
-          ▶ Слушать на YouTube ↗
-        </a>
-        <div class="boombox-footer-hint">
-          Если встроенный плеер выдаёт Ошибку 153 (ограничение YouTube на локальных файлах или блокировка провайдером), откройте трек напрямую по кнопке выше ↗
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="prop-casseteBoxS3rl" class="draggable-prop is-interactive" style="display: none;" title="Нажмите, чтобы открыть набор кассет">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete-box-s3rl.png" alt="Набор кассет - S3RL" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 52px;">📦🎶</span>
-    <div class="prop-action-badge unpack-badge" aria-hidden="true" title="Открыть набор">✨</div>
-  </div>
-
-  <div id="prop-cassette_s3rl_1" class="draggable-prop cassette-prop" style="display: none;" title="Doof Doof Untz Untz (VVVIP) - S3RL">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">Doof Doof</div>
-  </div>
-  <div id="prop-cassette_s3rl_2" class="draggable-prop cassette-prop" style="display: none;" title="You Are Mine - S3RL ft Kayliana">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">You Are Mine</div>
-  </div>
-  <div id="prop-cassette_s3rl_3" class="draggable-prop cassette-prop" style="display: none;" title="Dopamine - S3RL ft Sara">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">Dopamine</div>
-  </div>
-  <div id="prop-cassette_s3rl_4" class="draggable-prop cassette-prop" style="display: none;" title="MTC - S3RL">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">MTC</div>
-  </div>
-  <div id="prop-cassette_s3rl_5" class="draggable-prop cassette-prop" style="display: none;" title="Internet Baby - S3RL x BEANIE">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">Internet Baby</div>
-  </div>
-  <div id="prop-cassette_s3rl_6" class="draggable-prop cassette-prop" style="display: none;" title="Together - S3RL x Fatshaudi x Luca Rain">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">Together</div>
-  </div>
-  <div id="prop-cassette_s3rl_7" class="draggable-prop cassette-prop" style="display: none;" title="Play It Loud - S3RL & Remzcore">
-    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/cassete.png" alt="Кассета" draggable="false" referrerpolicy="no-referrer"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-    <span style="display: none; font-size: 38px;">📼</span>
-    <div class="cassette-label-badge">Play It Loud</div>
   </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->

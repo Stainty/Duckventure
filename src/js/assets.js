@@ -17,10 +17,7 @@
       tape: CDN_BASE + 'props/tape.png',
       trashcan: CDN_BASE + 'props/trashcan.png',
       incubator: CDN_BASE + 'props/incubator.png',
-      cuttingBoard: CDN_BASE + 'props/cutting-board.png',
-      magnitofon: CDN_BASE + 'props/magnitofon.png',
-      casseteBoxS3rl: CDN_BASE + 'props/cassete-box-s3rl.png',
-      cassete: CDN_BASE + 'props/cassete.png'
+      cuttingBoard: CDN_BASE + 'props/cutting-board.png'
     },
     food: {
       saladPlate: CDN_BASE + 'food/salad-plate.png',
