@@ -3785,6 +3785,34 @@
   }
   window.sellHoney = sellHoney;
 
+  function animateBeeFlyIn(beeEl, potEl) {
+    if (!beeEl || !potEl) return;
+    const potRect = potEl.getBoundingClientRect();
+    const fromRight = (potRect.left < window.innerWidth / 2);
+    const startX = fromRight ? (window.innerWidth + 120) : -120;
+    const startY = -80 - Math.random() * 80;
+    const restX = potRect.left + (potRect.width || 80) - 16;
+    const restY = potRect.top - 24;
+
+    const dx = startX - restX;
+    const dy = startY - restY;
+
+    beeEl.style.setProperty('--fly-from-x', `${Math.round(dx)}px`);
+    beeEl.style.setProperty('--fly-from-y', `${Math.round(dy)}px`);
+    beeEl.classList.remove('is-flying-away');
+    beeEl.classList.add('is-flying-in');
+    beeEl.style.display = 'block';
+
+    if (typeof startBeeBuzz === 'function') startBeeBuzz();
+
+    setTimeout(() => {
+      if (beeEl.classList.contains('is-flying-in')) {
+        beeEl.classList.remove('is-flying-in');
+      }
+    }, 1800);
+  }
+  window.animateBeeFlyIn = animateBeeFlyIn;
+
   function updatePotUI() {
     const potImg = document.getElementById('potImg');
     const badgeEl = document.getElementById('potActionBadge');
@@ -3824,11 +3852,19 @@
 
       const isPotOnDesk = potEl && potEl.style.display !== 'none';
       if (beeActive && isPotOnDesk) {
-        if (beeEl) beeEl.style.display = 'block';
-        startBeeBuzz();
+        if (beeEl) {
+          if (beeEl.style.display === 'none' && !beeEl.classList.contains('is-flying-away')) {
+            animateBeeFlyIn(beeEl, potEl);
+          } else if (!beeEl.classList.contains('is-flying-away')) {
+            beeEl.style.display = 'block';
+            if (typeof startBeeBuzz === 'function') startBeeBuzz();
+          }
+        }
       } else {
-        if (beeEl) beeEl.style.display = 'none';
-        stopBeeBuzz();
+        if (beeEl && !beeEl.classList.contains('is-flying-away')) {
+          beeEl.style.display = 'none';
+          if (typeof stopBeeBuzz === 'function') stopBeeBuzz();
+        }
       }
     }
     updateHoneyDeskProp();
@@ -3986,7 +4022,14 @@
       Storage.set(BEE_TIMER_KEY, '0');
     } catch (e) {}
 
-    updatePotUI();
+    const beeEl = document.getElementById('flowerBee');
+    const potEl = document.getElementById('prop-pot');
+    if (beeEl && potEl && potEl.style.display !== 'none' && potState === 'bloomed') {
+      animateBeeFlyIn(beeEl, potEl);
+    } else {
+      updatePotUI();
+    }
+
     particles.push({
       x: window.innerWidth / 2,
       y: window.innerHeight / 2 - 25,
@@ -4002,18 +4045,40 @@
 
   function clickBee() {
     if (!beeActive) return;
+    beeActive = false;
+    try { Storage.set(BEE_ACTIVE_KEY, '0'); } catch (e) {}
+
     const beeEl = document.getElementById('flowerBee');
-    if (beeEl) {
+    const potEl = document.getElementById('prop-pot');
+
+    if (beeEl && potEl) {
+      const potRect = potEl.getBoundingClientRect();
+      const restX = potRect.left + (potRect.width || 80) - 16;
+      const restY = potRect.top - 24;
+
+      // Улетаем за пределы экрана
+      const toRight = (potRect.left < window.innerWidth / 2);
+      const targetX = toRight ? (window.innerWidth + 140) : -140;
+      const targetY = -140 - Math.random() * 80;
+
+      const outX = targetX - restX;
+      const outY = targetY - restY;
+
+      beeEl.style.setProperty('--fly-out-x', `${Math.round(outX)}px`);
+      beeEl.style.setProperty('--fly-out-y', `${Math.round(outY)}px`);
+      beeEl.classList.remove('is-flying-in');
       beeEl.classList.add('is-flying-away');
+
+      // Жужжание плавно затихает по мере удаления пчелы за пределы экрана
+      if (typeof stopBeeBuzz === 'function') stopBeeBuzz(1.3);
+
       setTimeout(() => {
         beeEl.classList.remove('is-flying-away');
         beeEl.style.display = 'none';
-      }, 700);
+      }, 1400);
+    } else {
+      if (typeof stopBeeBuzz === 'function') stopBeeBuzz();
     }
-
-    beeActive = false;
-    try { Storage.set(BEE_ACTIVE_KEY, '0'); } catch (e) {}
-    stopBeeBuzz();
 
     beeTimer = Math.floor(300 + Math.random() * 300);
     try { Storage.set(BEE_TIMER_KEY, String(beeTimer)); } catch (e) {}
@@ -4033,17 +4098,46 @@
       color: '#f59e0b'
     });
 
-    const potEl = document.getElementById('prop-pot');
     const honeyEl = document.getElementById('prop-honey');
     if (potEl && honeyEl) {
+      const curL = parseFloat(potEl.style.left) || (window.innerWidth / 2);
+      const curT = parseFloat(potEl.style.top) || (window.innerHeight / 2);
+      let targetL = curL + 95;
+      if (targetL + 75 > window.innerWidth) {
+        targetL = curL - 75;
+      }
+      const targetT = curT + 12;
+
       if (!placedProps['honey'] || !placedProps['honey'].placed) {
-        const curL = parseFloat(potEl.style.left) || (window.innerWidth / 2);
-        const curT = parseFloat(potEl.style.top) || (window.innerHeight / 2);
-        const targetL = Math.min(window.innerWidth - 80, curL + 95);
         honeyEl.style.left = `${targetL}px`;
-        honeyEl.style.top = `${curT + 10}px`;
-        placedProps['honey'] = { placed: true, left: `${targetL}px`, top: `${curT + 10}px` };
+        honeyEl.style.top = `${targetT}px`;
+        placedProps['honey'] = { placed: true, left: `${targetL}px`, top: `${targetT}px` };
         try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
+
+      // Выпадение меда с анимацией
+      honeyEl.style.display = 'block';
+      honeyEl.classList.remove('is-dropping');
+      void honeyEl.offsetWidth; // force DOM reflow
+      honeyEl.classList.add('is-dropping');
+      setTimeout(() => {
+        honeyEl.classList.remove('is-dropping');
+      }, 850);
+
+      // Искрящиеся частицы вокруг выпадающей банки меда
+      for (let i = 0; i < 6; i++) {
+        const ang = (Math.PI * 2 / 6) * i + Math.random() * 0.3;
+        const spd = 50 + Math.random() * 50;
+        particles.push({
+          x: targetL + 34,
+          y: targetT + 34,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 40,
+          size: 14 + Math.random() * 6,
+          alpha: 1.4,
+          text: i % 2 === 0 ? '✨' : '🍯',
+          color: '#f59e0b'
+        });
       }
     }
 

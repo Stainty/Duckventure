@@ -994,13 +994,14 @@
   }
   window.startBeeBuzz = startBeeBuzz;
 
-  function stopBeeBuzz() {
+  function stopBeeBuzz(fadeTime = 0.2) {
     try {
       if (!beeBuzzNodes || !audioCtx) return;
       const t = audioCtx.currentTime;
+      const duration = Math.max(0.05, Number(fadeTime) || 0.2);
       beeBuzzNodes.masterGain.gain.cancelScheduledValues(t);
       beeBuzzNodes.masterGain.gain.setValueAtTime(beeBuzzNodes.masterGain.gain.value, t);
-      beeBuzzNodes.masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      beeBuzzNodes.masterGain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
       const oldNodes = beeBuzzNodes;
       beeBuzzNodes = null;
       setTimeout(() => {
@@ -1014,7 +1015,7 @@
           oldNodes.filter.disconnect();
           oldNodes.masterGain.disconnect();
         } catch (e) {}
-      }, 200);
+      }, Math.round(duration * 1000 + 100));
     } catch (e) {
       beeBuzzNodes = null;
     }
