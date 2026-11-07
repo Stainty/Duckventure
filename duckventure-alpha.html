@@ -16280,9 +16280,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       "start": {
         id: "start",
         type: "intro",
-        title: "Здесь есть кто-то ещё",
+        title: "Холодный сквозняк ниоткуда",
         speaker: "none",
-        text: "Краем глаза вы замечаете незнакомую фигуру!\nОбернувшись, вы видите тёмный силуэт: он стоит почти неподвижно, лишь порванный плащ развевается на ветру.\nКапюшон оттеняет лицо незнакомца, а под ним лежат различные металлические предметы.\nИнтересно, кто он?\nПрежде чем вы успеваете обдумать это, незнакомец начинает говорить...",
+        text: "Воздух вокруг внезапно тяжелеет. Звуки комнаты глохнут, словно мир накрыли толстым стеклянным колпаком.\n\nОбернувшись, вы замираете. На краю стола стоит долговязая фигура в выцветшем плаще. Она не покачивается и не дышит. Ткань на ней висит мертво, несмотря на ледяной сквозняк.\n\nИз-под капюшона тускло блестят немигающие птичьи глаза. В тишине раздаётся металлический перестук — внутри его рукавов что-то лежит.\n\nПрежде чем вы успеваете попятиться, незнакомец наклоняет голову набок...",
         choices: [
           { text: ">", target: "step_2", style: "default" }
         ],
@@ -16294,16 +16294,16 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Встреча",
         speaker: "right",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря",
+        leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
-        leftCharSize: 90,
+        rightSpeech: "Не дергайся...",
+        leftCharSize: 95,
         rightCharSize: 180,
-        text: "Здравствуй.\nВижу, ты здесь недавно...",
+        text: "— Здравствуй. Не вздрагивай так. Я здесь не за тем, чтобы забрать твои перья... пока что.\n\nТы озираешься, будто видишь этот стол впервые в жизни. Новичок? Или... потерянный?",
         choices: [
           { text: "Да, я здесь недавно, вроде как...", target: "step_3", style: "primary" },
-          { text: "Кря", target: "step_8", style: "primary" },
-          { text: "Промолчать", target: "step_11", style: "default" }
+          { text: "Кря.", target: "step_8", style: "primary" },
+          { text: "[Молча смотреть в глубину капюшона]", target: "step_11", style: "default" }
         ],
         hideBadge: true
       },
@@ -16313,12 +16313,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Ответ незнакомцу",
         speaker: "left",
         leftAvatar: "current_player_skin",
-        leftSpeech: "",
+        leftSpeech: "Я... не знаю",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "Продолжай...",
+        rightSpeech: "Любопытно...",
         leftCharSize: 100,
         rightCharSize: 180,
-        text: "Да, я здесь недавно, вроде как...\nНа самом деле я практически ничего не помню...",
+        text: "— Да, я здесь недавно... Вроде как.\n\nНа самом деле... я практически ничего о себе не помню.",
         choices: [
           { text: ">", target: "step_4", style: "default" }
         ],
@@ -16330,13 +16330,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Вопрос о цели",
         speaker: "right",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря",
+        leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
+        rightSpeech: "Вот как?",
         rightCharSize: 180,
-        text: "То есть, зачем ты здесь, тоже не помнишь?",
+        text: "Незнакомец чуть подаётся вперёд. От него веет сырым речным илом и холодным железом.\n\n— Значит, пустая оболочка? Не помнишь, откуда пришёл... и зачем тебя вообще сюда посадили?",
         choices: [
-          { text: "Ну я...", target: "step_5", style: "primary" }
+          { text: "Ну я... ты знаешь, кто я?", target: "step_5", style: "primary" }
         ],
         hideBadge: true
       },
@@ -16346,12 +16346,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Попытка вспомнить",
         speaker: "left",
         leftAvatar: "current_player_skin",
-        leftSpeech: "",
+        leftSpeech: "Кто я такой?",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "Продолжай...",
+        rightSpeech: "Слушаю.",
         leftCharSize: 100,
         rightCharSize: 180,
-        text: "Ну я... да...\nНичего не помню...\nТы знаешь, кто я?",
+        text: "— Ну я... да. Ни имени, ни прошлого.\n\nСкажи... ты ведь знаешь, кто я на самом деле?",
         choices: [
           { text: ">", target: "step_6", style: "default" }
         ],
@@ -16363,13 +16363,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Дар незнакомца",
         speaker: "right",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря",
+        leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
+        rightSpeech: "Забирай.",
         rightCharSize: 180,
-        text: "Понятно...\nЧто ж, никто не знает в начале пути, кто он на самом деле.\nВажно, кем ты станешь в конце своего путешествия...\nПрими этот дар, отказ не принимается.",
+        text: "Из глубин капюшона доносится сухой, царапающий смешок.\n\n— Память — слишком хрупкая скорлупа, чтобы о ней жалеть. Важно не то, кем ты был, а то, чем ты станешь, когда этот мир начнёт требовать плату.\n\nВозьми это. И даже не думай отказываться — отвергнутые подарки в этих краях имеют привычку взрываться.",
         choices: [
-          { text: "Далее", target: "outro_8", style: "primary" }
+          { text: "Забрать подношение", target: "outro_8", style: "primary" }
         ],
         hideBadge: true
       },
@@ -16379,12 +16379,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Утиный ответ",
         speaker: "left",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря!",
+        leftSpeech: "КРЯ!",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "Продолжай...",
+        rightSpeech: "...",
         leftCharSize: 100,
         rightCharSize: 180,
-        text: "Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря! Кря!",
+        text: "— Кря! Кря! Кря-кря-кря! Кря!",
         choices: [
           { text: ">", target: "step_9", style: "default" }
         ],
@@ -16396,14 +16396,14 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Реакция незнакомца",
         speaker: "right",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря",
+        leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
+        rightSpeech: "Хватит паясничать.",
         rightCharSize: 180,
-        text: "Кажется, всё намного хуже, чем я думал...\nНадеюсь, несмотря на это, ты способен выполнить своё предназначение...",
+        text: "Незнакомец медленно моргает одним глазом. В его взгляде мелькает что-то очень острое и недоброе.\n\n— Притворяешься глупой резиновой пищалкой? Удобно. Игрушки ведь не чувствуют боли, правда?..\n\nНо глаза тебя выдают. В них слишком много живого страха для обычного куска пластика.",
         choices: [
-          { text: "Кря!", target: "step_10", style: "primary" },
-          { text: "На самом деле я умею разговаривать...", target: "step_10", style: "primary" }
+          { text: "Кря...", target: "step_10", style: "primary" },
+          { text: "Ладно. Я умею говорить. Чего ты хочешь?", target: "step_10", style: "primary" }
         ],
         hideBadge: true
       },
@@ -16415,9 +16415,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         leftAvatar: "current_player_skin",
         leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
+        rightSpeech: "Вот и славно.",
         rightCharSize: 180,
-        text: "Понятно...\nВ общем, сейчас это уже не важно.\nВозьми-ка вот это.",
+        text: "— Неважно, играешь ты роль или у тебя действительно высохли мозги. Срок уже пошёл.\n\nДержи. Попробуй не потерять её до того, как за тобой придут остальные.",
         choices: [
           { text: ">", target: "outro_8", style: "default" }
         ],
@@ -16429,23 +16429,23 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         title: "Молчание",
         speaker: "right",
         leftAvatar: "current_player_skin",
-        leftSpeech: "Кря",
+        leftSpeech: "",
         rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
-        rightSpeech: "",
+        rightSpeech: "Ты слышишь меня.",
         rightCharSize: 180,
-        text: "Неразговорчивый, как я посмотрю...\nРади приличия, может, ответишь мне?",
+        text: "Вы не произносите ни звука. Секунды растягиваются в душную смолу.\n\nФигура склоняется так близко, что вы видите зазубрины на его клюве.\n\n— Молчишь... Грамотно. Те, кто слишком громко крякают в темноте, первыми привлекают тех, у кого есть зубы. Но вежливость всё же продлевает жизнь.",
         choices: [
-          { text: "Привет?", target: "step_10", style: "primary" },
-          { text: "Промолчать", target: "step_10", style: "default" }
+          { text: "Кто ты такой?", target: "step_10", style: "primary" },
+          { text: "[Продолжать упрямо молчать]", target: "step_10", style: "default" }
         ],
         hideBadge: true
       },
       "outro_8": {
         id: "outro_8",
         type: "outro",
-        title: "Таинственная фигура уходит",
+        title: "Внезапное исчезновение",
         speaker: "none",
-        text: "Фигура исчезает, как только вы отвлекаетесь, чтобы рассмотреть подарок незнакомца.\nНа земле остаётся лежать карта, и вы с ходу понимаете, что она не принадлежит этому миру.\nИнтересно, для чего она...",
+        text: "Вы моргаете — и перед глазами вспыхивает холодная пустота.\n\nНи шороха перьев, ни скрипа половины стола. Незнакомец растворился без следа, словно его вырезали лезвием из реальности.\n\nНа столе осталась лежать странная карта. Она неестественно тяжела, обжигает пальцы потусторонним холодом и покрыта знаками, от взгляда на которые начинает ныть затылок.\n\nКажется, за вами только что открыли наблюдение...",
         choices: [
           { text: ">", target: "end", style: "default" }
         ],

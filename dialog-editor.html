@@ -1189,129 +1189,189 @@
        ========================================================================== */
     const DIALOG_TEMPLATES = {
       sus_duck_quest: {
-        id: 'sus_duck_encounter',
-        title: 'Подозрительная Сус-Утка',
-        startNode: 'intro_fog',
-        nodes: {
-          intro_fog: {
-            id: 'intro_fog',
-            type: 'intro',
-            title: 'Загадочный шорох',
-            speaker: 'none',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: '',
-            rightAvatar: '',
-            rightSpeech: '',
-            text: 'Вечерняя тишина на столе внезапно нарушается тихим шуршанием за холодильником...\n\nВ полутьме вспыхивает огонёк спички. Из тени медленно выступает силуэт утки в глубоко надвинутой шляпе и тёмных очках.',
-            choices: [
-              { text: 'Окликнуть незнакомца ➔', target: 'start', style: 'primary' }
-            ]
-          },
-          start: {
-            id: 'start',
-            type: 'dialogue',
-            title: 'Подозрительный незнакомец',
-            speaker: 'right', // Говорит Сус-утка!
-            leftAvatar: 'current_player_skin',
-            leftSpeech: 'Кря?.. Ты кто?',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Пс-с... эй, пернатый!',
-            text: '— У меня есть для тебя предложение, от которого твои дакли умножатся... но нужно проверить, можно ли тебе доверять.',
-            choices: [
-              { text: 'Кто ты такой?', target: 'who_are_you', style: 'primary' },
-              { text: 'Что за предложение?', target: 'the_deal', style: 'default' },
-              { text: 'Уйти прочь', target: 'walk_away', style: 'danger' }
-            ]
-          },
-          who_are_you: {
-            id: 'who_are_you',
-            type: 'dialogue',
-            title: 'Агент из подполья',
-            speaker: 'right',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: 'Представься сначала!',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Зови меня Сус...',
-            text: '— Я представляю интересы синдиката резиновых уток. Мы следим за твоими успехами в Duckventure.\n\nЕсли поможешь нам с поставками редких яиц, мы сделаем тебя самым богатым селезнем в округе.',
-            choices: [
-              { text: 'Я в деле! Что нужно делать?', target: 'accept_quest', style: 'primary' },
-              { text: 'Звучит подозрительно, я пас', target: 'refuse_quest', style: 'default' }
-            ]
-          },
-          the_deal: {
-            id: 'the_deal',
-            type: 'dialogue',
-            title: 'Деловое предложение',
-            speaker: 'right',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: 'Выкладывай свои условия',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Чистый бизнес!',
-            text: '— Мне нужны золотые яйца и чистый мёд. За каждую поставку синдикат выплатит двойную цену даклей и секретные технологии для ускорения кликов.',
-            choices: [
-              { text: 'По рукам! Буду сотрудничать', target: 'accept_quest', style: 'primary' },
-              { text: 'Мне это не интересно', target: 'walk_away', style: 'danger' }
-            ]
-          },
-          accept_quest: {
-            id: 'accept_quest',
-            type: 'dialogue',
-            title: 'Сделка заключена!',
-            speaker: 'left', // Отвечает игрок!
-            leftAvatar: 'current_player_skin',
-            leftSpeech: 'Договорились, держи крыло!',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Отличный выбор!',
-            text: '— Вот и славно! Держи аванс 5 000 🦆 и следи за столом. Скоро я снова выйду на связь!\n\nКвест начат: подготовьте золотое яйцо для Сус-Утки.',
-            choices: [
-              { text: 'Забрать аванс и разойтись (+5 000 🦆)', target: 'outro_deal', style: 'primary', reward: { type: 'duckles', amount: 5000 } }
-            ]
-          },
-          outro_deal: {
-            id: 'outro_deal',
-            type: 'outro',
-            title: 'Исчезновение в ночи',
-            speaker: 'none',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: '',
-            rightAvatar: '',
-            rightSpeech: '',
-            text: 'Сус-утка прячет золотую монету в карман плаща, кивает вам и бесшумно растворяется во тьме стола.\n\nНа столе остаётся конверт с даклями и смутное ощущение, что это только начало большой истории...',
-            choices: [
-              { text: 'Вернуться к игре', target: 'end', style: 'primary' }
-            ]
-          },
-          refuse_quest: {
-            id: 'refuse_quest',
-            type: 'dialogue',
-            title: 'Осторожность не повредит',
-            speaker: 'right',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: 'Я не связываюсь с мафией',
-            rightAvatar: PRESET_AVATARS.sus_duck,
-            rightSpeech: 'Ты ещё пожалеешь...',
-            text: 'Сус-утка недовольно хмыкает, поправляет плащ и растворяется в дыму.\n\nВозможно, в следующий раз он вернётся с другими намерениями...',
-            choices: [
-              { text: 'Закрыть диалог', target: 'end', style: 'default' }
-            ]
-          },
-          walk_away: {
-            id: 'walk_away',
-            type: 'outro',
-            title: 'Разговор окончен',
-            speaker: 'none',
-            leftAvatar: 'current_player_skin',
-            leftSpeech: '',
-            rightAvatar: '',
-            rightSpeech: '',
-            text: 'Вы игнорируете подозрительного незнакомца. Шаги за спиной затихают, а стол снова погружается в привычный рабочий ритм.',
-            choices: [
-              { text: 'Вернуться к столу', target: 'end', style: 'default' }
-            ]
-          }
-        }
+    id: "new_dialog_dark_duck_1",
+    title: "Таинственный незнакомец",
+    leftName: "Утка",
+    rightName: "Подозрительная утка",
+    startNode: "start",
+    nodes: {
+      "start": {
+        id: "start",
+        type: "intro",
+        title: "Холодный сквозняк ниоткуда",
+        speaker: "none",
+        text: "Воздух вокруг внезапно тяжелеет. Звуки комнаты глохнут, словно мир накрыли толстым стеклянным колпаком.\n\nОбернувшись, вы замираете. На краю стола стоит долговязая фигура в выцветшем плаще. Она не покачивается и не дышит. Ткань на ней висит мертво, несмотря на ледяной сквозняк.\n\nИз-под капюшона тускло блестят немигающие птичьи глаза. В тишине раздаётся металлический перестук — внутри его рукавов что-то лежит.\n\nПрежде чем вы успеваете попятиться, незнакомец наклоняет голову набок...",
+        choices: [
+          { text: ">", target: "step_2", style: "default" }
+        ],
+        hideBadge: false
       },
-      welcome: {
+      "step_2": {
+        id: "step_2",
+        type: "dialogue",
+        title: "Встреча",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Не дергайся...",
+        leftCharSize: 95,
+        rightCharSize: 180,
+        text: "— Здравствуй. Не вздрагивай так. Я здесь не за тем, чтобы забрать твои перья... пока что.\n\nТы озираешься, будто видишь этот стол впервые в жизни. Новичок? Или... потерянный?",
+        choices: [
+          { text: "Да, я здесь недавно, вроде как...", target: "step_3", style: "primary" },
+          { text: "Кря.", target: "step_8", style: "primary" },
+          { text: "[Молча смотреть в глубину капюшона]", target: "step_11", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "step_3": {
+        id: "step_3",
+        type: "dialogue",
+        title: "Ответ незнакомцу",
+        speaker: "left",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "Я... не знаю",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Любопытно...",
+        leftCharSize: 100,
+        rightCharSize: 180,
+        text: "— Да, я здесь недавно... Вроде как.\n\nНа самом деле... я практически ничего о себе не помню.",
+        choices: [
+          { text: ">", target: "step_4", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "step_4": {
+        id: "step_4",
+        type: "dialogue",
+        title: "Вопрос о цели",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Вот как?",
+        rightCharSize: 180,
+        text: "Незнакомец чуть подаётся вперёд. От него веет сырым речным илом и холодным железом.\n\n— Значит, пустая оболочка? Не помнишь, откуда пришёл... и зачем тебя вообще сюда посадили?",
+        choices: [
+          { text: "Ну я... ты знаешь, кто я?", target: "step_5", style: "primary" }
+        ],
+        hideBadge: true
+      },
+      "step_5": {
+        id: "step_5",
+        type: "dialogue",
+        title: "Попытка вспомнить",
+        speaker: "left",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "Кто я такой?",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Слушаю.",
+        leftCharSize: 100,
+        rightCharSize: 180,
+        text: "— Ну я... да. Ни имени, ни прошлого.\n\nСкажи... ты ведь знаешь, кто я на самом деле?",
+        choices: [
+          { text: ">", target: "step_6", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "step_6": {
+        id: "step_6",
+        type: "dialogue",
+        title: "Дар незнакомца",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Забирай.",
+        rightCharSize: 180,
+        text: "Из глубин капюшона доносится сухой, царапающий смешок.\n\n— Память — слишком хрупкая скорлупа, чтобы о ней жалеть. Важно не то, кем ты был, а то, чем ты станешь, когда этот мир начнёт требовать плату.\n\nВозьми это. И даже не думай отказываться — отвергнутые подарки в этих краях имеют привычку взрываться.",
+        choices: [
+          { text: "Забрать подношение", target: "outro_8", style: "primary" }
+        ],
+        hideBadge: true
+      },
+      "step_8": {
+        id: "step_8",
+        type: "dialogue",
+        title: "Утиный ответ",
+        speaker: "left",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "КРЯ!",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "...",
+        leftCharSize: 100,
+        rightCharSize: 180,
+        text: "— Кря! Кря! Кря-кря-кря! Кря!",
+        choices: [
+          { text: ">", target: "step_9", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "step_9": {
+        id: "step_9",
+        type: "dialogue",
+        title: "Реакция незнакомца",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Хватит паясничать.",
+        rightCharSize: 180,
+        text: "Незнакомец медленно моргает одним глазом. В его взгляде мелькает что-то очень острое и недоброе.\n\n— Притворяешься глупой резиновой пищалкой? Удобно. Игрушки ведь не чувствуют боли, правда?..\n\nНо глаза тебя выдают. В них слишком много живого страха для обычного куска пластика.",
+        choices: [
+          { text: "Кря...", target: "step_10", style: "primary" },
+          { text: "Ладно. Я умею говорить. Чего ты хочешь?", target: "step_10", style: "primary" }
+        ],
+        hideBadge: true
+      },
+      "step_10": {
+        id: "step_10",
+        type: "dialogue",
+        title: "Подарок",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Вот и славно.",
+        rightCharSize: 180,
+        text: "— Неважно, играешь ты роль или у тебя действительно высохли мозги. Срок уже пошёл.\n\nДержи. Попробуй не потерять её до того, как за тобой придут остальные.",
+        choices: [
+          { text: ">", target: "outro_8", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "step_11": {
+        id: "step_11",
+        type: "dialogue",
+        title: "Молчание",
+        speaker: "right",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "",
+        rightAvatar: (window.ASSETS && ASSETS.characters && ASSETS.characters.susDuck) || "https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png",
+        rightSpeech: "Ты слышишь меня.",
+        rightCharSize: 180,
+        text: "Вы не произносите ни звука. Секунды растягиваются в душную смолу.\n\nФигура склоняется так близко, что вы видите зазубрины на его клюве.\n\n— Молчишь... Грамотно. Те, кто слишком громко крякают в темноте, первыми привлекают тех, у кого есть зубы. Но вежливость всё же продлевает жизнь.",
+        choices: [
+          { text: "Кто ты такой?", target: "step_10", style: "primary" },
+          { text: "[Продолжать упрямо молчать]", target: "step_10", style: "default" }
+        ],
+        hideBadge: true
+      },
+      "outro_8": {
+        id: "outro_8",
+        type: "outro",
+        title: "Внезапное исчезновение",
+        speaker: "none",
+        text: "Вы моргаете — и перед глазами вспыхивает холодная пустота.\n\nНи шороха перьев, ни скрипа половины стола. Незнакомец растворился без следа, словно его вырезали лезвием из реальности.\n\nНа столе осталась лежать странная карта. Она неестественно тяжела, обжигает пальцы потусторонним холодом и покрыта знаками, от взгляда на которые начинает ныть затылок.\n\nКажется, за вами только что открыли наблюдение...",
+        choices: [
+          { text: ">", target: "end", style: "default" }
+        ],
+        hideBadge: false
+      }
+    }
+  },
+      welcome:welcome: {
         id: 'welcome_dialog',
         title: 'Приветствие Duckventure',
         startNode: 'start',
