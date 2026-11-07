@@ -189,6 +189,13 @@
       done: false,
       check: () => hasUnlockedWithKey,
     },
+    {
+      id: 'first-visit',
+      name: 'Первый визит',
+      desc: 'Поговорите с Подозрительной Уткой',
+      done: false,
+      check: () => hasTalkedToSusDuck,
+    },
   ];
   window.ACHIEVEMENTS = ACHIEVEMENTS;
 
@@ -632,6 +639,12 @@
       Storage.remove(DARK_DUCK_DIALOG_TRIGGERED_KEY);
       Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '120');
     } catch (e) {}
+
+    if (!preserveAchievements) {
+      hasTalkedToSusDuck = false;
+      window.hasTalkedToSusDuck = false;
+      try { Storage.remove(HAS_TALKED_TO_SUS_DUCK_KEY); } catch (e) {}
+    }
 
     if (typeof showWelcomeDialog === 'function') {
       showWelcomeDialog();

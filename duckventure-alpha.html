@@ -5147,6 +5147,7 @@ const GRAVITY = 1000;      // px/s²
   const HONEY_COUNT_KEY = 'duck-honey-count';
   const DARK_DUCK_DIALOG_TRIGGERED_KEY = 'duck-dark-duck-dialog-triggered';
   const DARK_DUCK_DIALOG_TIMER_KEY = 'duck-dark-duck-dialog-timer';
+  const HAS_TALKED_TO_SUS_DUCK_KEY = 'duck-has-talked-to-sus-duck';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)
@@ -5550,6 +5551,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.darkDuckDialogTimer = darkDuckDialogTimer;
   let isDarkDuckDialogTriggered = Storage.getBoolean(DARK_DUCK_DIALOG_TRIGGERED_KEY, false);
   window.isDarkDuckDialogTriggered = isDarkDuckDialogTriggered;
+  let hasTalkedToSusDuck = Storage.getBoolean(HAS_TALKED_TO_SUS_DUCK_KEY, false);
+  window.hasTalkedToSusDuck = hasTalkedToSusDuck;
 
   let ownedProps = Storage.getJSON(OWNED_PROPS_KEY, [], (data) => Array.isArray(data));
   if (!Array.isArray(ownedProps)) ownedProps = [];
@@ -6712,6 +6715,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       done: false,
       check: () => hasUnlockedWithKey,
     },
+    {
+      id: 'first-visit',
+      name: 'Первый визит',
+      desc: 'Поговорите с Подозрительной Уткой',
+      done: false,
+      check: () => hasTalkedToSusDuck,
+    },
   ];
   window.ACHIEVEMENTS = ACHIEVEMENTS;
 
@@ -7155,6 +7165,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       Storage.remove(DARK_DUCK_DIALOG_TRIGGERED_KEY);
       Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '120');
     } catch (e) {}
+
+    if (!preserveAchievements) {
+      hasTalkedToSusDuck = false;
+      window.hasTalkedToSusDuck = false;
+      try { Storage.remove(HAS_TALKED_TO_SUS_DUCK_KEY); } catch (e) {}
+    }
 
     if (typeof showWelcomeDialog === 'function') {
       showWelcomeDialog();
@@ -16460,6 +16476,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     function openStep(stepId) {
       if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
         closeCharacterDialog();
+        hasTalkedToSusDuck = true;
+        window.hasTalkedToSusDuck = true;
+        try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
+        if (typeof tryUnlock === 'function') tryUnlock();
         return;
       }
       const step = tree.nodes[stepId];
@@ -16495,7 +16515,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         })) : [{
           text: 'Завершить',
           primary: true,
-          onClick: () => closeCharacterDialog()
+          onClick: () => {
+            closeCharacterDialog();
+            hasTalkedToSusDuck = true;
+            window.hasTalkedToSusDuck = true;
+            try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
+            if (typeof tryUnlock === 'function') tryUnlock();
+          }
         }]
       });
     }

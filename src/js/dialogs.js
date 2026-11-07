@@ -543,6 +543,10 @@
     function openStep(stepId) {
       if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
         closeCharacterDialog();
+        hasTalkedToSusDuck = true;
+        window.hasTalkedToSusDuck = true;
+        try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
+        if (typeof tryUnlock === 'function') tryUnlock();
         return;
       }
       const step = tree.nodes[stepId];
@@ -578,7 +582,13 @@
         })) : [{
           text: 'Завершить',
           primary: true,
-          onClick: () => closeCharacterDialog()
+          onClick: () => {
+            closeCharacterDialog();
+            hasTalkedToSusDuck = true;
+            window.hasTalkedToSusDuck = true;
+            try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
+            if (typeof tryUnlock === 'function') tryUnlock();
+          }
         }]
       });
     }

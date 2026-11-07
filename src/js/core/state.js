@@ -319,6 +319,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.darkDuckDialogTimer = darkDuckDialogTimer;
   let isDarkDuckDialogTriggered = Storage.getBoolean(DARK_DUCK_DIALOG_TRIGGERED_KEY, false);
   window.isDarkDuckDialogTriggered = isDarkDuckDialogTriggered;
+  let hasTalkedToSusDuck = Storage.getBoolean(HAS_TALKED_TO_SUS_DUCK_KEY, false);
+  window.hasTalkedToSusDuck = hasTalkedToSusDuck;
 
   let ownedProps = Storage.getJSON(OWNED_PROPS_KEY, [], (data) => Array.isArray(data));
   if (!Array.isArray(ownedProps)) ownedProps = [];
