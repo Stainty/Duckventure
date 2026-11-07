@@ -622,7 +622,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     pot: {
       id: 'pot',
       name: 'Цветочный горшок',
-      category: 'household',
+      category: 'gardening',
       cost: 500,
       icon: ASSETS.props.potEmpty,
       fallbackEmoji: '🪴',

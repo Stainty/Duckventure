@@ -504,7 +504,7 @@
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -565,7 +565,7 @@
         color: '#ffd24d'
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -573,6 +573,21 @@
       // Если предмет сейчас на столе, возвращаем его со стола
       if (placedProps[itemId]) {
         returnPropToStorage(itemId);
+      }
+
+      if (itemId === 'pot') {
+        potState = 'empty';
+        potGrowRemaining = 0;
+        try {
+          Storage.set(POT_STATE_KEY, 'empty');
+          Storage.set(POT_GROW_REMAINING_KEY, '0');
+          Storage.set(BEE_ACTIVE_KEY, 'false');
+          Storage.set(BEE_TIMER_KEY, '0');
+        } catch (e) {}
+        if (typeof stopBeeBuzz === 'function') stopBeeBuzz();
+        const beeEl = document.getElementById('flowerBee');
+        if (beeEl) beeEl.style.display = 'none';
+        if (typeof updatePotUI === 'function') updatePotUI();
       }
 
       if (itemId === 'incubator' && isIncubating) {
@@ -735,7 +750,7 @@
       const sortedFoodKeys = Object.keys(PROPS_DATA).filter(id => {
         // Помидор, огурец, лист салата не продаются в магазине (получаются из овощного набора)
         // Тарелка салата готовится на разделочной доске и не продаётся в магазине
-        if (id === 'tomato' || id === 'cucumber' || id === 'lettuce' || id === 'saladPlate') return false;
+        if (id === 'tomato' || id === 'cucumber' || id === 'lettuce' || id === 'saladPlate' || id === 'honey') return false;
         return PROPS_DATA[id].category === 'food';
       }).sort((a, b) => {
         const aOwned = ownedProps.includes(a) ? 1 : 0;
