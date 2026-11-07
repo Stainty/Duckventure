@@ -3784,12 +3784,20 @@
       ledEl.classList.toggle('is-active', !!boomboxIsPlaying);
     }
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
     if (boomboxIsPlaying && boomboxCurrentTrack && CASSETTE_TRACKS[boomboxCurrentTrack]) {
       const track = CASSETTE_TRACKS[boomboxCurrentTrack];
-      if (titleEl) titleEl.textContent = track.title;
+      if (titleEl) {
+        titleEl.textContent = track.title;
+        titleEl.title = track.title;
+      }
+      if (ytLinkBtn) {
+        ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
+      }
       if (miniPlayer) miniPlayer.style.display = 'block';
     } else {
       if (miniPlayer) miniPlayer.style.display = 'none';
+      if (ytLinkBtn) ytLinkBtn.href = '#';
       const ytContainer = document.getElementById('boomboxYtContainer');
       if (ytContainer) ytContainer.innerHTML = '';
     }
@@ -3818,13 +3826,19 @@
     if (titleEl) titleEl.textContent = track.title;
     if (miniPlayer) miniPlayer.style.display = 'block';
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
+    if (ytLinkBtn) {
+      ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
+    }
+
     if (ytContainer) {
       ytContainer.innerHTML = `
         <iframe width="200" height="112"
-                src="https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&enablejsapi=1"
+                src="https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
                 title="${track.title.replace(/"/g, '&quot;')}"
                 frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen>
         </iframe>
       `;
@@ -3843,10 +3857,12 @@
     const ledEl = document.getElementById('boomboxLed');
     const boomboxEl = document.getElementById('prop-magnitofon');
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
     if (boomboxEl) boomboxEl.classList.remove('is-playing');
     if (ledEl) ledEl.classList.remove('is-active');
     if (miniPlayer) miniPlayer.style.display = 'none';
     if (ytContainer) ytContainer.innerHTML = '';
+    if (ytLinkBtn) ytLinkBtn.href = '#';
 
     renderBoomboxModal();
   }
@@ -3856,7 +3872,7 @@
     const modal = document.getElementById('boomboxModal');
     if (!modal) return;
     renderBoomboxModal();
-    modal.style.display = 'flex';
+    modal.style.display = '';
     modal.classList.add('open');
   }
   window.openBoomboxModal = openBoomboxModal;
@@ -3864,8 +3880,8 @@
   function closeBoomboxModal() {
     const modal = document.getElementById('boomboxModal');
     if (!modal) return;
-    modal.style.display = 'none';
     modal.classList.remove('open');
+    modal.style.display = '';
   }
   window.closeBoomboxModal = closeBoomboxModal;
 
@@ -3884,6 +3900,9 @@
           </span>
         </div>
         <div class="boombox-deck-global-actions">
+          ${currentTrack ? `
+            <a href="https://www.youtube.com/watch?v=${currentTrack.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-ctrl-btn ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
+          ` : ''}
           ${boomboxIsPlaying ? `
             <button class="boombox-ctrl-btn stop-btn" onclick="stopBoombox()">⏹ Выключить</button>
           ` : (boomboxCurrentTrack ? `
@@ -3922,6 +3941,7 @@
               </div>
             </div>
             <div class="boombox-track-actions">
+              <a href="https://www.youtube.com/watch?v=${track.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-track-ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
               ${isPlayingThis ? `
                 <button class="boombox-track-btn playing" onclick="stopBoombox()">⏹ Стоп</button>
               ` : `

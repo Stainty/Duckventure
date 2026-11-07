@@ -1040,6 +1040,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: radial-gradi
     z-index: 100;
     display: none;
     place-items: center;
+    justify-content: center;
+    align-items: center;
     padding: 16px;
     overflow-x: hidden;
     animation: modalFadeIn .2s ease-out;
@@ -3910,7 +3912,10 @@ body.has-character-dialog #duck {
 /* Диалог кассетной деки */
 .boombox-dialog {
   max-width: 520px;
-  width: 92%;
+  width: min(520px, 92vw);
+  margin: auto;
+  align-self: center;
+  justify-self: center;
 }
 .boombox-modal-body {
   display: flex;
@@ -3964,6 +3969,30 @@ body.has-character-dialog #duck {
 .boombox-ctrl-btn.play-btn:hover {
   background: rgba(56, 189, 248, 0.4);
   color: #fff;
+}
+.boombox-ctrl-btn.ext-btn,
+.boombox-track-ext-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-decoration: none;
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  transition: all .15s ease;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.boombox-ctrl-btn.ext-btn:hover,
+.boombox-track-ext-btn:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.6);
 }
 .empty-boombox-msg {
   text-align: center;
@@ -4834,6 +4863,7 @@ body.has-character-dialog #duck {
           <span id="boomboxTrackTitle" class="boombox-track-title">Трек</span>
         </div>
         <div class="boombox-header-actions">
+          <a id="boomboxYtLinkBtn" class="boombox-deck-btn" href="#" target="_blank" rel="noopener noreferrer" title="Открыть видео на YouTube" style="text-decoration:none;">↗</a>
           <button id="boomboxDeckBtn" class="boombox-deck-btn" title="Кассетная дека">📼</button>
           <button id="boomboxPowerBtn" class="boombox-power-btn" title="Выключить магнитофон">✕</button>
         </div>
@@ -14471,12 +14501,20 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       ledEl.classList.toggle('is-active', !!boomboxIsPlaying);
     }
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
     if (boomboxIsPlaying && boomboxCurrentTrack && CASSETTE_TRACKS[boomboxCurrentTrack]) {
       const track = CASSETTE_TRACKS[boomboxCurrentTrack];
-      if (titleEl) titleEl.textContent = track.title;
+      if (titleEl) {
+        titleEl.textContent = track.title;
+        titleEl.title = track.title;
+      }
+      if (ytLinkBtn) {
+        ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
+      }
       if (miniPlayer) miniPlayer.style.display = 'block';
     } else {
       if (miniPlayer) miniPlayer.style.display = 'none';
+      if (ytLinkBtn) ytLinkBtn.href = '#';
       const ytContainer = document.getElementById('boomboxYtContainer');
       if (ytContainer) ytContainer.innerHTML = '';
     }
@@ -14505,13 +14543,19 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (titleEl) titleEl.textContent = track.title;
     if (miniPlayer) miniPlayer.style.display = 'block';
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
+    if (ytLinkBtn) {
+      ytLinkBtn.href = `https://www.youtube.com/watch?v=${track.youtubeId}`;
+    }
+
     if (ytContainer) {
       ytContainer.innerHTML = `
         <iframe width="200" height="112"
-                src="https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&enablejsapi=1"
+                src="https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&playsinline=1&rel=0"
                 title="${track.title.replace(/"/g, '&quot;')}"
                 frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen>
         </iframe>
       `;
@@ -14530,10 +14574,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const ledEl = document.getElementById('boomboxLed');
     const boomboxEl = document.getElementById('prop-magnitofon');
 
+    const ytLinkBtn = document.getElementById('boomboxYtLinkBtn');
     if (boomboxEl) boomboxEl.classList.remove('is-playing');
     if (ledEl) ledEl.classList.remove('is-active');
     if (miniPlayer) miniPlayer.style.display = 'none';
     if (ytContainer) ytContainer.innerHTML = '';
+    if (ytLinkBtn) ytLinkBtn.href = '#';
 
     renderBoomboxModal();
   }
@@ -14543,7 +14589,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const modal = document.getElementById('boomboxModal');
     if (!modal) return;
     renderBoomboxModal();
-    modal.style.display = 'flex';
+    modal.style.display = '';
     modal.classList.add('open');
   }
   window.openBoomboxModal = openBoomboxModal;
@@ -14551,8 +14597,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function closeBoomboxModal() {
     const modal = document.getElementById('boomboxModal');
     if (!modal) return;
-    modal.style.display = 'none';
     modal.classList.remove('open');
+    modal.style.display = '';
   }
   window.closeBoomboxModal = closeBoomboxModal;
 
@@ -14571,6 +14617,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           </span>
         </div>
         <div class="boombox-deck-global-actions">
+          ${currentTrack ? `
+            <a href="https://www.youtube.com/watch?v=${currentTrack.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-ctrl-btn ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
+          ` : ''}
           ${boomboxIsPlaying ? `
             <button class="boombox-ctrl-btn stop-btn" onclick="stopBoombox()">⏹ Выключить</button>
           ` : (boomboxCurrentTrack ? `
@@ -14609,6 +14658,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
               </div>
             </div>
             <div class="boombox-track-actions">
+              <a href="https://www.youtube.com/watch?v=${track.youtubeId}" target="_blank" rel="noopener noreferrer" class="boombox-track-ext-btn" title="Открыть видео на YouTube">↗ YouTube</a>
               ${isPlayingThis ? `
                 <button class="boombox-track-btn playing" onclick="stopBoombox()">⏹ Стоп</button>
               ` : `
@@ -16362,6 +16412,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   const closeBoomboxBtn = document.getElementById('closeBoomboxBtn');
   if (closeBoomboxBtn) closeBoomboxBtn.addEventListener('click', closeBoomboxModal);
+
+  const boomboxModalEl = document.getElementById('boomboxModal');
+  if (boomboxModalEl) {
+    boomboxModalEl.addEventListener('click', (e) => {
+      if (e.target === boomboxModalEl) {
+        closeBoomboxModal();
+      }
+    });
+  }
 
   const boomboxPowerBtn = document.getElementById('boomboxPowerBtn');
   if (boomboxPowerBtn) boomboxPowerBtn.addEventListener('click', (e) => {

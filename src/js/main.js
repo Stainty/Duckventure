@@ -117,6 +117,15 @@
   const closeBoomboxBtn = document.getElementById('closeBoomboxBtn');
   if (closeBoomboxBtn) closeBoomboxBtn.addEventListener('click', closeBoomboxModal);
 
+  const boomboxModalEl = document.getElementById('boomboxModal');
+  if (boomboxModalEl) {
+    boomboxModalEl.addEventListener('click', (e) => {
+      if (e.target === boomboxModalEl) {
+        closeBoomboxModal();
+      }
+    });
+  }
+
   const boomboxPowerBtn = document.getElementById('boomboxPowerBtn');
   if (boomboxPowerBtn) boomboxPowerBtn.addEventListener('click', (e) => {
     e.stopPropagation();
