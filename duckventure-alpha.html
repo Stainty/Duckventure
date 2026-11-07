@@ -7281,7 +7281,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     } catch (e) {}
   }
 
-  /* звук разбития яиц (хруст скорлупы + шмяк) */
+  /* Звук жужжания пчелы (Web Audio API) */
   let beeBuzzNodes = null;
 
   function startBeeBuzz() {
@@ -7291,33 +7291,57 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
       const t = audioCtx.currentTime;
+
+      // Основной тон пчёлки - живой, чуть мультяшный теплый жужжащий тембр (~225 Гц)
       const osc = audioCtx.createOscillator();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(175, t);
+      osc.frequency.setValueAtTime(225, t);
 
-      const lfo = audioCtx.createOscillator();
-      lfo.frequency.setValueAtTime(32, t);
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.setValueAtTime(16, t);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
+      // Второй осциллятор с легким расстроем для эффекта порхания крылышек (биения)
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(228, t);
 
+      // Быстрый LFO для вибрации крыльев (flutter ~26 Гц)
+      const wingLfo = audioCtx.createOscillator();
+      wingLfo.frequency.setValueAtTime(26, t);
+      const wingGain = audioCtx.createGain();
+      wingGain.gain.setValueAtTime(14, t);
+      wingLfo.connect(wingGain);
+      wingGain.connect(osc.frequency);
+      wingGain.connect(osc2.frequency);
+
+      // Медленный LFO для покачивания высоты тона в полете (живой полет пчелы ~1.2 Гц)
+      const flightLfo = audioCtx.createOscillator();
+      flightLfo.frequency.setValueAtTime(1.2, t);
+      const flightGain = audioCtx.createGain();
+      flightGain.gain.setValueAtTime(18, t);
+      flightLfo.connect(flightGain);
+      flightGain.connect(osc.frequency);
+      flightGain.connect(osc2.frequency);
+
+      // Мягкий полосовой фильтр для теплого жужжания без резкости
       const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(680, t);
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(650, t);
+      filter.Q.setValueAtTime(2.0, t);
 
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.001, t);
-      gain.gain.linearRampToValueAtTime(0.045, t + 0.3);
+      // Общая громкость — тихий ненавязчивый фон (0.014 вместо 0.045)
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.0001, t);
+      masterGain.gain.linearRampToValueAtTime(0.014, t + 0.4);
 
       osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
+      osc2.connect(filter);
+      filter.connect(masterGain);
+      masterGain.connect(audioCtx.destination);
 
       osc.start(t);
-      lfo.start(t);
+      osc2.start(t);
+      wingLfo.start(t);
+      flightLfo.start(t);
 
-      beeBuzzNodes = { osc, lfo, gain, filter };
+      beeBuzzNodes = { osc, osc2, wingLfo, flightLfo, masterGain, filter };
     } catch (e) {}
   }
   window.startBeeBuzz = startBeeBuzz;
@@ -7326,18 +7350,21 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     try {
       if (!beeBuzzNodes || !audioCtx) return;
       const t = audioCtx.currentTime;
-      beeBuzzNodes.gain.gain.cancelScheduledValues(t);
-      beeBuzzNodes.gain.gain.setValueAtTime(beeBuzzNodes.gain.gain.value, t);
-      beeBuzzNodes.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      beeBuzzNodes.masterGain.gain.cancelScheduledValues(t);
+      beeBuzzNodes.masterGain.gain.setValueAtTime(beeBuzzNodes.masterGain.gain.value, t);
+      beeBuzzNodes.masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
       const oldNodes = beeBuzzNodes;
       beeBuzzNodes = null;
       setTimeout(() => {
         try {
           oldNodes.osc.stop();
-          oldNodes.lfo.stop();
+          oldNodes.osc2.stop();
+          oldNodes.wingLfo.stop();
+          oldNodes.flightLfo.stop();
           oldNodes.osc.disconnect();
-          oldNodes.lfo.disconnect();
-          oldNodes.gain.disconnect();
+          oldNodes.osc2.disconnect();
+          oldNodes.filter.disconnect();
+          oldNodes.masterGain.disconnect();
         } catch (e) {}
       }, 200);
     } catch (e) {
