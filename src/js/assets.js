@@ -35,6 +35,10 @@
       duckFeedAlpha: CDN_BASE + 'food/duck-feed-alpha.png',
       duckFeedBeta: CDN_BASE + 'food/duck-feed-beta.png'
     },
+    characters: {
+      susDuck: CDN_BASE + 'characters/sus-duck.png',
+      susDuckBoss: CDN_BASE + 'characters/sus-duck-boss.png'
+    },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
       argo: {

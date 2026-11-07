@@ -602,6 +602,15 @@
     renderStorage();
     updateShopButtonVisibility();
     updateShopTabsVisibility();
+    darkDuckDialogTimer = 120;
+    window.darkDuckDialogTimer = 120;
+    isDarkDuckDialogTriggered = false;
+    window.isDarkDuckDialogTriggered = false;
+    try {
+      Storage.remove(DARK_DUCK_DIALOG_TRIGGERED_KEY);
+      Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '120');
+    } catch (e) {}
+
     if (typeof showWelcomeDialog === 'function') {
       showWelcomeDialog();
     }

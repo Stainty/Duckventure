@@ -67,6 +67,8 @@ const GRAVITY = 1000;      // px/s²
   const BEE_TIMER_KEY = 'duck-bee-timer';
   const BEE_ACTIVE_KEY = 'duck-bee-active';
   const HONEY_COUNT_KEY = 'duck-honey-count';
+  const DARK_DUCK_DIALOG_TRIGGERED_KEY = 'duck-dark-duck-dialog-triggered';
+  const DARK_DUCK_DIALOG_TIMER_KEY = 'duck-dark-duck-dialog-timer';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)

@@ -156,6 +156,26 @@
       tickPlantGrowth(deltaSec);
     }
 
+    // 9. Сюжетный квест: Появление таинственной утки (через 2 минуты после старта новой игры)
+    if (!isDarkDuckDialogTriggered) {
+      darkDuckDialogTimer = Math.max(0, darkDuckDialogTimer - deltaSec);
+      window.darkDuckDialogTimer = darkDuckDialogTimer;
+      try { Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, String(darkDuckDialogTimer)); } catch (e) {}
+
+      if (darkDuckDialogTimer <= 0) {
+        const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
+        const isCharOpen = (typeof isCharacterDialogOpen !== 'undefined' && isCharacterDialogOpen) || (typeof window.isCharacterDialogOpen !== 'undefined' && window.isCharacterDialogOpen);
+        if (!isModalOpen && !isCharOpen) {
+          isDarkDuckDialogTriggered = true;
+          window.isDarkDuckDialogTriggered = true;
+          try { Storage.set(DARK_DUCK_DIALOG_TRIGGERED_KEY, '1'); } catch (e) {}
+          if (typeof launchDarkDuckQuestDialog === 'function') {
+            launchDarkDuckQuestDialog();
+          }
+        }
+      }
+    }
+
     // 7. Сдувание утки от ножа: 5 минут (300 сек) -> Game Over
     if (isDuckDeflating) {
       deflationRemaining = Math.max(0, deflationRemaining - deltaSec);
