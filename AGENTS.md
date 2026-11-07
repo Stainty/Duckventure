@@ -42,6 +42,9 @@ Duckventure/
 │   └── audit_stage5.py             # Автоматизированный аудит функциональности в Headless Edge
 ├── build.bat                       # Сборка в 1 клик на Windows
 ├── package.json                    # Конфигурация npm
+├── dialog-editor.html              # Автономный визуальный конструктор диалогов и квестов
+├── tools/
+│   └── dialog-editor.html          # Копия визуального конструктора диалогов
 ├── dist/
 │   └── duckventure-alpha.html      # Собранный автономный релизный HTML
 └── duckventure-alpha.html          # Standalone HTML в корне (синхронизируется при сборке)

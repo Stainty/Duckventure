@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duckventure — Конструктор диалогов</title>
+  <style>
+    :root {
+      --bg-dark: #0b1120;
+      --bg-panel: #131d31;
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #38bdf8;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Верхняя панель */
+    header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fbbf24;
+    }
+
+    .brand span.badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 7px 12px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .15s ease;
+    }
+    button:hover { background: #334155; border-color: rgba(255,255,255,0.2); }
+    button.btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      border: none;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+    button.btn-primary:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
+    }
+    button.btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+    }
+    button.btn-success:hover { background: linear-gradient(135deg, #34d399, #10b981); }
+    button.btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    button.btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
+
+    /* Основная рабочая область */
+    .app-workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 290px 1fr 480px;
+      overflow: hidden;
+    }
+
+    /* Левая колонка: Дерево и список узлов */
+    .sidebar-left {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .node-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .node-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all .15s ease;
+      position: relative;
+    }
+    .node-item:hover {
+      background: #273549;
+      border-color: rgba(255,255,255,0.18);
+    }
+    .node-item.active {
+      border-color: var(--primary);
+      background: rgba(245, 158, 11, 0.08);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .node-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .node-item-id {
+      font-family: monospace;
+      font-size: 11px;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    .node-item-tag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+    }
+    .node-item.is-start .node-item-tag {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .node-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-item-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+    .node-item-links {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .branch-pill {
+      font-size: 9px;
+      padding: 1px 4px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border-radius: 3px;
+    }
+
+    /* Центральная колонка: Редактор узла */
+    .editor-center {
+      background: var(--bg-dark);
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .editor-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .editor-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    input[type="text"], textarea, select {
+      font-family: inherit;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .15s ease;
+      user-select: text;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+      line-height: 1.4;
+    }
+
+    /* Выборы и ответы */
+    .choices-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .choice-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+    .choice-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .choice-index {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f59e0b;
+    }
+    .btn-delete-choice {
+      padding: 2px 6px;
+      font-size: 11px;
+    }
+
+    /* Правая колонка: Интерактивный Live Preview */
+    .preview-right {
+      background: #020617;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-topbar {
+      padding: 8px 14px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .preview-viewport {
+      flex: 1;
+      position: relative;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Точная стилизация диалогового окна из Duckventure */
+    .sim-dialog-modal {
+      width: 95%;
+      max-width: 440px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.85));
+    }
+
+    .sim-characters-layer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: -15px;
+      padding: 0 10px;
+      position: relative;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .sim-character-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .sim-character-img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+      animation: simDuckPeek 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes simDuckPeek {
+      0% { transform: translateY(0) rotate(-2deg); }
+      100% { transform: translateY(-6px) rotate(3deg); }
+    }
+
+    .sim-speech-bubble {
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      position: relative;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .sim-speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: #ffffff transparent;
+      display: block;
+      width: 0;
+    }
+
+    .sim-card {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      width: 100%;
+      padding: 22px 20px 18px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sim-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 4px 10px;
+      border-radius: 99px;
+      color: #f59e0b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sim-body {
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0 4px;
+    }
+    .sim-body p { margin-bottom: 8px; }
+    .sim-body p:last-child { margin-bottom: 0; }
+    .sim-body strong { color: #f8fafc; font-weight: 600; }
+
+    .sim-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .sim-btn {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #334155;
+      color: #fff;
+      transition: all .15s ease;
+      text-align: center;
+    }
+    .sim-btn:hover {
+      background: #475569;
+      transform: translateY(-1px);
+    }
+    .sim-btn.primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: none;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.4);
+    }
+    .sim-btn.primary:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    }
+    .sim-btn.danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* Модальное окно экспорта */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      width: 820px;
+      max-width: 95vw;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title { font-size: 15px; font-weight: 700; color: #fbbf24; }
+    .modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+    .modal-tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .modal-tab-btn.active {
+      color: #f59e0b;
+      border-bottom-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.06);
+    }
+    .modal-body {
+      padding: 16px 18px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-code-area {
+      flex: 1;
+      min-height: 320px;
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      color: #38bdf8;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      overflow: auto;
+      user-select: text;
+      white-space: pre;
+    }
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Тост уведомление */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .25s ease;
+      pointer-events: none;
+    }
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Верхняя панель -->
+  <header>
+    <div class="brand">
+      <span>🦆 Duckventure Dialog Studio</span>
+      <span class="badge">Визуальный конструктор</span>
+    </div>
+
+    <div class="top-actions">
+      <select id="templateSelect" title="Загрузить готовый пример">
+        <option value="">Шаблоны...</option>
+        <option value="sus_duck_quest">Квест: Подозрительная Сус-Утка</option>
+        <option value="welcome">Приветствие новой игры</option>
+        <option value="mafia_offer">Мафиози: Сделка века</option>
+      </select>
+      <button onclick="createNewDialog()">📄 Новый диалог</button>
+      <button onclick="openImportModal()">📂 Импорт JSON</button>
+      <button onclick="downloadJsonFile()">💾 Скачать JSON</button>
+      <button class="btn-primary" onclick="openExportModal()">
+        <span>🤖 Экспорт для AI</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Рабочая область -->
+  <div class="app-workspace">
+
+    <!-- Левая колонка: Узлы диалога -->
+    <div class="sidebar-left">
+      <div class="panel-header">
+        <span>Шаги диалога (<span id="nodeCountBadge">0</span>)</span>
+        <button class="btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="addNewNode()">+ Шаг</button>
+      </div>
+
+      <div class="node-list" id="nodeList">
+        <!-- Генерируется через JS -->
+      </div>
+    </div>
+
+    <!-- Центральная колонка: Настройка выбранного узла -->
+    <div class="editor-center" id="editorPanel">
+      
+      <!-- Общие параметры диалога -->
+      <div class="editor-card">
+        <div class="editor-card-title">
+          <span>⚙️ Метаданные диалога</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>ID Диалога (английский, snake_case)</label>
+            <input type="text" id="dialogIdInput" placeholder="sus_duck_intro">
+          </div>
+          <div class="form-group">
+            <label>Название квеста / диалога</label>
+            <input type="text" id="dialogTitleInput" placeholder="Встреча с подозрительной уткой">
+          </div>
+        </div>
+      </div>
+
+      <!-- Параметры активного узла -->
+      <div class="editor-card" id="activeNodeCard">
+        <div class="editor-card-title" style="justify-content: space-between;">
+          <span id="activeNodeHeading">Шаг: start</span>
+          <div style="display: flex; gap: 6px;">
+            <button id="btnSetAsStart" style="font-size: 11px; padding: 4px 8px;" onclick="setStartNode()">★ Стартовый шаг</button>
+            <button class="btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="deleteCurrentNode()">Удалить шаг</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>ID этого шага (уникальный ключ)</label>
+            <input type="text" id="nodeIdInput" oninput="onNodeIdChange(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Заголовок карточки (бейдж)</label>
+            <input type="text" id="nodeTitleInput" oninput="updateActiveNode('title', this.value)">
+          </div>
+        </div>
+
+        <!-- Настройка персонажей -->
+        <div class="form-row">
+          <!-- Левый персонаж -->
+          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="color: #38bdf8;">Левый персонаж (Уточка / Игрок)</label>
+            <div style="display: flex; gap: 6px; margin: 4px 0;">
+              <select id="leftCharSelect" style="flex: 1;" onchange="updateCharPreset('left', this.value)">
+                <option value="duck">Классическая утка</option>
+                <option value="sus_duck">Сус-утка в шляпе</option>
+                <option value="boss">Сус-Босс</option>
+                <option value="mafioznik">Мафиозник</option>
+                <option value="agent47">Агент 47</option>
+                <option value="custom">Свой URL...</option>
+              </select>
+            </div>
+            <input type="text" id="leftAvatarUrl" placeholder="URL аватара (png)" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('leftAvatar', this.value)">
+            <label>Облачко речи слева (над головой)</label>
+            <input type="text" id="leftSpeechInput" placeholder="Кря! Привет" oninput="updateActiveNode('leftSpeech', this.value)">
+          </div>
+
+          <!-- Правый персонаж -->
+          <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <label style="color: #fbbf24;">Правый персонаж (Собеседник / NPC)</label>
+            <div style="display: flex; gap: 6px; margin: 4px 0;">
+              <select id="rightCharSelect" style="flex: 1;" onchange="updateCharPreset('right', this.value)">
+                <option value="none">Без второго персонажа</option>
+                <option value="sus_duck">Сус-утка в шляпе</option>
+                <option value="boss">Сус-Босс</option>
+                <option value="duck">Классическая утка</option>
+                <option value="mafioznik">Мафиозник</option>
+                <option value="agent47">Агент 47</option>
+                <option value="custom">Свой URL...</option>
+              </select>
+            </div>
+            <input type="text" id="rightAvatarUrl" placeholder="URL аватара (png)" style="font-size: 11px; margin-bottom: 6px;" oninput="updateActiveNode('rightAvatar', this.value)">
+            <label>Облачко речи справа</label>
+            <input type="text" id="rightSpeechInput" placeholder="Псс... есть дело" oninput="updateActiveNode('rightSpeech', this.value)">
+          </div>
+        </div>
+
+        <!-- Текст карточки диалога -->
+        <div class="form-group">
+          <label>Текст сообщения (поддерживаются абзацы и <strong>&lt;strong&gt;</strong>)</label>
+          <textarea id="nodeTextInput" rows="4" placeholder="Введите реплику или описание ситуации..." oninput="updateActiveNode('text', this.value)"></textarea>
+        </div>
+
+        <!-- Варианты выборов (кнопки) -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label>Варианты ответов / Кнопки (ветвления)</label>
+            <button class="btn-success" style="font-size: 11px; padding: 4px 8px;" onclick="addChoiceToActiveNode()">+ Добавить вариант</button>
+          </div>
+          <div class="choices-container" id="choicesContainer">
+            <!-- Список кнопок генерируется через JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: Интерактивный предпросмотр -->
+    <div class="preview-right">
+      <div class="preview-topbar">
+        <span>🎮 Интерактивный просмотр</span>
+        <div style="display: flex; gap: 6px;">
+          <button style="font-size: 11px; padding: 3px 8px;" onclick="resetPreviewToStart()">↺ Сначала</button>
+        </div>
+      </div>
+
+      <div class="preview-viewport">
+        <!-- Симуляция Character Dialog Modal -->
+        <div class="sim-dialog-modal">
+          
+          <div class="sim-characters-layer">
+            <!-- Левый персонаж -->
+            <div class="sim-character-wrap" id="simCharLeftWrap">
+              <div class="sim-speech-bubble" id="simSpeechLeft">Кря! Привет</div>
+              <img id="simImgLeft" class="sim-character-img" src="" alt="Left Duck">
+            </div>
+
+            <!-- Правый персонаж -->
+            <div class="sim-character-wrap" id="simCharRightWrap" style="visibility: hidden;">
+              <div class="sim-speech-bubble" id="simSpeechRight">Псс...</div>
+              <img id="simImgRight" class="sim-character-img" src="" alt="Right Duck">
+            </div>
+          </div>
+
+          <!-- Центральная карточка -->
+          <div class="sim-card">
+            <div class="sim-header">
+              <div class="sim-badge" id="simBadge">
+                <span>✨</span>
+                <span id="simBadgeText">Duckventure</span>
+              </div>
+            </div>
+
+            <div class="sim-body" id="simBody">
+              <!-- Текст -->
+            </div>
+
+            <div class="sim-actions" id="simActions">
+              <!-- Кнопки выбора -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Модальное окно экспорта -->
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">🤖 Экспорт диалога для AI / Кода</span>
+        <button onclick="closeExportModal()">✕</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" id="tabBtnAi" onclick="switchExportTab('ai')">📋 Для AI (Промпт + Структура)</button>
+        <button class="modal-tab-btn" id="tabBtnCode" onclick="switchExportTab('code')">⚡ Готовый JS-код для Duckventure</button>
+        <button class="modal-tab-btn" id="tabBtnJson" onclick="switchExportTab('json')">📦 Чистый JSON</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="font-size: 12px; color: var(--text-muted);" id="exportTabHint">
+          Этот текст можно сразу отправить AI в чат: он содержит человекопонятное резюме ветвей и компактную структуру для безошибочного внедрения.
+        </div>
+        <pre class="modal-code-area" id="exportCodeOutput"></pre>
+      </div>
+
+      <div class="modal-footer">
+        <button onclick="closeExportModal()">Закрыть</button>
+        <button class="btn-primary" onclick="copyExportToClipboard()">📋 Скопировать в буфер</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно импорта -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal-box" style="width: 580px;">
+      <div class="modal-header">
+        <span class="modal-title">📂 Импорт диалога из JSON</span>
+        <button onclick="closeImportModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted);">Вставьте скопированный JSON диалога или выберите файл с диска:</p>
+        <input type="file" id="importFileInput" accept=".json" style="font-size: 12px;" onchange="handleFileImport(event)">
+        <textarea id="importTextInput" rows="10" placeholder="Вставьте JSON диалога сюда..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeImportModal()">Отмена</button>
+        <button class="btn-success" onclick="executeJsonImport()">Импортировать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Всплывающий тост -->
+  <div class="toast-msg" id="toastMsg">Скопировано в буфер обмена!</div>
+
+  <script>
+    /* ==========================================================================
+       База ассетов и пресетов Duckventure
+       ========================================================================== */
+    const PRESET_AVATARS = {
+      duck: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png',
+      sus_duck: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck.png',
+      boss: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/characters/sus-duck-boss.png',
+      mafioznik: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/mafioznik-duck.png',
+      agent47: 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/agent47-duck.png'
+    };
+
+    /* ==========================================================================
+       Шаблоны диалогов
+       ========================================================================== */
+    const DIALOG_TEMPLATES = {
+      sus_duck_quest: {
+        id: 'sus_duck_encounter',
+        title: 'Подозрительная Сус-Утка',
+        startNode: 'start',
+        nodes: {
+          start: {
+            id: 'start',
+            title: 'Подозрительный незнакомец',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Кря?.. Ты кто?',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Пс-с... эй, пернатый!',
+            text: 'Из тени за холодильником появляется странная утка в шляпе и тёмных очках. Она нервно оглядывается по сторонам.\n\n— У меня есть для тебя предложение, от которого твои дакли умножатся... но нужно проверить, можно ли тебе доверять.',
+            choices: [
+              { text: 'Кто ты такой?', target: 'who_are_you', style: 'primary' },
+              { text: 'Что за предложение?', target: 'the_deal', style: 'default' },
+              { text: 'Уйти прочь', target: 'walk_away', style: 'danger' }
+            ]
+          },
+          who_are_you: {
+            id: 'who_are_you',
+            title: 'Агент из подполья',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Представься сначала!',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Зови меня Сус...',
+            text: '— Я представляю интересы синдиката резиновых уток. Мы следим за твоими успехами в Duckventure.\n\nЕсли поможешь нам с поставками редких яиц, мы сделаем тебя самым богатым селезнем в округе.',
+            choices: [
+              { text: 'Я в деле! Что нужно делать?', target: 'accept_quest', style: 'primary' },
+              { text: 'Звучит подозрительно, я пас', target: 'refuse_quest', style: 'default' }
+            ]
+          },
+          the_deal: {
+            id: 'the_deal',
+            title: 'Деловое предложение',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Выкладывай свои условия',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Чистый бизнес!',
+            text: '— Мне нужны золотые яйца и чистый мёд. За каждую поставку синдикат выплатит двойную цену даклей и секретные технологии для ускорения кликов.',
+            choices: [
+              { text: 'По рукам! Буду сотрудничать', target: 'accept_quest', style: 'primary' },
+              { text: 'Мне это не интересно', target: 'walk_away', style: 'danger' }
+            ]
+          },
+          accept_quest: {
+            id: 'accept_quest',
+            title: 'Сделка заключена!',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Договорились!',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Отличный выбор!',
+            text: '— Вот и славно! Держи аванс 5 000 🦆 и следи за столом. Скоро я снова выйду на связь!\n\nКвест начат: подготовьте золотое яйцо для Сус-Утки.',
+            choices: [
+              { text: 'Забрать аванс и начать (+5 000 🦆)', target: 'end', style: 'primary', reward: { type: 'duckles', amount: 5000 } }
+            ]
+          },
+          refuse_quest: {
+            id: 'refuse_quest',
+            title: 'Осторожность не повредит',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Я не связываюсь с мафией',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Ты ещё пожалеешь...',
+            text: 'Сус-утка недовольно хмыкает, поправляет плащ и растворяется в дыму.\n\nВозможно, в следующий раз он вернётся с другими намерениями...',
+            choices: [
+              { text: 'Закрыть диалог', target: 'end', style: 'default' }
+            ]
+          },
+          walk_away: {
+            id: 'walk_away',
+            title: 'Разговор окончен',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Не приближайся ко мне!',
+            rightAvatar: PRESET_AVATARS.sus_duck,
+            rightSpeech: 'Ну и ладно...',
+            text: 'Вы игнорируете странного незнакомца и продолжаете заниматься своими делами на столе.',
+            choices: [
+              { text: 'Вернуться к игре', target: 'end', style: 'default' }
+            ]
+          }
+        }
+      },
+      welcome: {
+        id: 'welcome_dialog',
+        title: 'Приветствие Duckventure',
+        startNode: 'start',
+        nodes: {
+          start: {
+            id: 'start',
+            title: 'Duckventure',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Кря, приятной игры',
+            rightAvatar: '',
+            rightSpeech: '',
+            text: 'Добро пожаловать в <strong>Duckventure</strong> — игру кликер с пачкой иммерсивных механик.\n\nНе бойтесь экспериментировать, если вы играли в Альфа-версию, попробуйте использовать старые предметы по-новому.\n\nВсем хорошего путешествия!',
+            choices: [
+              { text: 'Начать игру', target: 'end', style: 'primary' }
+            ]
+          }
+        }
+      },
+      mafia_offer: {
+        id: 'mafia_offer',
+        title: 'Сделка с Мафиози',
+        startNode: 'start',
+        nodes: {
+          start: {
+            id: 'start',
+            title: 'Дон Утконе',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'К-кто вы?!',
+            rightAvatar: PRESET_AVATARS.mafioznik,
+            rightSpeech: 'Кряпоне передаёт привет...',
+            text: 'Перед вами сидит важная утка с сигарой и золотой цепью.\n\n— Ты пришёл в мой офис в день свадьбы моей дочери, и просишь дакли без уважения? Что ж, я сделаю тебе предложение...',
+            choices: [
+              { text: 'Выслушать условия Дона', target: 'listen', style: 'primary' },
+              { text: 'Послать мафию к чёрту', target: 'rebel', style: 'danger' }
+            ]
+          },
+          listen: {
+            id: 'listen',
+            title: 'Условия синдиката',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Я слушаю вас, Дон',
+            rightAvatar: PRESET_AVATARS.mafioznik,
+            rightSpeech: 'Умный селезень...',
+            text: '— Мы берем под крышу твой завод резиновых уточек. Ты отдаешь нам 20% дохода, а взамен мы убираем всех тараканов с холодильника навсегда.',
+            choices: [
+              { text: 'Согласиться на сделку', target: 'end_deal', style: 'primary' },
+              { text: 'Отказаться', target: 'rebel', style: 'danger' }
+            ]
+          },
+          rebel: {
+            id: 'rebel',
+            title: 'Утиная вендетта',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'Стол принадлежит мне!',
+            rightAvatar: PRESET_AVATARS.mafioznik,
+            rightSpeech: 'Это война, кря!',
+            text: 'Дон мрачно тушит сигару о сковороду. Отношения испорчены, но ваша гордость не сломлена.',
+            choices: [
+              { text: 'Приготовиться к обороне', target: 'end', style: 'danger' }
+            ]
+          },
+          end_deal: {
+            id: 'end_deal',
+            title: 'Защита мафии',
+            leftAvatar: PRESET_AVATARS.duck,
+            leftSpeech: 'По рукам, Дон',
+            rightAvatar: PRESET_AVATARS.mafioznik,
+            rightSpeech: 'Семья помнит добро!',
+            text: 'Дон Утконе пожимает ваше крыло. Теперь ваш бизнес находится под защитой утиного синдиката!',
+            choices: [
+              { text: 'Продолжить игру', target: 'end', style: 'primary' }
+            ]
+          }
+        }
+      }
+    };
+
+    /* ==========================================================================
+       Текущее состояние приложения
+       ========================================================================== */
+    let dialogData = JSON.parse(JSON.stringify(DIALOG_TEMPLATES.sus_duck_quest));
+    let activeNodeId = 'start';
+    let previewNodeId = 'start';
+
+    // Загрузка сохранённого черновика из localStorage
+    try {
+      const saved = localStorage.getItem('duckventure_dialog_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.nodes && parsed.startNode) {
+          dialogData = parsed;
+          activeNodeId = dialogData.startNode;
+          previewNodeId = dialogData.startNode;
+        }
+      }
+    } catch (e) {}
+
+    /* ==========================================================================
+       Инициализация и привязка событий
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('templateSelect').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        if (confirm('Загрузить выбранный шаблон? Текущие несохраненные данные будут заменены.')) {
+          dialogData = JSON.parse(JSON.stringify(DIALOG_TEMPLATES[e.target.value]));
+          activeNodeId = dialogData.startNode || Object.keys(dialogData.nodes)[0];
+          previewNodeId = activeNodeId;
+          renderAll();
+          showToast('Шаблон успешно загружен!');
+        }
+        e.target.value = '';
+      });
+
+      document.getElementById('dialogIdInput').addEventListener('input', (e) => {
+        dialogData.id = e.target.value;
+        saveDraft();
+      });
+      document.getElementById('dialogTitleInput').addEventListener('input', (e) => {
+        dialogData.title = e.target.value;
+        saveDraft();
+      });
+
+      renderAll();
+    });
+
+    function saveDraft() {
+      try {
+        localStorage.setItem('duckventure_dialog_draft', JSON.stringify(dialogData));
+      } catch (e) {}
+    }
+
+    function createNewDialog() {
+      if (confirm('Создать новый пустой диалог?')) {
+        dialogData = {
+          id: 'new_dialog_' + Date.now().toString(36),
+          title: 'Новый диалог',
+          startNode: 'start',
+          nodes: {
+            start: {
+              id: 'start',
+              title: 'Начало диалога',
+              leftAvatar: PRESET_AVATARS.duck,
+              leftSpeech: 'Кря!',
+              rightAvatar: '',
+              rightSpeech: '',
+              text: 'Текст первой реплики...',
+              choices: [
+                { text: 'Продолжить', target: 'end', style: 'primary' }
+              ]
+            }
+          }
+        };
+        activeNodeId = 'start';
+        previewNodeId = 'start';
+        renderAll();
+        showToast('Создан новый диалог!');
+      }
+    }
+
+    /* ==========================================================================
+       Рендеринг интерфейса
+       ========================================================================== */
+    function renderAll() {
+      // 1. Метаданные
+      document.getElementById('dialogIdInput').value = dialogData.id || '';
+      document.getElementById('dialogTitleInput').value = dialogData.title || '';
+
+      // 2. Список узлов
+      renderNodeList();
+
+      // 3. Форма активного узла
+      renderActiveNodeEditor();
+
+      // 4. Предпросмотр
+      renderPreview();
+
+      // Сохраняем черновик
+      saveDraft();
+    }
+
+    function renderNodeList() {
+      const listEl = document.getElementById('nodeList');
+      listEl.innerHTML = '';
+
+      const nodeKeys = Object.keys(dialogData.nodes || {});
+      document.getElementById('nodeCountBadge').textContent = nodeKeys.length;
+
+      nodeKeys.forEach(key => {
+        const node = dialogData.nodes[key];
+        const isStart = (key === dialogData.startNode);
+        const isActive = (key === activeNodeId);
+
+        const item = document.createElement('div');
+        item.className = `node-item ${isActive ? 'active' : ''} ${isStart ? 'is-start' : ''}`;
+        item.onclick = () => selectNode(key);
+
+        const choicesPills = (node.choices || []).map(c => {
+          const tgt = c.target || 'end';
+          return `<span class="branch-pill">➔ ${tgt}</span>`;
+        }).join('');
+
+        item.innerHTML = `
+          <div class="node-item-header">
+            <span class="node-item-id">#${node.id}</span>
+            <span class="node-item-tag">${isStart ? '★ СТАРТ' : (node.choices && node.choices.length > 0 ? `${node.choices.length} выб.` : 'Конец')}</span>
+          </div>
+          <div class="node-item-title">${node.title || 'Без названия'}</div>
+          <div class="node-item-preview">${(node.text || '').substring(0, 40)}...</div>
+          <div class="node-item-links">${choicesPills}</div>
+        `;
+
+        listEl.appendChild(item);
+      });
+    }
+
+    function selectNode(nodeId) {
+      if (!dialogData.nodes[nodeId]) return;
+      activeNodeId = nodeId;
+      previewNodeId = nodeId;
+      renderAll();
+    }
+
+    function renderActiveNodeEditor() {
+      const node = dialogData.nodes[activeNodeId];
+      if (!node) return;
+
+      document.getElementById('activeNodeHeading').textContent = `Шаг: #${node.id}`;
+      document.getElementById('nodeIdInput').value = node.id;
+      document.getElementById('nodeTitleInput').value = node.title || '';
+      document.getElementById('nodeTextInput').value = node.text || '';
+
+      // Пресеты и аватары
+      document.getElementById('leftAvatarUrl').value = node.leftAvatar || '';
+      document.getElementById('leftSpeechInput').value = node.leftSpeech || '';
+      matchPresetDropdown('left', node.leftAvatar);
+
+      document.getElementById('rightAvatarUrl').value = node.rightAvatar || '';
+      document.getElementById('rightSpeechInput').value = node.rightSpeech || '';
+      matchPresetDropdown('right', node.rightAvatar);
+
+      // Кнопка стартового шага
+      const btnStart = document.getElementById('btnSetAsStart');
+      if (dialogData.startNode === activeNodeId) {
+        btnStart.textContent = '★ Стартовый шаг (Текущий)';
+        btnStart.style.color = '#34d399';
+      } else {
+        btnStart.textContent = 'Сделать стартовым';
+        btnStart.style.color = '';
+      }
+
+      // Выборы / Кнопки
+      renderChoicesEditor(node);
+    }
+
+    function matchPresetDropdown(side, url) {
+      const sel = document.getElementById(side + 'CharSelect');
+      if (!url) {
+        sel.value = (side === 'left') ? 'duck' : 'none';
+        return;
+      }
+      for (const [k, v] of Object.entries(PRESET_AVATARS)) {
+        if (v === url) {
+          sel.value = k;
+          return;
+        }
+      }
+      sel.value = 'custom';
+    }
+
+    function updateCharPreset(side, val) {
+      if (val === 'none') {
+        updateActiveNode(side + 'Avatar', '');
+        document.getElementById(side + 'AvatarUrl').value = '';
+      } else if (val === 'custom') {
+        // Оставляем поле ввода открытым
+      } else if (PRESET_AVATARS[val]) {
+        updateActiveNode(side + 'Avatar', PRESET_AVATARS[val]);
+        document.getElementById(side + 'AvatarUrl').value = PRESET_AVATARS[val];
+      }
+    }
+
+    function renderChoicesEditor(node) {
+      const container = document.getElementById('choicesContainer');
+      container.innerHTML = '';
+
+      const nodeKeys = Object.keys(dialogData.nodes);
+
+      (node.choices || []).forEach((choice, idx) => {
+        const card = document.createElement('div');
+        card.className = 'choice-card';
+
+        let targetOptions = `<option value="end" ${choice.target === 'end' ? 'selected' : ''}>[Завершить диалог (end)]</option>`;
+        nodeKeys.forEach(k => {
+          targetOptions += `<option value="${k}" ${choice.target === k ? 'selected' : ''}>${k} (${(dialogData.nodes[k].title || '').substring(0, 20)})</option>`;
+        });
+
+        card.innerHTML = `
+          <div class="choice-card-header">
+            <span class="choice-index">Вариант #${idx + 1}</span>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-danger btn-delete-choice" onclick="deleteChoice(${idx})">Удалить</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Текст на кнопке</label>
+              <input type="text" value="${escapeHtml(choice.text || '')}" oninput="updateChoiceField(${idx}, 'text', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Стиль кнопки</label>
+              <select onchange="updateChoiceField(${idx}, 'style', this.value)">
+                <option value="primary" ${choice.style === 'primary' ? 'selected' : ''}>Главная (Золотая)</option>
+                <option value="default" ${choice.style === 'default' ? 'selected' : ''}>Обычная (Серая)</option>
+                <option value="danger" ${choice.style === 'danger' ? 'selected' : ''}>Опасная (Красная)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Куда ведёт (Следующий шаг)</label>
+              <div style="display: flex; gap: 6px;">
+                <select style="flex: 1;" onchange="updateChoiceField(${idx}, 'target', this.value)">
+                  ${targetOptions}
+                </select>
+                <button style="font-size: 11px; padding: 0 8px;" title="Создать новый узел и привязать к этому ответу" onclick="createAndLinkNode(${idx})">+ Создать шаг</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /* ==========================================================================
+       Модификации данных узла
+       ========================================================================== */
+    function updateActiveNode(key, val) {
+      if (!dialogData.nodes[activeNodeId]) return;
+      dialogData.nodes[activeNodeId][key] = val;
+      renderNodeList();
+      renderPreview();
+      saveDraft();
+    }
+
+    function onNodeIdChange(newId) {
+      newId = newId.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      if (!newId || newId === activeNodeId) return;
+      if (dialogData.nodes[newId]) {
+        alert('Узел с таким ID уже существует!');
+        return;
+      }
+
+      const oldId = activeNodeId;
+      const nodeObj = dialogData.nodes[oldId];
+      nodeObj.id = newId;
+
+      delete dialogData.nodes[oldId];
+      dialogData.nodes[newId] = nodeObj;
+
+      // Обновляем ссылки в других узлах
+      Object.values(dialogData.nodes).forEach(n => {
+        (n.choices || []).forEach(c => {
+          if (c.target === oldId) c.target = newId;
+        });
+      });
+
+      if (dialogData.startNode === oldId) dialogData.startNode = newId;
+      if (previewNodeId === oldId) previewNodeId = newId;
+      activeNodeId = newId;
+
+      renderAll();
+    }
+
+    function addNewNode() {
+      let counter = Object.keys(dialogData.nodes).length + 1;
+      let newId = 'step_' + counter;
+      while (dialogData.nodes[newId]) {
+        counter++;
+        newId = 'step_' + counter;
+      }
+
+      dialogData.nodes[newId] = {
+        id: newId,
+        title: 'Новый шаг ' + counter,
+        leftAvatar: PRESET_AVATARS.duck,
+        leftSpeech: 'Кря...',
+        rightAvatar: '',
+        rightSpeech: '',
+        text: 'Новое сообщение...',
+        choices: [
+          { text: 'Завершить', target: 'end', style: 'default' }
+        ]
+      };
+
+      activeNodeId = newId;
+      previewNodeId = newId;
+      renderAll();
+      showToast('Добавлен новый шаг #' + newId);
+    }
+
+    function createAndLinkNode(choiceIdx) {
+      const activeNode = dialogData.nodes[activeNodeId];
+      if (!activeNode || !activeNode.choices[choiceIdx]) return;
+
+      let counter = Object.keys(dialogData.nodes).length + 1;
+      let newId = 'step_' + counter;
+      while (dialogData.nodes[newId]) {
+        counter++;
+        newId = 'step_' + counter;
+      }
+
+      dialogData.nodes[newId] = {
+        id: newId,
+        title: 'Ответ на: ' + (activeNode.choices[choiceIdx].text || 'выбор').substring(0, 15),
+        leftAvatar: activeNode.leftAvatar,
+        leftSpeech: 'Кря',
+        rightAvatar: activeNode.rightAvatar,
+        rightSpeech: 'Продолжай...',
+        text: 'Продолжение истории после выбора...',
+        choices: [
+          { text: 'Далее', target: 'end', style: 'primary' }
+        ]
+      };
+
+      activeNode.choices[choiceIdx].target = newId;
+      activeNodeId = newId;
+      previewNodeId = newId;
+      renderAll();
+      showToast('Создан и привязан шаг #' + newId);
+    }
+
+    function deleteCurrentNode() {
+      const nodeKeys = Object.keys(dialogData.nodes);
+      if (nodeKeys.length <= 1) {
+        alert('Нельзя удалить единственный шаг диалога!');
+        return;
+      }
+      if (!confirm(`Удалить шаг #${activeNodeId}?`)) return;
+
+      const toDelete = activeNodeId;
+      delete dialogData.nodes[toDelete];
+
+      const remainingKeys = Object.keys(dialogData.nodes);
+      if (dialogData.startNode === toDelete) {
+        dialogData.startNode = remainingKeys[0];
+      }
+
+      activeNodeId = remainingKeys[0];
+      previewNodeId = activeNodeId;
+      renderAll();
+      showToast('Шаг удален');
+    }
+
+    function setStartNode() {
+      dialogData.startNode = activeNodeId;
+      renderAll();
+      showToast(`Шаг #${activeNodeId} назначен стартовым!`);
+    }
+
+    function addChoiceToActiveNode() {
+      const node = dialogData.nodes[activeNodeId];
+      if (!node) return;
+      if (!node.choices) node.choices = [];
+      node.choices.push({
+        text: 'Новый вариант ' + (node.choices.length + 1),
+        target: 'end',
+        style: node.choices.length === 0 ? 'primary' : 'default'
+      });
+      renderAll();
+    }
+
+    function deleteChoice(idx) {
+      const node = dialogData.nodes[activeNodeId];
+      if (!node || !node.choices) return;
+      node.choices.splice(idx, 1);
+      renderAll();
+    }
+
+    function updateChoiceField(idx, field, val) {
+      const node = dialogData.nodes[activeNodeId];
+      if (!node || !node.choices || !node.choices[idx]) return;
+      node.choices[idx][field] = val;
+      renderNodeList();
+      renderPreview();
+      saveDraft();
+    }
+
+    /* ==========================================================================
+       Интерактивный Live Preview
+       ========================================================================== */
+    function renderPreview() {
+      const node = dialogData.nodes[previewNodeId];
+      if (!node) return;
+
+      // 1. Левый персонаж
+      const leftImg = document.getElementById('simImgLeft');
+      const leftSpeech = document.getElementById('simSpeechLeft');
+      if (node.leftAvatar) {
+        leftImg.src = node.leftAvatar;
+        leftImg.style.display = 'block';
+      } else {
+        leftImg.src = PRESET_AVATARS.duck;
+      }
+      if (node.leftSpeech) {
+        leftSpeech.textContent = node.leftSpeech;
+        leftSpeech.style.display = 'block';
+      } else {
+        leftSpeech.style.display = 'none';
+      }
+
+      // 2. Правый персонаж
+      const rightWrap = document.getElementById('simCharRightWrap');
+      const rightImg = document.getElementById('simImgRight');
+      const rightSpeech = document.getElementById('simSpeechRight');
+      if (node.rightAvatar) {
+        rightWrap.style.visibility = 'visible';
+        rightImg.src = node.rightAvatar;
+        if (node.rightSpeech) {
+          rightSpeech.textContent = node.rightSpeech;
+          rightSpeech.style.display = 'block';
+        } else {
+          rightSpeech.style.display = 'none';
+        }
+      } else {
+        rightWrap.style.visibility = 'hidden';
+      }
+
+      // 3. Заголовок
+      document.getElementById('simBadgeText').textContent = node.title || dialogData.title || 'Duckventure';
+
+      // 4. Текст
+      const bodyEl = document.getElementById('simBody');
+      const paras = (node.text || '').split('\n\n');
+      bodyEl.innerHTML = paras.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+
+      // 5. Кнопки
+      const actionsEl = document.getElementById('simActions');
+      actionsEl.innerHTML = '';
+
+      if (!node.choices || node.choices.length === 0) {
+        const btn = document.createElement('button');
+        btn.className = 'sim-btn primary';
+        btn.textContent = 'Завершить (Конец диалога)';
+        btn.onclick = () => resetPreviewToStart();
+        actionsEl.appendChild(btn);
+      } else {
+        node.choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.className = 'sim-btn ' + (choice.style || 'default');
+          btn.textContent = choice.text || 'Кнопка';
+          btn.onclick = () => {
+            const tgt = choice.target;
+            if (tgt && tgt !== 'end' && dialogData.nodes[tgt]) {
+              previewNodeId = tgt;
+              renderPreview();
+            } else {
+              alert('Диалог завершен! Возврат к началу.');
+              resetPreviewToStart();
+            }
+          };
+          actionsEl.appendChild(btn);
+        });
+      }
+    }
+
+    function resetPreviewToStart() {
+      previewNodeId = dialogData.startNode || Object.keys(dialogData.nodes)[0];
+      renderPreview();
+    }
+
+    /* ==========================================================================
+       Экспорт и Импорт
+       ========================================================================== */
+    let currentExportTab = 'ai';
+
+    function openExportModal() {
+      document.getElementById('exportModal').classList.add('open');
+      renderExportContent();
+    }
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('open');
+    }
+
+    function switchExportTab(tab) {
+      currentExportTab = tab;
+      document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+      if (tab === 'ai') document.getElementById('tabBtnAi').classList.add('active');
+      if (tab === 'code') document.getElementById('tabBtnCode').classList.add('active');
+      if (tab === 'json') document.getElementById('tabBtnJson').classList.add('active');
+      renderExportContent();
+    }
+
+    function renderExportContent() {
+      const out = document.getElementById('exportCodeOutput');
+      const hint = document.getElementById('exportTabHint');
+
+      if (currentExportTab === 'ai') {
+        hint.textContent = 'Скопируйте этот блок и отправьте AI в чат. Он содержит всё необходимое: описание квеста, логику ветвлений и точную схему данных.';
+        out.textContent = generateAiPrompt();
+      } else if (currentExportTab === 'code') {
+        hint.textContent = 'Готовая функция showDialogTree для вставки в src/js/dialogs.js с автоматическим переходом по шагам.';
+        out.textContent = generateJsCode();
+      } else if (currentExportTab === 'json') {
+        hint.textContent = 'Чистый JSON формат диалога (можно сохранить и загрузить обратно через «Импорт JSON»).';
+        out.textContent = JSON.stringify(dialogData, null, 2);
+      }
+    }
+
+    function generateAiPrompt() {
+      const totalNodes = Object.keys(dialogData.nodes).length;
+      let branchSummary = [];
+      Object.values(dialogData.nodes).forEach(n => {
+        const choices = (n.choices || []).map(c => `"${c.text}" -> [${c.target}]`).join(', ');
+        branchSummary.push(`  - Шаг #${n.id} ("${n.title}"): ${choices || '[Конец диалога]'}`);
+      });
+
+      return `[DUCKVENTURE_DIALOG_SPEC]
+Диалог: "${dialogData.title}" (ID: ${dialogData.id})
+Стартовый шаг: #${dialogData.startNode}
+Всего шагов: ${totalNodes}
+
+Схема ветвления:
+${branchSummary.join('\n')}
+
+Структура диалога в формате JSON:
+\`\`\`json
+${JSON.stringify(dialogData, null, 2)}
+\`\`\`
+
+Инструкция для AI:
+1. Интегрируй этот разветвлённый диалог в Duckventure (модуль dialogs.js или вызов через showCharacterDialog).
+2. Реализуй переходы между шагами согласно полю target у каждой кнопки (при target: 'end' закрывать диалог).
+3. При необходимости привяжи вызов диалога к игровому событию (клик по утке, покупка предмета, появление персонажа на столе или чит-код).
+[/DUCKVENTURE_DIALOG_SPEC]`;
+    }
+
+    function generateJsCode() {
+      return `/* Duckventure Dialog: ${dialogData.title} (ID: ${dialogData.id}) */
+const ${dialogData.id.toUpperCase().replace(/[^A-Z0-9_]/g, '_')}_TREE = ${JSON.stringify(dialogData, null, 2)};
+
+function launch_${dialogData.id.replace(/[^a-zA-Z0-9_]/g, '_')}() {
+  const tree = ${dialogData.id.toUpperCase().replace(/[^A-Z0-9_]/g, '_')}_TREE;
+  
+  function openStep(stepId) {
+    if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
+      if (typeof closeCharacterDialog === 'function') closeCharacterDialog();
+      return;
+    }
+    const step = tree.nodes[stepId];
+    showCharacterDialog({
+      characterLeft: {
+        avatar: step.leftAvatar || undefined,
+        speechText: step.leftSpeech || ''
+      },
+      characterRight: step.rightAvatar ? {
+        avatar: step.rightAvatar,
+        speechText: step.rightSpeech || ''
+      } : null,
+      content: {
+        title: step.title || tree.title || 'Duckventure',
+        text: step.text || ''
+      },
+      buttons: (step.choices && step.choices.length > 0) ? step.choices.map(c => ({
+        text: c.text,
+        primary: c.style === 'primary',
+        onClick: () => {
+          if (c.reward && typeof earnDuckles === 'function' && c.reward.type === 'duckles') {
+            earnDuckles(c.reward.amount || 0);
+          }
+          openStep(c.target);
+        }
+      })) : [{
+        text: 'Завершить',
+        primary: true,
+        onClick: () => closeCharacterDialog()
+      }]
+    });
+  }
+
+  openStep(tree.startNode || 'start');
+}`;
+    }
+
+    function copyExportToClipboard() {
+      const code = document.getElementById('exportCodeOutput').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Скопировано в буфер обмена!');
+      }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Скопировано в буфер обмена!');
+      });
+    }
+
+    function downloadJsonFile() {
+      const jsonStr = JSON.stringify(dialogData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${dialogData.id || 'dialog'}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Файл JSON скачан!');
+    }
+
+    function openImportModal() {
+      document.getElementById('importTextInput').value = '';
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importModal').classList.add('open');
+    }
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('open');
+    }
+
+    function handleFileImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('importTextInput').value = ev.target.result;
+      };
+      reader.readAsText(file);
+    }
+
+    function executeJsonImport() {
+      const raw = document.getElementById('importTextInput').value.trim();
+      if (!raw) {
+        alert('Введите или загрузите JSON!');
+        return;
+      }
+      try {
+        let parsed = null;
+        if (raw.includes('[DUCKVENTURE_DIALOG_SPEC]')) {
+          const match = raw.match(/```json\s*([\s\S]*?)\s*```/);
+          if (match && match[1]) {
+            parsed = JSON.parse(match[1]);
+          }
+        } else {
+          parsed = JSON.parse(raw);
+        }
+
+        if (parsed && parsed.nodes && (parsed.startNode || Object.keys(parsed.nodes).length > 0)) {
+          dialogData = parsed;
+          activeNodeId = dialogData.startNode || Object.keys(dialogData.nodes)[0];
+          previewNodeId = activeNodeId;
+          renderAll();
+          closeImportModal();
+          showToast('Диалог успешно импортирован!');
+        } else {
+          alert('Некорректная структура JSON: отсутствуют nodes или startNode!');
+        }
+      } catch (err) {
+        alert('Ошибка парсинга JSON: ' + err.message);
+      }
+    }
+
+    function showToast(text) {
+      const t = document.getElementById('toastMsg');
+      t.textContent = text;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>
