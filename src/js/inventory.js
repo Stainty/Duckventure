@@ -2935,7 +2935,7 @@
         slot.setAttribute('data-prop-id', 'key');
         slot.title = 'Ключ (Зажми ЛКМ для переноса на ачивку, вынеси за окно или ПКМ — вернуть на стол)';
         slot.innerHTML = `
-          <img src="https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
+          <img src="${window.ASSETS ? ASSETS.props.key : PROPS_DATA.key.icon}" alt="Ключ" draggable="false" referrerpolicy="no-referrer"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
           <span style="display: none; font-size: 32px;">🔑</span>
         `;

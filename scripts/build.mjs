@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 const JS_FILES = [
+  'src/js/assets.js',
   'src/js/core/persistence.js',
   'src/js/core/state.js',
   'src/js/audio.js',
@@ -54,6 +55,7 @@ function build() {
   );
 
   // 5. Inline JS into <script>...</script>
+  html = html.replace(/<script\s+src="js\/assets\.js"><\/script>\s*/, '');
   html = html.replace(
     '<script src="js/main.js"></script>',
     `<script>\n${bundledJs}\n</script>`

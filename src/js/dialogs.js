@@ -47,7 +47,7 @@
 
     const peekingImg = document.getElementById('characterPeekingImg');
     const peekingFallback = document.getElementById('characterPeekingFallback');
-    const avatarUrl = charLeft.avatar || 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png';
+    const avatarUrl = charLeft.avatar || (window.ASSETS ? ASSETS.skins.default : 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png');
     if (peekingImg) {
       peekingImg.src = avatarUrl;
       peekingImg.style.display = 'block';
@@ -226,7 +226,7 @@
     showCharacterDialog({
       character: {
         name: 'Уточка',
-        avatar: 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png',
+        avatar: (window.ASSETS ? ASSETS.skins.default : 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png'),
         speechText: 'Кря, приятной игры',
         position: 'left'
       },

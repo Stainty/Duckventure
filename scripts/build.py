@@ -6,6 +6,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 JS_FILES = [
+    'src/js/assets.js',
     'src/js/core/persistence.js',
     'src/js/core/state.js',
     'src/js/audio.js',
@@ -54,6 +55,8 @@ def build():
     )
 
     # 5. Inline JS into <script>...</script>
+    import re
+    html = re.sub(r'<script\s+src="js/assets\.js"></script>\s*', '', html)
     html = html.replace(
         '<script src="js/main.js"></script>',
         f"<script>\n{bundled_js}\n</script>"

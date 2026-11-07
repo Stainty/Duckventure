@@ -15,7 +15,11 @@ Duckventure/
 │   ├── index.html                  # HTML-разметка страницы, диалогов и модальных окон
 │   ├── css/
 │   │   └── main.css                # Все CSS-стили, анимации и адаптивные media queries
+│   ├── assets/                     # Локальные медиа-ассеты (отдаются через CDN jsDelivr)
+│   │   ├── images/                 # Спрайты и иконки (props, food, skins)
+│   │   └── sounds/                 # Аудиофайлы и сэмплы
 │   └── js/
+│       ├── assets.js               # Центральный реестр ассетов (window.ASSETS, jsDelivr CDN)
 │       ├── core/
 │       │   ├── persistence.js      # Ключи и безопасный слой DuckStorage (window.DuckStorage)
 │       │   ├── state.js            # Переменные игрового состояния и таблицы опыта

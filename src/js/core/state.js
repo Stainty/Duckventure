@@ -324,7 +324,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       id: 'default',
       name: 'Классическая утка',
       category: 'clothing',
-      img: 'https://png.klev.club/uploads/posts/2024-04/png-klev-club-duug-p-rezinovaya-utka-png-14.png',
+      img: ASSETS.skins.default,
       desc: 'Та самая жёлтая резиновая утка'
     },
     argo: {
@@ -332,9 +332,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Золотая цепь "Арго"',
       category: 'clothing',
       cost: 1000,
-      icon: 'https://lh3.googleusercontent.com/d/1anG5FJxk7ArWDtVKW_Ee_PMQck9yBf7s',
+      icon: ASSETS.skins.argo.icon,
       fallbackEmoji: '📿',
-      img: 'https://lh3.googleusercontent.com/d/1f0ceNkLhUkpbBaMZEGuU7RWikG2Z82jy',
+      img: ASSETS.skins.argo.img,
       desc: 'Элитное украшение. Меняет скин утки!'
     },
     mafioznik: {
@@ -342,9 +342,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Набор мафиозник',
       category: 'clothing',
       cost: 5000,
-      icon: 'https://lh3.googleusercontent.com/d/1bavKgXNsCFNkI4UHomJ4EJyTpffHdOWX',
+      icon: ASSETS.skins.mafioznik.icon,
       fallbackEmoji: '🎩',
-      img: 'https://lh3.googleusercontent.com/d/1mTctZ5WDibI0wiPVihCY-IqGrUATPtFV',
+      img: ASSETS.skins.mafioznik.img,
       desc: 'Костюм дона утиной мафии'
     },
     rocker: {
@@ -352,9 +352,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Рокерский жилет',
       category: 'clothing',
       cost: 2700,
-      icon: 'https://lh3.googleusercontent.com/d/1arA2LGP4YMPHXEEPVuya4mB4_ilXOuNY',
+      icon: ASSETS.skins.rocker.icon,
       fallbackEmoji: '🎸',
-      img: 'https://lh3.googleusercontent.com/d/12CsP9UQjOkYFZV0s-emw4q-ilQDsHiPo',
+      img: ASSETS.skins.rocker.img,
       desc: 'Кожаный жилет с шипами. Чистый рок!'
     },
     bikini: {
@@ -362,9 +362,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Бикини',
       category: 'clothing',
       cost: 1600,
-      icon: 'https://lh3.googleusercontent.com/d/1ajHxJx_TS3RmzoIy6rp_DIy0SLlb5ygI',
+      icon: ASSETS.skins.bikini.icon,
       fallbackEmoji: '👙',
-      img: 'https://lh3.googleusercontent.com/d/18fUZXkqxi4YYIVu20FkbdDEQFN6SAHqy',
+      img: ASSETS.skins.bikini.img,
       desc: 'Пляжный купальник для отдыха у бассейна'
     },
     tie: {
@@ -372,9 +372,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Черный галстук',
       category: 'clothing',
       cost: 550,
-      icon: 'https://lh3.googleusercontent.com/d/1GCMl-lpdrRZ8iKm69D2ljS1Fk_v5Ao0n',
+      icon: ASSETS.skins.tie.icon,
       fallbackEmoji: '👔',
-      img: 'https://lh3.googleusercontent.com/d/1talr1RhmPN4ajF-qfCXBYU62gB2iLATA',
+      img: ASSETS.skins.tie.img,
       desc: 'Строгий деловой чёрный галстук'
     },
     agent47: {
@@ -382,9 +382,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Набор 47',
       category: 'clothing',
       cost: 4747,
-      icon: 'https://lh3.googleusercontent.com/d/12ZK7jYDLt4dSjWR9Nt42w6jBbDXIGApJ',
+      icon: ASSETS.skins.agent47.icon,
       fallbackEmoji: '💼',
-      img: 'https://lh3.googleusercontent.com/d/17foa2yk6xQsEM8cOGD_1alivkDJZf7Bm',
+      img: ASSETS.skins.agent47.img,
       desc: 'Чёрный костюм и красный галстук агента'
     },
     jojo: {
@@ -392,9 +392,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Набор JOJO',
       category: 'clothing',
       cost: 6060,
-      icon: 'https://lh3.googleusercontent.com/d/1i6Ie_ToISZ11TSLgmg5K3ocvl2tVsXlL',
+      icon: ASSETS.skins.jojo.icon,
       fallbackEmoji: '⭐',
-      img: 'https://lh3.googleusercontent.com/d/1Oy4rigXSOtZH3asCeZzcuIyc659Lz5lF',
+      img: ASSETS.skins.jojo.img,
       desc: 'Невероятный утиный стиль и поза'
     },
     glasses: {
@@ -402,9 +402,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Очки',
       category: 'clothing',
       cost: 700,
-      icon: 'https://lh3.googleusercontent.com/d/1bbY-Q_vZbVAbZLwmAkrdFTwrADK3CGm9',
+      icon: ASSETS.skins.glasses.icon,
       fallbackEmoji: '🕶️',
-      img: 'https://lh3.googleusercontent.com/d/1_etMZ5-hCSI9Jbf_i28b4s2OBnhexM44',
+      img: ASSETS.skins.glasses.img,
       desc: 'Крутые тёмные очки'
     },
     wig_goose: {
@@ -412,9 +412,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Парик женский "Гусыня"',
       category: 'clothing',
       cost: 1300,
-      icon: 'https://lh3.googleusercontent.com/d/1xyXwQKt1ktywroUup0wz-ci0ql-OVlFA',
+      icon: ASSETS.skins.wig_goose.icon,
       fallbackEmoji: '💇',
-      img: 'https://lh3.googleusercontent.com/d/1F4Q5laRiHIKqizpIETLaHIyfsjyN-cmW',
+      img: ASSETS.skins.wig_goose.img,
       desc: 'Пышный парик для светской птицы'
     },
     vape: {
@@ -422,9 +422,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'VAPE "Париш"',
       category: 'clothing',
       cost: 4500,
-      icon: 'https://lh3.googleusercontent.com/d/1l0Z-9Olz6hgyn56H9kmE4m3TkRXL6jIl',
+      icon: ASSETS.skins.vape.icon,
       fallbackEmoji: '💨',
-      img: 'https://lh3.googleusercontent.com/d/11j5Dt-9JCpNrcWFe-L3NhzUjC2YEg8e3',
+      img: ASSETS.skins.vape.img,
       desc: 'Много пара, мало кряка'
     },
     doshirak: {
@@ -432,9 +432,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Доширак 1 уп.',
       category: 'clothing',
       cost: 150,
-      icon: 'https://lh3.googleusercontent.com/d/1Tis4NehIiZ2qgRtLDwGLkorDhiNvGnwS',
+      icon: ASSETS.skins.doshirak.icon,
       fallbackEmoji: '🍜',
-      img: 'https://lh3.googleusercontent.com/d/1F6KDQar0Bb2Wfo3R-agsuqgX4Q-KcF9v',
+      img: ASSETS.skins.doshirak.img,
       desc: 'Сытный обед за 5 минут'
     },
     patched: {
@@ -442,9 +442,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Утка с изолентой',
       category: 'clothing',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/1l6IN25t2HH-MLnKmvU0NWj9lVcmOLnYR',
+      icon: ASSETS.skins.patched.icon,
       fallbackEmoji: '🩹',
-      img: 'https://lh3.googleusercontent.com/d/1l6IN25t2HH-MLnKmvU0NWj9lVcmOLnYR',
+      img: ASSETS.skins.patched.img,
       desc: 'Надежно перемотана синей изолентой. Больше воздух не спускает!'
     }
   };
@@ -496,7 +496,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Инкубатор',
       category: 'household',
       cost: 50000,
-      icon: 'https://lh3.googleusercontent.com/d/1Xm8a4JT8JkmEChEUV50Csj_mF212gVu7',
+      icon: ASSETS.props.incubator,
       fallbackEmoji: '🐣',
       desc: 'Автоматический инкубатор для яиц. Почти всегда превращает яйца в живой желток'
     },
@@ -505,7 +505,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Сковорода',
       category: 'household',
       cost: 2500,
-      icon: 'https://pngicon.net/file/uploads/skovoroda-243x256.png',
+      icon: ASSETS.props.skovoroda,
       fallbackEmoji: '🍳',
       desc: 'Добротная чугунная сковорода. Говорят, на ней можно приготовить что угодно!'
     },
@@ -514,7 +514,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Плита',
       category: 'household',
       cost: 10000,
-      icon: 'https://lh3.googleusercontent.com/d/18-oUHRsc6tm3n5gBKVzDLjvq4Pw5kPLe',
+      icon: ASSETS.props.stove,
       fallbackEmoji: '🎛️',
       desc: 'Плита с регулятором температуры. Отлично смотрится на кухне!'
     },
@@ -523,7 +523,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Вонючий старый холодильник',
       category: 'household',
       cost: 1000,
-      icon: 'https://lh3.googleusercontent.com/d/1I6_RAc5PqBkofqiJ1vwhahBfTyUbw4AN',
+      icon: ASSETS.props.fridge,
       fallbackEmoji: '🧊',
       desc: 'Старый, подозрительно пахнущий агрегат. Что внутри — лучше не знать.'
     },
@@ -532,7 +532,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Дихлофос',
       category: 'household',
       cost: 5000,
-      icon: 'https://lh3.googleusercontent.com/d/1rSQo8EJqTlQRFgQ8jqk_ITYwu5X7MH3B',
+      icon: ASSETS.props.dichlofos,
       fallbackEmoji: '🧴',
       desc: 'Редкая заморская штука, избавит от нежелательных друзей'
     },
@@ -541,7 +541,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Ключ',
       category: 'household',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/1qBoopIzwqfHjbCQfLJXVOkOY_llGkCkO',
+      icon: ASSETS.props.key,
       fallbackEmoji: '🔑',
       desc: 'Открывает что угодно'
     },
@@ -550,7 +550,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Напольная лампа',
       category: 'household',
       cost: 550,
-      icon: 'https://lh3.googleusercontent.com/d/1RahYd6df62qcRlI1kXb20R2ZeVUmHZru',
+      icon: ASSETS.props.lamp,
       fallbackEmoji: '💡',
       desc: 'Создает ламповую атмосферу и теплое уютное свечение по краям экрана.'
     },
@@ -559,7 +559,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Мусорное ведро',
       category: 'household',
       cost: 1000,
-      icon: 'https://lh3.googleusercontent.com/d/1bvMh_qnnNRDk5h9KOYMVp8g_oi1V01JI',
+      icon: ASSETS.props.trashcan,
       fallbackEmoji: '🗑️',
       desc: 'Позволяет выбрасывать всякий мусор.'
     },
@@ -568,7 +568,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Напольные часы',
       category: 'household',
       cost: 800,
-      icon: 'https://lh3.googleusercontent.com/d/1LBfmZcEwiCMYQRDy-GKlgAnQZBJYesag',
+      icon: ASSETS.props.clock,
       fallbackEmoji: '🕰️',
       desc: 'Показывают точное время и отображают таймеры на экране.'
     },
@@ -577,7 +577,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Кухонный нож',
       category: 'household',
       cost: 1600,
-      icon: 'https://lh3.googleusercontent.com/d/1V2Yi1ljXGKo-8FUbYne42jgeSJY2I8gY',
+      icon: ASSETS.props.knife,
       fallbackEmoji: '🔪',
       desc: 'Подходит для нарезки овощей'
     },
@@ -586,7 +586,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Изолента',
       category: 'household',
       cost: 300,
-      icon: 'https://lh3.googleusercontent.com/d/1RSsws49RUpnkJBhmdqgfVLj1o_FcIb7a',
+      icon: ASSETS.props.tape,
       fallbackEmoji: '🩹',
       desc: 'Чинит все!'
     },
@@ -595,7 +595,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Разделочная доска',
       category: 'household',
       cost: 2000,
-      icon: 'https://lh3.googleusercontent.com/d/1Srj88IN_02Ecsl5LqCfv_yBj1ZcTEoWx',
+      icon: ASSETS.props.cuttingBoard,
       fallbackEmoji: '🥗',
       desc: 'Подходит для нарезки овощей'
     },
@@ -604,7 +604,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Тарелка салата',
       category: 'food',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/12L-UiIq4d_pDvInnPD-euFrgYgUhtmLo',
+      icon: ASSETS.food.saladPlate,
       fallbackEmoji: '🥗',
       desc: 'Свежий витаминный салат. Даёт +20% к силе нажатий'
     },
@@ -613,7 +613,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Корм для птицы',
       category: 'food',
       cost: 9000,
-      icon: 'https://lh3.googleusercontent.com/d/1eTMaSApvaSOB870JIHTSPucRsphiZF5v',
+      icon: ASSETS.food.birdFeed,
       fallbackEmoji: '🌾',
       desc: 'Корм. Обычно таким кормят куриц'
     },
@@ -622,7 +622,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Корм для утки "Альфа"',
       category: 'food',
       cost: 10000,
-      icon: 'https://lh3.googleusercontent.com/d/1WEzE8R6NsZfBeXiz5qCzw4i84FxzWiEz',
+      icon: ASSETS.food.duckFeedAlpha,
       fallbackEmoji: '🥫',
       desc: 'Корм. Для здоровья вашей утки'
     },
@@ -631,7 +631,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Корм для утки "Бета"',
       category: 'food',
       cost: 10000,
-      icon: 'https://lh3.googleusercontent.com/d/1xqAUp3tWrUnvN2uOMDXdlfBtrERRkswW',
+      icon: ASSETS.food.duckFeedBeta,
       fallbackEmoji: '🥫',
       desc: 'Корм. Для активных уток'
     },
@@ -640,7 +640,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Овощной набор',
       category: 'food',
       cost: 2000,
-      icon: 'https://lh3.googleusercontent.com/d/1f56ZpxliSUeMFMauDLLxas4qYL170qMA',
+      icon: ASSETS.food.veggieSet,
       fallbackEmoji: '🥗',
       desc: 'Помидор, огурец, листья салата - идеальный набор для лёгкой закуски'
     },
@@ -649,7 +649,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Помидор',
       category: 'food',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/1S00SwkmhFOC4QL-_LTpRbf5szE9IwjNp',
+      icon: ASSETS.food.tomato,
       fallbackEmoji: '🍅',
       desc: 'Спелый красный помидор'
     },
@@ -658,7 +658,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Огурец',
       category: 'food',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/1ol8bf9FOn25fPyPdslxoWTp7mbvW30vb',
+      icon: ASSETS.food.cucumber,
       fallbackEmoji: '🥒',
       desc: 'Хрустящий свежий огурец'
     },
@@ -667,7 +667,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       name: 'Лист салата',
       category: 'food',
       cost: 0,
-      icon: 'https://lh3.googleusercontent.com/d/1C7LmH-BSHu6RY0AfTwqK6c8DJ8i5Gwmf',
+      icon: ASSETS.food.lettuce,
       fallbackEmoji: '🥬',
       desc: 'Сочный зелёный лист салата'
     }
