@@ -121,9 +121,32 @@
       }
     }
 
-    // 2. Центральное окно (текст)
+    // 1d. Индивидуальный размер/масштаб каждого персонажа
+    if (leftWrap) {
+      const leftScale = (typeof charLeft.scale === 'number') ? charLeft.scale : (charLeft.size ? (charLeft.size / 105) : 1);
+      if (leftScale !== 1) {
+        leftWrap.style.setProperty('--char-scale', leftScale);
+      } else {
+        leftWrap.style.removeProperty('--char-scale');
+      }
+    }
+    if (rightWrap) {
+      const rightScale = (typeof charRight?.scale === 'number') ? charRight.scale : (charRight?.size ? (charRight.size / 105) : 1);
+      if (charRight && rightScale !== 1) {
+        rightWrap.style.setProperty('--char-scale', rightScale);
+      } else {
+        rightWrap.style.removeProperty('--char-scale');
+      }
+    }
+
+    // 2. Центральное окно (текст и бейдж)
     const content = config.content || {};
     const titleEl = document.getElementById('characterDialogTitle');
+    const badgeHeader = document.querySelector('.character-dialog-card-header');
+    const shouldHideBadge = Boolean(config.hideBadge || content.hideBadge || config.hideTitle || content.hideTitle);
+    if (badgeHeader) {
+      badgeHeader.style.display = shouldHideBadge ? 'none' : 'flex';
+    }
     if (titleEl) {
       titleEl.textContent = content.title || 'Duckventure';
     }
@@ -237,8 +260,18 @@
       if (layoutEl) layoutEl.classList.remove('is-narrative');
       const leftW = document.getElementById('characterPeekingWrapLeft') || document.querySelector('.character-peeking-wrap.character-left');
       const rightW = document.getElementById('characterPeekingWrapRight');
-      if (leftW) { leftW.classList.remove('is-speaking', 'is-silent'); leftW.style.display = ''; }
-      if (rightW) { rightW.classList.remove('is-speaking', 'is-silent'); rightW.style.display = ''; }
+      if (leftW) {
+        leftW.classList.remove('is-speaking', 'is-silent');
+        leftW.style.display = '';
+        leftW.style.removeProperty('--char-scale');
+      }
+      if (rightW) {
+        rightW.classList.remove('is-speaking', 'is-silent');
+        rightW.style.display = '';
+        rightW.style.removeProperty('--char-scale');
+      }
+      const bHeader = document.querySelector('.character-dialog-card-header');
+      if (bHeader) bHeader.style.display = 'flex';
       if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
         activeDialogConfig.onClose();
       }

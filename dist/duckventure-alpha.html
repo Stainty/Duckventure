@@ -3412,8 +3412,8 @@ body.has-character-dialog #duck {
   justify-self: center;
   align-self: center;
   position: relative;
-  width: clamp(260px, 22vw, 360px);
-  height: clamp(260px, 22vw, 360px);
+  width: calc(clamp(260px, 22vw, 360px) * var(--char-scale, 1));
+  height: calc(clamp(260px, 22vw, 360px) * var(--char-scale, 1));
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -3439,8 +3439,8 @@ body.has-character-dialog #duck {
   justify-self: center;
   align-self: center;
   position: relative;
-  width: clamp(260px, 22vw, 360px);
-  height: clamp(260px, 22vw, 360px);
+  width: calc(clamp(260px, 22vw, 360px) * var(--char-scale, 1));
+  height: calc(clamp(260px, 22vw, 360px) * var(--char-scale, 1));
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -3775,8 +3775,8 @@ body.has-character-dialog #duck {
   }
   .character-peeking-wrap.character-left,
   .character-peeking-wrap.character-right {
-    width: 170px;
-    height: 170px;
+    width: calc(170px * var(--char-scale, 1));
+    height: calc(170px * var(--char-scale, 1));
   }
   .character-speech-bubble {
     bottom: calc(100% - 6px);
@@ -15935,9 +15935,32 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       }
     }
 
-    // 2. Центральное окно (текст)
+    // 1d. Индивидуальный размер/масштаб каждого персонажа
+    if (leftWrap) {
+      const leftScale = (typeof charLeft.scale === 'number') ? charLeft.scale : (charLeft.size ? (charLeft.size / 105) : 1);
+      if (leftScale !== 1) {
+        leftWrap.style.setProperty('--char-scale', leftScale);
+      } else {
+        leftWrap.style.removeProperty('--char-scale');
+      }
+    }
+    if (rightWrap) {
+      const rightScale = (typeof charRight?.scale === 'number') ? charRight.scale : (charRight?.size ? (charRight.size / 105) : 1);
+      if (charRight && rightScale !== 1) {
+        rightWrap.style.setProperty('--char-scale', rightScale);
+      } else {
+        rightWrap.style.removeProperty('--char-scale');
+      }
+    }
+
+    // 2. Центральное окно (текст и бейдж)
     const content = config.content || {};
     const titleEl = document.getElementById('characterDialogTitle');
+    const badgeHeader = document.querySelector('.character-dialog-card-header');
+    const shouldHideBadge = Boolean(config.hideBadge || content.hideBadge || config.hideTitle || content.hideTitle);
+    if (badgeHeader) {
+      badgeHeader.style.display = shouldHideBadge ? 'none' : 'flex';
+    }
     if (titleEl) {
       titleEl.textContent = content.title || 'Duckventure';
     }
@@ -16051,8 +16074,18 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       if (layoutEl) layoutEl.classList.remove('is-narrative');
       const leftW = document.getElementById('characterPeekingWrapLeft') || document.querySelector('.character-peeking-wrap.character-left');
       const rightW = document.getElementById('characterPeekingWrapRight');
-      if (leftW) { leftW.classList.remove('is-speaking', 'is-silent'); leftW.style.display = ''; }
-      if (rightW) { rightW.classList.remove('is-speaking', 'is-silent'); rightW.style.display = ''; }
+      if (leftW) {
+        leftW.classList.remove('is-speaking', 'is-silent');
+        leftW.style.display = '';
+        leftW.style.removeProperty('--char-scale');
+      }
+      if (rightW) {
+        rightW.classList.remove('is-speaking', 'is-silent');
+        rightW.style.display = '';
+        rightW.style.removeProperty('--char-scale');
+      }
+      const bHeader = document.querySelector('.character-dialog-card-header');
+      if (bHeader) bHeader.style.display = 'flex';
       if (activeDialogConfig && typeof activeDialogConfig.onClose === 'function') {
         activeDialogConfig.onClose();
       }
