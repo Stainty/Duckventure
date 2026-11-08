@@ -2711,7 +2711,7 @@
       const hr = hotspot.getBoundingClientRect();
       const icons = {
         forest: '🌲',
-        cave: '🪨',
+        cave: '⛰️',
         village: '🏡',
         polyana: '🌸',
         lake: '🌊'
