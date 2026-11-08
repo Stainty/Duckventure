@@ -2710,6 +2710,7 @@
   let mapEnergy = MAX_MAP_ENERGY;
   window.mapEnergy = mapEnergy;
   window.getMapEnergy = () => mapEnergy;
+  window.setMapEnergy = (val) => { mapEnergy = Math.max(0, val); updateMapEnergyUI(); };
 
   function animateEnergyFlyAway(sourceEl) {
     if (!sourceEl) return;
@@ -2770,6 +2771,7 @@
   function updateMapEnergyUI(shouldAnimateFly = false) {
     window.mapEnergy = mapEnergy;
   window.getMapEnergy = () => mapEnergy;
+  window.setMapEnergy = (val) => { mapEnergy = Math.max(0, val); updateMapEnergyUI(); };
     const badgeEl = document.getElementById('mapEnergyBadge');
     const container = document.getElementById('mapEnergyIcons');
     if (!container) return;
@@ -3033,7 +3035,10 @@
   window.returnToWorldMap = returnToWorldMap;
 
   let forestMushroomsData = [];
-  let isForestTreeSpawned = false;
+  let woodLogsSpawnedCount = 0;
+  let maxWoodLogsPerVisit = 2;
+  let hitsRequiredForCurrentLog = 6;
+  let currentTreeHits = 0;
   let isCaveRockSpawned = false;
   let forestWoodItemsData = [];
 
@@ -3053,10 +3058,13 @@
         bottom: positions[i].bottom
       });
     }
-    // Сбрасываем дерево, древесину и скалу при перезаходе на карту
-    isForestTreeSpawned = false;
-    isCaveRockSpawned = false;
+    // Сброс дерева, древесины и скалы при перезаходе на карту
+    woodLogsSpawnedCount = 0;
+    currentTreeHits = 0;
+    maxWoodLogsPerVisit = 2 + Math.floor(Math.random() * 2); // 2 или 3 бревна за визит
+    hitsRequiredForCurrentLog = 5 + Math.floor(Math.random() * 3); // 5-7 ударов на бревно
     forestWoodItemsData = [];
+    isCaveRockSpawned = false;
   }
   window.initForestMushrooms = initForestMushrooms;
 
@@ -3068,16 +3076,29 @@
     let grabOffsetX = 0;
     let grabOffsetY = 0;
     let lastX = 0;
+    let startX = 0;
+    let startY = 0;
+    let hasMoved = false;
+
+    el.style.touchAction = 'none';
+    el.style.pointerEvents = 'auto';
+    el.setAttribute('draggable', 'false');
+    el.addEventListener('dragstart', (e) => e.preventDefault());
 
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       e.stopPropagation();
       e.preventDefault();
 
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
       isDragging = true;
+      hasMoved = false;
       const rect = el.getBoundingClientRect();
       grabOffsetX = e.clientX - rect.left;
       grabOffsetY = e.clientY - rect.top;
+      startX = e.clientX;
+      startY = e.clientY;
       lastX = e.clientX;
 
       // Создаем fixed-прокси поверх всего экрана для перетаскивания без обрезания overflow
@@ -3088,14 +3109,20 @@
       proxy.style.top = `${rect.top}px`;
       proxy.style.width = `${rect.width}px`;
       proxy.style.height = `${rect.height}px`;
-      proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
+      proxy.style.pointerEvents = 'none';
+      proxy.style.filter = (itemType === 'wood')
+        ? 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #f59e0b)'
+        : 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
       proxy.style.transform = 'scale(1.18) rotate(4deg)';
       document.body.appendChild(proxy);
 
-      el.style.opacity = '0.2';
+      el.style.opacity = '0.15';
 
       const onPointerMove = (ev) => {
         if (!isDragging || !proxy) return;
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > 4) {
+          hasMoved = true;
+        }
         proxy.style.left = `${ev.clientX - grabOffsetX}px`;
         proxy.style.top = `${ev.clientY - grabOffsetY}px`;
 
@@ -3118,7 +3145,9 @@
             proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 24px #4ade80)';
           } else {
             invWin.classList.remove('drag-target-hover');
-            proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
+            proxy.style.filter = (itemType === 'wood')
+              ? 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #f59e0b)'
+              : 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
           }
         }
       };
@@ -3126,6 +3155,7 @@
       const onPointerUp = (ev) => {
         if (!isDragging) return;
         isDragging = false;
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
         window.removeEventListener('pointercancel', onPointerUp);
@@ -3164,7 +3194,7 @@
 
           if (typeof particles !== 'undefined') {
             const sym = (itemType === 'wood') ? '🪵' : '🍄';
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 14; i++) {
               const ang = Math.random() * Math.PI * 2;
               const spd = 60 + Math.random() * 110;
               particles.push({
@@ -3175,7 +3205,7 @@
                 size: 16 + Math.random() * 8,
                 alpha: 1.1,
                 text: sym,
-                color: '#fbbf24'
+                color: (itemType === 'wood') ? '#d97706' : '#fbbf24'
               });
             }
           }
@@ -3188,8 +3218,8 @@
             const dropLeft = ev.clientX - grabOffsetX - parentRect.left;
             const dropTop = ev.clientY - grabOffsetY - parentRect.top;
 
-            const clampedX = Math.max(10, Math.min(parentRect.width - (el.offsetWidth || 80) - 10, dropLeft));
-            const clampedY = Math.max(10, Math.min(parentRect.height - (el.offsetHeight || 60) - 10, dropTop));
+            const clampedX = Math.max(10, Math.min(parentRect.width - (el.offsetWidth || 50) - 10, dropLeft));
+            const clampedY = Math.max(10, Math.min(parentRect.height - (el.offsetHeight || 50) - 10, dropTop));
 
             el.style.left = `${clampedX}px`;
             el.style.top = `${clampedY}px`;
@@ -3198,6 +3228,22 @@
             if (itemData) {
               itemData.posX = clampedX;
               itemData.posY = clampedY;
+            }
+          }
+
+          if (!hasMoved) {
+            // Игрок просто кликнул — показываем дружелюбную подсказку перетащить в инвентарь
+            if (typeof particles !== 'undefined') {
+              particles.push({
+                x: ev.clientX,
+                y: ev.clientY - 20,
+                vx: 0,
+                vy: -35,
+                size: 12,
+                alpha: 1.2,
+                text: 'Перетащи вниз! 🧺',
+                color: '#fef08a'
+              });
             }
           }
         }
@@ -3226,6 +3272,8 @@
         wrap.className = 'forest-mushrooms-wrap';
         wrap.style.left = m.left + '%';
         wrap.style.bottom = m.bottom + '%';
+        wrap.style.touchAction = 'none';
+        wrap.style.pointerEvents = 'auto';
         wrap.setAttribute('data-mushroom-id', String(m.id));
         wrap.innerHTML = `
           <img src="${imgUrl}" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
@@ -3296,12 +3344,15 @@
     el.alt = 'Гриб';
     el.className = 'popped-mushroom';
     el.draggable = false;
+    el.style.touchAction = 'none';
+    el.style.pointerEvents = 'auto';
     el.setAttribute('referrerpolicy', 'no-referrer');
     el.setAttribute('data-mushroom-id', String(m.id));
 
     if (m.posX !== undefined && m.posY !== undefined) {
       el.style.left = `${m.posX}px`;
       el.style.top = `${m.posY}px`;
+      el.style.bottom = 'auto';
     } else {
       el.style.left = `${m.left}%`;
       el.style.bottom = `${m.bottom}%`;
@@ -3312,56 +3363,29 @@
     return el;
   }
 
-  /* ---------- Дерево и добыча древесины в лесу ---------- */
+  /* ---------- Интерактивное дерево и добыча древесины в лесу ---------- */
   function renderForestTree() {
     const treeContainer = document.getElementById('forestTreeContainer');
-    const hotspot = document.getElementById('forestWoodHotspot');
     if (!treeContainer) return;
     treeContainer.innerHTML = '';
 
-    if (isForestTreeSpawned) {
-      if (hotspot) hotspot.style.display = 'none';
-      const treeUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.tree) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/tree.png';
-      const treeImg = document.createElement('img');
-      treeImg.src = treeUrl;
-      treeImg.className = 'forest-interactive-tree';
-      treeImg.alt = 'Дерево';
-      treeImg.draggable = false;
-      treeImg.setAttribute('referrerpolicy', 'no-referrer');
-      treeImg.title = 'Кликните, чтобы рубить дерево';
-      treeImg.addEventListener('click', (e) => chopForestTree(e));
-      treeContainer.appendChild(treeImg);
-    } else {
-      if (hotspot) hotspot.style.display = 'flex';
+    const treeUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.tree) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/tree.png';
+    const treeImg = document.createElement('img');
+    treeImg.src = treeUrl;
+    treeImg.className = 'forest-interactive-tree';
+    if (woodLogsSpawnedCount >= maxWoodLogsPerVisit) {
+      treeImg.classList.add('is-depleted');
     }
+    treeImg.alt = 'Дерево';
+    treeImg.draggable = false;
+    treeImg.setAttribute('referrerpolicy', 'no-referrer');
+    treeImg.title = 'Кликайте, чтобы рубить дерево 🌲';
+    treeImg.addEventListener('click', (e) => chopForestTree(e));
+    treeContainer.appendChild(treeImg);
 
     renderForestWoodLogs();
   }
   window.renderForestTree = renderForestTree;
-
-  function chopForestWood(event) {
-    if (event) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
-    if (mapEnergy <= 0) {
-      shakeMapEnergy();
-      if (typeof showAchvToast === 'function') {
-        showAchvToast('Недостаточно энергии!', 'Для рубки дерева нужна энергия ⚡. Перезайдите в карту.', '⚡');
-      }
-      return;
-    }
-    consumeMapEnergy();
-    if (typeof clickSound === 'function') clickSound();
-
-    isForestTreeSpawned = true;
-    renderForestTree();
-
-    if (typeof showAchvToast === 'function') {
-      showAchvToast('Дерево найдено! 🌲', 'Кликайте по дереву, чтобы нарубить бревен.', '🪓');
-    }
-  }
-  window.chopForestWood = chopForestWood;
 
   function chopForestTree(event) {
     if (event) {
@@ -3369,6 +3393,44 @@
       event.preventDefault();
     }
     const tree = document.querySelector('.forest-interactive-tree');
+
+    // Если всё возможное дерево за визит уже срублено
+    if (woodLogsSpawnedCount >= maxWoodLogsPerVisit) {
+      if (typeof clickSound === 'function') clickSound();
+      if (tree) {
+        tree.classList.remove('is-chopped');
+        void tree.offsetWidth;
+        tree.classList.add('is-chopped');
+      }
+      const br = tree ? tree.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+      if (typeof particles !== 'undefined') {
+        particles.push({
+          x: (event && event.clientX) || (br.left + br.width / 2),
+          y: ((event && event.clientY) || (br.top + br.height * 0.4)) - 25,
+          vx: 0,
+          vy: -35,
+          size: 11,
+          alpha: 1.3,
+          text: 'Дерево истощено! 🌲',
+          color: '#cbd5e1'
+        });
+      }
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Дерево истощено! 🌲', 'Вы срубили максимум древесины за этот визит. Перезайдите на карту.', '🪵');
+      }
+      return;
+    }
+
+    // Проверка энергии
+    if (mapEnergy <= 0) {
+      shakeMapEnergy();
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Недостаточно энергии!', 'Для рубки дерева нужна энергия ⚡. Перезайдите в карту.', '⚡');
+      }
+      return;
+    }
+
+    // Визуальная и звуковая отдача удара
     if (tree) {
       tree.classList.remove('is-chopped');
       void tree.offsetWidth;
@@ -3381,17 +3443,20 @@
     }
 
     const br = tree ? tree.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+    const hitX = (event && event.clientX) || (br.left + br.width / 2);
+    const hitY = (event && event.clientY) || (br.top + br.height / 2);
+
     if (typeof particles !== 'undefined') {
-      const symbols = ['🪵', '🪓', '🌲', '✨'];
-      for (let i = 0; i < 10; i++) {
+      const symbols = ['🪵', '🪓', '✨', '🍃'];
+      for (let i = 0; i < 8; i++) {
         const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
-        const spd = 70 + Math.random() * 120;
+        const spd = 60 + Math.random() * 110;
         particles.push({
-          x: br.left + br.width / 2,
-          y: br.top + br.height / 2,
+          x: hitX,
+          y: hitY,
           vx: Math.cos(ang) * spd,
           vy: Math.sin(ang) * spd,
-          size: 14 + Math.random() * 8,
+          size: 13 + Math.random() * 7,
           alpha: 1.1,
           text: symbols[Math.floor(Math.random() * symbols.length)],
           color: '#d97706'
@@ -3399,30 +3464,81 @@
       }
     }
 
-    // Спавним вылетающее бревно
-    spawnWoodLog();
+    currentTreeHits++;
+
+    // Всплывающий счетчик ударов (например, 🪓 3/6)
+    if (typeof particles !== 'undefined') {
+      particles.push({
+        x: hitX,
+        y: hitY - 30,
+        vx: 0,
+        vy: -35,
+        size: 12,
+        alpha: 1.3,
+        text: `🪓 ${currentTreeHits}/${hitsRequiredForCurrentLog}`,
+        color: '#fef08a'
+      });
+    }
+
+    // Завершение серии ударов -> выпадение 1 бревна
+    if (currentTreeHits >= hitsRequiredForCurrentLog) {
+      currentTreeHits = 0;
+      woodLogsSpawnedCount++;
+      consumeMapEnergy(); // Тратится 1 энергия за срубленное бревно
+
+      // Задаем число ударов для следующего бревна (от 5 до 7)
+      hitsRequiredForCurrentLog = 5 + Math.floor(Math.random() * 3);
+
+      spawnWoodLog();
+
+      if (woodLogsSpawnedCount >= maxWoodLogsPerVisit) {
+        if (tree) tree.classList.add('is-depleted');
+        if (typeof showAchvToast === 'function') {
+          showAchvToast('Дерево истощено! 🌲', `Срублено бревен: ${woodLogsSpawnedCount}/${maxWoodLogsPerVisit}. Перетащите их в инвентарь!`, '🪵');
+        }
+      } else {
+        if (typeof showAchvToast === 'function') {
+          showAchvToast('Древесина добыта! 🪵', `Срублено бревно (${woodLogsSpawnedCount}/${maxWoodLogsPerVisit}). Перетащите в инвентарь!`, '🪓');
+        }
+      }
+    }
   }
   window.chopForestTree = chopForestTree;
+  window.chopForestWood = chopForestTree; // Для обратной совместимости
 
   function spawnWoodLog() {
     const woodContainer = document.getElementById('forestWoodContainer');
     if (!woodContainer) return;
 
+    const tree = document.querySelector('.forest-interactive-tree');
+    const treeRect = tree ? tree.getBoundingClientRect() : null;
+    const containerRect = woodContainer.getBoundingClientRect();
+
     const woodUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.wood) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/wood.png';
     const logId = forestWoodItemsData.length;
+
+    let defaultX = woodContainer.clientWidth * 0.52;
+    let defaultY = woodContainer.clientHeight * 0.72;
+    if (treeRect && containerRect.width > 0) {
+      defaultX = Math.max(30, treeRect.left - containerRect.left - 30 + (Math.random() - 0.5) * 80);
+      defaultY = Math.max(30, treeRect.bottom - containerRect.top - 70 + (Math.random() - 0.5) * 40);
+    }
+
     const logData = {
       id: logId,
       harvested: false,
-      posX: Math.max(30, Math.min(woodContainer.clientWidth - 110, woodContainer.clientWidth * 0.52 + (Math.random() - 0.5) * 60)),
-      posY: Math.max(30, Math.min(woodContainer.clientHeight - 90, woodContainer.clientHeight * 0.68 + (Math.random() - 0.5) * 40))
+      posX: Math.max(30, Math.min(woodContainer.clientWidth - 70, defaultX)),
+      posY: Math.max(30, Math.min(woodContainer.clientHeight - 70, defaultY))
     };
     forestWoodItemsData.push(logData);
 
     const woodEl = document.createElement('img');
     woodEl.src = woodUrl;
     woodEl.alt = 'Древесина';
-    woodEl.className = 'popped-mushroom mushroom-pop-anim';
+    woodEl.className = 'popped-wood mushroom-pop-anim';
     woodEl.draggable = false;
+    woodEl.style.touchAction = 'none';
+    woodEl.style.pointerEvents = 'auto';
     woodEl.setAttribute('referrerpolicy', 'no-referrer');
     woodEl.style.left = `${logData.posX}px`;
     woodEl.style.top = `${logData.posY}px`;
@@ -3445,8 +3561,10 @@
       const woodEl = document.createElement('img');
       woodEl.src = woodUrl;
       woodEl.alt = 'Древесина';
-      woodEl.className = 'popped-mushroom';
+      woodEl.className = 'popped-wood';
       woodEl.draggable = false;
+      woodEl.style.touchAction = 'none';
+      woodEl.style.pointerEvents = 'auto';
       woodEl.setAttribute('referrerpolicy', 'no-referrer');
       woodEl.style.left = `${log.posX}px`;
       woodEl.style.top = `${log.posY}px`;
