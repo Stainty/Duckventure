@@ -2697,14 +2697,65 @@
     modal.classList.add('open');
     isMapModalOpen = true;
     window.isMapModalOpen = true;
-    mapNavigationStack = [];
+    mapEnergy = MAX_MAP_ENERGY;
+    updateMapEnergyUI();
     showMapScreen('map');
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
   }
   window.openMapModal = openMapModal;
 
-  /* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
+    const MAX_MAP_ENERGY = 3;
+  let mapEnergy = MAX_MAP_ENERGY;
+  window.mapEnergy = mapEnergy;
+
+  function updateMapEnergyUI() {
+    window.mapEnergy = mapEnergy;
+    const valEl = document.getElementById('mapEnergyVal');
+    const badgeEl = document.getElementById('mapEnergyBadge');
+    if (valEl) {
+      valEl.textContent = `${mapEnergy} / ${MAX_MAP_ENERGY}`;
+    }
+    if (badgeEl) {
+      if (mapEnergy <= 0) {
+        badgeEl.classList.add('depleted');
+      } else {
+        badgeEl.classList.remove('depleted');
+      }
+    }
+  }
+  window.updateMapEnergyUI = updateMapEnergyUI;
+
+  function shakeMapEnergy() {
+    const badgeEl = document.getElementById('mapEnergyBadge');
+    if (badgeEl) {
+      badgeEl.classList.remove('shake-energy');
+      void badgeEl.offsetWidth;
+      badgeEl.classList.add('shake-energy');
+      setTimeout(() => badgeEl.classList.remove('shake-energy'), 450);
+
+      if (typeof particles !== 'undefined') {
+        const br = badgeEl.getBoundingClientRect();
+        for (let i = 0; i < 6; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 40 + Math.random() * 60;
+          particles.push({
+            x: br.left + br.width / 2,
+            y: br.top + br.height / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 14 + Math.random() * 6,
+            alpha: 1.1,
+            text: '⚡',
+            color: '#ef4444'
+          });
+        }
+      }
+    }
+  }
+  window.shakeMapEnergy = shakeMapEnergy;
+
+/* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
   const MAP_LOC_NAMES = {
     map: 'Карта мира',
     forest: 'Лес',
@@ -2781,7 +2832,20 @@
   }
   window.showMapScreen = showMapScreen;
 
+  const MAIN_LOCATIONS = ['forest', 'cave', 'lake', 'polyana', 'village'];
+
   function onMapLocationClick(locId, locName) {
+    if (MAIN_LOCATIONS.includes(locId)) {
+      if (mapEnergy <= 0) {
+        shakeMapEnergy();
+        if (typeof showAchvToast === 'function') {
+          showAchvToast('Недостаточно энергии!', 'Для перемещения нужна энергия ⚡. Перезайдите в карту.', '⚡');
+        }
+        return;
+      }
+      mapEnergy -= 1;
+      updateMapEnergyUI();
+    }
     if (typeof clickSound === 'function') clickSound();
     showMapScreen(locId);
   }
@@ -2867,6 +2931,15 @@
       event.stopPropagation();
       event.preventDefault();
     }
+    if (mapEnergy <= 0) {
+      shakeMapEnergy();
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Недостаточно энергии!', 'Для рубки дерева нужна энергия ⚡. Перезайдите в карту.', '⚡');
+      }
+      return;
+    }
+    mapEnergy -= 1;
+    updateMapEnergyUI();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerForest .map-location-btn');
@@ -2903,6 +2976,15 @@
       event.stopPropagation();
       event.preventDefault();
     }
+    if (mapEnergy <= 0) {
+      shakeMapEnergy();
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Недостаточно энергии!', 'Для раскопок нужна энергия ⚡. Перезайдите в карту.', '⚡');
+      }
+      return;
+    }
+    mapEnergy -= 1;
+    updateMapEnergyUI();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerCave .map-location-btn');

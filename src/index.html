@@ -909,6 +909,15 @@
         <div class="map-modal-frame" id="mapModalFrame">
           <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
 
+          <!-- Индикатор энергии в левом верхнем углу карты -->
+          <div class="map-energy-badge" id="mapEnergyBadge" title="Энергия для перемещений и добычи">
+            <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/energy-icon.png" alt="⚡" class="map-energy-icon" draggable="false" referrerpolicy="no-referrer"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+            <span style="display: none; font-size: 16px;">⚡</span>
+            <span class="map-energy-text" id="mapEnergyVal">3 / 3</span>
+          </div>
+
+
           <!-- Слой кнопок локаций карты мира -->
           <div class="map-hotspots-layer" id="mapHotspotsLayer">
             <!-- Лево верх: Лес -->

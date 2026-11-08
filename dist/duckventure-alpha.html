@@ -4192,6 +4192,68 @@ body.has-character-dialog #duck {
     pointer-events: auto;
   }
 
+  
+  /* Индикатор энергии в левом верхнем углу карты */
+  .map-energy-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96));
+    border: 2px solid #38bdf8;
+    border-radius: 9999px;
+    padding: 6px 14px 6px 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 16px rgba(56, 189, 248, 0.4);
+    z-index: 25;
+    user-select: none;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .map-energy-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 22px rgba(56, 189, 248, 0.65);
+  }
+  .map-energy-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+    animation: energyIconPulse 2.5s infinite ease-in-out;
+  }
+  @keyframes energyIconPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8)); }
+    50% { transform: scale(1.12); filter: drop-shadow(0 0 12px rgba(56, 189, 248, 1)); }
+  }
+  .map-energy-text {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 11px;
+    color: #e0f2fe;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+  .map-energy-badge.depleted {
+    border-color: #ef4444;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 16px rgba(239, 68, 68, 0.4);
+  }
+  .map-energy-badge.depleted .map-energy-text {
+    color: #fca5a5;
+  }
+  .map-energy-badge.depleted .map-energy-icon {
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8)) grayscale(0.5);
+    animation: none;
+  }
+  .map-energy-badge.shake-energy {
+    animation: shakeEnergy .4s ease-in-out;
+  }
+  @keyframes shakeEnergy {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
   /* Бейдж с названием текущей локации */
   .map-location-title-badge {
     position: absolute;
@@ -5444,6 +5506,15 @@ body.has-character-dialog #duck {
         <div class="map-modal-frame" id="mapModalFrame">
           <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
 
+          <!-- Индикатор энергии в левом верхнем углу карты -->
+          <div class="map-energy-badge" id="mapEnergyBadge" title="Энергия для перемещений и добычи">
+            <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/energy-icon.png" alt="⚡" class="map-energy-icon" draggable="false" referrerpolicy="no-referrer"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+            <span style="display: none; font-size: 16px;">⚡</span>
+            <span class="map-energy-text" id="mapEnergyVal">3 / 3</span>
+          </div>
+
+
           <!-- Слой кнопок локаций карты мира -->
           <div class="map-hotspots-layer" id="mapHotspotsLayer">
             <!-- Лево верх: Лес -->
@@ -5708,7 +5779,8 @@ body.has-character-dialog #duck {
       mushrooms: CDN_BASE + 'pixelmap/mushrooms.png',
       wood: CDN_BASE + 'pixelmap/wood.png',
       tree: CDN_BASE + 'pixelmap/tree.png',
-      axe: CDN_BASE + 'pixelmap/axe.png'
+      axe: CDN_BASE + 'pixelmap/axe.png',
+      energyIcon: CDN_BASE + 'pixelmap/energy-icon.png'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
@@ -14128,14 +14200,65 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     modal.classList.add('open');
     isMapModalOpen = true;
     window.isMapModalOpen = true;
-    mapNavigationStack = [];
+    mapEnergy = MAX_MAP_ENERGY;
+    updateMapEnergyUI();
     showMapScreen('map');
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
   }
   window.openMapModal = openMapModal;
 
-  /* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
+    const MAX_MAP_ENERGY = 3;
+  let mapEnergy = MAX_MAP_ENERGY;
+  window.mapEnergy = mapEnergy;
+
+  function updateMapEnergyUI() {
+    window.mapEnergy = mapEnergy;
+    const valEl = document.getElementById('mapEnergyVal');
+    const badgeEl = document.getElementById('mapEnergyBadge');
+    if (valEl) {
+      valEl.textContent = `${mapEnergy} / ${MAX_MAP_ENERGY}`;
+    }
+    if (badgeEl) {
+      if (mapEnergy <= 0) {
+        badgeEl.classList.add('depleted');
+      } else {
+        badgeEl.classList.remove('depleted');
+      }
+    }
+  }
+  window.updateMapEnergyUI = updateMapEnergyUI;
+
+  function shakeMapEnergy() {
+    const badgeEl = document.getElementById('mapEnergyBadge');
+    if (badgeEl) {
+      badgeEl.classList.remove('shake-energy');
+      void badgeEl.offsetWidth;
+      badgeEl.classList.add('shake-energy');
+      setTimeout(() => badgeEl.classList.remove('shake-energy'), 450);
+
+      if (typeof particles !== 'undefined') {
+        const br = badgeEl.getBoundingClientRect();
+        for (let i = 0; i < 6; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 40 + Math.random() * 60;
+          particles.push({
+            x: br.left + br.width / 2,
+            y: br.top + br.height / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 14 + Math.random() * 6,
+            alpha: 1.1,
+            text: '⚡',
+            color: '#ef4444'
+          });
+        }
+      }
+    }
+  }
+  window.shakeMapEnergy = shakeMapEnergy;
+
+/* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
   const MAP_LOC_NAMES = {
     map: 'Карта мира',
     forest: 'Лес',
@@ -14212,7 +14335,20 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
   window.showMapScreen = showMapScreen;
 
+  const MAIN_LOCATIONS = ['forest', 'cave', 'lake', 'polyana', 'village'];
+
   function onMapLocationClick(locId, locName) {
+    if (MAIN_LOCATIONS.includes(locId)) {
+      if (mapEnergy <= 0) {
+        shakeMapEnergy();
+        if (typeof showAchvToast === 'function') {
+          showAchvToast('Недостаточно энергии!', 'Для перемещения нужна энергия ⚡. Перезайдите в карту.', '⚡');
+        }
+        return;
+      }
+      mapEnergy -= 1;
+      updateMapEnergyUI();
+    }
     if (typeof clickSound === 'function') clickSound();
     showMapScreen(locId);
   }
@@ -14298,6 +14434,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       event.stopPropagation();
       event.preventDefault();
     }
+    if (mapEnergy <= 0) {
+      shakeMapEnergy();
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Недостаточно энергии!', 'Для рубки дерева нужна энергия ⚡. Перезайдите в карту.', '⚡');
+      }
+      return;
+    }
+    mapEnergy -= 1;
+    updateMapEnergyUI();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerForest .map-location-btn');
@@ -14334,6 +14479,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       event.stopPropagation();
       event.preventDefault();
     }
+    if (mapEnergy <= 0) {
+      shakeMapEnergy();
+      if (typeof showAchvToast === 'function') {
+        showAchvToast('Недостаточно энергии!', 'Для раскопок нужна энергия ⚡. Перезайдите в карту.', '⚡');
+      }
+      return;
+    }
+    mapEnergy -= 1;
+    updateMapEnergyUI();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerCave .map-location-btn');
