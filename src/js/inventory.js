@@ -2988,10 +2988,8 @@
       wrap.style.left = m.left + '%';
       wrap.style.bottom = m.bottom + '%';
       wrap.setAttribute('data-mushroom-id', String(m.id));
-      wrap.title = 'Собрать грибы';
       wrap.innerHTML = `
         <img src="${imgUrl}" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
-        <div class="forest-mushrooms-hint">🍄 Собрать</div>
       `;
       wrap.addEventListener('click', (e) => harvestForestMushroom(e, m.id));
       container.appendChild(wrap);
