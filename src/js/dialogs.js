@@ -693,13 +693,16 @@
     }
   };
 
-  function launchFirstMapDialog() {
+  function launchFirstMapDialog(onComplete) {
     const tree = FIRST_MAP_DIALOG_TREE;
     try { Storage.set(FIRST_MAP_DIALOG_SHOWN_KEY, '1'); } catch (e) {}
 
     function openStep(stepId) {
       if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
         closeCharacterDialog();
+        if (typeof onComplete === 'function') {
+          onComplete();
+        }
         return;
       }
       const step = tree.nodes[stepId];
@@ -726,7 +729,10 @@
           {
             text: "Закрыть",
             primary: true,
-            onClick: () => closeCharacterDialog()
+            onClick: () => {
+              closeCharacterDialog();
+              if (typeof onComplete === 'function') onComplete();
+            }
           }
         ]
       });

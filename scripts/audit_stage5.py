@@ -146,7 +146,11 @@ window.addEventListener('load', () => {
         // 6. Map Modal test: open, first map dialog trigger, pause all processes, exit button, close, hotspots, inventory tray
         openMapModal();
         report.firstMapDialogTriggered = (document.getElementById('characterDialogModal').style.display !== 'none');
-        if (typeof closeCharacterDialog === 'function') closeCharacterDialog();
+        // Click choices to proceed through intro and duck reaction to open map
+        let choiceBtn = document.querySelector('.character-dialog-btn');
+        if (choiceBtn) choiceBtn.click();
+        choiceBtn = document.querySelector('.character-dialog-btn');
+        if (choiceBtn) choiceBtn.click();
         report.mapModalOpened = (document.getElementById('mapModal').style.display !== 'none' && isMapModalOpen && isAnyModalOpen());
         report.mapCloseBtnExists = !!document.getElementById('mapCloseBtn');
         report.mapInventoryTrayExists = !!document.getElementById('mapInventoryTray');

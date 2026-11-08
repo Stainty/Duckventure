@@ -3363,7 +3363,7 @@ body.has-character-dialog #duck {
 .character-dialog-modal {
   position: fixed;
   inset: 0;
-  z-index: 250;
+  z-index: 300;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13771,7 +13771,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.updateFridgeUI = updateFridgeUI;
 
   /* ---------- Просмотр карты мира (Pixel Map) ---------- */
-  function openMapModal() {
+  function openMapModal(skipDialog = false) {
+    const hasSeenFirstMapDialog = typeof Storage !== 'undefined' && Storage.getBoolean(FIRST_MAP_DIALOG_SHOWN_KEY, false);
+    if (!skipDialog && !hasSeenFirstMapDialog && typeof launchFirstMapDialog === 'function') {
+      launchFirstMapDialog(() => {
+        openMapModal(true);
+      });
+      return;
+    }
+
     const modal = document.getElementById('mapModal');
     if (!modal) return;
     if (typeof closeAllModals === 'function') closeAllModals();
@@ -13781,11 +13789,6 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     window.isMapModalOpen = true;
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
-
-    const hasSeenFirstMapDialog = typeof Storage !== 'undefined' && Storage.getBoolean(FIRST_MAP_DIALOG_SHOWN_KEY, false);
-    if (!hasSeenFirstMapDialog && typeof launchFirstMapDialog === 'function') {
-      launchFirstMapDialog();
-    }
   }
   window.openMapModal = openMapModal;
 
@@ -17208,13 +17211,16 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
   };
 
-  function launchFirstMapDialog() {
+  function launchFirstMapDialog(onComplete) {
     const tree = FIRST_MAP_DIALOG_TREE;
     try { Storage.set(FIRST_MAP_DIALOG_SHOWN_KEY, '1'); } catch (e) {}
 
     function openStep(stepId) {
       if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
         closeCharacterDialog();
+        if (typeof onComplete === 'function') {
+          onComplete();
+        }
         return;
       }
       const step = tree.nodes[stepId];
@@ -17241,7 +17247,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
           {
             text: "Закрыть",
             primary: true,
-            onClick: () => closeCharacterDialog()
+            onClick: () => {
+              closeCharacterDialog();
+              if (typeof onComplete === 'function') onComplete();
+            }
           }
         ]
       });

@@ -2681,7 +2681,15 @@
   window.updateFridgeUI = updateFridgeUI;
 
   /* ---------- Просмотр карты мира (Pixel Map) ---------- */
-  function openMapModal() {
+  function openMapModal(skipDialog = false) {
+    const hasSeenFirstMapDialog = typeof Storage !== 'undefined' && Storage.getBoolean(FIRST_MAP_DIALOG_SHOWN_KEY, false);
+    if (!skipDialog && !hasSeenFirstMapDialog && typeof launchFirstMapDialog === 'function') {
+      launchFirstMapDialog(() => {
+        openMapModal(true);
+      });
+      return;
+    }
+
     const modal = document.getElementById('mapModal');
     if (!modal) return;
     if (typeof closeAllModals === 'function') closeAllModals();
@@ -2691,11 +2699,6 @@
     window.isMapModalOpen = true;
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
-
-    const hasSeenFirstMapDialog = typeof Storage !== 'undefined' && Storage.getBoolean(FIRST_MAP_DIALOG_SHOWN_KEY, false);
-    if (!hasSeenFirstMapDialog && typeof launchFirstMapDialog === 'function') {
-      launchFirstMapDialog();
-    }
   }
   window.openMapModal = openMapModal;
 
