@@ -40,6 +40,10 @@
       susDuck: CDN_BASE + 'characters/sus-duck.png',
       susDuckBoss: CDN_BASE + 'characters/sus-duck-boss.png'
     },
+    pixelmap: {
+      map: CDN_BASE + 'pixelmap/map.jfif',
+      exit: CDN_BASE + 'pixelmap/exit.png'
+    },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
       argo: {

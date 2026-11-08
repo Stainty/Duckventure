@@ -5,6 +5,7 @@
 
   function advanceGameTime(deltaSec) {
     if (deltaSec <= 0) return;
+    if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) return;
 
     // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
     const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
@@ -205,6 +206,10 @@
 
   function processGameTick() {
     const now = Date.now();
+    if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) {
+      lastGameTickTime = now;
+      return;
+    }
     const elapsedSec = Math.floor((now - lastGameTickTime) / 1000);
     if (elapsedSec >= 1) {
       lastGameTickTime += elapsedSec * 1000;

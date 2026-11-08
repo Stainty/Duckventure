@@ -130,7 +130,14 @@ window.addEventListener('load', () => {
         spawnPixelMapOnDesk();
         report.mapSpawnedOnDesk = (document.getElementById('prop-pixelMap').style.display === 'block' && ownedProps.includes('pixelMap'));
 
-        // 6. Reset
+        // 6. Map Modal test: open, pause all processes, exit button, close
+        openMapModal();
+        report.mapModalOpened = (document.getElementById('mapModal').style.display !== 'none' && isMapModalOpen && isAnyModalOpen());
+        report.mapCloseBtnExists = !!document.getElementById('mapCloseBtn');
+        closeMapModal();
+        report.mapModalClosed = (document.getElementById('mapModal').style.display === 'none' && !isMapModalOpen);
+
+        // 7. Reset
         window.confirm = () => true;
         document.getElementById('resetBtn').click();
         report.resetAchievementsSuccess = (window.getDuckles() === 0 && quackCount === 0 && darkDuckDialogTimer === 300);

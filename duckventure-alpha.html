@@ -4030,6 +4030,109 @@ body.has-character-dialog #duck {
       opacity: 1;
     }
   }
+  /* ==========================================================================
+     Просмотр карты мира (Pixel Map Viewer)
+     ========================================================================== */
+  .map-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 280;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    background: rgba(4, 7, 15, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: mapModalFadeIn .22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .map-modal.open {
+    display: flex;
+  }
+  @keyframes mapModalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .map-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+  .map-modal-dialog {
+    position: relative;
+    max-width: min(92vw, 1100px);
+    max-height: min(88vh, 700px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(251, 191, 36, 0.15);
+    background: #111827;
+    z-index: 2;
+  }
+  .map-modal-frame {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 2px solid #374151;
+    display: flex;
+    background: #0b0f19;
+  }
+  .map-modal-img {
+    width: 100%;
+    height: auto;
+    max-height: min(88vh, 700px);
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .map-close-btn {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .18s cubic-bezier(0.34, 1.56, 0.64, 1), filter .18s ease;
+  }
+  .map-close-btn img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+  }
+  .map-close-btn:hover {
+    transform: scale(1.15) rotate(4deg);
+    filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.8));
+  }
+  .map-close-btn:active {
+    transform: scale(0.92);
+  }
+  @media (max-width: 640px) {
+    .map-modal {
+      padding: 24px 12px;
+    }
+    .map-close-btn {
+      top: -14px;
+      right: -14px;
+      width: 42px;
+      height: 42px;
+    }
+    .map-close-btn img {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
 
 </style>
 </head>
@@ -4817,7 +4920,7 @@ body.has-character-dialog #duck {
     <div id="honeyCountBadge" class="honey-count-badge" style="display: none;">1</div>
   </div>
 
-  <div id="prop-pixelMap" class="draggable-prop" style="display: none;" title="Странная карта">
+  <div id="prop-pixelMap" class="draggable-prop is-interactive" style="display: none;" title="Странная карта">
     <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png" alt="Странная карта" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🗺️</span>
@@ -4919,6 +5022,21 @@ body.has-character-dialog #duck {
     <span id="cookedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🍗</span>
     <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
   </button>
+
+  <!-- Модальное окно просмотра карты мира -->
+  <div class="map-modal" id="mapModal" style="display: none;" role="dialog" aria-modal="true" aria-label="Карта мира">
+    <div class="map-modal-backdrop" onclick="closeMapModal()"></div>
+    <div class="map-modal-dialog">
+      <button class="map-close-btn" id="mapCloseBtn" onclick="closeMapModal()" title="Закрыть карту" aria-label="Закрыть карту">
+        <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/exit.png" alt="✕" draggable="false" referrerpolicy="no-referrer"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+        <span style="display: none; font-size: 26px; line-height: 1; color: #fff;">✕</span>
+      </button>
+      <div class="map-modal-frame">
+        <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
+      </div>
+    </div>
+  </div>
 
   <!-- Система диалоговых окон с персонажами -->
   <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">
@@ -5036,6 +5154,10 @@ body.has-character-dialog #duck {
     characters: {
       susDuck: CDN_BASE + 'characters/sus-duck.png',
       susDuckBoss: CDN_BASE + 'characters/sus-duck-boss.png'
+    },
+    pixelmap: {
+      map: CDN_BASE + 'pixelmap/map.jfif',
+      exit: CDN_BASE + 'pixelmap/exit.png'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
@@ -5426,6 +5548,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let isGardeningCollapsed = true;
   let isCharacterDialogOpen = false;
   window.isCharacterDialogOpen = isCharacterDialogOpen;
+  let isMapModalOpen = false;
+  window.isMapModalOpen = isMapModalOpen;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -6137,12 +6261,15 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
 
   function isAnyModalOpen() {
-    return document.querySelector('.upgrades-modal.open') !== null || Boolean(window.isCharacterDialogOpen || isCharacterDialogOpen);
+    return document.querySelector('.upgrades-modal.open') !== null ||
+           Boolean(window.isCharacterDialogOpen || isCharacterDialogOpen) ||
+           Boolean(window.isMapModalOpen || isMapModalOpen);
   }
   window.isAnyModalOpen = isAnyModalOpen;
 
   function closeAllModals() {
     if (typeof hidePropContextMenu === 'function') hidePropContextMenu();
+    if (typeof closeMapModal === 'function') closeMapModal();
     if (typeof closeCharacterDialog === 'function') closeCharacterDialog(true);
     if (typeof cancelDiscardConfirmation === 'function') cancelDiscardConfirmation();
     document.querySelectorAll('.upgrades-modal.open').forEach(modal => {
@@ -9642,6 +9769,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   function startDeskCreatureWander() {
     if (deskCreatureWanderInterval) clearInterval(deskCreatureWanderInterval);
     deskCreatureWanderInterval = setInterval(() => {
+      if (typeof isAnyModalOpen === 'function' && isAnyModalOpen()) return;
       const visibleCreatures = Array.from(document.querySelectorAll('.desk-creature')).filter(el => {
         return el.style.display !== 'none' && !el.classList.contains('is-dragging');
       });
@@ -13031,6 +13159,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         if (typeof toggleFridge === 'function') {
           toggleFridge(e);
         }
+      } else if (propId === 'pixelMap') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof openMapModal === 'function') {
+          openMapModal();
+        }
       }
     }, true);
 
@@ -13371,6 +13505,33 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     }
   }
   window.updateFridgeUI = updateFridgeUI;
+
+  /* ---------- Просмотр карты мира (Pixel Map) ---------- */
+  function openMapModal() {
+    const modal = document.getElementById('mapModal');
+    if (!modal) return;
+    if (typeof closeAllModals === 'function') closeAllModals();
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    isMapModalOpen = true;
+    window.isMapModalOpen = true;
+    if (typeof clickSound === 'function') clickSound();
+  }
+  window.openMapModal = openMapModal;
+
+  function closeMapModal() {
+    const modal = document.getElementById('mapModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
+    }
+    isMapModalOpen = false;
+    window.isMapModalOpen = false;
+    if (typeof lastGameTickTime !== 'undefined') {
+      lastGameTickTime = Date.now();
+    }
+  }
+  window.closeMapModal = closeMapModal;
 
   /* ---------- Механика тараканов и дихлофоса ---------- */
   const ROACH_SVG_MARKUP = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15319,6 +15480,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.addEventListener('keydown', (e) => {
     // Закрытие активного окна по клавише Escape
     if (e.key === 'Escape') {
+      if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) {
+        closeMapModal();
+        return;
+      }
       const openModal = document.querySelector('.upgrades-modal.open');
       if (openModal) {
         openModal.classList.remove('open');
@@ -16636,6 +16801,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function advanceGameTime(deltaSec) {
     if (deltaSec <= 0) return;
+    if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) return;
 
     // Проверяем, открыто ли любое модальное окно (магазин, склад, апгрейды, филиалы и т.д.)
     const isModalOpen = typeof isAnyModalOpen === 'function' && isAnyModalOpen();
@@ -16836,6 +17002,10 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
 
   function processGameTick() {
     const now = Date.now();
+    if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) {
+      lastGameTickTime = now;
+      return;
+    }
     const elapsedSec = Math.floor((now - lastGameTickTime) / 1000);
     if (elapsedSec >= 1) {
       lastGameTickTime += elapsedSec * 1000;

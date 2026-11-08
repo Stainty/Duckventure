@@ -790,7 +790,7 @@
     <div id="honeyCountBadge" class="honey-count-badge" style="display: none;">1</div>
   </div>
 
-  <div id="prop-pixelMap" class="draggable-prop" style="display: none;" title="Странная карта">
+  <div id="prop-pixelMap" class="draggable-prop is-interactive" style="display: none;" title="Странная карта">
     <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png" alt="Странная карта" draggable="false" referrerpolicy="no-referrer"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🗺️</span>
@@ -892,6 +892,21 @@
     <span id="cookedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🍗</span>
     <span id="deflatedDuckView" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: clamp(90px, 22vw, 150px); user-select: none; line-height: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));">🎈💨</span>
   </button>
+
+  <!-- Модальное окно просмотра карты мира -->
+  <div class="map-modal" id="mapModal" style="display: none;" role="dialog" aria-modal="true" aria-label="Карта мира">
+    <div class="map-modal-backdrop" onclick="closeMapModal()"></div>
+    <div class="map-modal-dialog">
+      <button class="map-close-btn" id="mapCloseBtn" onclick="closeMapModal()" title="Закрыть карту" aria-label="Закрыть карту">
+        <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/exit.png" alt="✕" draggable="false" referrerpolicy="no-referrer"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+        <span style="display: none; font-size: 26px; line-height: 1; color: #fff;">✕</span>
+      </button>
+      <div class="map-modal-frame">
+        <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
+      </div>
+    </div>
+  </div>
 
   <!-- Система диалоговых окон с персонажами -->
   <div id="characterDialogModal" class="character-dialog-modal" style="display: none;" role="dialog" aria-modal="true">

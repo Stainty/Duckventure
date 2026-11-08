@@ -1096,6 +1096,7 @@
   function startDeskCreatureWander() {
     if (deskCreatureWanderInterval) clearInterval(deskCreatureWanderInterval);
     deskCreatureWanderInterval = setInterval(() => {
+      if (typeof isAnyModalOpen === 'function' && isAnyModalOpen()) return;
       const visibleCreatures = Array.from(document.querySelectorAll('.desk-creature')).filter(el => {
         return el.style.display !== 'none' && !el.classList.contains('is-dragging');
       });

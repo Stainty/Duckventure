@@ -2303,6 +2303,12 @@
         if (typeof toggleFridge === 'function') {
           toggleFridge(e);
         }
+      } else if (propId === 'pixelMap') {
+        e.stopPropagation();
+        e.preventDefault();
+        if (typeof openMapModal === 'function') {
+          openMapModal();
+        }
       }
     }, true);
 
@@ -2643,6 +2649,33 @@
     }
   }
   window.updateFridgeUI = updateFridgeUI;
+
+  /* ---------- Просмотр карты мира (Pixel Map) ---------- */
+  function openMapModal() {
+    const modal = document.getElementById('mapModal');
+    if (!modal) return;
+    if (typeof closeAllModals === 'function') closeAllModals();
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    isMapModalOpen = true;
+    window.isMapModalOpen = true;
+    if (typeof clickSound === 'function') clickSound();
+  }
+  window.openMapModal = openMapModal;
+
+  function closeMapModal() {
+    const modal = document.getElementById('mapModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
+    }
+    isMapModalOpen = false;
+    window.isMapModalOpen = false;
+    if (typeof lastGameTickTime !== 'undefined') {
+      lastGameTickTime = Date.now();
+    }
+  }
+  window.closeMapModal = closeMapModal;
 
   /* ---------- Механика тараканов и дихлофоса ---------- */
   const ROACH_SVG_MARKUP = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -376,6 +376,10 @@
   window.addEventListener('keydown', (e) => {
     // Закрытие активного окна по клавише Escape
     if (e.key === 'Escape') {
+      if (typeof isMapModalOpen !== 'undefined' && isMapModalOpen) {
+        closeMapModal();
+        return;
+      }
       const openModal = document.querySelector('.upgrades-modal.open');
       if (openModal) {
         openModal.classList.remove('open');
