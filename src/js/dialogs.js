@@ -547,6 +547,7 @@
         window.hasTalkedToSusDuck = true;
         try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
         if (typeof tryUnlock === 'function') tryUnlock();
+        spawnPixelMapOnDesk();
         return;
       }
       const step = tree.nodes[stepId];
@@ -588,6 +589,7 @@
             window.hasTalkedToSusDuck = true;
             try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
             if (typeof tryUnlock === 'function') tryUnlock();
+            spawnPixelMapOnDesk();
           }
         }]
       });
@@ -596,7 +598,64 @@
     openStep(tree.startNode || 'start');
   }
 
+  function spawnPixelMapOnDesk() {
+    if (!ownedProps.includes('pixelMap')) {
+      ownedProps.push('pixelMap');
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    }
+    const mapEl = document.getElementById('prop-pixelMap');
+    if (mapEl) {
+      if (!placedProps.pixelMap || !placedProps.pixelMap.left) {
+        const duckEl = document.getElementById('duck');
+        const duckRect = duckEl ? duckEl.getBoundingClientRect() : null;
+        let left = duckRect ? (duckRect.right + 25) : (window.innerWidth / 2 + 70);
+        let top = duckRect ? (duckRect.bottom - 45) : (window.innerHeight - 150);
+        left = Math.max(20, Math.min(window.innerWidth - 110, Math.round(left))) + 'px';
+        top = Math.max(70, Math.min(window.innerHeight - 80, Math.round(top))) + 'px';
+        placedProps.pixelMap = { placed: true, left, top };
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
+      mapEl.style.left = placedProps.pixelMap.left;
+      mapEl.style.top = placedProps.pixelMap.top;
+      mapEl.style.display = 'block';
+      mapEl.dataset.placed = '1';
+      mapEl.classList.add('is-wobbling');
+      setTimeout(() => mapEl.classList.remove('is-wobbling'), 600);
+    }
+    if (typeof corkPopSound === 'function') corkPopSound();
+    if (typeof particles !== 'undefined') {
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 40,
+        vx: 0,
+        vy: -120,
+        size: 20,
+        alpha: 1.4,
+        text: '🗺️ Странная карта осталась на столе!',
+        color: '#93c5fd'
+      });
+    }
+    if (typeof updateShopButtonVisibility === 'function') updateShopButtonVisibility();
+    if (typeof renderStorage === 'function') renderStorage();
+  }
+
+  function cheatTriggerDarkDuckDialog() {
+    darkDuckDialogTimer = 0;
+    window.darkDuckDialogTimer = 0;
+    isDarkDuckDialogTriggered = true;
+    window.isDarkDuckDialogTriggered = true;
+    try { Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '0'); } catch (e) {}
+    try { Storage.set(DARK_DUCK_DIALOG_TRIGGERED_KEY, '1'); } catch (e) {}
+    if (typeof closeCharacterDialog === 'function') closeCharacterDialog();
+    if (typeof launchDarkDuckQuestDialog === 'function') {
+      launchDarkDuckQuestDialog();
+    }
+  }
+
   // Экспорт в глобальное пространство
+  window.spawnPixelMapOnDesk = spawnPixelMapOnDesk;
+  window.cheatTriggerDarkDuckDialog = cheatTriggerDarkDuckDialog;
+
   window.launchDarkDuckQuestDialog = launchDarkDuckQuestDialog;
   window.DARK_DUCK_DIALOG_TREE = DARK_DUCK_DIALOG_TREE;
   window.showCharacterDialog = showCharacterDialog;

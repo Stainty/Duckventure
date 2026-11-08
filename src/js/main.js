@@ -27,6 +27,7 @@
   initDraggableProp(document.getElementById('prop-dirtBag'), 'dirtBag');
   initDraggableProp(document.getElementById('prop-flowerSeeds'), 'flowerSeeds');
   initDraggableProp(document.getElementById('prop-honey'), 'honey');
+  initDraggableProp(document.getElementById('prop-pixelMap'), 'pixelMap');
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   if (typeof updatePotUI === 'function') updatePotUI();
   if (typeof updateHoneyDeskProp === 'function') updateHoneyDeskProp();
@@ -42,6 +43,9 @@
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();
+  if (hasTalkedToSusDuck && !ownedProps.includes('pixelMap')) {
+    spawnPixelMapOnDesk();
+  }
   clampAllPlacedPropsToScreen();
   updateLampGlowUI();
   updateFridgeUI();

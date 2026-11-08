@@ -120,10 +120,20 @@ window.addEventListener('load', () => {
             report.businessAttentionSuccess = true;
         }
 
-        // 5. Reset
+        // 5. New Features: Suspicious Duck 5 min timer, cheat button, no < 1M cheat buttons, pixel map
+        const cpRow = document.querySelector('#cheatPanel .cheat-btns-row');
+        report.cheatAddSmallMissing = cpRow && !cpRow.innerHTML.includes('addDuckles(1000)') && !cpRow.innerHTML.includes('addDuckles(50000)');
+        report.darkDuckTimerDefault = (darkDuckDialogTimer <= 300 && darkDuckDialogTimer >= 290);
+        report.cheatDialogBtnExists = !!document.querySelector('button[onclick*="cheatTriggerDarkDuckDialog"]');
+        cheatTriggerDarkDuckDialog();
+        report.cheatDialogOpened = (document.getElementById('characterDialogModal').style.display !== 'none');
+        spawnPixelMapOnDesk();
+        report.mapSpawnedOnDesk = (document.getElementById('prop-pixelMap').style.display === 'block' && ownedProps.includes('pixelMap'));
+
+        // 6. Reset
         window.confirm = () => true;
         document.getElementById('resetBtn').click();
-        report.resetAchievementsSuccess = (window.getDuckles() === 0 && quackCount === 0);
+        report.resetAchievementsSuccess = (window.getDuckles() === 0 && quackCount === 0 && darkDuckDialogTimer === 300);
     } catch(e) {
         report.runtimeErrors.push({ msg: e.message, stack: e.stack });
     }

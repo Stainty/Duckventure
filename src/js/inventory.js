@@ -504,7 +504,7 @@
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey' || itemId === 'pixelMap') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -565,7 +565,7 @@
         color: '#ffd24d'
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey' || itemId === 'pixelMap') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -697,7 +697,7 @@
       });
       sortedHouseholdKeys.forEach(id => {
         // Ключ не продаётся в магазине — это секрет при перемещении утки
-        if (id === 'key') return;
+        if (id === 'key' || id === 'pixelMap') return;
         // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
         if (id === 'dichlofos' && !hasPlacedFridge) return;
         // Если тараканы уже выведены дихлофосом, дихлофос больше не продаётся в магазине
@@ -1085,6 +1085,7 @@
     if (propId === 'skovoroda') return { width: 82, height: 82 };
     if (propId === 'dichlofos') return { width: 68, height: 90 };
     if (propId === 'key') return { width: 72, height: 72 };
+    if (propId === 'pixelMap') return { width: 96, height: 54 };
     if (propId === 'knife') return { width: 76, height: 76 };
     if (propId === 'tape') return { width: 72, height: 72 };
     if (propId === 'pot') return { width: 90, height: 98 };
@@ -1138,7 +1139,7 @@
                      (propId === 'clock' ? -240 :
                      (propId === 'knife' ? -300 :
                      (propId === 'tape' ? 320 :
-                     (propId === 'key' ? 260 : 0)))))))));
+                     (propId === 'key' ? 260 : (propId === 'pixelMap' ? 140 : 0))))))))));
       const maxLeft = Math.max(20, window.innerWidth - propWidth - 20);
       const left = Math.max(20, Math.min(maxLeft, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const maxTop = Math.max(70, window.innerHeight - propHeight - 20);
@@ -1616,7 +1617,7 @@
       const emojiMap = {
         skovoroda: '🍳', plita: '🔥', fridge: '❄️', knife: '🔪',
         tape: '🩹', lamp: '💡', clock: '⏰', dichlofos: '💨',
-        incubator: '🐣', key: '🗝️', pot: '🪴', dirtBag: '🌱', flowerSeeds: '🌸', honey: '🍯'
+        incubator: '🐣', key: '🗝️', pot: '🪴', dirtBag: '🌱', flowerSeeds: '🌸', honey: '🍯', pixelMap: '🗺️'
       };
       return { name, emoji: emojiMap[id] || '📦' };
     }

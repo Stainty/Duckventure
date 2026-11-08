@@ -3887,6 +3887,24 @@ body.has-character-dialog #duck {
   #prop-honey:hover img {
     transform: scale(1.08);
   }
+  #prop-pixelMap {
+    width: 96px;
+    height: 54px;
+    cursor: grab;
+  }
+  #prop-pixelMap img {
+    width: 96px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  #prop-pixelMap:hover img {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 12px rgba(147, 197, 253, 0.7));
+  }
   .honey-count-badge {
     position: absolute;
     bottom: -4px;
@@ -4105,9 +4123,8 @@ body.has-character-dialog #duck {
       <button class="cheat-close-btn" onclick="toggleCheatPanel(false)" title="Скрыть панель (вернуть: mousecrown)">✕</button>
     </div>
     <div class="cheat-btns-row">
-      <button class="cheat-btn" onclick="addDuckles(1000)">+1k</button>
-      <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
       <button class="cheat-btn" onclick="addDuckles(1000000)">+1M</button>
+      <button class="cheat-btn" onclick="cheatTriggerDarkDuckDialog()" title="Вызвать сюжетный диалог с Подозрительной Уткой">🎭 Диалог</button>
       <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
       <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
       <button class="cheat-btn" onclick="cheatFastDebuff()" title="Вызвать дебафф тухлых яиц (таймер 2 сек)">🤢⚡</button>
@@ -4802,6 +4819,12 @@ body.has-character-dialog #duck {
     <div id="honeyCountBadge" class="honey-count-badge" style="display: none;">1</div>
   </div>
 
+  <div id="prop-pixelMap" class="draggable-prop" style="display: none;" title="Странная карта">
+    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png" alt="Странная карта" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🗺️</span>
+  </div>
+
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->
   <div id="propContextMenu" class="prop-context-menu" style="display: none;">
     <button class="prop-ctx-btn" id="propCtxReturnBtn">
@@ -4999,7 +5022,8 @@ body.has-character-dialog #duck {
       potEmpty: CDN_BASE + 'props/pot-empty.png',
       potDirt: CDN_BASE + 'props/pot-dirt.png',
       potFlower: CDN_BASE + 'props/pot-flower.png',
-      honey: CDN_BASE + 'props/honey.png' 
+      honey: CDN_BASE + 'props/honey.png',
+      pixelMap: CDN_BASE + 'props/pixel-map.png' 
     },
     food: {
       saladPlate: CDN_BASE + 'food/salad-plate.png',
@@ -5544,7 +5568,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let honeyCount = Storage.getNumber(HONEY_COUNT_KEY, 0, 0, 999999);
   window.honeyCount = honeyCount;
 
-  let darkDuckDialogTimer = Storage.getNumber(DARK_DUCK_DIALOG_TIMER_KEY, 120, 0, 999999);
+  let darkDuckDialogTimer = Storage.getNumber(DARK_DUCK_DIALOG_TIMER_KEY, 300, 0, 999999);
   window.darkDuckDialogTimer = darkDuckDialogTimer;
   let isDarkDuckDialogTriggered = Storage.getBoolean(DARK_DUCK_DIALOG_TRIGGERED_KEY, false);
   window.isDarkDuckDialogTriggered = isDarkDuckDialogTriggered;
@@ -5792,6 +5816,16 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       fallbackEmoji: '🔑',
       desc: 'Открывает что угодно'
     },
+    pixelMap: {
+      id: 'pixelMap',
+      name: 'Странная карта',
+      category: 'household',
+      cost: 0,
+      icon: (window.ASSETS && ASSETS.props && ASSETS.props.pixelMap) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png',
+      fallbackEmoji: '🗺️',
+      desc: 'Таинственная пиксельная карта, оставленная Подозрительной Уткой.'
+    },
+
     lamp: {
       id: 'lamp',
       name: 'Напольная лампа',
@@ -7051,7 +7085,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey', 'pixelMap'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';
@@ -7154,13 +7188,13 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     renderStorage();
     updateShopButtonVisibility();
     updateShopTabsVisibility();
-    darkDuckDialogTimer = 120;
-    window.darkDuckDialogTimer = 120;
+    darkDuckDialogTimer = 300;
+    window.darkDuckDialogTimer = 300;
     isDarkDuckDialogTriggered = false;
     window.isDarkDuckDialogTriggered = false;
     try {
       Storage.remove(DARK_DUCK_DIALOG_TRIGGERED_KEY);
-      Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '120');
+      Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '300');
     } catch (e) {}
 
     if (!preserveAchievements) {
@@ -11200,7 +11234,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
       // Предметы, не предназначенные для прямой покупки в магазине
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey' || itemId === 'pixelMap') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || ownedProps.includes(itemId)) return;
       if (!spendDuckles(prop.cost)) return;
@@ -11261,7 +11295,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         color: '#ffd24d'
       });
     } else if (category === 'household' || category === 'food' || category === 'gardening') {
-      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey') return;
+      if (itemId === 'tomato' || itemId === 'cucumber' || itemId === 'lettuce' || itemId === 'saladPlate' || itemId === 'key' || itemId === 'honey' || itemId === 'pixelMap') return;
       const prop = PROPS_DATA[itemId];
       if (!prop || !ownedProps.includes(itemId) || !prop.cost) return;
       const refundAmount = Math.floor(prop.cost / 2);
@@ -11393,7 +11427,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       });
       sortedHouseholdKeys.forEach(id => {
         // Ключ не продаётся в магазине — это секрет при перемещении утки
-        if (id === 'key') return;
+        if (id === 'key' || id === 'pixelMap') return;
         // Дихлофос не отображается в магазине до "Выложить Вонючий старый холодильник на стол"
         if (id === 'dichlofos' && !hasPlacedFridge) return;
         // Если тараканы уже выведены дихлофосом, дихлофос больше не продаётся в магазине
@@ -11781,6 +11815,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     if (propId === 'skovoroda') return { width: 82, height: 82 };
     if (propId === 'dichlofos') return { width: 68, height: 90 };
     if (propId === 'key') return { width: 72, height: 72 };
+    if (propId === 'pixelMap') return { width: 96, height: 54 };
     if (propId === 'knife') return { width: 76, height: 76 };
     if (propId === 'tape') return { width: 72, height: 72 };
     if (propId === 'pot') return { width: 90, height: 98 };
@@ -11834,7 +11869,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
                      (propId === 'clock' ? -240 :
                      (propId === 'knife' ? -300 :
                      (propId === 'tape' ? 320 :
-                     (propId === 'key' ? 260 : 0)))))))));
+                     (propId === 'key' ? 260 : (propId === 'pixelMap' ? 140 : 0))))))))));
       const maxLeft = Math.max(20, window.innerWidth - propWidth - 20);
       const left = Math.max(20, Math.min(maxLeft, Math.round((window.innerWidth - propWidth) / 2 + offset))) + 'px';
       const maxTop = Math.max(70, window.innerHeight - propHeight - 20);
@@ -12312,7 +12347,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       const emojiMap = {
         skovoroda: '🍳', plita: '🔥', fridge: '❄️', knife: '🔪',
         tape: '🩹', lamp: '💡', clock: '⏰', dichlofos: '💨',
-        incubator: '🐣', key: '🗝️', pot: '🪴', dirtBag: '🌱', flowerSeeds: '🌸', honey: '🍯'
+        incubator: '🐣', key: '🗝️', pot: '🪴', dirtBag: '🌱', flowerSeeds: '🌸', honey: '🍯', pixelMap: '🗺️'
       };
       return { name, emoji: emojiMap[id] || '📦' };
     }
@@ -16477,6 +16512,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         window.hasTalkedToSusDuck = true;
         try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
         if (typeof tryUnlock === 'function') tryUnlock();
+        spawnPixelMapOnDesk();
         return;
       }
       const step = tree.nodes[stepId];
@@ -16518,6 +16554,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
             window.hasTalkedToSusDuck = true;
             try { Storage.set(HAS_TALKED_TO_SUS_DUCK_KEY, '1'); } catch (e) {}
             if (typeof tryUnlock === 'function') tryUnlock();
+            spawnPixelMapOnDesk();
           }
         }]
       });
@@ -16526,7 +16563,64 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     openStep(tree.startNode || 'start');
   }
 
+  function spawnPixelMapOnDesk() {
+    if (!ownedProps.includes('pixelMap')) {
+      ownedProps.push('pixelMap');
+      try { Storage.setJSON(OWNED_PROPS_KEY, ownedProps); } catch (e) {}
+    }
+    const mapEl = document.getElementById('prop-pixelMap');
+    if (mapEl) {
+      if (!placedProps.pixelMap || !placedProps.pixelMap.left) {
+        const duckEl = document.getElementById('duck');
+        const duckRect = duckEl ? duckEl.getBoundingClientRect() : null;
+        let left = duckRect ? (duckRect.right + 25) : (window.innerWidth / 2 + 70);
+        let top = duckRect ? (duckRect.bottom - 45) : (window.innerHeight - 150);
+        left = Math.max(20, Math.min(window.innerWidth - 110, Math.round(left))) + 'px';
+        top = Math.max(70, Math.min(window.innerHeight - 80, Math.round(top))) + 'px';
+        placedProps.pixelMap = { placed: true, left, top };
+        try { Storage.setJSON(PLACED_PROPS_KEY, placedProps); } catch (e) {}
+      }
+      mapEl.style.left = placedProps.pixelMap.left;
+      mapEl.style.top = placedProps.pixelMap.top;
+      mapEl.style.display = 'block';
+      mapEl.dataset.placed = '1';
+      mapEl.classList.add('is-wobbling');
+      setTimeout(() => mapEl.classList.remove('is-wobbling'), 600);
+    }
+    if (typeof corkPopSound === 'function') corkPopSound();
+    if (typeof particles !== 'undefined') {
+      particles.push({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2 - 40,
+        vx: 0,
+        vy: -120,
+        size: 20,
+        alpha: 1.4,
+        text: '🗺️ Странная карта осталась на столе!',
+        color: '#93c5fd'
+      });
+    }
+    if (typeof updateShopButtonVisibility === 'function') updateShopButtonVisibility();
+    if (typeof renderStorage === 'function') renderStorage();
+  }
+
+  function cheatTriggerDarkDuckDialog() {
+    darkDuckDialogTimer = 0;
+    window.darkDuckDialogTimer = 0;
+    isDarkDuckDialogTriggered = true;
+    window.isDarkDuckDialogTriggered = true;
+    try { Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '0'); } catch (e) {}
+    try { Storage.set(DARK_DUCK_DIALOG_TRIGGERED_KEY, '1'); } catch (e) {}
+    if (typeof closeCharacterDialog === 'function') closeCharacterDialog();
+    if (typeof launchDarkDuckQuestDialog === 'function') {
+      launchDarkDuckQuestDialog();
+    }
+  }
+
   // Экспорт в глобальное пространство
+  window.spawnPixelMapOnDesk = spawnPixelMapOnDesk;
+  window.cheatTriggerDarkDuckDialog = cheatTriggerDarkDuckDialog;
+
   window.launchDarkDuckQuestDialog = launchDarkDuckQuestDialog;
   window.DARK_DUCK_DIALOG_TREE = DARK_DUCK_DIALOG_TREE;
   window.showCharacterDialog = showCharacterDialog;
@@ -16695,7 +16789,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       tickPlantGrowth(deltaSec);
     }
 
-    // 9. Сюжетный квест: Появление таинственной утки (через 2 минуты после старта новой игры)
+    // 9. Сюжетный квест: Появление таинственной утки (через 5 минут после старта новой игры)
     if (!isDarkDuckDialogTriggered) {
       darkDuckDialogTimer = Math.max(0, darkDuckDialogTimer - deltaSec);
       window.darkDuckDialogTimer = darkDuckDialogTimer;
@@ -16807,6 +16901,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   initDraggableProp(document.getElementById('prop-dirtBag'), 'dirtBag');
   initDraggableProp(document.getElementById('prop-flowerSeeds'), 'flowerSeeds');
   initDraggableProp(document.getElementById('prop-honey'), 'honey');
+  initDraggableProp(document.getElementById('prop-pixelMap'), 'pixelMap');
   if (typeof renderCuttingBoardIngredients === 'function') renderCuttingBoardIngredients();
   if (typeof updatePotUI === 'function') updatePotUI();
   if (typeof updateHoneyDeskProp === 'function') updateHoneyDeskProp();
@@ -16822,6 +16917,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   document.querySelectorAll('.desk-creature').forEach(el => initDraggableCreature(el));
   applySkin(currentSkin);
   restorePropsOnScreen();
+  if (hasTalkedToSusDuck && !ownedProps.includes('pixelMap')) {
+    spawnPixelMapOnDesk();
+  }
   clampAllPlacedPropsToScreen();
   updateLampGlowUI();
   updateFridgeUI();

@@ -23,7 +23,8 @@
       potEmpty: CDN_BASE + 'props/pot-empty.png',
       potDirt: CDN_BASE + 'props/pot-dirt.png',
       potFlower: CDN_BASE + 'props/pot-flower.png',
-      honey: CDN_BASE + 'props/honey.png' 
+      honey: CDN_BASE + 'props/honey.png',
+      pixelMap: CDN_BASE + 'props/pixel-map.png' 
     },
     food: {
       saladPlate: CDN_BASE + 'food/salad-plate.png',

@@ -315,7 +315,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   let honeyCount = Storage.getNumber(HONEY_COUNT_KEY, 0, 0, 999999);
   window.honeyCount = honeyCount;
 
-  let darkDuckDialogTimer = Storage.getNumber(DARK_DUCK_DIALOG_TIMER_KEY, 120, 0, 999999);
+  let darkDuckDialogTimer = Storage.getNumber(DARK_DUCK_DIALOG_TIMER_KEY, 300, 0, 999999);
   window.darkDuckDialogTimer = darkDuckDialogTimer;
   let isDarkDuckDialogTriggered = Storage.getBoolean(DARK_DUCK_DIALOG_TRIGGERED_KEY, false);
   window.isDarkDuckDialogTriggered = isDarkDuckDialogTriggered;
@@ -563,6 +563,16 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       fallbackEmoji: '🔑',
       desc: 'Открывает что угодно'
     },
+    pixelMap: {
+      id: 'pixelMap',
+      name: 'Странная карта',
+      category: 'household',
+      cost: 0,
+      icon: (window.ASSETS && ASSETS.props && ASSETS.props.pixelMap) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png',
+      fallbackEmoji: '🗺️',
+      desc: 'Таинственная пиксельная карта, оставленная Подозрительной Уткой.'
+    },
+
     lamp: {
       id: 'lamp',
       name: 'Напольная лампа',

@@ -94,9 +94,8 @@
       <button class="cheat-close-btn" onclick="toggleCheatPanel(false)" title="Скрыть панель (вернуть: mousecrown)">✕</button>
     </div>
     <div class="cheat-btns-row">
-      <button class="cheat-btn" onclick="addDuckles(1000)">+1k</button>
-      <button class="cheat-btn" onclick="addDuckles(50000)">+50k</button>
       <button class="cheat-btn" onclick="addDuckles(1000000)">+1M</button>
+      <button class="cheat-btn" onclick="cheatTriggerDarkDuckDialog()" title="Вызвать сюжетный диалог с Подозрительной Уткой">🎭 Диалог</button>
       <button class="cheat-btn" onclick="cheatAddEggs()">+🥚</button>
       <button class="cheat-btn" onclick="cheatFastSpoil()" title="Ускорить порчу яиц (таймер 2 сек)">⏱️⚡</button>
       <button class="cheat-btn" onclick="cheatFastDebuff()" title="Вызвать дебафф тухлых яиц (таймер 2 сек)">🤢⚡</button>
@@ -789,6 +788,12 @@
          onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
     <span style="display: none; font-size: 52px;">🍯</span>
     <div id="honeyCountBadge" class="honey-count-badge" style="display: none;">1</div>
+  </div>
+
+  <div id="prop-pixelMap" class="draggable-prop" style="display: none;" title="Странная карта">
+    <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/props/pixel-map.png" alt="Странная карта" draggable="false" referrerpolicy="no-referrer"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+    <span style="display: none; font-size: 52px;">🗺️</span>
   </div>
 
   <!-- Контекстное меню для предметов и яиц на столе (ПКМ) -->

@@ -156,7 +156,7 @@
       tickPlantGrowth(deltaSec);
     }
 
-    // 9. Сюжетный квест: Появление таинственной утки (через 2 минуты после старта новой игры)
+    // 9. Сюжетный квест: Появление таинственной утки (через 5 минут после старта новой игры)
     if (!isDarkDuckDialogTriggered) {
       darkDuckDialogTimer = Math.max(0, darkDuckDialogTimer - deltaSec);
       window.darkDuckDialogTimer = darkDuckDialogTimer;

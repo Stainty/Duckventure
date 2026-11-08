@@ -528,7 +528,7 @@
       propKnife.style.display = 'none';
       delete propKnife.dataset.placed;
     }
-    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey'].forEach(id => {
+    ['birdFeed', 'duckFeedAlpha', 'duckFeedBeta', 'veggieSet', 'tomato', 'cucumber', 'lettuce', 'cuttingBoard', 'saladPlate', 'pot', 'dirtBag', 'flowerSeeds', 'honey', 'pixelMap'].forEach(id => {
       const el = document.getElementById('prop-' + id);
       if (el) {
         el.style.display = 'none';
@@ -631,13 +631,13 @@
     renderStorage();
     updateShopButtonVisibility();
     updateShopTabsVisibility();
-    darkDuckDialogTimer = 120;
-    window.darkDuckDialogTimer = 120;
+    darkDuckDialogTimer = 300;
+    window.darkDuckDialogTimer = 300;
     isDarkDuckDialogTriggered = false;
     window.isDarkDuckDialogTriggered = false;
     try {
       Storage.remove(DARK_DUCK_DIALOG_TRIGGERED_KEY);
-      Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '120');
+      Storage.set(DARK_DUCK_DIALOG_TIMER_KEY, '300');
     } catch (e) {}
 
     if (!preserveAchievements) {
