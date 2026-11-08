@@ -982,10 +982,7 @@
 
           <!-- Лес (Forest) -> Растущие грибы и добыча дерева -->
           <div class="map-location-sublayer" id="mapSublayerForest" style="display: none;">
-            <div class="forest-mushrooms-wrap" id="forestMushroomsWrap" onclick="harvestForestMushrooms(event)" title="Собрать грибы">
-              <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
-              <div class="forest-mushrooms-hint">🍄 Собрать</div>
-            </div>
+            <div class="forest-mushrooms-container" id="forestMushroomsContainer"></div>
             <div class="map-hotspot" style="left: 75%; top: 62%;">
               <div class="map-pin-beacon" aria-hidden="true"></div>
               <button class="map-location-btn" onclick="chopForestWood(event)">

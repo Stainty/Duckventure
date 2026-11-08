@@ -4462,6 +4462,17 @@ body.has-character-dialog #duck {
     transform: translate(-50%, -50%) scale(1.08) translateY(-2px);
   }
 
+    /* Контейнер растущих грибов в лесу */
+  .forest-mushrooms-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 18;
+  }
+  .forest-mushrooms-container .forest-mushrooms-wrap {
+    pointer-events: auto;
+  }
+
   /* Растущие лесные грибы */
   .forest-mushrooms-wrap {
     position: absolute;

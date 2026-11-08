@@ -2699,6 +2699,7 @@
     window.isMapModalOpen = true;
     mapEnergy = MAX_MAP_ENERGY;
     updateMapEnergyUI();
+    initForestMushrooms();
     showMapScreen('map');
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
@@ -2919,8 +2920,9 @@
       if (subLake) subLake.style.display = (locId === 'lake') ? 'block' : 'none';
       if (subForest) {
         subForest.style.display = (locId === 'forest') ? 'block' : 'none';
-        const mushWrap = document.getElementById('forestMushroomsWrap');
-        if (mushWrap && locId === 'forest') mushWrap.style.display = 'flex';
+        if (locId === 'forest') {
+          renderForestMushrooms();
+        }
       }
       if (subCave) subCave.style.display = (locId === 'cave') ? 'block' : 'none';
       if (subVillage) subVillage.style.display = (locId === 'village') ? 'block' : 'none';
@@ -2954,72 +2956,127 @@
   }
   window.returnToWorldMap = returnToWorldMap;
 
-  function harvestForestMushrooms(event) {
+  let forestMushroomsData = [];
+
+  function initForestMushrooms() {
+    const count = 1 + Math.floor(Math.random() * 2); // От 1 до 2 грибов
+    const positions = [
+      { left: 20, bottom: 14 },
+      { left: 34, bottom: 18 }
+    ];
+    forestMushroomsData = [];
+    for (let i = 0; i < count; i++) {
+      forestMushroomsData.push({
+        id: i,
+        harvested: false,
+        left: positions[i].left,
+        bottom: positions[i].bottom
+      });
+    }
+  }
+  window.initForestMushrooms = initForestMushrooms;
+
+  function renderForestMushrooms() {
+    const container = document.getElementById('forestMushroomsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    const imgUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.mushrooms) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png';
+    forestMushroomsData.forEach(m => {
+      if (m.harvested) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'forest-mushrooms-wrap';
+      wrap.style.left = m.left + '%';
+      wrap.style.bottom = m.bottom + '%';
+      wrap.setAttribute('data-mushroom-id', String(m.id));
+      wrap.title = 'Собрать грибы';
+      wrap.innerHTML = `
+        <img src="${imgUrl}" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
+        <div class="forest-mushrooms-hint">🍄 Собрать</div>
+      `;
+      wrap.addEventListener('click', (e) => harvestForestMushroom(e, m.id));
+      container.appendChild(wrap);
+    });
+  }
+  window.renderForestMushrooms = renderForestMushrooms;
+
+  function harvestForestMushroom(event, mId) {
     if (event) {
       event.stopPropagation();
       event.preventDefault();
     }
-    const mushWrap = document.getElementById('forestMushroomsWrap');
-    if (!mushWrap || mushWrap.style.display === 'none') return;
+    const m = forestMushroomsData.find(item => item.id === mId);
+    if (!m || m.harvested) return;
+
+    m.harvested = true;
 
     if (typeof clickSound === 'function') clickSound();
     if (typeof quack === 'function') {
       try { quack(); } catch (_) {}
     }
 
-    const mushRect = mushWrap.getBoundingClientRect();
-    const invTray = document.getElementById('mapInventoryTray') || document.getElementById('mapInventoryWindow');
-    const trayRect = invTray ? invTray.getBoundingClientRect() : null;
-
-    // Immediately add mushrooms to inventory
+    // Добавляем грибы в инвентарь карты
     if (!transferredProps.map) transferredProps.map = [];
     transferredProps.map.push('mushrooms');
     try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
     renderTransferredPropsTray('map');
     if (typeof updateShopSellTab === 'function') updateShopSellTab();
 
-    // Spawn flight animation
-    const flyImg = document.createElement('img');
-    flyImg.src = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.mushrooms) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png';
-    flyImg.className = 'flying-mushroom-anim';
-    flyImg.style.left = (mushRect.left + mushRect.width / 2 - 30) + 'px';
-    flyImg.style.top = (mushRect.top + mushRect.height / 2 - 30) + 'px';
-    document.body.appendChild(flyImg);
+    const targetWrap = (event && event.currentTarget) || document.querySelector(`.forest-mushrooms-wrap[data-mushroom-id="${mId}"]`);
+    if (targetWrap) {
+      const mushRect = targetWrap.getBoundingClientRect();
+      const invTray = document.getElementById('mapInventoryTray') || document.getElementById('mapInventoryWindow');
+      const trayRect = invTray ? invTray.getBoundingClientRect() : null;
 
-    mushWrap.style.display = 'none';
+      const flyImg = document.createElement('img');
+      flyImg.src = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.mushrooms) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png';
+      flyImg.className = 'flying-mushroom-anim';
+      flyImg.style.left = (mushRect.left + mushRect.width / 2 - 30) + 'px';
+      flyImg.style.top = (mushRect.top + mushRect.height / 2 - 30) + 'px';
+      document.body.appendChild(flyImg);
 
-    if (typeof particles !== 'undefined') {
-      for (let i = 0; i < 8; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 60 + Math.random() * 80;
-        particles.push({
-          x: mushRect.left + mushRect.width / 2,
-          y: mushRect.top + mushRect.height / 2,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 14 + Math.random() * 8,
-          alpha: 1.1,
-          text: '🍄',
-          color: '#fbbf24'
-        });
+      targetWrap.remove();
+
+      if (typeof particles !== 'undefined') {
+        for (let i = 0; i < 8; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 60 + Math.random() * 80;
+          particles.push({
+            x: mushRect.left + mushRect.width / 2,
+            y: mushRect.top + mushRect.height / 2,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 14 + Math.random() * 8,
+            alpha: 1.1,
+            text: '🍄',
+            color: '#fbbf24'
+          });
+        }
       }
+
+      requestAnimationFrame(() => {
+        const targetX = trayRect ? (trayRect.left + trayRect.width / 2 - 20) : (window.innerWidth / 2);
+        const targetY = trayRect ? (trayRect.top + 30) : (window.innerHeight - 80);
+        const deltaX = targetX - (mushRect.left + mushRect.width / 2 - 30);
+        const deltaY = targetY - (mushRect.top + mushRect.height / 2 - 30);
+
+        flyImg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.4) rotate(15deg)`;
+        flyImg.style.opacity = '0.3';
+      });
+
+      setTimeout(() => {
+        if (flyImg && flyImg.parentNode) flyImg.parentNode.removeChild(flyImg);
+      }, 750);
     }
-
-    requestAnimationFrame(() => {
-      const targetX = trayRect ? (trayRect.left + trayRect.width / 2 - 20) : (window.innerWidth / 2);
-      const targetY = trayRect ? (trayRect.top + 30) : (window.innerHeight - 80);
-      const deltaX = targetX - (mushRect.left + mushRect.width / 2 - 30);
-      const deltaY = targetY - (mushRect.top + mushRect.height / 2 - 30);
-
-      flyImg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.4) rotate(15deg)`;
-      flyImg.style.opacity = '0.3';
-    });
-
-    setTimeout(() => {
-      if (flyImg && flyImg.parentNode) flyImg.parentNode.removeChild(flyImg);
-    }, 750);
   }
-  window.harvestForestMushrooms = harvestForestMushrooms;
+  window.harvestForestMushroom = harvestForestMushroom;
+
+  // Обратная совместимость для вызова без id
+  window.harvestForestMushrooms = function(event) {
+    const available = forestMushroomsData.find(item => !item.harvested);
+    if (available) {
+      harvestForestMushroom(event, available.id);
+    }
+  };
 
   function chopForestWood(event) {
     if (event) {
