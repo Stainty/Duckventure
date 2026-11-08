@@ -1085,7 +1085,7 @@
     if (propId === 'skovoroda') return { width: 82, height: 82 };
     if (propId === 'dichlofos') return { width: 68, height: 90 };
     if (propId === 'key') return { width: 72, height: 72 };
-    if (propId === 'pixelMap') return { width: 96, height: 54 };
+    if (propId === 'pixelMap') return { width: 88, height: 66 };
     if (propId === 'knife') return { width: 76, height: 76 };
     if (propId === 'tape') return { width: 72, height: 72 };
     if (propId === 'pot') return { width: 90, height: 98 };
