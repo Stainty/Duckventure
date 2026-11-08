@@ -47,7 +47,7 @@ expected_keys = [
     'OWNED_PROPS_KEY', 'PLACED_PROPS_KEY', 'SHOP_CLOTHING_COLLAPSED_KEY',
     'SHOP_HOUSEHOLD_COLLAPSED_KEY', 'SHOP_FOOD_BUY_COLLAPSED_KEY', 'DUCK_FEED_ALPHA_REMAINING_KEY', 'DUCK_FEED_BETA_REMAINING_KEY', 'DUCK_DIARRHEA_REMAINING_KEY', 'SALAD_BUFF_REMAINING_KEY', 'CUTTING_BOARD_INGREDIENTS_KEY', 'HAS_SMASHED_EGGS_KEY', 'LAMP_ON_KEY',
     'FRIDGE_ON_KEY', 'EGG_SPOIL_TIMER_KEY', 'BUSINESSES_STATE_KEY',
-    'CREATURE_ON_DESK_KEY', 'CHEAT_PANEL_KEY'
+    'CREATURE_ON_DESK_KEY', 'CHEAT_PANEL_KEY', 'FIRST_MAP_DIALOG_SHOWN_KEY'
 ]
 missing_keys = [k for k in expected_keys if not any(k == var for var, _ in keys)]
 assert len(missing_keys) == 0, f"Missing storage keys: {missing_keys}"
@@ -130,8 +130,23 @@ window.addEventListener('load', () => {
         spawnPixelMapOnDesk();
         report.mapSpawnedOnDesk = (document.getElementById('prop-pixelMap').style.display === 'block' && ownedProps.includes('pixelMap'));
 
-        // 6. Map Modal test: open, pause all processes, exit button, close, hotspots, inventory tray
+        // 5.5 Animals shop section test: incubator alone should NOT show animals section
+        ownedProps.push('incubator');
+        updateShopTabsVisibility();
+        const animalsSec = document.getElementById('animalsShopSection');
+        report.animalsHiddenWithJustIncubator = (animalsSec && animalsSec.style.display === 'none');
+
+        // Once an animal is hatched, section should become visible
+        hasHatchedDuckling = true;
+        updateShopTabsVisibility();
+        report.animalsVisibleWithHatched = (animalsSec && animalsSec.style.display !== 'none');
+        hasHatchedDuckling = false;
+        ownedProps = ownedProps.filter(p => p !== 'incubator');
+
+        // 6. Map Modal test: open, first map dialog trigger, pause all processes, exit button, close, hotspots, inventory tray
         openMapModal();
+        report.firstMapDialogTriggered = (document.getElementById('characterDialogModal').style.display !== 'none');
+        if (typeof closeCharacterDialog === 'function') closeCharacterDialog();
         report.mapModalOpened = (document.getElementById('mapModal').style.display !== 'none' && isMapModalOpen && isAnyModalOpen());
         report.mapCloseBtnExists = !!document.getElementById('mapCloseBtn');
         report.mapInventoryTrayExists = !!document.getElementById('mapInventoryTray');

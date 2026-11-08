@@ -102,7 +102,7 @@
     }
 
     if (sGDCard) {
-      sGDCard.style.display = (gdCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
+      sGDCard.style.display = (gdCount > 0 || hasHatchedGoldenDuckling) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenDucklingsCount');
       if (cEl) cEl.textContent = gdCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenDuckling1Btn');
@@ -119,7 +119,7 @@
     }
 
     if (sGCard) {
-      sGCard.style.display = (gCount > 0 || hasHatchedDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
+      sGCard.style.display = (gCount > 0 || (hasHatchedDuckling && gCount > 0)) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGeeseCount');
       if (cEl) cEl.textContent = gCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoose1Btn');
@@ -136,7 +136,7 @@
     }
 
     if (sGGCard) {
-      sGGCard.style.display = (ggCount > 0 || hasHatchedGoldenDuckling || upgradeLevels.features >= 3) ? 'flex' : 'none';
+      sGGCard.style.display = (ggCount > 0 || (hasHatchedGoldenDuckling && ggCount > 0)) ? 'flex' : 'none';
       const cEl = document.getElementById('shopGoldenGeeseCount');
       if (cEl) cEl.textContent = ggCount.toLocaleString('ru-RU');
       const b1 = document.getElementById('sellGoldenGoose1Btn');
@@ -2691,6 +2691,11 @@
     window.isMapModalOpen = true;
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
+
+    const hasSeenFirstMapDialog = typeof Storage !== 'undefined' && Storage.getBoolean(FIRST_MAP_DIALOG_SHOWN_KEY, false);
+    if (!hasSeenFirstMapDialog && typeof launchFirstMapDialog === 'function') {
+      launchFirstMapDialog();
+    }
   }
   window.openMapModal = openMapModal;
 

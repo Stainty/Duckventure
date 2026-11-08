@@ -70,6 +70,7 @@ const GRAVITY = 1000;      // px/s²
   const DARK_DUCK_DIALOG_TRIGGERED_KEY = 'duck-dark-duck-dialog-triggered';
   const DARK_DUCK_DIALOG_TIMER_KEY = 'duck-dark-duck-dialog-timer';
   const HAS_TALKED_TO_SUS_DUCK_KEY = 'duck-has-talked-to-sus-duck';
+  const FIRST_MAP_DIALOG_SHOWN_KEY = 'duck-first-map-dialog-shown';
 
   /* ==========================================================================
      Устойчивое хранилище (Safe LocalStorage Layer)

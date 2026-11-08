@@ -1030,14 +1030,11 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
     const hasAnimalsUnlocked = Boolean(
       (typeof hasHatchedDuckling !== 'undefined' && hasHatchedDuckling) ||
       (typeof hasHatchedGoldenDuckling !== 'undefined' && hasHatchedGoldenDuckling) ||
-      (typeof ownedProps !== 'undefined' && Array.isArray(ownedProps) && ownedProps.includes('incubator')) ||
-      (typeof placedProps !== 'undefined' && Array.isArray(placedProps) && placedProps.some(p => p && p.id === 'incubator')) ||
       (typeof normalDucklings !== 'undefined' && normalDucklings > 0) ||
       (typeof goldenDucklings !== 'undefined' && goldenDucklings > 0) ||
       (typeof normalGeese !== 'undefined' && normalGeese > 0) ||
       (typeof goldenGeese !== 'undefined' && goldenGeese > 0) ||
-      (typeof deskCreatures !== 'undefined' && Array.isArray(deskCreatures) && deskCreatures.length > 0) ||
-      (typeof incubatingEggs !== 'undefined' && Array.isArray(incubatingEggs) && incubatingEggs.length > 0)
+      (typeof deskCreatures !== 'undefined' && Array.isArray(deskCreatures) && deskCreatures.length > 0)
     );
 
     if (foodSection) foodSection.style.display = hasFoodUnlocked ? 'block' : 'none';

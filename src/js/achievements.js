@@ -646,6 +646,7 @@
       hasTalkedToSusDuck = false;
       window.hasTalkedToSusDuck = false;
       try { Storage.remove(HAS_TALKED_TO_SUS_DUCK_KEY); } catch (e) {}
+      try { Storage.remove(FIRST_MAP_DIALOG_SHOWN_KEY); } catch (e) {}
     }
 
     if (typeof showWelcomeDialog === 'function') {

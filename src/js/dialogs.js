@@ -656,6 +656,87 @@
   window.spawnPixelMapOnDesk = spawnPixelMapOnDesk;
   window.cheatTriggerDarkDuckDialog = cheatTriggerDarkDuckDialog;
 
+  /* ==========================================================================
+     Сюжетный диалог: Первое открытие карты мира (перенос в новую реальность)
+     ========================================================================== */
+  const FIRST_MAP_DIALOG_TREE = {
+    id: "first_map_dialog",
+    title: "Странная карта",
+    leftName: "Утка",
+    startNode: "start",
+    nodes: {
+      "start": {
+        id: "start",
+        type: "intro",
+        title: "Странная карта",
+        speaker: "none",
+        text: "Вы разворачиваете загадочную карту.\n\nПривычные очертания стола и комнаты начинают стремительно блекнуть и терять четкость. Пространство вокруг дрожит и растворяется в мерцающем мареве...\n\nМиг — и вас переносит в совершенно иную реальность.",
+        choices: [
+          { text: ">", target: "duck_reaction", style: "primary" }
+        ],
+        hideBadge: false
+      },
+      "duck_reaction": {
+        id: "duck_reaction",
+        type: "dialogue",
+        title: "Новая реальность",
+        speaker: "left",
+        leftAvatar: "current_player_skin",
+        leftSpeech: "Кря?!",
+        leftCharSize: 105,
+        text: "— Кря?! Что происходит? Куда исчез стол?..\n\nВокруг только бескрайние леса, скалы и незнакомые тропы. Видимо, эта карта скрывает куда больше тайн, чем казалось.\n\nИ что мне теперь делать дальше? Придется осмотреться и всё здесь изучить.",
+        choices: [
+          { text: "Исследовать карту", target: "end", style: "primary" }
+        ],
+        hideBadge: false
+      }
+    }
+  };
+
+  function launchFirstMapDialog() {
+    const tree = FIRST_MAP_DIALOG_TREE;
+    try { Storage.set(FIRST_MAP_DIALOG_SHOWN_KEY, '1'); } catch (e) {}
+
+    function openStep(stepId) {
+      if (!stepId || stepId === 'end' || !tree.nodes[stepId]) {
+        closeCharacterDialog();
+        return;
+      }
+      const step = tree.nodes[stepId];
+      showCharacterDialog({
+        type: step.type || 'dialogue',
+        speaker: step.speaker || 'left',
+        characterLeft: {
+          name: step.leftName || tree.leftName || 'Утка',
+          avatar: (step.leftAvatar && step.leftAvatar !== 'current_player_skin') ? step.leftAvatar : undefined,
+          speechText: step.leftSpeech || '',
+          size: step.leftCharSize || 105
+        },
+        characterRight: null,
+        content: {
+          title: step.title || tree.title,
+          hideBadge: Boolean(step.hideBadge),
+          text: step.text || ''
+        },
+        buttons: (step.choices && step.choices.length > 0) ? step.choices.map(c => ({
+          text: c.text,
+          primary: c.style === 'primary',
+          onClick: () => openStep(c.target)
+        })) : [
+          {
+            text: "Закрыть",
+            primary: true,
+            onClick: () => closeCharacterDialog()
+          }
+        ]
+      });
+    }
+
+    openStep(tree.startNode);
+  }
+
+  window.FIRST_MAP_DIALOG_TREE = FIRST_MAP_DIALOG_TREE;
+  window.launchFirstMapDialog = launchFirstMapDialog;
   window.launchDarkDuckQuestDialog = launchDarkDuckQuestDialog;
   window.DARK_DUCK_DIALOG_TREE = DARK_DUCK_DIALOG_TREE;
   window.showCharacterDialog = showCharacterDialog;
