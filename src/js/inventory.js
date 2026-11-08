@@ -2697,104 +2697,186 @@
     modal.classList.add('open');
     isMapModalOpen = true;
     window.isMapModalOpen = true;
+    mapNavigationStack = [];
+    showMapScreen('map');
     renderTransferredPropsTray('map');
     if (typeof clickSound === 'function') clickSound();
   }
   window.openMapModal = openMapModal;
 
-  /* ---------- Клики по локациям карты мира и переход между экранами ---------- */
-  function onMapLocationClick(locId, locName) {
-    if (typeof clickSound === 'function') clickSound();
-    const locNames = {
-      forest: 'Лес',
-      cave: 'Пещера',
-      village: 'Деревня',
-      polyana: 'Поляна',
-      lake: 'Озеро'
-    };
-    const name = locName || locNames[locId] || locId;
+  /* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
+  const MAP_LOC_NAMES = {
+    map: 'Карта мира',
+    forest: 'Лес',
+    cave: 'Пещера',
+    village: 'Деревня',
+    polyana: 'Поляна',
+    lake: 'Озеро',
+    prud: 'Пруд',
+    market: 'Рынок',
+    blacksmith: 'Кузнец'
+  };
 
-    const locImages = {
+  const MAP_PARENT_LOCATION = {
+    prud: 'lake',
+    market: 'village',
+    blacksmith: 'village'
+  };
+
+  function getMapLocImages() {
+    return {
       forest: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.forest) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/forest.jfif',
       cave: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.cave) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/cave.jfif',
       lake: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.lake) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/lake.jfif',
       polyana: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.polyana) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/polyana.jfif',
       village: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.village) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/village.jfif',
+      prud: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.prud) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/prud.jfif',
+      market: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.market) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/market.jfif',
+      blacksmith: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.blacksmith) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/blacksmith.jfif',
       map: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif'
     };
+  }
 
+  function showMapScreen(locId) {
+    const locImages = getMapLocImages();
     const mapImg = document.getElementById('mapModalImg');
     const hotspotsLayer = document.getElementById('mapHotspotsLayer');
     const backBtn = document.getElementById('mapBackBtn');
     const titleBadge = document.getElementById('mapLocationTitleBadge');
     const titleText = document.getElementById('mapLocationTitleText');
 
-    if (locImages[locId] && mapImg) {
-      mapImg.src = locImages[locId];
-      currentMapScreen = locId;
-      window.currentMapScreen = locId;
+    const subLake = document.getElementById('mapSublayerLake');
+    const subForest = document.getElementById('mapSublayerForest');
+    const subCave = document.getElementById('mapSublayerCave');
+    const subVillage = document.getElementById('mapSublayerVillage');
 
+    currentMapScreen = locId;
+    window.currentMapScreen = locId;
+
+    if (locId === 'map') {
+      if (mapImg) mapImg.src = locImages.map;
+      if (hotspotsLayer) hotspotsLayer.style.display = 'block';
+      if (backBtn) backBtn.style.display = 'none';
+      if (titleBadge) titleBadge.style.display = 'none';
+      if (subLake) subLake.style.display = 'none';
+      if (subForest) subForest.style.display = 'none';
+      if (subCave) subCave.style.display = 'none';
+      if (subVillage) subVillage.style.display = 'none';
+    } else {
+      if (mapImg && locImages[locId]) mapImg.src = locImages[locId];
       if (hotspotsLayer) hotspotsLayer.style.display = 'none';
       if (backBtn) backBtn.style.display = 'flex';
-      if (titleText) titleText.textContent = name;
+      if (titleText) titleText.textContent = MAP_LOC_NAMES[locId] || locId;
       if (titleBadge) titleBadge.style.display = 'block';
-    }
 
-    const hotspot = document.querySelector(`.map-hotspot[data-location="${locId}"]`);
-    if (hotspot && typeof particles !== 'undefined') {
-      const hr = hotspot.getBoundingClientRect();
-      const icons = {
-        forest: '🌲',
-        cave: '⛰️',
-        village: '🏡',
-        polyana: '🌸',
-        lake: '🌊'
-      };
-      const sym = icons[locId] || '✨';
-      for (let i = 0; i < 12; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = 70 + Math.random() * 140;
-        particles.push({
-          x: hr.left + hr.width / 2,
-          y: hr.top + hr.height / 2,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          size: 16 + Math.random() * 10,
-          alpha: 1.2,
-          text: sym,
-          color: '#ffd24d'
-        });
+      if (subLake) subLake.style.display = (locId === 'lake') ? 'block' : 'none';
+      if (subForest) {
+        subForest.style.display = (locId === 'forest') ? 'block' : 'none';
+        const mushWrap = document.getElementById('forestMushroomsWrap');
+        if (mushWrap && locId === 'forest') mushWrap.style.display = 'flex';
       }
+      if (subCave) subCave.style.display = (locId === 'cave') ? 'block' : 'none';
+      if (subVillage) subVillage.style.display = (locId === 'village') ? 'block' : 'none';
     }
+  }
+  window.showMapScreen = showMapScreen;
+
+  function onMapLocationClick(locId, locName) {
+    if (typeof clickSound === 'function') clickSound();
+    showMapScreen(locId);
   }
   window.onMapLocationClick = onMapLocationClick;
 
-  /* ---------- Возврат на карту мира из локаций ---------- */
+  /* ---------- Возврат на карту мира или родительский экран ---------- */
   function returnToWorldMap() {
     if (typeof clickSound === 'function') clickSound();
+    const parentLoc = MAP_PARENT_LOCATION[currentMapScreen] || 'map';
+    showMapScreen(parentLoc);
+  }
+  window.returnToWorldMap = returnToWorldMap;
 
-    const mapImg = document.getElementById('mapModalImg');
-    const hotspotsLayer = document.getElementById('mapHotspotsLayer');
-    const backBtn = document.getElementById('mapBackBtn');
-    const titleBadge = document.getElementById('mapLocationTitleBadge');
+  function harvestForestMushrooms(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    const mushWrap = document.getElementById('forestMushroomsWrap');
+    if (!mushWrap || mushWrap.style.display === 'none') return;
 
-    const defaultMapSrc = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif';
-    if (mapImg) {
-      mapImg.src = defaultMapSrc;
+    if (typeof clickSound === 'function') clickSound();
+    if (typeof quack === 'function') {
+      try { quack(); } catch (_) {}
     }
 
-    currentMapScreen = 'map';
-    window.currentMapScreen = 'map';
+    const mushRect = mushWrap.getBoundingClientRect();
+    const invTray = document.getElementById('mapInventoryTray') || document.getElementById('mapInventoryWindow');
+    const trayRect = invTray ? invTray.getBoundingClientRect() : null;
 
-    if (hotspotsLayer) hotspotsLayer.style.display = 'block';
-    if (backBtn) backBtn.style.display = 'none';
-    if (titleBadge) titleBadge.style.display = 'none';
+    // Immediately add mushrooms to inventory
+    if (!transferredProps.map) transferredProps.map = [];
+    transferredProps.map.push('mushrooms');
+    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+    renderTransferredPropsTray('map');
+    if (typeof updateShopSellTab === 'function') updateShopSellTab();
 
-    if (backBtn && typeof particles !== 'undefined') {
-      const br = backBtn.getBoundingClientRect();
+    // Spawn flight animation
+    const flyImg = document.createElement('img');
+    flyImg.src = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.mushrooms) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png';
+    flyImg.className = 'flying-mushroom-anim';
+    flyImg.style.left = (mushRect.left + mushRect.width / 2 - 30) + 'px';
+    flyImg.style.top = (mushRect.top + mushRect.height / 2 - 30) + 'px';
+    document.body.appendChild(flyImg);
+
+    mushWrap.style.display = 'none';
+
+    if (typeof particles !== 'undefined') {
       for (let i = 0; i < 8; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const spd = 50 + Math.random() * 100;
+        const spd = 60 + Math.random() * 80;
+        particles.push({
+          x: mushRect.left + mushRect.width / 2,
+          y: mushRect.top + mushRect.height / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 14 + Math.random() * 8,
+          alpha: 1.1,
+          text: '🍄',
+          color: '#fbbf24'
+        });
+      }
+    }
+
+    requestAnimationFrame(() => {
+      const targetX = trayRect ? (trayRect.left + trayRect.width / 2 - 20) : (window.innerWidth / 2);
+      const targetY = trayRect ? (trayRect.top + 30) : (window.innerHeight - 80);
+      const deltaX = targetX - (mushRect.left + mushRect.width / 2 - 30);
+      const deltaY = targetY - (mushRect.top + mushRect.height / 2 - 30);
+
+      flyImg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.4) rotate(15deg)`;
+      flyImg.style.opacity = '0.3';
+    });
+
+    setTimeout(() => {
+      if (flyImg && flyImg.parentNode) flyImg.parentNode.removeChild(flyImg);
+    }, 750);
+  }
+  window.harvestForestMushrooms = harvestForestMushrooms;
+
+  function chopForestWood(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    if (typeof clickSound === 'function') clickSound();
+
+    const btn = (event && event.currentTarget) || document.querySelector('.map-action-wood-btn');
+    const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+
+    if (typeof particles !== 'undefined') {
+      const symbols = ['🪵', '🪓', '🌲', '✨'];
+      for (let i = 0; i < 10; i++) {
+        const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
+        const spd = 70 + Math.random() * 120;
         particles.push({
           x: br.left + br.width / 2,
           y: br.top + br.height / 2,
@@ -2802,13 +2884,54 @@
           vy: Math.sin(ang) * spd,
           size: 14 + Math.random() * 8,
           alpha: 1.1,
-          text: '✨',
-          color: '#60a5fa'
+          text: symbols[Math.floor(Math.random() * symbols.length)],
+          color: '#d97706'
         });
       }
     }
+
+    if (!transferredProps.map) transferredProps.map = [];
+    transferredProps.map.push('wood');
+    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
+    renderTransferredPropsTray('map');
+    if (typeof updateShopSellTab === 'function') updateShopSellTab();
   }
-  window.returnToWorldMap = returnToWorldMap;
+  window.chopForestWood = chopForestWood;
+
+  function startCaveDigging(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    if (typeof clickSound === 'function') clickSound();
+
+    const btn = (event && event.currentTarget) || document.querySelector('.map-action-mine-btn');
+    const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+
+    if (typeof particles !== 'undefined') {
+      const symbols = ['⛏️', '💎', '🪙', '🪨', '✨'];
+      for (let i = 0; i < 12; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 140;
+        particles.push({
+          x: br.left + br.width / 2,
+          y: br.top + br.height / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 15 + Math.random() * 8,
+          alpha: 1.2,
+          text: symbols[Math.floor(Math.random() * symbols.length)],
+          color: '#38bdf8'
+        });
+      }
+    }
+
+    const foundDuckles = 1500;
+    if (typeof earnDuckles === 'function') {
+      earnDuckles(foundDuckles);
+    }
+  }
+  window.startCaveDigging = startCaveDigging;
 
   function closeMapModal() {
     const modal = document.getElementById('mapModal');
@@ -2816,9 +2939,7 @@
       modal.classList.remove('open');
       modal.style.display = 'none';
     }
-    if (typeof returnToWorldMap === 'function') {
-      returnToWorldMap();
-    }
+    showMapScreen('map');
     isMapModalOpen = false;
     window.isMapModalOpen = false;
     if (typeof lastGameTickTime !== 'undefined') {
@@ -3284,7 +3405,7 @@
         slot.innerHTML = `
           <img src="${iconSrc}" alt="${pName}" draggable="false" referrerpolicy="no-referrer"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
-          <span style="display: none; font-size: 32px;">🎒</span>
+          <span style="display: none; font-size: 32px;">${pData.fallbackEmoji || '🎒'}</span>
         `;
         trayEl.appendChild(slot);
         initTransferredPropDrag(slot, 'map', id);

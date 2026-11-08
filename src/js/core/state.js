@@ -579,6 +579,24 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       fallbackEmoji: '🗺️',
       desc: 'Таинственная пиксельная карта, оставленная Подозрительной Уткой.'
     },
+    mushrooms: {
+      id: 'mushrooms',
+      name: 'Лесные грибы',
+      category: 'food',
+      cost: 600,
+      icon: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.mushrooms) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png',
+      fallbackEmoji: '🍄',
+      desc: 'Свежие съедобные грибы, найденные в дремучем лесу.'
+    },
+    wood: {
+      id: 'wood',
+      name: 'Древесина',
+      category: 'household',
+      cost: 800,
+      icon: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.wood) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/wood.png',
+      fallbackEmoji: '🪵',
+      desc: 'Крепкие брёвна из чащи леса, пригодятся в хозяйстве.'
+    },
 
     lamp: {
       id: 'lamp',

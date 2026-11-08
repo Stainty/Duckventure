@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Duckventure</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🦆</text></svg>">
+<link rel="alternate icon" type="image/png" href="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/skins/duck-default.png">
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
@@ -953,6 +955,48 @@
                 <span class="map-loc-text">Озеро</span>
               </button>
             </div>
+          </div>
+
+          
+          <!-- Интерактивные слои подлокаций и действий внутри локаций -->
+          <!-- Озеро (Lake) -> Переход в Пруд (Prud) -->
+          <div class="map-location-sublayer" id="mapSublayerLake" style="display: none;">
+            <button class="map-action-btn map-action-prud-btn" onclick="onMapLocationClick('prud', 'Пруд')">
+              <span class="map-action-icon">🌊</span>
+              <span class="map-action-text">Войти в пруд</span>
+            </button>
+          </div>
+
+          <!-- Лес (Forest) -> Растущие грибы и добыча дерева -->
+          <div class="map-location-sublayer" id="mapSublayerForest" style="display: none;">
+            <div class="forest-mushrooms-wrap" id="forestMushroomsWrap" onclick="harvestForestMushrooms(event)" title="Собрать грибы">
+              <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
+              <div class="forest-mushrooms-hint">🍄 Собрать</div>
+            </div>
+            <button class="map-action-btn map-action-wood-btn" onclick="chopForestWood(event)">
+              <span class="map-action-icon">🪓</span>
+              <span class="map-action-text">Добывать дерево</span>
+            </button>
+          </div>
+
+          <!-- Пещера (Cave) -> Начать раскопки -->
+          <div class="map-location-sublayer" id="mapSublayerCave" style="display: none;">
+            <button class="map-action-btn map-action-mine-btn" onclick="startCaveDigging(event)">
+              <span class="map-action-icon">⛏️</span>
+              <span class="map-action-text">Начать раскопки</span>
+            </button>
+          </div>
+
+          <!-- Деревня (Village) -> Переход на Рынок или к Кузнецу -->
+          <div class="map-location-sublayer" id="mapSublayerVillage" style="display: none;">
+            <button class="map-action-btn map-action-market-btn" onclick="onMapLocationClick('market', 'Рынок')">
+              <span class="map-action-icon">🏪</span>
+              <span class="map-action-text">Рынок</span>
+            </button>
+            <button class="map-action-btn map-action-blacksmith-btn" onclick="onMapLocationClick('blacksmith', 'Кузнец')">
+              <span class="map-action-icon">⚒️</span>
+              <span class="map-action-text">Кузнец</span>
+            </button>
           </div>
 
           <!-- Кнопка возврата на карту мира из локаций (back.png в левой нижней части карты) -->

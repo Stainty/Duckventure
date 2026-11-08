@@ -48,7 +48,14 @@
       cave: CDN_BASE + 'pixelmap/cave.jfif',
       lake: CDN_BASE + 'pixelmap/lake.jfif',
       polyana: CDN_BASE + 'pixelmap/polyana.jfif',
-      village: CDN_BASE + 'pixelmap/village.jfif'
+      village: CDN_BASE + 'pixelmap/village.jfif',
+      prud: CDN_BASE + 'pixelmap/prud.jfif',
+      market: CDN_BASE + 'pixelmap/market.jfif',
+      blacksmith: CDN_BASE + 'pixelmap/blacksmith.jfif',
+      mushrooms: CDN_BASE + 'pixelmap/mushrooms.png',
+      wood: CDN_BASE + 'pixelmap/wood.png',
+      tree: CDN_BASE + 'pixelmap/tree.png',
+      axe: CDN_BASE + 'pixelmap/axe.png'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
