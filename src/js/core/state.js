@@ -333,9 +333,12 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   if (!placedProps || typeof placedProps !== 'object' || Array.isArray(placedProps)) placedProps = {};
   Object.defineProperty(window, 'placedProps', { get: () => placedProps, set: (v) => { placedProps = v; }, configurable: true });
 
-  let transferredProps = Storage.getJSON(TRANSFERRED_PROPS_KEY, { achievements: [] });
+  let transferredProps = Storage.getJSON(TRANSFERRED_PROPS_KEY, { achievements: [], map: [] });
   if (!transferredProps || typeof transferredProps !== 'object' || !Array.isArray(transferredProps.achievements)) {
-    transferredProps = { achievements: [] };
+    transferredProps = { achievements: [], map: [] };
+  }
+  if (!Array.isArray(transferredProps.map)) {
+    transferredProps.map = [];
   }
   Object.defineProperty(window, 'transferredProps', { get: () => transferredProps, set: (v) => { transferredProps = v; }, configurable: true });
 

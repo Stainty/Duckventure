@@ -130,10 +130,17 @@ window.addEventListener('load', () => {
         spawnPixelMapOnDesk();
         report.mapSpawnedOnDesk = (document.getElementById('prop-pixelMap').style.display === 'block' && ownedProps.includes('pixelMap'));
 
-        // 6. Map Modal test: open, pause all processes, exit button, close
+        // 6. Map Modal test: open, pause all processes, exit button, close, hotspots, inventory tray
         openMapModal();
         report.mapModalOpened = (document.getElementById('mapModal').style.display !== 'none' && isMapModalOpen && isAnyModalOpen());
         report.mapCloseBtnExists = !!document.getElementById('mapCloseBtn');
+        report.mapInventoryTrayExists = !!document.getElementById('mapInventoryTray');
+        const hotspots = document.querySelectorAll('.map-hotspot');
+        report.mapHotspotsCount = hotspots.length;
+        hotspots.forEach(h => {
+            const btn = h.querySelector('button');
+            if (btn) btn.click();
+        });
         closeMapModal();
         report.mapModalClosed = (document.getElementById('mapModal').style.display === 'none' && !isMapModalOpen);
 
