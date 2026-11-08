@@ -2869,7 +2869,7 @@
     }
     if (typeof clickSound === 'function') clickSound();
 
-    const btn = (event && event.currentTarget) || document.querySelector('.map-action-wood-btn');
+    const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerForest .map-location-btn');
     const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
 
     if (typeof particles !== 'undefined') {
@@ -2905,7 +2905,7 @@
     }
     if (typeof clickSound === 'function') clickSound();
 
-    const btn = (event && event.currentTarget) || document.querySelector('.map-action-mine-btn');
+    const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerCave .map-location-btn');
     const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
 
     if (typeof particles !== 'undefined') {

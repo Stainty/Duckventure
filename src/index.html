@@ -961,10 +961,13 @@
           <!-- Интерактивные слои подлокаций и действий внутри локаций -->
           <!-- Озеро (Lake) -> Переход в Пруд (Prud) -->
           <div class="map-location-sublayer" id="mapSublayerLake" style="display: none;">
-            <button class="map-action-btn map-action-prud-btn" onclick="onMapLocationClick('prud', 'Пруд')">
-              <span class="map-action-icon">🌊</span>
-              <span class="map-action-text">Войти в пруд</span>
-            </button>
+            <div class="map-hotspot" style="left: 50%; top: 60%;">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('prud', 'Пруд')">
+                <span class="map-loc-icon">🌊</span>
+                <span class="map-loc-text">Пруд</span>
+              </button>
+            </div>
           </div>
 
           <!-- Лес (Forest) -> Растущие грибы и добыча дерева -->
@@ -973,30 +976,42 @@
               <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/mushrooms.png" alt="Грибы" class="forest-mushrooms-img" draggable="false" referrerpolicy="no-referrer">
               <div class="forest-mushrooms-hint">🍄 Собрать</div>
             </div>
-            <button class="map-action-btn map-action-wood-btn" onclick="chopForestWood(event)">
-              <span class="map-action-icon">🪓</span>
-              <span class="map-action-text">Добывать дерево</span>
-            </button>
+            <div class="map-hotspot" style="left: 75%; top: 62%;">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="chopForestWood(event)">
+                <span class="map-loc-icon">🪓</span>
+                <span class="map-loc-text">Добывать дерево</span>
+              </button>
+            </div>
           </div>
 
           <!-- Пещера (Cave) -> Начать раскопки -->
           <div class="map-location-sublayer" id="mapSublayerCave" style="display: none;">
-            <button class="map-action-btn map-action-mine-btn" onclick="startCaveDigging(event)">
-              <span class="map-action-icon">⛏️</span>
-              <span class="map-action-text">Начать раскопки</span>
-            </button>
+            <div class="map-hotspot" style="left: 50%; top: 65%;">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="startCaveDigging(event)">
+                <span class="map-loc-icon">⛏️</span>
+                <span class="map-loc-text">Начать раскопки</span>
+              </button>
+            </div>
           </div>
 
           <!-- Деревня (Village) -> Переход на Рынок или к Кузнецу -->
           <div class="map-location-sublayer" id="mapSublayerVillage" style="display: none;">
-            <button class="map-action-btn map-action-market-btn" onclick="onMapLocationClick('market', 'Рынок')">
-              <span class="map-action-icon">🏪</span>
-              <span class="map-action-text">Рынок</span>
-            </button>
-            <button class="map-action-btn map-action-blacksmith-btn" onclick="onMapLocationClick('blacksmith', 'Кузнец')">
-              <span class="map-action-icon">⚒️</span>
-              <span class="map-action-text">Кузнец</span>
-            </button>
+            <div class="map-hotspot" style="left: 32%; top: 58%;">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('market', 'Рынок')">
+                <span class="map-loc-icon">🏪</span>
+                <span class="map-loc-text">Рынок</span>
+              </button>
+            </div>
+            <div class="map-hotspot" style="left: 68%; top: 58%;">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('blacksmith', 'Кузнец')">
+                <span class="map-loc-icon">⚒️</span>
+                <span class="map-loc-text">Кузнец</span>
+              </button>
+            </div>
           </div>
 
           <!-- Кнопка возврата на карту мира из локаций (back.png в левой нижней части карты) -->
