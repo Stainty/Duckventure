@@ -980,10 +980,12 @@
             </div>
           </div>
 
-          <!-- Лес (Forest) -> Растущие грибы и добыча дерева -->
+          <!-- Лес (Forest) -> Растущие грибы, дерево и древесина -->
           <div class="map-location-sublayer" id="mapSublayerForest" style="display: none;">
             <div class="forest-mushrooms-container" id="forestMushroomsContainer"></div>
-            <div class="map-hotspot" style="left: 75%; top: 62%;">
+            <div class="forest-tree-container" id="forestTreeContainer"></div>
+            <div class="forest-wood-container" id="forestWoodContainer"></div>
+            <div class="map-hotspot" id="forestWoodHotspot" style="left: 75%; top: 62%;">
               <div class="map-pin-beacon" aria-hidden="true"></div>
               <button class="map-location-btn" onclick="chopForestWood(event)">
                 <span class="map-loc-icon">🪓</span>
@@ -992,9 +994,10 @@
             </div>
           </div>
 
-          <!-- Пещера (Cave) -> Начать раскопки -->
+          <!-- Пещера (Cave) -> Начать раскопки и скала -->
           <div class="map-location-sublayer" id="mapSublayerCave" style="display: none;">
-            <div class="map-hotspot" style="left: 50%; top: 65%;">
+            <div class="cave-rock-container" id="caveRockContainer"></div>
+            <div class="map-hotspot" id="caveDigHotspot" style="left: 50%; top: 65%;">
               <div class="map-pin-beacon" aria-hidden="true"></div>
               <button class="map-location-btn" onclick="startCaveDigging(event)">
                 <span class="map-loc-icon">⛏️</span>
@@ -1029,6 +1032,24 @@
           </button>
 
           <!-- Бейдж с названием текущей локации -->
+          
+          <!-- Всплывающее приветственное окно с описанием локации при первом посещении -->
+          <div class="map-location-intro-overlay" id="mapLocationIntroOverlay" style="display: none;">
+            <div class="map-location-intro-dialog">
+              <div class="map-location-intro-header">
+                <span class="map-location-intro-title" id="mapLocIntroTitle">🌲 Дремучий Лес</span>
+              </div>
+              <div class="map-location-intro-body">
+                <p class="map-location-intro-text" id="mapLocIntroText">Описание локации...</p>
+              </div>
+              <div class="map-location-intro-footer">
+                <button class="map-location-intro-btn" id="mapLocIntroBtn" onclick="closeLocationIntroModal()">
+                  Исследовать
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="map-location-title-badge" id="mapLocationTitleBadge" style="display: none;">
             <span id="mapLocationTitleText">Лес</span>
           </div>

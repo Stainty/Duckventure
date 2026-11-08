@@ -56,7 +56,8 @@
       wood: CDN_BASE + 'pixelmap/wood.png',
       tree: CDN_BASE + 'pixelmap/tree.png',
       axe: CDN_BASE + 'pixelmap/axe.png',
-      energyIcon: CDN_BASE + 'pixelmap/energy-icon.png'
+      energyIcon: CDN_BASE + 'pixelmap/energy-icon.png',
+      rock: CDN_BASE + 'pixelmap/rock.png'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',

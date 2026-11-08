@@ -2709,6 +2709,7 @@
     const MAX_MAP_ENERGY = 3;
   let mapEnergy = MAX_MAP_ENERGY;
   window.mapEnergy = mapEnergy;
+  window.getMapEnergy = () => mapEnergy;
 
   function animateEnergyFlyAway(sourceEl) {
     if (!sourceEl) return;
@@ -2768,6 +2769,7 @@
 
   function updateMapEnergyUI(shouldAnimateFly = false) {
     window.mapEnergy = mapEnergy;
+  window.getMapEnergy = () => mapEnergy;
     const badgeEl = document.getElementById('mapEnergyBadge');
     const container = document.getElementById('mapEnergyIcons');
     if (!container) return;
@@ -2853,6 +2855,71 @@
   window.shakeMapEnergy = shakeMapEnergy;
 
   /* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
+    const LOCATION_INTROS = {
+    forest: {
+      title: '🌲 Дремучий Лес',
+      text: 'Вы ступаете под сень вековых деревьев. Под ногами шуршит мох, в тени прячутся лесные грибы, а в чащобе можно нарубить крепкой древесины.'
+    },
+    cave: {
+      title: '⛰️ Тёмная Пещера',
+      text: 'Холодные каменные своды отдаются гулким эхом. В глубине скал скрываются залежи древних пород и руд, ожидающие раскопок.'
+    },
+    lake: {
+      title: '🌊 Горное Озеро',
+      text: 'Прохладный горный воздух и кристально чистая гладь воды. В камышах у берега притаилась тропинка к уединённому лесному пруду.'
+    },
+    prud: {
+      title: '🏞️ Лесной Пруд',
+      text: 'Тихая скрытая заводь, залитая мягким рассеянным светом. Идеальное место для отдыха от суеты.'
+    },
+    polyana: {
+      title: '🌸 Солнечная Поляна',
+      text: 'Яркая просторная поляна, пестрящая полевыми цветами и травами. Тёплый ветерок разносит ароматы лета.'
+    },
+    village: {
+      title: '🏡 Утиная Деревня',
+      text: 'Шумный центр местной жизни! Здесь можно заглянуть в торговые ряды Рынка за припасами или наведаться в жаркую Кузницу.'
+    },
+    market: {
+      title: '🏪 Деревенский Рынок',
+      text: 'Прилавки ломятся от товаров со всей округи. Торговцы оживлённо спорят и предлагают выгодный обмен.'
+    },
+    blacksmith: {
+      title: '⚒️ Кузница',
+      text: 'Жар кузнечного горна и звонкие удары тяжёлого молота по наковальне. Здесь куются прочнейшие инструменты и закаляется сталь.'
+    }
+  };
+
+  function showLocationIntro(locId) {
+    if (!LOCATION_INTROS[locId]) return;
+    const shownKey = 'duck-loc-intro-shown-' + locId;
+    const alreadyShown = (typeof Storage !== 'undefined' && Storage.getBoolean(shownKey, false));
+    if (alreadyShown) return;
+
+    if (typeof Storage !== 'undefined') {
+      try { Storage.set(shownKey, 'true'); } catch (_) {}
+    }
+
+    const overlay = document.getElementById('mapLocationIntroOverlay');
+    const titleEl = document.getElementById('mapLocIntroTitle');
+    const textEl = document.getElementById('mapLocIntroText');
+
+    if (overlay && titleEl && textEl) {
+      titleEl.textContent = LOCATION_INTROS[locId].title;
+      textEl.textContent = LOCATION_INTROS[locId].text;
+      overlay.style.display = 'flex';
+      if (typeof clickSound === 'function') clickSound();
+    }
+  }
+  window.showLocationIntro = showLocationIntro;
+
+  function closeLocationIntroModal() {
+    const overlay = document.getElementById('mapLocationIntroOverlay');
+    if (overlay) overlay.style.display = 'none';
+    if (typeof clickSound === 'function') clickSound();
+  }
+  window.closeLocationIntroModal = closeLocationIntroModal;
+
   const MAP_LOC_NAMES = {
     map: 'Карта мира',
     forest: 'Лес',
@@ -2922,10 +2989,19 @@
         subForest.style.display = (locId === 'forest') ? 'block' : 'none';
         if (locId === 'forest') {
           renderForestMushrooms();
+          renderForestTree();
         }
       }
-      if (subCave) subCave.style.display = (locId === 'cave') ? 'block' : 'none';
+      if (subCave) {
+        subCave.style.display = (locId === 'cave') ? 'block' : 'none';
+        if (locId === 'cave') {
+          renderCaveRock();
+        }
+      }
       if (subVillage) subVillage.style.display = (locId === 'village') ? 'block' : 'none';
+
+      // Показываем приветственное окно с описанием локации при первом посещении
+      showLocationIntro(locId);
     }
   }
   window.showMapScreen = showMapScreen;
@@ -2957,6 +3033,9 @@
   window.returnToWorldMap = returnToWorldMap;
 
   let forestMushroomsData = [];
+  let isForestTreeSpawned = false;
+  let isCaveRockSpawned = false;
+  let forestWoodItemsData = [];
 
   function initForestMushrooms() {
     const count = 1 + Math.floor(Math.random() * 2); // От 1 до 2 грибов
@@ -2974,9 +3053,163 @@
         bottom: positions[i].bottom
       });
     }
+    // Сбрасываем дерево, древесину и скалу при перезаходе на карту
+    isForestTreeSpawned = false;
+    isCaveRockSpawned = false;
+    forestWoodItemsData = [];
   }
   window.initForestMushrooms = initForestMushrooms;
 
+  /* ---------- Универсальный Drag & Drop для упавших предметов на карте ---------- */
+  function initMapItemDrag(el, itemType, itemData) {
+    if (!el) return;
+    let isDragging = false;
+    let proxy = null;
+    let grabOffsetX = 0;
+    let grabOffsetY = 0;
+    let lastX = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+
+      isDragging = true;
+      const rect = el.getBoundingClientRect();
+      grabOffsetX = e.clientX - rect.left;
+      grabOffsetY = e.clientY - rect.top;
+      lastX = e.clientX;
+
+      // Создаем fixed-прокси поверх всего экрана для перетаскивания без обрезания overflow
+      proxy = document.createElement('img');
+      proxy.src = el.src;
+      proxy.className = 'dragging-map-item-proxy';
+      proxy.style.left = `${rect.left}px`;
+      proxy.style.top = `${rect.top}px`;
+      proxy.style.width = `${rect.width}px`;
+      proxy.style.height = `${rect.height}px`;
+      proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
+      proxy.style.transform = 'scale(1.18) rotate(4deg)';
+      document.body.appendChild(proxy);
+
+      el.style.opacity = '0.2';
+
+      const onPointerMove = (ev) => {
+        if (!isDragging || !proxy) return;
+        proxy.style.left = `${ev.clientX - grabOffsetX}px`;
+        proxy.style.top = `${ev.clientY - grabOffsetY}px`;
+
+        const dx = ev.clientX - lastX;
+        lastX = ev.clientX;
+        const tilt = Math.max(-20, Math.min(20, dx * 1.8));
+        proxy.style.transform = `scale(1.2) rotate(${tilt}deg)`;
+
+        const invWin = document.getElementById('mapInventoryWindow');
+        if (invWin) {
+          const invRect = invWin.getBoundingClientRect();
+          const isOver = (
+            ev.clientX >= invRect.left &&
+            ev.clientX <= invRect.right &&
+            ev.clientY >= invRect.top &&
+            ev.clientY <= invRect.bottom
+          );
+          if (isOver) {
+            invWin.classList.add('drag-target-hover');
+            proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 24px #4ade80)';
+          } else {
+            invWin.classList.remove('drag-target-hover');
+            proxy.style.filter = 'drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 20px #fbbf24)';
+          }
+        }
+      };
+
+      const onPointerUp = (ev) => {
+        if (!isDragging) return;
+        isDragging = false;
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        const invWin = document.getElementById('mapInventoryWindow');
+        let isCollected = false;
+
+        if (invWin) {
+          invWin.classList.remove('drag-target-hover');
+          const invRect = invWin.getBoundingClientRect();
+          if (
+            ev.clientX >= invRect.left &&
+            ev.clientX <= invRect.right &&
+            ev.clientY >= invRect.top &&
+            ev.clientY <= invRect.bottom
+          ) {
+            isCollected = true;
+          }
+        }
+
+        if (isCollected) {
+          if (proxy) proxy.remove();
+          el.remove();
+          if (itemData) itemData.harvested = true;
+
+          if (typeof clickSound === 'function') clickSound();
+          if (typeof quack === 'function') {
+            try { quack(); } catch (_) {}
+          }
+
+          if (!transferredProps.map) transferredProps.map = [];
+          transferredProps.map.push(itemType); // 'mushrooms' или 'wood'
+          try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (_) {}
+          renderTransferredPropsTray('map');
+          if (typeof updateShopSellTab === 'function') updateShopSellTab();
+
+          if (typeof particles !== 'undefined') {
+            const sym = (itemType === 'wood') ? '🪵' : '🍄';
+            for (let i = 0; i < 12; i++) {
+              const ang = Math.random() * Math.PI * 2;
+              const spd = 60 + Math.random() * 110;
+              particles.push({
+                x: ev.clientX,
+                y: ev.clientY,
+                vx: Math.cos(ang) * spd,
+                vy: Math.sin(ang) * spd,
+                size: 16 + Math.random() * 8,
+                alpha: 1.1,
+                text: sym,
+                color: '#fbbf24'
+              });
+            }
+          }
+        } else {
+          if (proxy) proxy.remove();
+          el.style.opacity = '1';
+
+          if (el.parentElement) {
+            const parentRect = el.parentElement.getBoundingClientRect();
+            const dropLeft = ev.clientX - grabOffsetX - parentRect.left;
+            const dropTop = ev.clientY - grabOffsetY - parentRect.top;
+
+            const clampedX = Math.max(10, Math.min(parentRect.width - (el.offsetWidth || 80) - 10, dropLeft));
+            const clampedY = Math.max(10, Math.min(parentRect.height - (el.offsetHeight || 60) - 10, dropTop));
+
+            el.style.left = `${clampedX}px`;
+            el.style.top = `${clampedY}px`;
+            el.style.bottom = 'auto';
+
+            if (itemData) {
+              itemData.posX = clampedX;
+              itemData.posY = clampedY;
+            }
+          }
+        }
+      };
+
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    });
+  }
+
+  /* ---------- Грибы в лесу ---------- */
   function renderForestMushrooms() {
     const container = document.getElementById('forestMushroomsContainer');
     if (!container) return;
@@ -3075,165 +3308,36 @@
     }
 
     container.appendChild(el);
-    initPoppedMushroomDrag(el, m);
+    initMapItemDrag(el, 'mushrooms', m);
     return el;
   }
 
-  function initPoppedMushroomDrag(el, m) {
-    let isDragging = false;
-    let startX = 0, startY = 0;
-    let origX = 0, origY = 0;
+  /* ---------- Дерево и добыча древесины в лесу ---------- */
+  function renderForestTree() {
+    const treeContainer = document.getElementById('forestTreeContainer');
+    const hotspot = document.getElementById('forestWoodHotspot');
+    if (!treeContainer) return;
+    treeContainer.innerHTML = '';
 
-    el.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      e.stopPropagation();
-      e.preventDefault();
-
-      isDragging = true;
-      const rect = el.getBoundingClientRect();
-      const parentRect = el.parentElement.getBoundingClientRect();
-
-      origX = rect.left - parentRect.left;
-      origY = rect.top - parentRect.top;
-
-      startX = e.clientX;
-      startY = e.clientY;
-
-      el.classList.add('is-dragging');
-      try { el.setPointerCapture(e.pointerId); } catch (_) {}
-    });
-
-    el.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-
-      const newX = origX + dx;
-      const newY = origY + dy;
-
-      el.style.left = `${newX}px`;
-      el.style.top = `${newY}px`;
-      el.style.bottom = 'auto';
-
-      m.posX = newX;
-      m.posY = newY;
-
-      const invWin = document.getElementById('mapInventoryWindow');
-      if (invWin) {
-        const invRect = invWin.getBoundingClientRect();
-        const isOver = (
-          e.clientX >= invRect.left &&
-          e.clientX <= invRect.right &&
-          e.clientY >= invRect.top &&
-          e.clientY <= invRect.bottom
-        );
-        if (isOver) {
-          invWin.classList.add('drag-target-hover');
-          el.classList.add('is-over-target');
-        } else {
-          invWin.classList.remove('drag-target-hover');
-          el.classList.remove('is-over-target');
-        }
-      }
-    });
-
-    const finishDrag = (e) => {
-      if (!isDragging) return;
-      isDragging = false;
-      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
-      el.classList.remove('is-dragging', 'is-over-target');
-
-      const invWin = document.getElementById('mapInventoryWindow');
-      let isCollected = false;
-
-      if (invWin) {
-        invWin.classList.remove('drag-target-hover');
-        const invRect = invWin.getBoundingClientRect();
-        if (
-          e.clientX >= invRect.left &&
-          e.clientX <= invRect.right &&
-          e.clientY >= invRect.top &&
-          e.clientY <= invRect.bottom
-        ) {
-          isCollected = true;
-        }
-      }
-
-      if (isCollected) {
-        m.harvested = true;
-
-        if (typeof clickSound === 'function') clickSound();
-        if (typeof quack === 'function') {
-          try { quack(); } catch (_) {}
-        }
-
-        if (!transferredProps.map) transferredProps.map = [];
-        transferredProps.map.push('mushrooms');
-        try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (_) {}
-        renderTransferredPropsTray('map');
-        if (typeof updateShopSellTab === 'function') updateShopSellTab();
-
-        if (typeof particles !== 'undefined') {
-          for (let i = 0; i < 10; i++) {
-            const ang = Math.random() * Math.PI * 2;
-            const spd = 60 + Math.random() * 100;
-            particles.push({
-              x: e.clientX,
-              y: e.clientY,
-              vx: Math.cos(ang) * spd,
-              vy: Math.sin(ang) * spd,
-              size: 14 + Math.random() * 8,
-              alpha: 1.1,
-              text: '🍄',
-              color: '#fbbf24'
-            });
-          }
-        }
-
-        el.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        el.style.transform = 'scale(0.2) rotate(20deg)';
-        el.style.opacity = '0';
-        setTimeout(() => el.remove(), 260);
-      } else {
-        const parentRect = el.parentElement ? el.parentElement.getBoundingClientRect() : { width: 800, height: 600 };
-        const minX = 10;
-        const maxX = Math.max(minX, parentRect.width - (el.offsetWidth || 80) - 10);
-        const minY = 10;
-        const maxY = Math.max(minY, parentRect.height - (el.offsetHeight || 60) - 10);
-
-        const clampedX = Math.max(minX, Math.min(maxX, m.posX || origX));
-        const clampedY = Math.max(minY, Math.min(maxY, m.posY || origY));
-
-        m.posX = clampedX;
-        m.posY = clampedY;
-        el.style.left = `${clampedX}px`;
-        el.style.top = `${clampedY}px`;
-      }
-    };
-
-    el.addEventListener('pointerup', finishDrag);
-    el.addEventListener('pointercancel', finishDrag);
-  }
-
-  // Сохраняем функции для программного/тестового вызова
-  window.harvestForestMushroom = function(e, mId) {
-    const m = forestMushroomsData.find(item => item.id === mId);
-    if (!m || m.harvested) return;
-    m.popped = true;
-    m.harvested = true;
-    if (!transferredProps.map) transferredProps.map = [];
-    transferredProps.map.push('mushrooms');
-    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (_) {}
-    renderTransferredPropsTray('map');
-    if (typeof updateShopSellTab === 'function') updateShopSellTab();
-  };
-
-  window.harvestForestMushrooms = function(e) {
-    const available = forestMushroomsData.find(item => !item.harvested);
-    if (available) {
-      window.harvestForestMushroom(e, available.id);
+    if (isForestTreeSpawned) {
+      if (hotspot) hotspot.style.display = 'none';
+      const treeUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.tree) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/tree.png';
+      const treeImg = document.createElement('img');
+      treeImg.src = treeUrl;
+      treeImg.className = 'forest-interactive-tree';
+      treeImg.alt = 'Дерево';
+      treeImg.draggable = false;
+      treeImg.setAttribute('referrerpolicy', 'no-referrer');
+      treeImg.title = 'Кликните, чтобы рубить дерево';
+      treeImg.addEventListener('click', (e) => chopForestTree(e));
+      treeContainer.appendChild(treeImg);
+    } else {
+      if (hotspot) hotspot.style.display = 'flex';
     }
-  };
+
+    renderForestWoodLogs();
+  }
+  window.renderForestTree = renderForestTree;
 
   function chopForestWood(event) {
     if (event) {
@@ -3250,9 +3354,33 @@
     consumeMapEnergy();
     if (typeof clickSound === 'function') clickSound();
 
-    const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerForest .map-location-btn');
-    const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+    isForestTreeSpawned = true;
+    renderForestTree();
 
+    if (typeof showAchvToast === 'function') {
+      showAchvToast('Дерево найдено! 🌲', 'Кликайте по дереву, чтобы нарубить бревен.', '🪓');
+    }
+  }
+  window.chopForestWood = chopForestWood;
+
+  function chopForestTree(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    const tree = document.querySelector('.forest-interactive-tree');
+    if (tree) {
+      tree.classList.remove('is-chopped');
+      void tree.offsetWidth;
+      tree.classList.add('is-chopped');
+    }
+
+    if (typeof clickSound === 'function') clickSound();
+    if (typeof corkPopSound === 'function') {
+      try { corkPopSound(); } catch (_) {}
+    }
+
+    const br = tree ? tree.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
     if (typeof particles !== 'undefined') {
       const symbols = ['🪵', '🪓', '🌲', '✨'];
       for (let i = 0; i < 10; i++) {
@@ -3271,13 +3399,88 @@
       }
     }
 
-    if (!transferredProps.map) transferredProps.map = [];
-    transferredProps.map.push('wood');
-    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (e) {}
-    renderTransferredPropsTray('map');
-    if (typeof updateShopSellTab === 'function') updateShopSellTab();
+    // Спавним вылетающее бревно
+    spawnWoodLog();
   }
-  window.chopForestWood = chopForestWood;
+  window.chopForestTree = chopForestTree;
+
+  function spawnWoodLog() {
+    const woodContainer = document.getElementById('forestWoodContainer');
+    if (!woodContainer) return;
+
+    const woodUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.wood) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/wood.png';
+    const logId = forestWoodItemsData.length;
+    const logData = {
+      id: logId,
+      harvested: false,
+      posX: Math.max(30, Math.min(woodContainer.clientWidth - 110, woodContainer.clientWidth * 0.52 + (Math.random() - 0.5) * 60)),
+      posY: Math.max(30, Math.min(woodContainer.clientHeight - 90, woodContainer.clientHeight * 0.68 + (Math.random() - 0.5) * 40))
+    };
+    forestWoodItemsData.push(logData);
+
+    const woodEl = document.createElement('img');
+    woodEl.src = woodUrl;
+    woodEl.alt = 'Древесина';
+    woodEl.className = 'popped-mushroom mushroom-pop-anim';
+    woodEl.draggable = false;
+    woodEl.setAttribute('referrerpolicy', 'no-referrer');
+    woodEl.style.left = `${logData.posX}px`;
+    woodEl.style.top = `${logData.posY}px`;
+
+    woodContainer.appendChild(woodEl);
+    initMapItemDrag(woodEl, 'wood', logData);
+    setTimeout(() => {
+      if (woodEl) woodEl.classList.remove('mushroom-pop-anim');
+    }, 650);
+  }
+
+  function renderForestWoodLogs() {
+    const woodContainer = document.getElementById('forestWoodContainer');
+    if (!woodContainer) return;
+    woodContainer.innerHTML = '';
+    const woodUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.wood) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/wood.png';
+
+    forestWoodItemsData.forEach(log => {
+      if (log.harvested) return;
+      const woodEl = document.createElement('img');
+      woodEl.src = woodUrl;
+      woodEl.alt = 'Древесина';
+      woodEl.className = 'popped-mushroom';
+      woodEl.draggable = false;
+      woodEl.setAttribute('referrerpolicy', 'no-referrer');
+      woodEl.style.left = `${log.posX}px`;
+      woodEl.style.top = `${log.posY}px`;
+      woodContainer.appendChild(woodEl);
+      initMapItemDrag(woodEl, 'wood', log);
+    });
+  }
+
+  /* ---------- Скала в пещере ---------- */
+  function renderCaveRock() {
+    const rockContainer = document.getElementById('caveRockContainer');
+    const hotspot = document.getElementById('caveDigHotspot');
+    if (!rockContainer) return;
+    rockContainer.innerHTML = '';
+
+    if (isCaveRockSpawned) {
+      if (hotspot) hotspot.style.display = 'none';
+      const rockUrl = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.rock) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/rock.png';
+      const rockImg = document.createElement('img');
+      rockImg.src = rockUrl;
+      rockImg.className = 'cave-interactive-rock';
+      rockImg.alt = 'Скала';
+      rockImg.draggable = false;
+      rockImg.setAttribute('referrerpolicy', 'no-referrer');
+      rockImg.title = 'Каменная глыба';
+      rockImg.addEventListener('click', (e) => {
+        if (typeof clickSound === 'function') clickSound();
+      });
+      rockContainer.appendChild(rockImg);
+    } else {
+      if (hotspot) hotspot.style.display = 'flex';
+    }
+  }
+  window.renderCaveRock = renderCaveRock;
 
   function startCaveDigging(event) {
     if (event) {
@@ -3294,14 +3497,16 @@
     consumeMapEnergy();
     if (typeof clickSound === 'function') clickSound();
 
-    const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerCave .map-location-btn');
-    const br = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+    isCaveRockSpawned = true;
+    renderCaveRock();
 
+    const rockEl = document.querySelector('.cave-interactive-rock');
+    const br = rockEl ? rockEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
     if (typeof particles !== 'undefined') {
       const symbols = ['⛏️', '💎', '🪙', '🪨', '✨'];
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 14; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const spd = 60 + Math.random() * 140;
+        const spd = 60 + Math.random() * 120;
         particles.push({
           x: br.left + br.width / 2,
           y: br.top + br.height / 2,
@@ -3310,17 +3515,32 @@
           size: 15 + Math.random() * 8,
           alpha: 1.2,
           text: symbols[Math.floor(Math.random() * symbols.length)],
-          color: '#38bdf8'
+          color: '#94a3b8'
         });
       }
     }
-
-    const foundDuckles = 1500;
-    if (typeof earnDuckles === 'function') {
-      earnDuckles(foundDuckles);
-    }
   }
   window.startCaveDigging = startCaveDigging;
+
+  // Обратная совместимость для тестов
+  window.harvestForestMushroom = function(e, mId) {
+    const m = forestMushroomsData.find(item => item.id === mId);
+    if (!m || m.harvested) return;
+    m.popped = true;
+    m.harvested = true;
+    if (!transferredProps.map) transferredProps.map = [];
+    transferredProps.map.push('mushrooms');
+    try { Storage.setJSON(TRANSFERRED_PROPS_KEY, transferredProps); } catch (_) {}
+    renderTransferredPropsTray('map');
+    if (typeof updateShopSellTab === 'function') updateShopSellTab();
+  };
+
+  window.harvestForestMushrooms = function(e) {
+    const available = forestMushroomsData.find(item => !item.harvested);
+    if (available) {
+      window.harvestForestMushroom(e, available.id);
+    }
+  };
 
   function closeMapModal() {
     const modal = document.getElementById('mapModal');

@@ -4578,6 +4578,201 @@ body.has-character-dialog #duck {
     box-shadow: 0 0 24px rgba(74, 222, 128, 0.65), 0 8px 24px rgba(0, 0, 0, 0.8) !important;
   }
 
+  
+  /* Контейнеры интерактивных предметов в лесу и пещере */
+  .forest-tree-container,
+  .forest-wood-container,
+  .cave-rock-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 18;
+  }
+  .forest-tree-container > *,
+  .forest-wood-container > *,
+  .cave-rock-container > * {
+    pointer-events: auto;
+  }
+
+  /* Интерактивное дерево в лесу */
+  .forest-interactive-tree {
+    position: absolute;
+    right: 12%;
+    bottom: 8%;
+    width: clamp(120px, 18vw, 210px);
+    height: auto;
+    object-fit: contain;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    z-index: 19;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.4));
+    transition: transform .15s ease, filter .18s ease;
+    animation: treeSpawnBounce .5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .forest-interactive-tree:hover {
+    transform: scale(1.06);
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px rgba(74, 222, 128, 0.85));
+  }
+  .forest-interactive-tree.is-chopped {
+    animation: treeChopWobble .32s ease;
+  }
+  @keyframes treeSpawnBounce {
+    0% { transform: scale(0.3); opacity: 0; }
+    70% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes treeChopWobble {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(0.96) rotate(-5deg); }
+    50% { transform: scale(1.04) rotate(4deg); }
+    75% { transform: scale(0.98) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  /* Интерактивная скала в пещере */
+  .cave-interactive-rock {
+    position: absolute;
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+    width: clamp(110px, 17vw, 190px);
+    height: auto;
+    object-fit: contain;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    z-index: 19;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 16px rgba(148, 163, 184, 0.4));
+    transition: transform .15s ease, filter .18s ease;
+    animation: rockSpawnDust .5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .cave-interactive-rock:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 22px rgba(203, 213, 225, 0.8));
+  }
+  .cave-interactive-rock:active {
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+  @keyframes rockSpawnDust {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  /* Универсальный плавающий прокси при перетаскивании (fixed, поверх всего экрана) */
+  .dragging-map-item-proxy {
+    position: fixed;
+    z-index: 999999;
+    pointer-events: none;
+    user-select: none;
+    object-fit: contain;
+    transition: transform .06s ease, filter .15s ease;
+  }
+
+  /* Всплывающее приветственное окно описания локации */
+  .map-location-intro-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 7, 15, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: introFadeIn .24s ease-out;
+  }
+  @keyframes introFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .map-location-intro-dialog {
+    width: min(88%, 460px);
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.98));
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(245, 158, 11, 0.35);
+    text-align: center;
+    animation: introDialogZoom .28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes introDialogZoom {
+    from { transform: scale(0.85) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .map-location-intro-title {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 14px;
+    color: #fef08a;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .map-location-intro-body {
+    margin: 8px 0 18px 0;
+  }
+  .map-location-intro-text {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 10px;
+    line-height: 1.7;
+    color: #e2e8f0;
+    margin: 0;
+    text-align: center;
+  }
+  .map-location-intro-footer {
+    display: flex;
+    justify-content: center;
+  }
+  .map-location-intro-btn {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 11px;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #0f172a;
+    border: 2px solid #fef08a;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(251, 191, 36, 0.5);
+    transition: transform .18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow .18s ease;
+  }
+  .map-location-intro-btn:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 24px rgba(251, 191, 36, 0.8);
+  }
+  .map-location-intro-btn:active {
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    .map-location-intro-dialog {
+      padding: 16px 14px;
+      width: 90%;
+    }
+    .map-location-intro-title {
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .map-location-intro-text {
+      font-size: 8px;
+      line-height: 1.6;
+    }
+    .map-location-intro-btn {
+      font-size: 9px;
+      padding: 8px 16px;
+    }
+    .forest-interactive-tree {
+      width: clamp(95px, 22vw, 150px);
+      right: 6%;
+      bottom: 8%;
+    }
+    .cave-interactive-rock {
+      width: clamp(85px, 20vw, 130px);
+    }
+  }
+
   /* Анимация летящего гриба в инвентарь */
   .flying-mushroom-anim {
     position: fixed;
