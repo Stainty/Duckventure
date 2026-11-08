@@ -156,9 +156,17 @@ window.addEventListener('load', () => {
         report.mapInventoryTrayExists = !!document.getElementById('mapInventoryTray');
         const hotspots = document.querySelectorAll('.map-hotspot');
         report.mapHotspotsCount = hotspots.length;
-        hotspots.forEach(h => {
-            const btn = h.querySelector('button');
-            if (btn) btn.click();
+        // Test switching to a location (e.g. forest)
+        onMapLocationClick('forest', 'Лес');
+        report.locationSwitched = (currentMapScreen === 'forest' && document.getElementById('mapBackBtn').style.display !== 'none');
+        // Test back button
+        document.getElementById('mapBackBtn').click();
+        report.returnedToWorldMap = (currentMapScreen === 'map' && document.getElementById('mapBackBtn').style.display === 'none');
+
+        // Test all other locations without error
+        ['cave', 'village', 'polyana', 'lake'].forEach(loc => {
+            onMapLocationClick(loc, loc);
+            returnToWorldMap();
         });
         closeMapModal();
         report.mapModalClosed = (document.getElementById('mapModal').style.display === 'none' && !isMapModalOpen);

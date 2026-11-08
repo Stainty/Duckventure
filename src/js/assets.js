@@ -42,7 +42,13 @@
     },
     pixelmap: {
       map: CDN_BASE + 'pixelmap/map.jfif',
-      exit: CDN_BASE + 'pixelmap/exit.png'
+      exit: CDN_BASE + 'pixelmap/exit.png',
+      back: CDN_BASE + 'pixelmap/back.png',
+      forest: CDN_BASE + 'pixelmap/forest.jfif',
+      cave: CDN_BASE + 'pixelmap/cave.jfif',
+      lake: CDN_BASE + 'pixelmap/lake.jfif',
+      polyana: CDN_BASE + 'pixelmap/polyana.jfif',
+      village: CDN_BASE + 'pixelmap/village.jfif'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',

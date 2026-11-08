@@ -907,50 +907,64 @@
         <div class="map-modal-frame" id="mapModalFrame">
           <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
 
-          <!-- Кнопки локаций, появляющиеся при наведении -->
-          <!-- Лево верх: Лес -->
-          <div class="map-hotspot map-hotspot-forest" style="left: 20%; top: 22%;" data-location="forest">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('forest', 'Лес')">
-              <span class="map-loc-icon">🌲</span>
-              <span class="map-loc-text">Лес</span>
-            </button>
+          <!-- Слой кнопок локаций карты мира -->
+          <div class="map-hotspots-layer" id="mapHotspotsLayer">
+            <!-- Лево верх: Лес -->
+            <div class="map-hotspot map-hotspot-forest" style="left: 20%; top: 22%;" data-location="forest">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('forest', 'Лес')">
+                <span class="map-loc-icon">🌲</span>
+                <span class="map-loc-text">Лес</span>
+              </button>
+            </div>
+
+            <!-- Лево низ: Пещера -->
+            <div class="map-hotspot map-hotspot-cave" style="left: 22%; top: 68%;" data-location="cave">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('cave', 'Пещера')">
+                <span class="map-loc-icon">⛰️</span>
+                <span class="map-loc-text">Пещера</span>
+              </button>
+            </div>
+
+            <!-- Низ: Деревня -->
+            <div class="map-hotspot map-hotspot-village" style="left: 50%; top: 80%;" data-location="village">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('village', 'Деревня')">
+                <span class="map-loc-icon">🏡</span>
+                <span class="map-loc-text">Деревня</span>
+              </button>
+            </div>
+
+            <!-- Право низ: Поляна -->
+            <div class="map-hotspot map-hotspot-polyana" style="left: 76%; top: 68%;" data-location="polyana">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('polyana', 'Поляна')">
+                <span class="map-loc-icon">🌸</span>
+                <span class="map-loc-text">Поляна</span>
+              </button>
+            </div>
+
+            <!-- Право верх: Озеро -->
+            <div class="map-hotspot map-hotspot-lake" style="left: 74%; top: 26%;" data-location="lake">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('lake', 'Озеро')">
+                <span class="map-loc-icon">🌊</span>
+                <span class="map-loc-text">Озеро</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Лево низ: Пещера -->
-          <div class="map-hotspot map-hotspot-cave" style="left: 22%; top: 68%;" data-location="cave">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('cave', 'Пещера')">
-              <span class="map-loc-icon">⛰️</span>
-              <span class="map-loc-text">Пещера</span>
-            </button>
-          </div>
+          <!-- Кнопка возврата на карту мира из локаций (back.png в левой нижней части карты) -->
+          <button class="map-back-btn" id="mapBackBtn" onclick="returnToWorldMap()" style="display: none;" title="Назад на карту" aria-label="Назад на карту">
+            <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/back.png" alt="◀" draggable="false" referrerpolicy="no-referrer"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+            <span style="display: none; font-size: 26px; line-height: 1; color: #fff;">◀</span>
+          </button>
 
-          <!-- Низ: Деревня -->
-          <div class="map-hotspot map-hotspot-village" style="left: 50%; top: 80%;" data-location="village">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('village', 'Деревня')">
-              <span class="map-loc-icon">🏡</span>
-              <span class="map-loc-text">Деревня</span>
-            </button>
-          </div>
-
-          <!-- Право низ: Поляна -->
-          <div class="map-hotspot map-hotspot-polyana" style="left: 76%; top: 68%;" data-location="polyana">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('polyana', 'Поляна')">
-              <span class="map-loc-icon">🌸</span>
-              <span class="map-loc-text">Поляна</span>
-            </button>
-          </div>
-
-          <!-- Право верх: Озеро -->
-          <div class="map-hotspot map-hotspot-lake" style="left: 74%; top: 26%;" data-location="lake">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('lake', 'Озеро')">
-              <span class="map-loc-icon">🌊</span>
-              <span class="map-loc-text">Озеро</span>
-            </button>
+          <!-- Бейдж с названием текущей локации -->
+          <div class="map-location-title-badge" id="mapLocationTitleBadge" style="display: none;">
+            <span id="mapLocationTitleText">Лес</span>
           </div>
         </div>
       </div>

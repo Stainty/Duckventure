@@ -4149,6 +4149,71 @@ body.has-character-dialog #duck {
     transform: scale(0.92);
   }
 
+  /* Кнопка «Назад» в локациях (back.png в левой нижней части карты) */
+  .map-back-btn {
+    position: absolute;
+    bottom: 18px;
+    left: 18px;
+    width: 54px;
+    height: 54px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 25;
+    padding: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: transform .18s cubic-bezier(0.34, 1.56, 0.64, 1), filter .18s ease;
+  }
+  .map-back-btn img {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+  }
+  .map-back-btn:hover {
+    transform: scale(1.15) rotate(-4deg);
+    filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.85));
+  }
+  .map-back-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* Слой кнопок локаций карты мира */
+  .map-hotspots-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .map-hotspots-layer .map-hotspot {
+    pointer-events: auto;
+  }
+
+  /* Бейдж с названием текущей локации */
+  .map-location-title-badge {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95));
+    border: 2px solid #f59e0b;
+    border-radius: 9999px;
+    padding: 6px 20px;
+    color: #fef08a;
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 16px rgba(245, 158, 11, 0.4);
+    pointer-events: none;
+    z-index: 20;
+    animation: mapTitleFadeIn .25s ease-out;
+  }
+  @keyframes mapTitleFadeIn {
+    from { opacity: 0; transform: translate(-50%, -8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+
   /* Интерактивные хотспоты и кнопки локаций на карте */
   .map-hotspot {
     position: absolute;
@@ -4283,6 +4348,21 @@ body.has-character-dialog #duck {
     .map-close-btn img {
       width: 40px;
       height: 40px;
+    }
+    .map-back-btn {
+      bottom: 10px;
+      left: 10px;
+      width: 42px;
+      height: 42px;
+    }
+    .map-back-btn img {
+      width: 42px;
+      height: 42px;
+    }
+    .map-location-title-badge {
+      top: 10px;
+      padding: 4px 14px;
+      font-size: 8.5px;
     }
     .map-hotspot {
       padding: 12px 18px;
@@ -5207,50 +5287,64 @@ body.has-character-dialog #duck {
         <div class="map-modal-frame" id="mapModalFrame">
           <img class="map-modal-img" id="mapModalImg" src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif" alt="Карта" draggable="false" referrerpolicy="no-referrer">
 
-          <!-- Кнопки локаций, появляющиеся при наведении -->
-          <!-- Лево верх: Лес -->
-          <div class="map-hotspot map-hotspot-forest" style="left: 20%; top: 22%;" data-location="forest">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('forest', 'Лес')">
-              <span class="map-loc-icon">🌲</span>
-              <span class="map-loc-text">Лес</span>
-            </button>
+          <!-- Слой кнопок локаций карты мира -->
+          <div class="map-hotspots-layer" id="mapHotspotsLayer">
+            <!-- Лево верх: Лес -->
+            <div class="map-hotspot map-hotspot-forest" style="left: 20%; top: 22%;" data-location="forest">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('forest', 'Лес')">
+                <span class="map-loc-icon">🌲</span>
+                <span class="map-loc-text">Лес</span>
+              </button>
+            </div>
+
+            <!-- Лево низ: Пещера -->
+            <div class="map-hotspot map-hotspot-cave" style="left: 22%; top: 68%;" data-location="cave">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('cave', 'Пещера')">
+                <span class="map-loc-icon">⛰️</span>
+                <span class="map-loc-text">Пещера</span>
+              </button>
+            </div>
+
+            <!-- Низ: Деревня -->
+            <div class="map-hotspot map-hotspot-village" style="left: 50%; top: 80%;" data-location="village">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('village', 'Деревня')">
+                <span class="map-loc-icon">🏡</span>
+                <span class="map-loc-text">Деревня</span>
+              </button>
+            </div>
+
+            <!-- Право низ: Поляна -->
+            <div class="map-hotspot map-hotspot-polyana" style="left: 76%; top: 68%;" data-location="polyana">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('polyana', 'Поляна')">
+                <span class="map-loc-icon">🌸</span>
+                <span class="map-loc-text">Поляна</span>
+              </button>
+            </div>
+
+            <!-- Право верх: Озеро -->
+            <div class="map-hotspot map-hotspot-lake" style="left: 74%; top: 26%;" data-location="lake">
+              <div class="map-pin-beacon" aria-hidden="true"></div>
+              <button class="map-location-btn" onclick="onMapLocationClick('lake', 'Озеро')">
+                <span class="map-loc-icon">🌊</span>
+                <span class="map-loc-text">Озеро</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Лево низ: Пещера -->
-          <div class="map-hotspot map-hotspot-cave" style="left: 22%; top: 68%;" data-location="cave">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('cave', 'Пещера')">
-              <span class="map-loc-icon">⛰️</span>
-              <span class="map-loc-text">Пещера</span>
-            </button>
-          </div>
+          <!-- Кнопка возврата на карту мира из локаций (back.png в левой нижней части карты) -->
+          <button class="map-back-btn" id="mapBackBtn" onclick="returnToWorldMap()" style="display: none;" title="Назад на карту" aria-label="Назад на карту">
+            <img src="https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/back.png" alt="◀" draggable="false" referrerpolicy="no-referrer"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
+            <span style="display: none; font-size: 26px; line-height: 1; color: #fff;">◀</span>
+          </button>
 
-          <!-- Низ: Деревня -->
-          <div class="map-hotspot map-hotspot-village" style="left: 50%; top: 80%;" data-location="village">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('village', 'Деревня')">
-              <span class="map-loc-icon">🏡</span>
-              <span class="map-loc-text">Деревня</span>
-            </button>
-          </div>
-
-          <!-- Право низ: Поляна -->
-          <div class="map-hotspot map-hotspot-polyana" style="left: 76%; top: 68%;" data-location="polyana">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('polyana', 'Поляна')">
-              <span class="map-loc-icon">🌸</span>
-              <span class="map-loc-text">Поляна</span>
-            </button>
-          </div>
-
-          <!-- Право верх: Озеро -->
-          <div class="map-hotspot map-hotspot-lake" style="left: 74%; top: 26%;" data-location="lake">
-            <div class="map-pin-beacon" aria-hidden="true"></div>
-            <button class="map-location-btn" onclick="onMapLocationClick('lake', 'Озеро')">
-              <span class="map-loc-icon">🌊</span>
-              <span class="map-loc-text">Озеро</span>
-            </button>
+          <!-- Бейдж с названием текущей локации -->
+          <div class="map-location-title-badge" id="mapLocationTitleBadge" style="display: none;">
+            <span id="mapLocationTitleText">Лес</span>
           </div>
         </div>
       </div>
@@ -5387,7 +5481,13 @@ body.has-character-dialog #duck {
     },
     pixelmap: {
       map: CDN_BASE + 'pixelmap/map.jfif',
-      exit: CDN_BASE + 'pixelmap/exit.png'
+      exit: CDN_BASE + 'pixelmap/exit.png',
+      back: CDN_BASE + 'pixelmap/back.png',
+      forest: CDN_BASE + 'pixelmap/forest.jfif',
+      cave: CDN_BASE + 'pixelmap/cave.jfif',
+      lake: CDN_BASE + 'pixelmap/lake.jfif',
+      polyana: CDN_BASE + 'pixelmap/polyana.jfif',
+      village: CDN_BASE + 'pixelmap/village.jfif'
     },
     skins: {
       default: CDN_BASE + 'skins/duck-default.png',
@@ -5781,6 +5881,8 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   window.isCharacterDialogOpen = isCharacterDialogOpen;
   let isMapModalOpen = false;
   window.isMapModalOpen = isMapModalOpen;
+  let currentMapScreen = 'map';
+  window.currentMapScreen = currentMapScreen;
   let isFoodCollapsed = true;
   let isAnimalsCollapsed = true;
   let hasSmashedEggs = Storage.getBoolean(HAS_SMASHED_EGGS_KEY, false);
@@ -13792,7 +13894,7 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
   }
   window.openMapModal = openMapModal;
 
-  /* ---------- Клики по локациям карты мира ---------- */
+  /* ---------- Клики по локациям карты мира и переход между экранами ---------- */
   function onMapLocationClick(locId, locName) {
     if (typeof clickSound === 'function') clickSound();
     const locNames = {
@@ -13803,6 +13905,32 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
       lake: 'Озеро'
     };
     const name = locName || locNames[locId] || locId;
+
+    const locImages = {
+      forest: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.forest) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/forest.jfif',
+      cave: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.cave) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/cave.jfif',
+      lake: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.lake) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/lake.jfif',
+      polyana: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.polyana) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/polyana.jfif',
+      village: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.village) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/village.jfif',
+      map: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif'
+    };
+
+    const mapImg = document.getElementById('mapModalImg');
+    const hotspotsLayer = document.getElementById('mapHotspotsLayer');
+    const backBtn = document.getElementById('mapBackBtn');
+    const titleBadge = document.getElementById('mapLocationTitleBadge');
+    const titleText = document.getElementById('mapLocationTitleText');
+
+    if (locImages[locId] && mapImg) {
+      mapImg.src = locImages[locId];
+      currentMapScreen = locId;
+      window.currentMapScreen = locId;
+
+      if (hotspotsLayer) hotspotsLayer.style.display = 'none';
+      if (backBtn) backBtn.style.display = 'flex';
+      if (titleText) titleText.textContent = name;
+      if (titleBadge) titleBadge.style.display = 'block';
+    }
 
     const hotspot = document.querySelector(`.map-hotspot[data-location="${locId}"]`);
     if (hotspot && typeof particles !== 'undefined') {
@@ -13815,9 +13943,9 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         lake: '🌊'
       };
       const sym = icons[locId] || '✨';
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 12; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const spd = 70 + Math.random() * 120;
+        const spd = 70 + Math.random() * 140;
         particles.push({
           x: hr.left + hr.width / 2,
           y: hr.top + hr.height / 2,
@@ -13830,18 +13958,58 @@ let quackCount = Storage.getNumber(QUACK_KEY, 0, 0);
         });
       }
     }
-
-    if (typeof showGameHintAlert === 'function') {
-      showGameHintAlert(`Локация: ${name}`, 'Исследование мира станет доступно в следующих обновлениях!', '🗺️', 4000);
-    }
   }
   window.onMapLocationClick = onMapLocationClick;
+
+  /* ---------- Возврат на карту мира из локаций ---------- */
+  function returnToWorldMap() {
+    if (typeof clickSound === 'function') clickSound();
+
+    const mapImg = document.getElementById('mapModalImg');
+    const hotspotsLayer = document.getElementById('mapHotspotsLayer');
+    const backBtn = document.getElementById('mapBackBtn');
+    const titleBadge = document.getElementById('mapLocationTitleBadge');
+
+    const defaultMapSrc = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif';
+    if (mapImg) {
+      mapImg.src = defaultMapSrc;
+    }
+
+    currentMapScreen = 'map';
+    window.currentMapScreen = 'map';
+
+    if (hotspotsLayer) hotspotsLayer.style.display = 'block';
+    if (backBtn) backBtn.style.display = 'none';
+    if (titleBadge) titleBadge.style.display = 'none';
+
+    if (backBtn && typeof particles !== 'undefined') {
+      const br = backBtn.getBoundingClientRect();
+      for (let i = 0; i < 8; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 50 + Math.random() * 100;
+        particles.push({
+          x: br.left + br.width / 2,
+          y: br.top + br.height / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 14 + Math.random() * 8,
+          alpha: 1.1,
+          text: '✨',
+          color: '#60a5fa'
+        });
+      }
+    }
+  }
+  window.returnToWorldMap = returnToWorldMap;
 
   function closeMapModal() {
     const modal = document.getElementById('mapModal');
     if (modal) {
       modal.classList.remove('open');
       modal.style.display = 'none';
+    }
+    if (typeof returnToWorldMap === 'function') {
+      returnToWorldMap();
     }
     isMapModalOpen = false;
     window.isMapModalOpen = false;

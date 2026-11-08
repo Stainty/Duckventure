@@ -2702,7 +2702,7 @@
   }
   window.openMapModal = openMapModal;
 
-  /* ---------- Клики по локациям карты мира ---------- */
+  /* ---------- Клики по локациям карты мира и переход между экранами ---------- */
   function onMapLocationClick(locId, locName) {
     if (typeof clickSound === 'function') clickSound();
     const locNames = {
@@ -2713,6 +2713,32 @@
       lake: 'Озеро'
     };
     const name = locName || locNames[locId] || locId;
+
+    const locImages = {
+      forest: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.forest) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/forest.jfif',
+      cave: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.cave) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/cave.jfif',
+      lake: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.lake) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/lake.jfif',
+      polyana: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.polyana) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/polyana.jfif',
+      village: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.village) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/village.jfif',
+      map: (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif'
+    };
+
+    const mapImg = document.getElementById('mapModalImg');
+    const hotspotsLayer = document.getElementById('mapHotspotsLayer');
+    const backBtn = document.getElementById('mapBackBtn');
+    const titleBadge = document.getElementById('mapLocationTitleBadge');
+    const titleText = document.getElementById('mapLocationTitleText');
+
+    if (locImages[locId] && mapImg) {
+      mapImg.src = locImages[locId];
+      currentMapScreen = locId;
+      window.currentMapScreen = locId;
+
+      if (hotspotsLayer) hotspotsLayer.style.display = 'none';
+      if (backBtn) backBtn.style.display = 'flex';
+      if (titleText) titleText.textContent = name;
+      if (titleBadge) titleBadge.style.display = 'block';
+    }
 
     const hotspot = document.querySelector(`.map-hotspot[data-location="${locId}"]`);
     if (hotspot && typeof particles !== 'undefined') {
@@ -2725,9 +2751,9 @@
         lake: '🌊'
       };
       const sym = icons[locId] || '✨';
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 12; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const spd = 70 + Math.random() * 120;
+        const spd = 70 + Math.random() * 140;
         particles.push({
           x: hr.left + hr.width / 2,
           y: hr.top + hr.height / 2,
@@ -2740,18 +2766,58 @@
         });
       }
     }
-
-    if (typeof showGameHintAlert === 'function') {
-      showGameHintAlert(`Локация: ${name}`, 'Исследование мира станет доступно в следующих обновлениях!', '🗺️', 4000);
-    }
   }
   window.onMapLocationClick = onMapLocationClick;
+
+  /* ---------- Возврат на карту мира из локаций ---------- */
+  function returnToWorldMap() {
+    if (typeof clickSound === 'function') clickSound();
+
+    const mapImg = document.getElementById('mapModalImg');
+    const hotspotsLayer = document.getElementById('mapHotspotsLayer');
+    const backBtn = document.getElementById('mapBackBtn');
+    const titleBadge = document.getElementById('mapLocationTitleBadge');
+
+    const defaultMapSrc = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.map) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/map.jfif';
+    if (mapImg) {
+      mapImg.src = defaultMapSrc;
+    }
+
+    currentMapScreen = 'map';
+    window.currentMapScreen = 'map';
+
+    if (hotspotsLayer) hotspotsLayer.style.display = 'block';
+    if (backBtn) backBtn.style.display = 'none';
+    if (titleBadge) titleBadge.style.display = 'none';
+
+    if (backBtn && typeof particles !== 'undefined') {
+      const br = backBtn.getBoundingClientRect();
+      for (let i = 0; i < 8; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 50 + Math.random() * 100;
+        particles.push({
+          x: br.left + br.width / 2,
+          y: br.top + br.height / 2,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 14 + Math.random() * 8,
+          alpha: 1.1,
+          text: '✨',
+          color: '#60a5fa'
+        });
+      }
+    }
+  }
+  window.returnToWorldMap = returnToWorldMap;
 
   function closeMapModal() {
     const modal = document.getElementById('mapModal');
     if (modal) {
       modal.classList.remove('open');
       modal.style.display = 'none';
+    }
+    if (typeof returnToWorldMap === 'function') {
+      returnToWorldMap();
     }
     isMapModalOpen = false;
     window.isMapModalOpen = false;
