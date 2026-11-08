@@ -1076,20 +1076,17 @@
             <!-- Имена говорящих персонажей над карточкой -->
             <div class="sim-speaker-name speaker-left" id="simSpeakerNameLeft" style="display: none;">
               <span class="sim-speaker-badge">
-                <span style="font-size: 10px;">🗣️</span>
                 <span id="simSpeakerTextLeft">Утка</span>
               </span>
             </div>
             <div class="sim-speaker-name speaker-right" id="simSpeakerNameRight" style="display: none;">
               <span class="sim-speaker-badge">
                 <span id="simSpeakerTextRight">Подозрительная утка</span>
-                <span style="font-size: 10px;">🗣️</span>
               </span>
             </div>
 
             <div class="sim-header">
               <div class="sim-badge" id="simBadge">
-                <span id="simBadgeIcon">✨</span>
                 <span id="simBadgeText">Duckventure</span>
                 <span id="simBadgeHiddenTag" class="badge-hidden-indicator" style="display: none;">скрыт в игре</span>
               </div>
@@ -2116,16 +2113,11 @@
 
       // Заголовок и бейдж
       const badgeEl = document.getElementById('simBadge');
-      const badgeIcon = document.getElementById('simBadgeIcon');
       badgeEl.className = 'sim-badge';
       if (nodeType === 'intro') {
         badgeEl.classList.add('badge-intro');
-        badgeIcon.textContent = '🌅';
       } else if (nodeType === 'outro') {
         badgeEl.classList.add('badge-outro');
-        badgeIcon.textContent = '👋';
-      } else {
-        badgeIcon.textContent = '✨';
       }
 
       document.getElementById('simBadgeText').textContent = node.title || dialogData.title || 'Duckventure';
