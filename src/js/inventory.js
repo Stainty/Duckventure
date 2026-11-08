@@ -2709,22 +2709,118 @@
   let mapEnergy = MAX_MAP_ENERGY;
   window.mapEnergy = mapEnergy;
 
-  function updateMapEnergyUI() {
-    window.mapEnergy = mapEnergy;
-    const valEl = document.getElementById('mapEnergyVal');
-    const badgeEl = document.getElementById('mapEnergyBadge');
-    if (valEl) {
-      valEl.textContent = `${mapEnergy} / ${MAX_MAP_ENERGY}`;
+  function animateEnergyFlyAway(sourceEl) {
+    if (!sourceEl) return;
+    const rect = sourceEl.getBoundingClientRect();
+    const flyEl = document.createElement('img');
+    flyEl.src = sourceEl.src;
+    flyEl.className = 'flying-energy-icon';
+    flyEl.style.position = 'fixed';
+    flyEl.style.left = rect.left + 'px';
+    flyEl.style.top = rect.top + 'px';
+    flyEl.style.width = rect.width + 'px';
+    flyEl.style.height = rect.height + 'px';
+    flyEl.style.zIndex = '999999';
+    flyEl.style.pointerEvents = 'none';
+    flyEl.style.userSelect = 'none';
+    flyEl.style.filter = 'drop-shadow(0 0 12px rgba(56, 189, 248, 1)) drop-shadow(0 4px 12px rgba(0,0,0,0.75))';
+    document.body.appendChild(flyEl);
+
+    let posX = rect.left;
+    let posY = rect.top;
+    const ang = 0.25 + Math.random() * 0.55;
+    const speed = 280 + Math.random() * 140;
+    const vx = Math.cos(ang) * speed;
+    let vy = -Math.sin(ang) * speed;
+    let rot = 0;
+    const rotSpeed = 7 + Math.random() * 8;
+    let opacity = 1;
+    let scale = 1.15;
+    let lastTime = performance.now();
+
+    function step(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      vy += 650 * dt;
+      posX += vx * dt;
+      posY += vy * dt;
+      rot += rotSpeed * dt * 50;
+
+      if (vy > 0) {
+        opacity -= 1.6 * dt;
+        scale -= 0.5 * dt;
+      }
+
+      flyEl.style.transform = `translate(${posX - rect.left}px, ${posY - rect.top}px) rotate(${rot}deg) scale(${Math.max(0.1, scale)})`;
+      flyEl.style.opacity = Math.max(0, opacity);
+
+      if (opacity > 0 && posY < window.innerHeight + 100) {
+        requestAnimationFrame(step);
+      } else {
+        if (flyEl.parentNode) flyEl.parentNode.removeChild(flyEl);
+      }
     }
+    requestAnimationFrame(step);
+  }
+  window.animateEnergyFlyAway = animateEnergyFlyAway;
+
+  function updateMapEnergyUI(shouldAnimateFly = false) {
+    window.mapEnergy = mapEnergy;
+    const badgeEl = document.getElementById('mapEnergyBadge');
+    const container = document.getElementById('mapEnergyIcons');
+    if (!container) return;
+
     if (badgeEl) {
       if (mapEnergy <= 0) {
         badgeEl.classList.add('depleted');
+        badgeEl.title = 'Энергия закончилась! Перезайдите в карту для восстановления';
       } else {
         badgeEl.classList.remove('depleted');
+        badgeEl.title = `Энергия: ${mapEnergy}`;
+      }
+    }
+
+    const currentIcons = container.querySelectorAll('.map-energy-icon');
+    const currentCount = currentIcons.length;
+
+    if (shouldAnimateFly && currentCount > mapEnergy) {
+      // The rightmost active icon flies away with achievement-style animation
+      const iconToFly = currentIcons[currentCount - 1];
+      if (iconToFly) {
+        animateEnergyFlyAway(iconToFly);
+        iconToFly.remove();
+      }
+      if (mapEnergy === 0) {
+        container.innerHTML = '<span class="map-energy-empty-placeholder" title="0 энергии">⚡</span>';
+      }
+    } else {
+      container.innerHTML = '';
+      if (mapEnergy === 0) {
+        container.innerHTML = '<span class="map-energy-empty-placeholder" title="0 энергии">⚡</span>';
+      } else {
+        const iconSrc = (window.ASSETS && ASSETS.pixelmap && ASSETS.pixelmap.energyIcon) || 'https://cdn.jsdelivr.net/gh/Stainty/Duckventure@master/src/assets/images/pixelmap/energy-icon.png';
+        for (let i = 0; i < mapEnergy; i++) {
+          const img = document.createElement('img');
+          img.src = iconSrc;
+          img.alt = '⚡';
+          img.className = 'map-energy-icon';
+          img.draggable = false;
+          img.setAttribute('referrerpolicy', 'no-referrer');
+          container.appendChild(img);
+        }
       }
     }
   }
   window.updateMapEnergyUI = updateMapEnergyUI;
+
+  function consumeMapEnergy() {
+    if (mapEnergy <= 0) return false;
+    mapEnergy -= 1;
+    updateMapEnergyUI(true);
+    return true;
+  }
+  window.consumeMapEnergy = consumeMapEnergy;
 
   function shakeMapEnergy() {
     const badgeEl = document.getElementById('mapEnergyBadge');
@@ -2755,7 +2851,7 @@
   }
   window.shakeMapEnergy = shakeMapEnergy;
 
-/* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
+  /* ---------- Клики по локациям карты мира и навигация между экранами ---------- */
   const MAP_LOC_NAMES = {
     map: 'Карта мира',
     forest: 'Лес',
@@ -2843,8 +2939,7 @@
         }
         return;
       }
-      mapEnergy -= 1;
-      updateMapEnergyUI();
+      consumeMapEnergy();
     }
     if (typeof clickSound === 'function') clickSound();
     showMapScreen(locId);
@@ -2938,8 +3033,7 @@
       }
       return;
     }
-    mapEnergy -= 1;
-    updateMapEnergyUI();
+    consumeMapEnergy();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerForest .map-location-btn');
@@ -2983,8 +3077,7 @@
       }
       return;
     }
-    mapEnergy -= 1;
-    updateMapEnergyUI();
+    consumeMapEnergy();
     if (typeof clickSound === 'function') clickSound();
 
     const btn = (event && event.currentTarget) || document.querySelector('#mapSublayerCave .map-location-btn');
